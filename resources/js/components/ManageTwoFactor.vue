@@ -10,13 +10,9 @@ import { Button } from '@/components/ui/button';
 import { useTwoFactorAuth } from '@/composables/useTwoFactorAuth';
 import { disable, enable } from '@/routes/two-factor';
 
-export type Props = {
-    canManageTwoFactor?: boolean;
-    requiresConfirmation?: boolean;
-    twoFactorEnabled?: boolean;
-};
+import type { ManageTwoFactorProps } from '@/types';
 
-withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<ManageTwoFactorProps>(), {
     canManageTwoFactor: false,
     requiresConfirmation: false,
     twoFactorEnabled: false,

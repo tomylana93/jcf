@@ -10,12 +10,8 @@ use Illuminate\Validation\Rules\Unique;
 
 trait ProfileValidationRules
 {
-    /**
-     * Get the validation rules used to validate user profiles.
-     *
-     * @return array<string, array<int, Unique|string>>
-     */
-    protected function profileRules(?int $userId = null): array
+    /** @return array{name: list<string>, email: list<Unique|string>} */
+    protected function profileRules(?string $userId = null): array
     {
         return [
             'name' => $this->nameRules(),
@@ -23,22 +19,14 @@ trait ProfileValidationRules
         ];
     }
 
-    /**
-     * Get the validation rules used to validate user names.
-     *
-     * @return array<int, string>
-     */
+    /** @return list<string> */
     protected function nameRules(): array
     {
         return ['required', 'string', 'max:255'];
     }
 
-    /**
-     * Get the validation rules used to validate user emails.
-     *
-     * @return array<int, Unique|string>
-     */
-    protected function emailRules(?int $userId = null): array
+    /** @return list<Unique|string> */
+    protected function emailRules(?string $userId = null): array
     {
         return [
             'required',

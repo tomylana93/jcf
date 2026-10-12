@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Enums\Role;
+use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Spatie\Permission\PermissionRegistrar;
 
 final class AppServiceProvider extends ServiceProvider
 {
@@ -26,6 +30,18 @@ final class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+
+        Gate::before(function (User $user, string $ability, array $arguments): ?bool {
+            if ($arguments !== []) {
+                return null;
+            }
+
+            if (resolve(PermissionRegistrar::class)->getPermissions(['name' => $ability, 'guard_name' => 'web'])->isEmpty()) {
+                return null;
+            }
+
+            return $user->hasRole(Role::SuperAdmin) || $user->checkPermissionTo($ability);
+        });
     }
 
     /**

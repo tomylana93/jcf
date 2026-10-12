@@ -13,7 +13,7 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 
-import type { Passkey } from '@/types/auth';
+import type { Passkey } from '@/types';
 
 const props = defineProps<{
     passkey: Passkey;

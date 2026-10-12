@@ -7,14 +7,9 @@ import Heading from '@/components/Heading.vue';
 import PasskeyItem from '@/components/PasskeyItem.vue';
 import PasskeyRegister from '@/components/PasskeyRegister.vue';
 
-import type { Passkey } from '@/types/auth';
+import type { ManagePasskeysProps } from '@/types';
 
-export type Props = {
-    canManagePasskeys?: boolean;
-    passkeys?: Passkey[];
-};
-
-withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<ManagePasskeysProps>(), {
     canManagePasskeys: false,
     passkeys: () => [],
 });
