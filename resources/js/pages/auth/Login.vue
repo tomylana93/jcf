@@ -1,110 +1,146 @@
 <script setup lang="ts">
-import { Form, Head } from '@inertiajs/vue3';
-import PasskeyVerify from '@/components/auth/passkeys/PasskeyVerify.vue';
-import InputError from '@/components/shared/InputError.vue';
-import PasswordInput from '@/components/shared/PasswordInput.vue';
-import TextLink from '@/components/shared/TextLink.vue';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Spinner } from '@/components/ui/spinner';
-import { register } from '@/routes';
-import { store } from '@/routes/login';
-import { request } from '@/routes/password';
+import { useForm, Head, Link, setLayoutProps } from '@inertiajs/vue3';
+import { Mail } from '@lucide/vue';
+import { watchEffect } from 'vue';
 
-defineOptions({
-    layout: {
-        title: 'Log in to your account',
-        description: 'Enter your email and password below to log in',
-    },
+import { store } from '@/actions/Laravel/Fortify/Http/Controllers/AuthenticatedSessionController';
+import PasskeyVerify from '@/components/auth/passkeys/PasskeyVerify.vue';
+import PasswordInput from '@/components/shared/PasswordInput.vue';
+import { Button } from '@/components/ui/button';
+import { Field, FieldError, FieldGroup } from '@/components/ui/field';
+import {
+    InputGroup,
+    InputGroupAddon,
+    InputGroupInput,
+} from '@/components/ui/input-group';
+import { Separator } from '@/components/ui/separator';
+import { Spinner } from '@/components/ui/spinner';
+import { useTranslations } from '@/composables/useTranslations';
+import { register } from '@/routes';
+import { request } from '@/routes/password';
+import type { LoginForm } from '@/types';
+
+const { t } = useTranslations();
+
+watchEffect(() => {
+    setLayoutProps({
+        title: t('auth.login.card.title'),
+    });
 });
 
 defineProps<{
     status?: string;
     canResetPassword: boolean;
+    canRegister: boolean;
 }>();
+
+const form = useForm<LoginForm>({
+    email: '',
+    password: '',
+});
+
+const submit = () => {
+    form.submit(store(), {
+        onSuccess: () => form.reset('password'),
+    });
+};
 </script>
 
 <template>
-    <Head title="Log in" />
+    <div>
+        <Head :title="t('auth.login.title')" />
 
-    <div
-        v-if="status"
-        class="mb-4 text-center text-sm font-medium text-green-600"
-    >
-        {{ status }}
-    </div>
+        <div
+            v-if="status"
+            class="mb-4 text-center text-sm font-medium text-green-600"
+        >
+            {{ status }}
+        </div>
 
-    <PasskeyVerify />
+        <PasskeyVerify
+            :label="t('account.passkey.button.login')"
+            :loading-label="t('account.passkey.status.verifying')"
+            :separator="t('common.helper.or')"
+        />
 
-    <Form
-        v-bind="store.form()"
-        :reset-on-success="['password']"
-        v-slot="{ errors, processing }"
-        class="flex flex-col gap-6"
-    >
-        <div class="grid gap-6">
-            <div class="grid gap-2">
-                <Label for="email">Email address</Label>
-                <Input
-                    id="email"
-                    type="email"
-                    name="email"
-                    required
-                    v-focus
-                    :tabindex="1"
-                    autocomplete="email"
-                    placeholder="email@example.com"
-                />
-                <InputError :message="errors.email" />
-            </div>
+        <form novalidate @submit.prevent="submit" class="flex flex-col gap-6">
+            <FieldGroup class="gap-6">
+                <Field :data-invalid="!!form.errors.email">
+                    <InputGroup>
+                        <InputGroupInput
+                            id="email"
+                            name="email"
+                            v-model="form.email"
+                            v-focus
+                            autocomplete="email"
+                            :aria-label="t('user.label.email')"
+                            :aria-invalid="!!form.errors.email"
+                            :aria-describedby="
+                                form.errors.email ? 'email-error' : undefined
+                            "
+                            :placeholder="t('user.placeholder.email')"
+                        />
 
-            <div class="grid gap-2">
-                <div class="flex items-center justify-between">
-                    <Label for="password">Password</Label>
-                    <TextLink
-                        v-if="canResetPassword"
-                        :href="request()"
-                        class="text-sm"
-                        :tabindex="5"
-                    >
-                        Forgot your password?
-                    </TextLink>
-                </div>
-                <PasswordInput
-                    id="password"
-                    name="password"
-                    required
-                    :tabindex="2"
-                    autocomplete="current-password"
-                    placeholder="Password"
-                />
-                <InputError :message="errors.password" />
-            </div>
+                        <InputGroupAddon>
+                            <Mail aria-hidden="true" />
+                        </InputGroupAddon>
+                    </InputGroup>
 
-            <div class="flex items-center justify-between">
-                <Label for="remember" class="flex items-center space-x-3">
-                    <Checkbox id="remember" name="remember" :tabindex="3" />
-                    <span>Remember me</span>
-                </Label>
-            </div>
+                    <FieldError
+                        id="email-error"
+                        :errors="[form.errors.email]"
+                    />
+                </Field>
+
+                <Field :data-invalid="!!form.errors.password">
+                    <PasswordInput
+                        id="password"
+                        name="password"
+                        v-model="form.password"
+                        autocomplete="current-password"
+                        :aria-label="t('user.label.password')"
+                        :aria-invalid="!!form.errors.password"
+                        :aria-describedby="
+                            form.errors.password ? 'password-error' : undefined
+                        "
+                        :placeholder="t('user.placeholder.password')"
+                    />
+
+                    <FieldError
+                        id="password-error"
+                        :errors="[form.errors.password]"
+                    />
+                </Field>
+
+                <Button
+                    type="submit"
+                    :disabled="form.processing"
+                    data-test="login-button"
+                >
+                    <Spinner v-if="form.processing" />
+                    {{ t('auth.button.login') }}
+                </Button>
+            </FieldGroup>
 
             <Button
-                type="submit"
-                class="mt-4 w-full"
-                :tabindex="4"
-                :disabled="processing"
-                data-test="login-button"
+                v-if="canResetPassword"
+                :as="Link"
+                :href="request()"
+                variant="ghost"
             >
-                <Spinner v-if="processing" />
-                Log in
+                {{ t('auth.button.forgot_password') }}
             </Button>
-        </div>
 
-        <div class="text-center text-sm text-muted-foreground">
-            Don't have an account?
-            <TextLink :href="register()" :tabindex="5">Sign up</TextLink>
-        </div>
-    </Form>
+            <Separator v-if="canRegister" />
+
+            <Button
+                v-if="canRegister"
+                :as="Link"
+                :href="register()"
+                variant="secondary"
+            >
+                {{ t('auth.button.register') }}
+            </Button>
+        </form>
+    </div>
 </template>

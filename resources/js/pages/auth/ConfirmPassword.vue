@@ -1,69 +1,85 @@
 <script setup lang="ts">
-import { Form, Head } from '@inertiajs/vue3';
+import { useForm, Head, setLayoutProps } from '@inertiajs/vue3';
+import { watchEffect } from 'vue';
+
+import { store } from '@/actions/Laravel/Fortify/Http/Controllers/ConfirmablePasswordController';
 import {
     index as confirmOptions,
     store as confirmStore,
 } from '@/actions/Laravel/Passkeys/Http/Controllers/PasskeyConfirmationController';
 import PasskeyVerify from '@/components/auth/passkeys/PasskeyVerify.vue';
-import InputError from '@/components/shared/InputError.vue';
 import PasswordInput from '@/components/shared/PasswordInput.vue';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
+import { Field, FieldError, FieldGroup } from '@/components/ui/field';
 import { Spinner } from '@/components/ui/spinner';
-import { store } from '@/routes/password/confirm';
+import { useTranslations } from '@/composables/useTranslations';
+import type { ConfirmPasswordForm } from '@/types';
 
-defineOptions({
-    layout: {
-        title: 'Confirm password',
-        description:
-            'This is a secure area of the application. Please confirm your password before continuing.',
-    },
+const { t } = useTranslations();
+
+watchEffect(() => {
+    setLayoutProps({
+        title: t('auth.confirm_password.card.title'),
+    });
 });
+
+const form = useForm<ConfirmPasswordForm>({
+    password: '',
+});
+
+const submit = () => {
+    form.submit(store(), {
+        onSuccess: () => form.reset(),
+    });
+};
 </script>
 
 <template>
-    <Head title="Confirm password" />
+    <div>
+        <Head :title="t('auth.confirm_password.title')" />
 
-    <PasskeyVerify
-        :routes="{
-            options: confirmOptions(),
-            submit: confirmStore(),
-        }"
-        label="Confirm with passkey"
-        loading-label="Confirming..."
-        separator="Or confirm with password"
-    />
+        <PasskeyVerify
+            :routes="{
+                options: confirmOptions(),
+                submit: confirmStore(),
+            }"
+            :label="t('account.passkey.button.confirm')"
+            :loading-label="t('account.passkey.status.verifying')"
+            :separator="t('common.helper.or')"
+        />
 
-    <Form
-        v-bind="store.form()"
-        reset-on-success
-        v-slot="{ errors, processing }"
-    >
-        <div class="space-y-6">
-            <div class="grid gap-2">
-                <Label htmlFor="password">Password</Label>
-                <PasswordInput
-                    id="password"
-                    name="password"
-                    class="mt-1 block w-full"
-                    required
-                    autocomplete="current-password"
-                    autofocus
-                />
+        <form novalidate @submit.prevent="submit">
+            <FieldGroup class="gap-6">
+                <Field :data-invalid="!!form.errors.password">
+                    <PasswordInput
+                        id="password"
+                        name="password"
+                        v-model="form.password"
+                        autocomplete="current-password"
+                        autofocus
+                        :aria-label="t('user.label.password')"
+                        :aria-invalid="!!form.errors.password"
+                        :aria-describedby="
+                            form.errors.password ? 'password-error' : undefined
+                        "
+                        :placeholder="t('user.placeholder.password')"
+                    />
 
-                <InputError :message="errors.password" />
-            </div>
+                    <FieldError
+                        id="password-error"
+                        :errors="[form.errors.password]"
+                    />
+                </Field>
 
-            <div class="flex items-center">
                 <Button
-                    class="w-full"
-                    :disabled="processing"
+                    type="submit"
+                    :disabled="form.processing"
                     data-test="confirm-password-button"
                 >
-                    <Spinner v-if="processing" />
-                    Confirm password
+                    <Spinner v-if="form.processing" />
+                    {{ t('auth.button.confirm_password') }}
                 </Button>
-            </div>
-        </div>
-    </Form>
+            </FieldGroup>
+        </form>
+    </div>
 </template>

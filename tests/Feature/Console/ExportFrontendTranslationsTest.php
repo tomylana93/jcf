@@ -12,7 +12,7 @@ describe('Frontend translations', function (): void {
 
         $messages = json_decode(File::get(resource_path('js/lang/messages.json')), true, flags: JSON_THROW_ON_ERROR);
 
-        expect($messages['en']['auth']['failed'])->toBe('These credentials do not match the records.')
+        expect($messages['en']['auth']['failed'])->toBe('The provided credentials do not match the account records.')
             ->and($messages['en']['auth']['throttle'])->toContain('{seconds}')
             ->and($messages['id']['auth']['throttle'])->toContain('{seconds}');
     });
