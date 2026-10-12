@@ -135,6 +135,8 @@ return [
             'footer_text' => 'Footer text',
         ],
         'option' => [
+            'environment' => 'Environment configuration',
+            'none' => 'No encryption (local Mailpit)',
             'log' => 'Log only',
             'smtp' => 'SMTP',
             'starttls' => 'STARTTLS (usually port 587)',

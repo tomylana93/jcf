@@ -8,10 +8,14 @@ use App\Enums\Permission;
 use App\Enums\Role;
 use App\Enums\UserStatus;
 use App\Models\User;
+use App\Settings\AuthSettings;
+use App\Settings\SettingsMailTransport;
 use Carbon\CarbonImmutable;
+use Illuminate\Mail\MailManager;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Spatie\Permission\PermissionRegistrar;
@@ -31,6 +35,8 @@ final class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Mail::extend('settings', fn (): SettingsMailTransport => new SettingsMailTransport($this->app->make(MailManager::class)));
+
         $this->configureDefaults();
 
         Gate::before(function (User $user, string $ability, array $arguments): ?bool {
@@ -65,14 +71,12 @@ final class AppServiceProvider extends ServiceProvider
             app()->isProduction(),
         );
 
-        Password::defaults(fn (): ?Password => app()->isProduction()
-            ? Password::min(12)
-                ->mixedCase()
-                ->letters()
-                ->numbers()
-                ->symbols()
-                ->uncompromised()
-            : null,
-        );
+        Password::defaults(function (): Password {
+            $rule = Password::min(resolve(AuthSettings::class)->password_min_length);
+
+            return app()->isProduction()
+                ? $rule->min(max(12, resolve(AuthSettings::class)->password_min_length))->mixedCase()->letters()->numbers()->symbols()->uncompromised()
+                : $rule;
+        });
     }
 }

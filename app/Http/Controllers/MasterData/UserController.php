@@ -6,10 +6,12 @@ namespace App\Http\Controllers\MasterData;
 
 use App\Actions\MasterData\User\CreateUser;
 use App\Actions\MasterData\User\GetUserOptions;
+use App\Actions\MasterData\User\SendUserInvitation;
 use App\Actions\MasterData\User\UpdateUser;
 use App\Actions\MasterData\User\UpdateUserStatus;
 use App\Enums\UserStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\MasterData\User\SendUserInvitationRequest;
 use App\Http\Requests\MasterData\User\StoreUserRequest;
 use App\Http\Requests\MasterData\User\UpdateUserRequest;
 use App\Http\Requests\MasterData\User\UpdateUserStatusRequest;
@@ -56,6 +58,14 @@ final class UserController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => __('user.status.updated')]);
 
         return back(fallback: route('master-data.users.index'));
+    }
+
+    public function sendInvitation(SendUserInvitationRequest $request, User $user, SendUserInvitation $sendInvitation): RedirectResponse
+    {
+        $sendInvitation->handle($user);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('user.status.invitation_queued')]);
+
+        return back();
     }
 
     public function updateStatus(UpdateUserStatusRequest $request, User $user, UpdateUserStatus $updateUserStatus): RedirectResponse

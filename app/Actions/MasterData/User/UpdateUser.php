@@ -15,6 +15,7 @@ final class UpdateUser
     public function handle(User $user, array $data): void
     {
         DB::transaction(function () use ($user, $data): void {
+            $emailChanged = $user->email !== $data['email'];
             $user->fill(['name' => $data['name'], 'email' => $data['email']]);
             $user->status = UserStatus::from($data['status']);
 
@@ -27,6 +28,10 @@ final class UpdateUser
 
             $user->save();
             $user->syncRoles(isset($data['role']) ? [$data['role']] : []);
+
+            if ($emailChanged && $user->invited_at !== null && $user->invitation_accepted_at === null && $user->status === UserStatus::Active) {
+                resolve(SendUserInvitation::class)->handle($user);
+            }
         });
     }
 }

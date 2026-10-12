@@ -107,10 +107,10 @@ export type UpdateLayoutSettingsForm = {
 };
 
 export type UpdateMailSettingsForm = {
-    mailer: 'log' | 'smtp';
+    mailer: 'environment' | 'log' | 'smtp';
     smtp_host: string;
     smtp_port: number;
-    smtp_scheme: 'smtp' | 'smtps';
+    smtp_scheme: 'none' | 'smtp' | 'smtps';
     smtp_username: string;
     smtp_password: string;
     from_address: string;
@@ -126,6 +126,7 @@ export type SendMailSettingsTestForm = {
 export type UpdateUserStatusForm = { status: 'active' | 'disabled' };
 
 export type UserForm = {
+    send_invitation: boolean;
     password: string;
     password_confirmation: string;
     name: string;

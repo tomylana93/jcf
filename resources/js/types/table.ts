@@ -25,6 +25,7 @@ export type TablePaginator<T> = {
 };
 
 export type UserRow = {
+    invitation_pending: boolean;
     email_verified: boolean;
     avatar: string;
     id: string;

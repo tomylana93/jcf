@@ -39,10 +39,10 @@ export type LayoutSettings = {
 };
 
 export type MailSettings = {
-    mailer: 'log' | 'smtp';
+    mailer: 'environment' | 'log' | 'smtp';
     smtp_host: string;
     smtp_port: number;
-    smtp_scheme: 'smtp' | 'smtps';
+    smtp_scheme: 'none' | 'smtp' | 'smtps';
     smtp_username: string;
     from_address: string;
     from_name: string;

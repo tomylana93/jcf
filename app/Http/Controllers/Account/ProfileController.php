@@ -11,6 +11,7 @@ use App\Enums\Role;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Account\ProfileDeleteRequest;
 use App\Http\Requests\Account\ProfileUpdateRequest;
+use App\Settings\AuthSettings;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -26,7 +27,7 @@ final class ProfileController extends Controller
     public function edit(Request $request, GetAvatarSettings $getAvatarSettings, GetTimezoneOptions $getTimezoneOptions): Response
     {
         return Inertia::render('account/Profile', [
-            'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
+            'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail && resolve(AuthSettings::class)->email_verification_required,
             'status' => $request->session()->get('status'),
             'canDisableAccount' => ! $request->user()->hasRole(Role::SuperAdmin),
             'avatarSettings' => $getAvatarSettings->handle($request->user()),

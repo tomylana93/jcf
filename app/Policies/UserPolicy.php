@@ -11,6 +11,11 @@ use App\Models\User;
 
 final class UserPolicy
 {
+    public function sendInvitation(User $user, User $target): bool
+    {
+        return $user->can(Permission::ManageUsers) && ! $target->hasRole(Role::SuperAdmin);
+    }
+
     public function viewAny(User $user): bool
     {
         return $user->can(Permission::ViewUsers);

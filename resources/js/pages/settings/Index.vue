@@ -1,15 +1,23 @@
 <script setup lang="ts">
 import { Head, setLayoutProps } from '@inertiajs/vue3';
-import { LayoutTemplate, Palette, Settings } from '@lucide/vue';
+import {
+    LayoutTemplate,
+    Palette,
+    Settings,
+    Mail,
+    ShieldCheck,
+} from '@lucide/vue';
 import { watchEffect } from 'vue';
 
 import PageContainer from '@/components/layout/PageContainer.vue';
 import NavigationCardGrid from '@/components/shared/NavigationCardGrid.vue';
 import { useTranslations } from '@/composables/useTranslations';
 import { index } from '@/routes/settings';
+import { edit as editAuth } from '@/routes/settings/auth';
 import { edit as editBrand } from '@/routes/settings/brand';
 import { edit } from '@/routes/settings/general';
 import { edit as editLayout } from '@/routes/settings/layout';
+import { edit as editMail } from '@/routes/settings/mail';
 import type { NavigationCard } from '@/types';
 
 const { t } = useTranslations();
@@ -20,6 +28,22 @@ watchEffect(() => {
 });
 
 const cards: NavigationCard[] = [
+    {
+        id: 'auth',
+        href: editAuth(),
+        icon: ShieldCheck,
+        title: 'settings.auth.card.title',
+        description: 'settings.auth.card.description',
+        dataTest: 'auth-settings-card',
+    },
+    {
+        id: 'mail',
+        href: editMail(),
+        icon: Mail,
+        title: 'settings.mail.card.title',
+        description: 'settings.mail.card.description',
+        dataTest: 'mail-settings-card',
+    },
     {
         id: 'general',
         href: edit(),
