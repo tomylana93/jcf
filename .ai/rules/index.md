@@ -7,3 +7,4 @@ Before planning or editing, find the row whose globs match the file's path and r
 | app/Http/Controllers/** | .ai/rules/controllers.md |
 | app/Enums/** | .ai/rules/enums.md |
 | **/* | .ai/rules/general.md |
+| lang/** | .ai/rules/lang.md |
