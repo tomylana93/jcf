@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 return [
     'permission' => [
+        'ViewSystem' => 'Lihat kesehatan sistem',
+        'ManageBackups' => 'Kelola backup',
         'ViewAuditLogs' => 'Lihat audit log',
         'ViewSettings' => 'Lihat pengaturan aplikasi',
         'ManageSettings' => 'Kelola pengaturan aplikasi',
