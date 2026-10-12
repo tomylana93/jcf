@@ -27,7 +27,7 @@ const passwordInput = useTemplateRef('passwordInput');
 const form = useForm<DisableAccountForm>({ password: '' });
 
 const submit = () => {
-    form.submit(ProfileController.destroy(), {
+    form.submit(ProfileController.disable(), {
         preserveScroll: true,
         onSuccess: () => form.reset(),
         onError: () => passwordInput.value?.focus(),

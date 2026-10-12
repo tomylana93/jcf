@@ -68,19 +68,19 @@ return [
 
     'disable_account' => [
         'card' => [
-            'title' => 'Delete account',
-            'description' => 'Permanently delete the account and associated data.',
+            'title' => 'Disable account',
+            'description' => 'Disable account access while retaining associated resources and data.',
         ],
         'helper' => [
             'warning' => 'Warning',
-            'access_disabled' => 'Account data will be permanently deleted.',
+            'access_disabled' => 'Account access will be disabled.',
         ],
         'button' => [
-            'disable' => 'Delete account',
+            'disable' => 'Disable account',
         ],
         'dialog' => [
-            'title' => 'Confirm account deletion',
-            'description' => 'The account and associated data will be permanently deleted. Enter the password to confirm.',
+            'title' => 'Confirm account deactivation',
+            'description' => 'The account will be disabled and signed out. Associated resources and data will be retained. Enter the password to confirm.',
         ],
     ],
 
