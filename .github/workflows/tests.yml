@@ -55,6 +55,8 @@ jobs:
       SESSION_DRIVER: array
       QUEUE_CONNECTION: sync
       MAIL_MAILER: array
+      BACKUP_INTEGRATION: '1'
+      PGPASSWORD: postgres
 
     steps:
       - name: Checkout
@@ -97,6 +99,16 @@ jobs:
             --no-interaction \
             --prefer-dist \
             --no-progress
+
+      - name: Prepare PostgreSQL backup tools
+        env:
+          POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/pg-tools"
+          printf '#!/bin/sh\nexec docker exec -i -e PGDATABASE %s pg_dump "$@"\n' "$POSTGRES_CONTAINER" > "$RUNNER_TEMP/pg-tools/pg_dump"
+          printf '#!/bin/sh\nexec docker exec -i -e PGPASSWORD -e PGSSLMODE %s psql "$@"\n' "$POSTGRES_CONTAINER" > "$RUNNER_TEMP/pg-tools/psql"
+          chmod +x "$RUNNER_TEMP/pg-tools/pg_dump" "$RUNNER_TEMP/pg-tools/psql"
+          echo "$RUNNER_TEMP/pg-tools" >> "$GITHUB_PATH"
 
       - name: Prepare Laravel
         run: |

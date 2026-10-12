@@ -18,6 +18,7 @@ return [
 
     'link' => [
         'home' => 'Home',
+        'system' => 'System health',
         'audit' => 'Audit log',
         'notifications' => 'Notifications',
         'users' => 'Users',

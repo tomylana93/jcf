@@ -33,6 +33,18 @@ return [
     */
 
     'connections' => [
+        'backup_restore' => [
+            'driver' => 'pgsql',
+            'host' => env('BACKUP_RESTORE_HOST', '127.0.0.1'),
+            'port' => env('BACKUP_RESTORE_PORT', '5432'),
+            'database' => env('BACKUP_RESTORE_DATABASE', ''),
+            'username' => env('BACKUP_RESTORE_USERNAME', ''),
+            'password' => env('BACKUP_RESTORE_PASSWORD', ''),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'search_path' => 'public',
+            'sslmode' => env('BACKUP_RESTORE_SSLMODE', 'prefer'),
+        ],
 
         'sqlite' => [
             'driver' => 'sqlite',
@@ -99,6 +111,7 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => env('DB_SSLMODE', 'prefer'),
+            'dump' => ['dump_binary_path' => env('PG_DUMP_BINARY_PATH', ''), 'timeout' => 300],
         ],
 
         'sqlsrv' => [

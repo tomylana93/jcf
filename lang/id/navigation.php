@@ -18,6 +18,7 @@ return [
 
     'link' => [
         'home' => 'Beranda',
+        'system' => 'Kesehatan sistem',
         'audit' => 'Audit log',
         'notifications' => 'Notifikasi',
         'users' => 'Pengguna',

@@ -10,7 +10,15 @@ services:
   - postgres
   - redis
 workers:
+  - backups
   - queue
   - reverb
   - schedule
   - vite
+custom_workers:
+  backups:
+    label: Backup operations
+    command: php artisan queue:work backups --queue=backups --tries=1 --timeout=1800 --sleep=3
+    restart: always
+    check:
+      file: app/Jobs/CreateSystemBackup.php
