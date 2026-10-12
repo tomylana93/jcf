@@ -10,6 +10,7 @@
 /storage/backups/
 /storage/backup-temp/
 /storage/restore-drills/
+/storage/media-library/temp/
 /resources/js/actions
 /resources/js/routes
 /resources/js/wayfinder
