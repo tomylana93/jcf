@@ -2,9 +2,12 @@
 
 declare(strict_types=1);
 
+use Illuminate\Foundation\Http\Events\RequestHandled;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Process;
+use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\Sleep;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -30,7 +33,15 @@ pest()->extend(TestCase::class)
 
         freezeTime();
     })
-    ->in('Feature');
+    ->in('Feature', 'Browser');
+
+pest()->beforeEach(function (): void {
+    Vite::useHotFile(storage_path('framework/testing/vite.hot'));
+
+    Event::listen(RequestHandled::class, function (RequestHandled $event): void {
+        $event->response->headers->set('Connection', 'close');
+    });
+})->in('Browser');
 
 function skipUnlessFortifyHas(string $feature, ?string $message = null): void
 {

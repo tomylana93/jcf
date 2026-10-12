@@ -45,3 +45,5 @@ yarn-error.log
 /opencode.json
 /opencode.jsonc
 .env.before_lerd
+/tests/Browser/Screenshots
+/tests/Browser/Traces
