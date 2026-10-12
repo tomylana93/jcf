@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Account;
 
+use App\Actions\Account\DisableAccount;
 use App\Actions\Account\GetAvatarSettings;
 use App\Actions\Account\GetTimezoneOptions;
 use App\Actions\Account\UpdateProfile;
 use App\Enums\Role;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Account\ProfileDeleteRequest;
+use App\Http\Requests\Account\ProfileDisableRequest;
 use App\Http\Requests\Account\ProfileUpdateRequest;
 use App\Settings\AuthSettings;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -48,19 +49,19 @@ final class ProfileController extends Controller
     }
 
     /**
-     * Delete the user's profile.
+     * Disable the user's account.
      */
-    public function destroy(ProfileDeleteRequest $request): RedirectResponse
+    public function disable(ProfileDisableRequest $request, DisableAccount $disableAccount): RedirectResponse
     {
         $user = $request->user();
 
-        Auth::logout();
+        $disableAccount->handle($user);
 
-        $user->delete();
+        Auth::logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return to_route('home');
     }
 }

@@ -20,7 +20,7 @@ Route::middleware('auth')->group(function (): void {
 });
 
 Route::middleware(['auth', 'verified'])->group(function (): void {
-    Route::delete('account/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::delete('account/profile', [ProfileController::class, 'disable'])->name('profile.disable');
     Route::get('account/security', [SecurityController::class, 'edit'])->middleware(RequirePassword::class)->name('security.edit');
     Route::put('account/password', [SecurityController::class, 'update'])->middleware('throttle:6,1')->name('user-password.update');
     Route::get('account/sessions', [SessionController::class, 'index'])->middleware(RequirePassword::class)->name('sessions.index');
