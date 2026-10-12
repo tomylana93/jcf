@@ -13,3 +13,4 @@ Before planning or editing, find the row whose globs match the file's path and r
 | app/Settings/** | .ai/rules/settings.md |
 | app/Tables/** | .ai/rules/tables.md |
 | tests/** | .ai/rules/tests.md |
+| .github/workflows/** | .ai/rules/workflows.md |
