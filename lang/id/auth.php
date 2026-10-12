@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 return [
+    'disabled' => 'Akun dinonaktifkan. Hubungi administrator untuk mengaktifkan kembali akun.',
     'failed' => 'Kredensial tidak sesuai dengan data yang tercatat.',
     'password' => 'Password yang diberikan tidak sesuai.',
     'throttle' => 'Terlalu banyak percobaan login. Login dapat dicoba kembali dalam :seconds detik.',

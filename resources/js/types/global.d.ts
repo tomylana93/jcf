@@ -1,4 +1,4 @@
-import type { Auth } from '@/types/auth';
+import type { Auth, TimezoneSettings } from '@/types';
 import type { Directive } from 'vue';
 
 // Extend ImportMeta interface for Vite...
@@ -19,6 +19,7 @@ declare module '@inertiajs/core' {
         sharedPageProps: {
             name: string;
             auth: Auth;
+            timezone: TimezoneSettings;
             sidebarOpen: boolean;
             [key: string]: unknown;
         };
