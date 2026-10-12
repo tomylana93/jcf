@@ -1,6 +1,7 @@
-import { LayoutGrid, Settings, Users } from '@lucide/vue';
+import { LayoutGrid, Settings, Users, ScrollText } from '@lucide/vue';
 
 import { dashboard } from '@/routes';
+import { index as auditIndex } from '@/routes/audit';
 import { index as masterDataIndex } from '@/routes/master-data';
 import { index as settingsIndex } from '@/routes/settings';
 import type {
@@ -28,11 +29,11 @@ export function createAdminNavigationGroups(
     canViewUsers = false,
     _canViewUserPermissions = false,
     _canManageDocumentation = false,
-    _canViewAudit = false,
+    canViewAudit = false,
     _canViewSystem = false,
     _canManageBackups = false,
 ): NavGroup[] {
-    if (!canViewSettings && !canViewUsers) {
+    if (!canViewSettings && !canViewUsers && !canViewAudit) {
         return [];
     }
 
@@ -40,6 +41,15 @@ export function createAdminNavigationGroups(
         {
             title: t('navigation.group.admin'),
             items: [
+                ...(canViewAudit
+                    ? [
+                          {
+                              title: t('navigation.link.audit'),
+                              href: auditIndex(),
+                              icon: ScrollText,
+                          },
+                      ]
+                    : []),
                 ...(canViewUsers
                     ? [
                           {

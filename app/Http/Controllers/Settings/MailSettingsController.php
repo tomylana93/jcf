@@ -30,7 +30,7 @@ final class MailSettingsController extends Controller
 
     public function update(UpdateMailSettingsRequest $request, UpdateMailSettings $updateSettings): RedirectResponse
     {
-        $updateSettings->handle($request->validated());
+        $updateSettings->handle($request->validated(), $request->user());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('settings.mail.status.updated')]);
 

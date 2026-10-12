@@ -6,6 +6,7 @@ namespace App\Http\Middleware;
 
 use App\Actions\Account\GetUserPermissions;
 use App\Actions\Account\ResolveTimezone;
+use App\Actions\Notification\GetNotificationSummary;
 use App\Actions\Settings\GetBrandSettings;
 use App\Actions\Settings\GetGeneralSettings;
 use App\Actions\Settings\GetLayoutSettings;
@@ -59,6 +60,7 @@ final class HandleInertiaRequests extends Middleware
                 'super_admin' => fn (): bool => $request->user()?->hasRole(Role::SuperAdmin) ?? false,
                 'permissions' => fn (): array => resolve(GetUserPermissions::class)->handle($request->user()),
             ],
+            'notificationSummary' => fn (): array => resolve(GetNotificationSummary::class)->handle($request->user()),
             'timezone' => fn (): array => resolve(ResolveTimezone::class)->handle($request->user(), $request->cookie('timezone')),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];

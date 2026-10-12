@@ -46,7 +46,7 @@ final class UserController extends Controller
 
     public function store(StoreUserRequest $request, CreateUser $createUser): RedirectResponse
     {
-        $createUser->handle($request->validated());
+        $createUser->handle($request->validated(), $request->user());
         Inertia::flash('toast', ['type' => 'success', 'message' => __('user.status.created')]);
 
         return to_route('master-data.users.index');
@@ -54,7 +54,7 @@ final class UserController extends Controller
 
     public function update(UpdateUserRequest $request, User $user, UpdateUser $updateUser): RedirectResponse
     {
-        $updateUser->handle($user, $request->validated());
+        $updateUser->handle($user, $request->validated(), $request->user());
         Inertia::flash('toast', ['type' => 'success', 'message' => __('user.status.updated')]);
 
         return back(fallback: route('master-data.users.index'));
@@ -62,7 +62,7 @@ final class UserController extends Controller
 
     public function sendInvitation(SendUserInvitationRequest $request, User $user, SendUserInvitation $sendInvitation): RedirectResponse
     {
-        $sendInvitation->handle($user);
+        $sendInvitation->handle($user, $request->user());
         Inertia::flash('toast', ['type' => 'success', 'message' => __('user.status.invitation_queued')]);
 
         return back();
@@ -71,7 +71,7 @@ final class UserController extends Controller
     public function updateStatus(UpdateUserStatusRequest $request, User $user, UpdateUserStatus $updateUserStatus): RedirectResponse
     {
         $status = UserStatus::from($request->string('status')->toString());
-        $updateUserStatus->handle($user, $status);
+        $updateUserStatus->handle($user, $status, $request->user());
         Inertia::flash('toast', ['type' => 'success', 'message' => __($status === UserStatus::Active ? 'user.status.activated' : 'user.status.disabled')]);
 
         return back();

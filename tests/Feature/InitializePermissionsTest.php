@@ -29,7 +29,7 @@ describe('permission initialization', function (): void {
             ->and($user->fresh()->getDirectPermissions()->modelKeys())->toBe([$permission->id])
             ->and($user->fresh()->getRoleNames()->all())->toBe([$customRole->name])
             ->and($customRole->fresh()->permissions->modelKeys())->toBe([$permission->id])
-            ->and(Permission::query()->count())->toBe(6)
+            ->and(Permission::query()->count())->toBe(7)
             ->and($user->fresh()->can(CorePermission::ManageUsers))->toBeFalse();
     });
 
@@ -50,7 +50,7 @@ describe('permission initialization', function (): void {
         expect(Permission::query()->orderBy('name')->pluck('id', 'name')->all())->toBe($identifiers)
             ->and(Permission::findByName('users.view')->id)->toBe($existing->id)
             ->and(Permission::query()->pluck('name')->all())->toEqualCanonicalizing([
-                'settings.view', 'settings.manage', 'users.view', 'users.manage', 'users.permissions.assign',
+                'audit.view', 'settings.view', 'settings.manage', 'users.view', 'users.manage', 'users.permissions.assign',
             ])
             ->and(Permission::query()->where('guard_name', '!=', 'web')->exists())->toBeFalse();
     });

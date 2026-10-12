@@ -23,7 +23,7 @@ final class AuthSettingsController extends Controller
 
     public function update(UpdateAuthSettingsRequest $request, UpdateAuthSettings $updateSettings): RedirectResponse
     {
-        $updateSettings->handle($request->validated());
+        $updateSettings->handle($request->validated(), $request->user());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('settings.auth.status.updated')]);
 
