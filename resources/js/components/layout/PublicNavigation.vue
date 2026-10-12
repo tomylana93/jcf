@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
+
 import AppLogo from '@/components/shared/AppLogo.vue';
 import { Button } from '@/components/ui/button';
 import { useTranslations } from '@/composables/useTranslations';
@@ -9,10 +10,7 @@ const page = usePage();
 
 const { t } = useTranslations();
 
-const siteName =
-    (page.props.general as { site_name?: string } | undefined)?.site_name ??
-    (page.props.name as string | undefined) ??
-    'Laravel';
+const siteName = page.props.general.site_name;
 </script>
 
 <template>

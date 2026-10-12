@@ -2,33 +2,19 @@
 
 declare(strict_types=1);
 
-use App\Http\Controllers\Settings\ProfileController;
-use App\Http\Controllers\Settings\SecurityController;
-use Illuminate\Auth\Middleware\RequirePassword;
+use App\Enums\Permission;
+use App\Http\Controllers\Settings\BrandSettingsController;
+use App\Http\Controllers\Settings\GeneralSettingsController;
+use App\Http\Controllers\Settings\LayoutSettingsController;
+use Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth'])->group(function () {
-    Route::get('settings', fn () => to_route('profile.edit'));
-
-    Route::get('settings/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('settings/profile', [ProfileController::class, 'update'])->name('profile.update');
+Route::middleware(['auth', 'verified'])->prefix('settings')->name('settings.')->group(function (): void {
+    Route::inertia('/', 'settings/Index')->can(Permission::ViewSettings->value)->name('index');
+    Route::get('general', [GeneralSettingsController::class, 'edit'])->can(Permission::ViewSettings->value)->name('general.edit');
+    Route::patch('general', [GeneralSettingsController::class, 'update'])->can(Permission::ViewSettings->value)->can(Permission::ManageSettings->value)->middleware(HandlePrecognitiveRequests::class)->name('general.update');
+    Route::get('layout', [LayoutSettingsController::class, 'edit'])->can(Permission::ViewSettings->value)->name('layout.edit');
+    Route::patch('layout', [LayoutSettingsController::class, 'update'])->can(Permission::ViewSettings->value)->can(Permission::ManageSettings->value)->middleware(HandlePrecognitiveRequests::class)->name('layout.update');
+    Route::get('brand', [BrandSettingsController::class, 'edit'])->can(Permission::ViewSettings->value)->name('brand.edit');
+    Route::patch('brand', [BrandSettingsController::class, 'update'])->can(Permission::ViewSettings->value)->can(Permission::ManageSettings->value)->name('brand.update');
 });
-
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::delete('settings/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-    Route::get('settings/security', [SecurityController::class, 'edit'])
-        ->middleware(RequirePassword::class)
-        ->name('security.edit');
-
-    Route::put('settings/password', [SecurityController::class, 'update'])
-        ->middleware('throttle:6,1')
-        ->name('user-password.update');
-
-    Route::inertia('settings/appearance', 'settings/Appearance')->name('appearance.edit');
-});
-
-Route::get('.well-known/passkey-endpoints', fn () => response()->json([
-    'enroll' => route('security.edit'),
-    'manage' => route('security.edit'),
-]))->name('well-known.passkeys');

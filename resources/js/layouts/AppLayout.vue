@@ -1,6 +1,12 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/app/AppSidebarLayout.vue';
+import { usePage } from '@inertiajs/vue3';
+
+import { useBrowserTimezone } from '@/composables/useBrowserTimezone';
+import AppHeaderLayout from '@/layouts/app/AppHeaderLayout.vue';
+import AppSidebarLayout from '@/layouts/app/AppSidebarLayout.vue';
 import type { BreadcrumbItem } from '@/types';
+
+useBrowserTimezone();
 
 const { breadcrumbs = [] } = defineProps<{
     breadcrumbs?: BreadcrumbItem[];
@@ -8,7 +14,14 @@ const { breadcrumbs = [] } = defineProps<{
 </script>
 
 <template>
-    <AppLayout :breadcrumbs="breadcrumbs">
+    <component
+        :is="
+            usePage().props.layout?.app_layout === 'header'
+                ? AppHeaderLayout
+                : AppSidebarLayout
+        "
+        :breadcrumbs="breadcrumbs"
+    >
         <slot />
-    </AppLayout>
+    </component>
 </template>
