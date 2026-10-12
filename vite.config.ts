@@ -43,6 +43,17 @@ export default defineConfig({
         },
     },
     lint: {
+        jsPlugins: ['@stylistic/eslint-plugin'],
+        rules: {
+            '@stylistic/padding-line-between-statements': [
+                'error',
+                {
+                    blankLine: 'always',
+                    prev: ['const', 'let', 'var'],
+                    next: ['const', 'let', 'var'],
+                },
+            ],
+        },
         ignorePatterns: [
             'vendor/**',
             'node_modules/**',
@@ -66,6 +77,21 @@ export default defineConfig({
         semi: true,
         singleAttributePerLine: false,
         htmlWhitespaceSensitivity: 'css',
+        sortImports: {
+            groups: [
+                'builtin',
+                'external',
+                ['internal', 'subpath'],
+                ['parent', 'sibling', 'index'],
+                'style',
+                'type',
+                'unknown',
+            ],
+            internalPattern: ['@/'],
+            newlinesBetween: true,
+            order: 'asc',
+            sortSideEffects: false,
+        },
         ignorePatterns: [
             '.github/**',
             '.lerd.yaml',
