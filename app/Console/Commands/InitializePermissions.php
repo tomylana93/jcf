@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Enums\Permission;
 use App\Enums\Role;
+use App\Models\Permission as PermissionModel;
 use App\Models\Role as RoleModel;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
@@ -21,15 +23,27 @@ final class InitializePermissions extends Command
         $registrar->forgetCachedPermissions();
 
         DB::transaction(function (): void {
+            /** @var array<string, PermissionModel> $permissions */
+            $permissions = [];
+
+            foreach (Permission::cases() as $permission) {
+                $permissions[$permission->value] = PermissionModel::query()->firstOrCreate([
+                    'name' => $permission->value,
+                    'guard_name' => 'web',
+                ]);
+            }
+
             foreach (Role::cases() as $role) {
                 $model = RoleModel::query()->firstOrCreate([
                     'name' => $role->value,
                     'guard_name' => 'web',
                 ]);
 
-                $model->syncPermissions($role->permissions());
+                $model->syncPermissions(array_map(
+                    static fn (Permission $permission): PermissionModel => $permissions[$permission->value],
+                    $role->permissions(),
+                ));
             }
-
         });
 
         $registrar->forgetCachedPermissions();

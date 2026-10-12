@@ -1,0 +1,60 @@
+<?php
+
+declare(strict_types=1);
+
+use App\Actions\Account\GetUserPermissions;
+use App\Enums\Permission;
+use App\Enums\Role as CoreRole;
+use App\Models\User;
+use Inertia\Testing\AssertableInertia as Assert;
+
+use function Pest\Laravel\actingAs;
+use function Pest\Laravel\get;
+
+describe('shared application permissions', function (): void {
+    it('shares an empty permission list for guests', function (): void {
+        get(route('home'))->assertOk()->assertInertia(fn (Assert $page) => $page
+            ->where('auth.permissions', [])
+        );
+    });
+
+    it('keeps dashboard and personal settings available without application permissions', function (): void {
+        $user = User::factory()->create();
+        actingAs($user);
+
+        get(route('dashboard'))->assertOk()->assertInertia(fn (Assert $page) => $page
+            ->where('auth.permissions', [])
+        );
+        get(route('profile.edit'))->assertOk();
+        get(route('appearance.edit'))->assertOk();
+    });
+
+    it('shares only effective permissions evaluated by the server gate', function (): void {
+        $user = User::factory()->create();
+        assignRolePermissions($user, Permission::ViewUsers, Permission::AssignUserPermissions);
+        actingAs($user);
+
+        get(route('dashboard'))->assertOk()->assertInertia(fn (Assert $page) => $page
+            ->where('auth.permissions', ['users.view'])
+        );
+    });
+
+    it('shares all core permissions for superadmin without database grants', function (): void {
+        $user = User::factory()->create();
+        $user->assignRole(CoreRole::SuperAdmin);
+        actingAs($user);
+
+        get(route('dashboard'))->assertOk()->assertInertia(fn (Assert $page) => $page
+            ->where('auth.permissions', [
+                'settings.view', 'settings.manage', 'users.view', 'users.manage', 'users.permissions.assign',
+            ])
+        );
+    });
+
+    it('returns no effective permissions for disabled accounts', function (): void {
+        $user = User::factory()->disabled()->create();
+        $user->assignRole(CoreRole::SuperAdmin);
+
+        expect(resolve(GetUserPermissions::class)->handle($user))->toBeEmpty();
+    });
+});

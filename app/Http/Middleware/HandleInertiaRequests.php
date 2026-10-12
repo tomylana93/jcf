@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use App\Actions\Account\GetUserPermissions;
 use App\Actions\Account\ResolveTimezone;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -43,6 +44,7 @@ final class HandleInertiaRequests extends Middleware
             'name' => config('app.name'),
             'auth' => [
                 'user' => $request->user()?->append('avatar'),
+                'permissions' => fn (): array => resolve(GetUserPermissions::class)->handle($request->user()),
             ],
             'timezone' => fn (): array => resolve(ResolveTimezone::class)->handle($request->user(), $request->cookie('timezone')),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',

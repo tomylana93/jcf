@@ -11,5 +11,6 @@ services:
   - redis
 workers:
   - queue
+  - reverb
   - schedule
   - vite

@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+use App\Enums\Permission;
+use App\Models\Permission as PermissionModel;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Foundation\Http\Events\RequestHandled;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
@@ -48,4 +52,15 @@ function skipUnlessFortifyHas(string $feature, ?string $message = null): void
     if (! Features::enabled($feature)) {
         Assert::markTestSkipped($message ?? "Fortify feature [{$feature}] is not enabled.");
     }
+}
+
+function assignRolePermissions(User $user, Permission ...$permissions): void
+{
+    $role = Role::factory()->create();
+    $role->syncPermissions(array_map(
+        static fn (Permission $permission): PermissionModel => PermissionModel::findOrCreate($permission->value, 'web'),
+        $permissions,
+    ));
+
+    $user->syncRoles($role);
 }
