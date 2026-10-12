@@ -13,6 +13,12 @@ enum Role: string
 
     case SuperAdmin = 'superadmin';
 
+    /** @return list<string> */
+    public function permissions(): array
+    {
+        return [];
+    }
+
     public function badgeColor(): string
     {
         return match ($this) {
