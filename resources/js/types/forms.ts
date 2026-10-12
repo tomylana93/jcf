@@ -126,6 +126,8 @@ export type SendMailSettingsTestForm = {
 export type UpdateUserStatusForm = { status: 'active' | 'disabled' };
 
 export type UserForm = {
+    password: string;
+    password_confirmation: string;
     name: string;
     email: string;
     role: string;

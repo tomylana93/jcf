@@ -1,6 +1,8 @@
-import { LayoutGrid, Settings } from '@lucide/vue';
+import { Database, LayoutGrid, Settings, Users } from '@lucide/vue';
 
 import { dashboard } from '@/routes';
+import { index as masterDataIndex } from '@/routes/master-data';
+import { index as usersIndex } from '@/routes/master-data/users';
 import { index as settingsIndex } from '@/routes/settings';
 import type {
     EditorLinkOption,
@@ -24,26 +26,36 @@ export function createMainNavigationItems(
 export function createAdminNavigationGroups(
     t: (key: TranslationKey) => string,
     canViewSettings = false,
-    _canViewUsers = false,
+    canViewUsers = false,
     _canViewUserPermissions = false,
     _canManageDocumentation = false,
     _canViewAudit = false,
     _canViewSystem = false,
     _canManageBackups = false,
 ): NavGroup[] {
-    return canViewSettings
-        ? [
-              {
-                  items: [
-                      {
-                          title: t('navigation.link.settings'),
-                          href: settingsIndex(),
-                          icon: Settings,
-                      },
-                  ],
-              },
-          ]
-        : [];
+    const items: NavItem[] = [];
+    if (canViewUsers) {
+        items.push({
+            title: t('navigation.link.master_data'),
+            href: masterDataIndex(),
+            icon: Database,
+            children: [
+                {
+                    title: t('navigation.link.users'),
+                    href: usersIndex(),
+                    icon: Users,
+                },
+            ],
+        });
+    }
+    if (canViewSettings) {
+        items.push({
+            title: t('navigation.link.settings'),
+            href: settingsIndex(),
+            icon: Settings,
+        });
+    }
+    return items.length > 0 ? [{ items }] : [];
 }
 
 export function createFooterNavigationItems(
