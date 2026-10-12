@@ -3,6 +3,14 @@
 declare(strict_types=1);
 
 return [
+    'permission' => [
+        'ViewSettings' => 'View application settings',
+        'ManageSettings' => 'Manage application settings',
+        'ViewUsers' => 'View users',
+        'ManageUsers' => 'Manage users',
+        'AssignUserPermissions' => 'Assign user permissions',
+    ],
+
     'role' => [
         'SuperAdmin' => 'Super Admin',
     ],

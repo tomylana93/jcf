@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Enums\Permission;
 use App\Enums\Role;
+use App\Enums\UserStatus;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
@@ -36,8 +38,16 @@ final class AppServiceProvider extends ServiceProvider
                 return null;
             }
 
-            if (resolve(PermissionRegistrar::class)->getPermissions(['name' => $ability, 'guard_name' => 'web'])->isEmpty()) {
+            if (Permission::tryFrom($ability) === null && resolve(PermissionRegistrar::class)->getPermissions(['name' => $ability, 'guard_name' => 'web'])->isEmpty()) {
                 return null;
+            }
+
+            if ($user->status === UserStatus::Disabled) {
+                return false;
+            }
+
+            if ($ability === Permission::AssignUserPermissions->value) {
+                return $user->hasRole(Role::SuperAdmin);
             }
 
             return $user->hasRole(Role::SuperAdmin) || $user->checkPermissionTo($ability);

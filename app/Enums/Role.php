@@ -13,7 +13,7 @@ enum Role: string
 
     case SuperAdmin = 'superadmin';
 
-    /** @return list<string> */
+    /** @return list<Permission> */
     public function permissions(): array
     {
         return [];
