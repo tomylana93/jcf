@@ -14,7 +14,12 @@ describe('user management browser flows', function (): void {
         actingAs($actor);
 
         $page = visit(route('master-data.users.index', absolute: false));
-        $page->click(__('common.button.create'))
+        $page->assertSee(__('navigation.group.admin'))
+            ->assertMissing('[data-sidebar="menu-sub"]')
+            ->click('[data-sidebar="menu-button"][href="'.route('master-data.index', absolute: false).'"]')
+            ->assertSee(__('master_data.description'))
+            ->click('main a[href="'.route('master-data.users.index', absolute: false).'"]')
+            ->click(__('common.button.create'))
             ->assertSee(__('user.card.create_title'))
             ->fill('#user-name', 'Browser Created')
             ->fill('#user-email', 'browser-created@example.test')
@@ -44,7 +49,19 @@ describe('user management browser flows', function (): void {
         visit(route('master-data.users.index', absolute: false))->on()->mobile()
             ->assertSee(__('user.card.title'))
             ->assertMissing('button:text-is("'.__('common.button.create').'")')
+            ->click('[data-sidebar="trigger"]')
+            ->assertSee(__('navigation.group.admin'))
+            ->assertMissing('[data-sidebar="menu-sub"]')
             ->assertNoJavaScriptErrors()
             ->screenshot(filename: 'stage-three-users-mobile');
+    });
+
+    it('hides unavailable admin navigation from ordinary accounts', function (): void {
+        actingAs(User::factory()->create());
+
+        visit(route('dashboard', absolute: false))
+            ->assertMissing('nav a[href="'.route('master-data.index', absolute: false).'"]')
+            ->assertMissing('nav a[href="'.route('settings.index', absolute: false).'"]')
+            ->assertNoJavaScriptErrors();
     });
 });

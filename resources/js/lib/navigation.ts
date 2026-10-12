@@ -1,8 +1,7 @@
-import { Database, LayoutGrid, Settings, Users } from '@lucide/vue';
+import { LayoutGrid, Settings, Users } from '@lucide/vue';
 
 import { dashboard } from '@/routes';
 import { index as masterDataIndex } from '@/routes/master-data';
-import { index as usersIndex } from '@/routes/master-data/users';
 import { index as settingsIndex } from '@/routes/settings';
 import type {
     EditorLinkOption,
@@ -33,29 +32,35 @@ export function createAdminNavigationGroups(
     _canViewSystem = false,
     _canManageBackups = false,
 ): NavGroup[] {
-    const items: NavItem[] = [];
-    if (canViewUsers) {
-        items.push({
-            title: t('navigation.link.master_data'),
-            href: masterDataIndex(),
-            icon: Database,
-            children: [
-                {
-                    title: t('navigation.link.users'),
-                    href: usersIndex(),
-                    icon: Users,
-                },
+    if (!canViewSettings && !canViewUsers) {
+        return [];
+    }
+
+    return [
+        {
+            title: t('navigation.group.admin'),
+            items: [
+                ...(canViewUsers
+                    ? [
+                          {
+                              title: t('navigation.link.master_data'),
+                              href: masterDataIndex(),
+                              icon: Users,
+                          },
+                      ]
+                    : []),
+                ...(canViewSettings
+                    ? [
+                          {
+                              title: t('navigation.link.settings'),
+                              href: settingsIndex(),
+                              icon: Settings,
+                          },
+                      ]
+                    : []),
             ],
-        });
-    }
-    if (canViewSettings) {
-        items.push({
-            title: t('navigation.link.settings'),
-            href: settingsIndex(),
-            icon: Settings,
-        });
-    }
-    return items.length > 0 ? [{ items }] : [];
+        },
+    ];
 }
 
 export function createFooterNavigationItems(
