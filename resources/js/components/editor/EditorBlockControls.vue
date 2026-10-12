@@ -10,6 +10,7 @@ import {
     Eraser,
 } from '@lucide/vue';
 import type { Editor } from '@tiptap/vue-3';
+
 import { Button } from '@/components/ui/button';
 import { useTranslations } from '@/composables/useTranslations';
 import { runEditorAction } from '@/lib/editor';

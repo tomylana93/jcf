@@ -2,6 +2,7 @@
 import { useForm } from '@inertiajs/vue3';
 import { Eye, EyeOff, LockKeyhole, RefreshCw } from '@lucide/vue';
 import { nextTick, onMounted, ref, useTemplateRef } from 'vue';
+
 import { store as regenerateRecoveryCodes } from '@/actions/Laravel/Fortify/Http/Controllers/RecoveryCodeController';
 import AlertError from '@/components/shared/AlertError.vue';
 import { Button } from '@/components/ui/button';

@@ -1,5 +1,6 @@
 import { router, usePage } from '@inertiajs/vue3';
 import { onMounted, onScopeDispose, watch } from 'vue';
+
 import { disconnectRealtimeEcho, getRealtimeEcho } from '@/lib/echo';
 import type { Auth, BroadcastNotification } from '@/types';
 

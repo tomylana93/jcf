@@ -12,6 +12,7 @@ import type {
 } from '@tanstack/vue-table';
 import { useDebounceFn } from '@vueuse/core';
 import { computed, onBeforeUnmount, ref, toRef, watch } from 'vue';
+
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -37,6 +38,7 @@ import {
 } from '@/components/ui/table';
 import { useTranslations } from '@/composables/useTranslations';
 import type { DataTableAction, DataTableFilter } from '@/types';
+
 import { dataTableFeatures, type DataTableColumnDef } from './dataTable';
 import DataTableExport from './DataTableExport.vue';
 import DataTablePagination from './DataTablePagination.vue';

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Table2 } from '@lucide/vue';
 import type { Editor } from '@tiptap/vue-3';
+
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,

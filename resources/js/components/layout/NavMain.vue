@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+
 import AppSidebarMenuItem from '@/components/layout/AppSidebarMenuItem.vue';
 import {
     SidebarGroup,

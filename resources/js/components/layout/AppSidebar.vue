@@ -2,6 +2,7 @@
 import { Link, usePage } from '@inertiajs/vue3';
 import { X } from '@lucide/vue';
 import { computed, watch } from 'vue';
+
 import NavFooter from '@/components/layout/NavFooter.vue';
 import NavMain from '@/components/layout/NavMain.vue';
 import NavUser from '@/components/layout/NavUser.vue';

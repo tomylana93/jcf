@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, useTemplateRef } from 'vue';
+
 import LocaleFlag from '@/components/shared/LocaleFlag.vue';
 import { Button } from '@/components/ui/button';
 import {

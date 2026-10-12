@@ -1,5 +1,6 @@
 import { useEditor } from '@tiptap/vue-3';
 import { watch } from 'vue';
+
 import { editorExtensions } from '@/lib/editor';
 import type { EditorDocument } from '@/types';
 

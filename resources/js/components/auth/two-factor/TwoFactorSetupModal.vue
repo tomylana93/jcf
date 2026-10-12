@@ -3,6 +3,7 @@ import { useForm } from '@inertiajs/vue3';
 import { Check, Copy, ScanLine } from '@lucide/vue';
 import { useClipboard } from '@vueuse/core';
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue';
+
 import { store as confirm } from '@/actions/Laravel/Fortify/Http/Controllers/ConfirmedTwoFactorAuthenticationController';
 import AlertError from '@/components/shared/AlertError.vue';
 import InputError from '@/components/shared/InputError.vue';

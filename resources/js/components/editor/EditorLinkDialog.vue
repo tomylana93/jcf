@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Editor } from '@tiptap/vue-3';
 import { ref, watch } from 'vue';
+
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -15,6 +16,7 @@ import { Input } from '@/components/ui/input';
 import { useTranslations } from '@/composables/useTranslations';
 import { applyEditorLink, normalizeEditorLink } from '@/lib/editor';
 import type { EditorLinkOption } from '@/types';
+
 import EditorApplicationLinkPicker from './EditorApplicationLinkPicker.vue';
 const props = defineProps<{
     editor: Editor;

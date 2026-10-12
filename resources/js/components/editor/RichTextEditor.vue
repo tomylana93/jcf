@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { EditorContent, generateJSON, generateHTML } from '@tiptap/vue-3';
 import { ref } from 'vue';
+
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useRichTextEditor } from '@/composables/useRichTextEditor';
 import { useTranslations } from '@/composables/useTranslations';
 import { editorExtensions, inspectEditorHtml } from '@/lib/editor';
 import type { EditorDocument, EditorLinkOption } from '@/types';
+
 import EditorContextMenu from './EditorContextMenu.vue';
 import EditorHtmlSource from './EditorHtmlSource.vue';
 import EditorLinkDialog from './EditorLinkDialog.vue';

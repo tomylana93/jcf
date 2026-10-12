@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
+
 import { Button } from '@/components/ui/button';
 import type { DataTableAction } from '@/types';
 

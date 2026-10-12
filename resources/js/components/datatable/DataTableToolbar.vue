@@ -2,6 +2,7 @@
 import { Columns3, Search } from '@lucide/vue';
 import type { RowData, Table } from '@tanstack/vue-table';
 import { computed } from 'vue';
+
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -20,6 +21,7 @@ import type {
     DataTableAction,
     DataTableFilter as FilterDefinition,
 } from '@/types';
+
 import type { dataTableFeatures } from './dataTable';
 import DataTableFilter from './DataTableFilter.vue';
 import DataTableToolbarActions from './DataTableToolbarActions.vue';

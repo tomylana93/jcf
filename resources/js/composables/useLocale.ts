@@ -1,5 +1,6 @@
 import { router, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
+
 import { useTranslations } from '@/composables/useTranslations';
 import type { LocaleSettings, TranslationLocale } from '@/types';
 

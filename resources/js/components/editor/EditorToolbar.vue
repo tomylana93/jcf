@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { Link } from '@lucide/vue';
 import type { Editor } from '@tiptap/vue-3';
+
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useTranslations } from '@/composables/useTranslations';
+
 import EditorBlockControls from './EditorBlockControls.vue';
 import EditorFormattingControls from './EditorFormattingControls.vue';
 import EditorTableControls from './EditorTableControls.vue';

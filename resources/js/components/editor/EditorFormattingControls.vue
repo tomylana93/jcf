@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Bold, Italic, Underline, Strikethrough } from '@lucide/vue';
 import type { Editor } from '@tiptap/vue-3';
+
 import {
     Select,
     SelectContent,

@@ -1,5 +1,6 @@
 import { execFileSync, execSync } from 'node:child_process';
 import { resolve, sep } from 'node:path';
+
 import inertia from '@inertiajs/vite';
 import { wayfinder } from '@laravel/vite-plugin-wayfinder';
 import tailwindcss from '@tailwindcss/vite';
@@ -148,7 +149,7 @@ export default defineConfig({
                 'sibling',
                 'index',
             ],
-            newlinesBetween: false,
+            newlinesBetween: true,
         },
     },
 });

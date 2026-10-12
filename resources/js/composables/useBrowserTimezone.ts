@@ -1,5 +1,6 @@
 import { router, usePage } from '@inertiajs/vue3';
 import { onMounted } from 'vue';
+
 import type { TimezoneSettings } from '@/types';
 
 export function useBrowserTimezone(): void {

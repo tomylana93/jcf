@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
+
 import AppContent from '@/components/layout/AppContent.vue';
 import AppShell from '@/components/layout/AppShell.vue';
 import AppSidebar from '@/components/layout/AppSidebar.vue';

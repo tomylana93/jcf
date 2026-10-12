@@ -1,5 +1,6 @@
 import { usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
+
 import { useTranslations } from '@/composables/useTranslations';
 import { formatDateTime } from '@/lib/dateTime';
 import type { TimezoneSettings } from '@/types';
