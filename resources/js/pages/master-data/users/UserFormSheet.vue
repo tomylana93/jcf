@@ -14,6 +14,7 @@ import { computed, watch } from 'vue';
 import {
     store,
     update,
+    sendInvitation,
 } from '@/actions/App/Http/Controllers/MasterData/UserController';
 import { Button } from '@/components/ui/button';
 import {
@@ -43,6 +44,7 @@ import {
     SheetHeader,
     SheetTitle,
 } from '@/components/ui/sheet';
+import { Switch } from '@/components/ui/switch';
 import { useTranslations } from '@/composables/useTranslations';
 import type { SelectOption, UserForm, UserRow } from '@/types';
 
@@ -56,8 +58,17 @@ const emit = defineEmits<{
     'update:open': [open: boolean];
 }>();
 const { t } = useTranslations();
+const invitationForm = useForm<{ invitation: string }>({ invitation: '' });
+function resendInvitation(): void {
+    if (props.user) {
+        invitationForm.submit(sendInvitation(props.user.id), {
+            preserveScroll: true,
+        });
+    }
+}
 const editing = computed(() => props.user !== null);
 const form = useForm<UserForm>({
+    send_invitation: false,
     password: '',
     password_confirmation: '',
     name: '',
@@ -75,6 +86,7 @@ watch(
         }
         form.clearErrors();
         form.defaults({
+            send_invitation: false,
             password: '',
             password_confirmation: '',
             name: user?.name ?? '',
@@ -97,6 +109,22 @@ function submit(): void {
 <template>
     <Sheet :open="open" @update:open="emit('update:open', $event)">
         <SheetContent class="overflow-y-auto sm:max-w-lg">
+            <div
+                v-if="user?.invitation_pending && user.status === 'active'"
+                class="mt-8 flex flex-col gap-2 px-4"
+            >
+                <p class="text-sm text-muted-foreground">
+                    {{ t('user.invitation.pending') }}
+                </p>
+                <Button
+                    type="button"
+                    variant="outline"
+                    :disabled="invitationForm.processing"
+                    @click="resendInvitation"
+                    >{{ t('user.invitation.resend') }}</Button
+                >
+                <FieldError :errors="[invitationForm.errors.invitation]" />
+            </div>
             <form
                 novalidate
                 class="flex min-h-full flex-col gap-2"
@@ -276,7 +304,19 @@ function submit(): void {
                         />
                     </Field>
                     <template v-if="!editing">
-                        <Field :data-invalid="!!form.errors.password">
+                        <Field
+                            ><FieldLabel for="send-invitation">{{
+                                t('user.invitation.action')
+                            }}</FieldLabel
+                            ><Switch
+                                id="send-invitation"
+                                v-model="form.send_invitation" /><FieldError
+                                :errors="[form.errors.send_invitation]"
+                        /></Field>
+                        <Field
+                            v-if="!form.send_invitation"
+                            :data-invalid="!!form.errors.password"
+                        >
                             <FieldLabel for="user-password">{{
                                 t('user.label.password')
                             }}</FieldLabel>
@@ -295,6 +335,7 @@ function submit(): void {
                             />
                         </Field>
                         <Field
+                            v-if="!form.send_invitation"
                             :data-invalid="!!form.errors.password_confirmation"
                         >
                             <FieldLabel for="user-password-confirmation">{{

@@ -135,6 +135,8 @@ return [
             'footer_text' => 'Teks footer',
         ],
         'option' => [
+            'environment' => 'Konfigurasi environment',
+            'none' => 'Tanpa enkripsi (Mailpit lokal)',
             'log' => 'Hanya log',
             'smtp' => 'SMTP',
             'starttls' => 'STARTTLS (umumnya port 587)',

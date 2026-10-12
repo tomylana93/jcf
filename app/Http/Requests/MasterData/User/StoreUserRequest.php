@@ -12,7 +12,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
-/** @method array{name: string, email: string, password: string, role?: ?string} validated() */
+/** @method array{name: string, email: string, password?: ?string, role?: ?string, send_invitation?: bool} validated() */
 final class StoreUserRequest extends FormRequest
 {
     public function authorize(): bool
@@ -26,7 +26,8 @@ final class StoreUserRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')],
-            'password' => ['required', 'string', 'confirmed', Password::defaults()],
+            'send_invitation' => ['sometimes', 'boolean'],
+            'password' => ['exclude_if:send_invitation,true', 'required', 'string', 'confirmed', Password::defaults()],
             'role' => ['nullable', 'string', Rule::exists(RoleModel::class, 'name')->where('guard_name', 'web')->whereNot('name', Role::SuperAdmin->value)],
         ];
     }

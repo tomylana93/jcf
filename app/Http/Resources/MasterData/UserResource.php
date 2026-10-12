@@ -28,6 +28,7 @@ final class UserResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'email_verified' => $this->hasVerifiedEmail(),
+            'invitation_pending' => $this->invited_at !== null && $this->invitation_accepted_at === null,
             'avatar' => $this->avatar,
             'status' => $this->status,
             'status_label' => $this->status->label(),
