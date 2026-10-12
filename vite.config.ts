@@ -1,3 +1,5 @@
+import { execFileSync, execSync } from 'node:child_process';
+import { resolve, sep } from 'node:path';
 import inertia from '@inertiajs/vite';
 import { wayfinder } from '@laravel/vite-plugin-wayfinder';
 import tailwindcss from '@tailwindcss/vite';
@@ -5,6 +7,7 @@ import typescript6 from '@typescript/typescript6';
 import vue from '@vitejs/plugin-vue';
 import laravel from 'laravel-vite-plugin';
 import { bunny } from 'laravel-vite-plugin/fonts';
+import type { Plugin } from 'vite-plus';
 import { defineConfig, lazyPlugins } from 'vite-plus';
 import { registerTS } from 'vue/compiler-sfc';
 
@@ -13,8 +16,51 @@ registerTS(
         typescript6 as unknown as ReturnType<Parameters<typeof registerTS>[0]>,
 );
 
+function laravelTranslations(): Plugin {
+    const generate = () => {
+        if (process.platform === 'win32') {
+            return execSync('php artisan lang:export --no-interaction', {
+                stdio: 'inherit',
+            });
+        }
+
+        return execFileSync(
+            'php',
+            ['artisan', 'lang:export', '--no-interaction'],
+            {
+                stdio: 'inherit',
+            },
+        );
+    };
+    return {
+        name: 'laravel-translations',
+        enforce: 'pre',
+        buildStart() {
+            generate();
+        },
+        configureServer(server) {
+            const directory = resolve('lang') + sep;
+            server.watcher.add(directory);
+            server.watcher.on('all', (event, file) => {
+                if (
+                    ['add', 'change', 'unlink'].includes(event) &&
+                    resolve(file).startsWith(directory) &&
+                    file.endsWith('.php')
+                ) {
+                    try {
+                        generate();
+                    } catch (error) {
+                        server.config.logger.error(String(error));
+                    }
+                }
+            });
+        },
+    };
+}
+
 export default defineConfig({
     plugins: lazyPlugins(() => [
+        laravelTranslations(),
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.ts'],
             refresh: true,

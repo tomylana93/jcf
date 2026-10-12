@@ -1,0 +1,62 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'label' => [
+        'table' => 'Table',
+        'content' => 'Editor content',
+        'toolbar' => 'Editor toolbar',
+        'block' => 'Block type',
+        'paragraph' => 'Paragraph',
+        'heading' => 'Heading :level',
+        'application_page' => 'Application page',
+        'search_pages' => 'Search application pages',
+        'url' => 'URL',
+        'visual' => 'Visual',
+        'html' => 'HTML',
+        'normalized' => 'HTML conversion preview',
+    ],
+    'placeholder' => [
+        'application_page' => 'Choose an application page...',
+        'search_pages' => 'Search pages...',
+        'url' => '/documentation or https://example.com',
+    ],
+
+    'helper' => [
+        'no_pages' => 'No matching application pages.',
+        'link' => 'Use an HTTP, HTTPS, mailto, relative, or anchor URL. Leave empty to remove the link.',
+        'html' => 'HTML follows the supported editor formatting. Apply changes before saving.',
+        'normalized' => 'The editor normalizes HTML and removes unsupported markup. Review the result before applying it.',
+    ],
+    'button' => [
+        'bold' => 'Bold',
+        'italic' => 'Italic',
+        'underline' => 'Underline',
+        'strike' => 'Strikethrough',
+        'bullet_list' => 'Bullet list',
+        'ordered_list' => 'Numbered list',
+        'quote' => 'Blockquote',
+        'code' => 'Code block',
+        'insert_table' => 'Insert table (3 × 3)',
+        'column_before' => 'Add column before',
+        'column_after' => 'Add column after',
+        'delete_column' => 'Delete column',
+        'row_before' => 'Add row before',
+        'row_after' => 'Add row after',
+        'delete_row' => 'Delete row',
+        'merge_cells' => 'Merge cells',
+        'split_cell' => 'Split cell',
+        'header_row' => 'Toggle header row',
+        'header_column' => 'Toggle header column',
+        'delete_table' => 'Delete table',
+        'separator' => 'Separator',
+        'undo' => 'Undo',
+        'redo' => 'Redo',
+        'clear' => 'Clear formatting',
+        'link' => 'Link',
+        'unlink' => 'Remove link',
+        'apply' => 'Apply',
+        'confirm_html' => 'Apply converted HTML',
+    ],
+];

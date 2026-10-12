@@ -1,0 +1,62 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'label' => [
+        'table' => 'Tabel',
+        'content' => 'Konten editor',
+        'toolbar' => 'Toolbar editor',
+        'block' => 'Tipe block',
+        'paragraph' => 'Paragraf',
+        'heading' => 'Heading :level',
+        'application_page' => 'Halaman aplikasi',
+        'search_pages' => 'Cari halaman aplikasi',
+        'url' => 'URL',
+        'visual' => 'Visual',
+        'html' => 'HTML',
+        'normalized' => 'Preview konversi HTML',
+    ],
+    'placeholder' => [
+        'application_page' => 'Pilih halaman aplikasi...',
+        'search_pages' => 'Cari halaman...',
+        'url' => '/documentation atau https://example.com',
+    ],
+
+    'helper' => [
+        'no_pages' => 'Tidak ada halaman aplikasi yang sesuai.',
+        'link' => 'Gunakan URL HTTP, HTTPS, mailto, relatif, atau anchor. Kosongkan untuk menghapus link.',
+        'html' => 'HTML mengikuti format yang didukung editor. Terapkan perubahan sebelum menyimpan.',
+        'normalized' => 'Editor menormalisasi HTML dan menghapus markup yang tidak didukung. Periksa hasil sebelum menerapkan perubahan.',
+    ],
+    'button' => [
+        'bold' => 'Tebal',
+        'italic' => 'Miring',
+        'underline' => 'Garis bawah',
+        'strike' => 'Coret',
+        'bullet_list' => 'Bullet list',
+        'ordered_list' => 'Daftar bernomor',
+        'quote' => 'Blockquote',
+        'code' => 'Code block',
+        'insert_table' => 'Tambah tabel (3 × 3)',
+        'column_before' => 'Tambah kolom sebelum',
+        'column_after' => 'Tambah kolom setelah',
+        'delete_column' => 'Hapus kolom',
+        'row_before' => 'Tambah baris sebelum',
+        'row_after' => 'Tambah baris setelah',
+        'delete_row' => 'Hapus baris',
+        'merge_cells' => 'Gabungkan sel',
+        'split_cell' => 'Pisahkan sel',
+        'header_row' => 'Ubah baris header',
+        'header_column' => 'Ubah kolom header',
+        'delete_table' => 'Hapus tabel',
+        'separator' => 'Pemisah',
+        'undo' => 'Undo',
+        'redo' => 'Redo',
+        'clear' => 'Hapus format',
+        'link' => 'Link',
+        'unlink' => 'Hapus link',
+        'apply' => 'Terapkan',
+        'confirm_html' => 'Terapkan hasil konversi HTML',
+    ],
+];

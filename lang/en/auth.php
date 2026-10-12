@@ -9,4 +9,9 @@ return [
     'password' => 'The provided password is incorrect.',
     'throttle' => 'Too many login attempts. Login can be retried in :seconds seconds.',
 
+    'button' => [
+        'logout' => 'Log out',
+        'login' => 'Log in',
+    ],
+
 ];
