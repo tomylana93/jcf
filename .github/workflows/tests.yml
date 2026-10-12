@@ -1,0 +1,160 @@
+
+name: tests
+
+on:
+  push:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  detect:
+    name: Detect duplicate CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+
+    outputs:
+      run_ci: ${{ steps.check.outputs.run_ci }}
+
+    steps:
+      - name: Check for existing pull request
+        id: check
+        uses: actions/github-script@v9
+        with:
+          script: |
+            if (
+              context.eventName !== 'push' ||
+              context.ref === 'refs/heads/main'
+            ) {
+              core.setOutput('run_ci', 'true');
+              return;
+            }
+
+            const branch = context.ref.replace(
+              'refs/heads/',
+              ''
+            );
+
+            const prs = await github.rest.pulls.list({
+              ...context.repo,
+              state: 'open',
+              head: `${context.repo.owner}:${branch}`,
+              per_page: 100,
+            });
+
+            const hasPR = prs.data.some(
+              pr =>
+                pr.head.repo?.full_name ===
+                  `${context.repo.owner}/${context.repo.repo}` &&
+                pr.head.ref === branch
+            );
+
+            core.setOutput(
+              'run_ci',
+              hasPR ? 'false' : 'true'
+            );
+
+  ci:
+    name: CI
+    needs: detect
+    if: needs.detect.outputs.run_ci == 'true'
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:18
+
+        env:
+          POSTGRES_DB: app_testing
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+
+        ports:
+          - 5432:5432
+
+        options: >-
+          --health-cmd "pg_isready -U postgres -d app_testing"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      APP_ENV: testing
+      APP_DEBUG: 'true'
+
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_DATABASE: app_testing
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      DB_URL: ''
+
+      CACHE_STORE: array
+      SESSION_DRIVER: array
+      QUEUE_CONNECTION: sync
+      MAIL_MAILER: array
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: mbstring, pdo_pgsql, pgsql, zip
+          tools: composer:v2
+          coverage: none
+
+      - name: Setup Node.js and pnpm
+        uses: pnpm/setup@v3
+        with:
+          version: 12.10.1
+          runtime: node@26
+          cache: true
+          require-lockfile: true
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: |
+          echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Composer
+        uses: actions/cache@v6
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-php85-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php85-composer-
+
+      - name: Install PHP dependencies
+        run: |
+          composer install \
+            --no-interaction \
+            --prefer-dist \
+            --no-progress
+
+      - name: Prepare Laravel
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          php artisan migrate --force
+
+      - name: Build frontend
+        run: pnpm run build
+
+      - name: Run CI checks
+        run: composer ci:check
