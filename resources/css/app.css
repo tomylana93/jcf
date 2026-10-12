@@ -1,6 +1,74 @@
 @import 'tailwindcss';
 
+@layer components {
+    .editor-content {
+        @apply leading-7 break-words;
+        & > * + * {
+            @apply mt-4;
+        }
+        & h2 {
+            @apply text-2xl font-semibold tracking-tight;
+        }
+        & h3 {
+            @apply text-xl font-semibold tracking-tight;
+        }
+        & h4 {
+            @apply text-lg font-semibold;
+        }
+        & ul {
+            @apply list-disc pl-6;
+        }
+        & ol {
+            @apply list-decimal pl-6;
+        }
+        & li > p {
+            @apply my-1;
+        }
+        & li > ul,
+        & li > ol {
+            @apply my-2;
+        }
+        & blockquote {
+            @apply border-l-4 border-border pl-4 text-muted-foreground;
+        }
+        & pre {
+            @apply overflow-x-auto rounded-md bg-muted p-4 font-mono text-sm;
+        }
+        & :not(pre) > code {
+            @apply rounded bg-muted px-1 py-0.5 font-mono text-sm;
+        }
+        & a {
+            @apply text-primary underline underline-offset-4;
+        }
+        & hr {
+            @apply my-6 border-border;
+        }
+        & table {
+            @apply w-full table-fixed border-collapse;
+        }
+        & td,
+        & th {
+            @apply relative border border-border p-3 align-top;
+        }
+        & th {
+            @apply bg-muted font-semibold;
+        }
+        & td > p,
+        & th > p {
+            @apply my-0;
+        }
+        & .selectedCell::after {
+            @apply pointer-events-none absolute inset-0 bg-primary/15 content-[''];
+        }
+        & .ProseMirror-selectednode {
+            @apply outline-2 outline-ring;
+        }
+    }
+}
+
 @import 'tw-animate-css';
+
+@import './shadcn-vue.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -160,6 +228,88 @@
     --sidebar-border: hsl(0 0% 15.9%);
     --sidebar-ring: hsl(217.2 91.2% 59.8%);
     --sidebar: hsl(240 5.9% 10%);
+}
+
+:root[data-brand-color='blue'] {
+    --primary: hsl(221 83% 53%);
+    --primary-foreground: hsl(0 0% 100%);
+    --ring: hsl(221 83% 53%);
+    --sidebar-primary: hsl(221 83% 53%);
+    --sidebar-primary-foreground: hsl(0 0% 100%);
+    --sidebar-ring: hsl(221 83% 53%);
+}
+:root[data-brand-color='green'] {
+    --primary: hsl(142 71% 34%);
+    --primary-foreground: hsl(0 0% 100%);
+    --ring: hsl(142 71% 34%);
+    --sidebar-primary: hsl(142 71% 34%);
+    --sidebar-primary-foreground: hsl(0 0% 100%);
+    --sidebar-ring: hsl(142 71% 34%);
+}
+:root[data-brand-color='purple'] {
+    --primary: hsl(262 83% 58%);
+    --primary-foreground: hsl(0 0% 100%);
+    --ring: hsl(262 83% 58%);
+    --sidebar-primary: hsl(262 83% 58%);
+    --sidebar-primary-foreground: hsl(0 0% 100%);
+    --sidebar-ring: hsl(262 83% 58%);
+}
+:root[data-brand-color='rose'] {
+    --primary: hsl(346 77% 50%);
+    --primary-foreground: hsl(0 0% 100%);
+    --ring: hsl(346 77% 50%);
+    --sidebar-primary: hsl(346 77% 50%);
+    --sidebar-primary-foreground: hsl(0 0% 100%);
+    --sidebar-ring: hsl(346 77% 50%);
+}
+:root[data-brand-color='orange'] {
+    --primary: hsl(25 95% 43%);
+    --primary-foreground: hsl(0 0% 100%);
+    --ring: hsl(25 95% 43%);
+    --sidebar-primary: hsl(25 95% 43%);
+    --sidebar-primary-foreground: hsl(0 0% 100%);
+    --sidebar-ring: hsl(25 95% 43%);
+}
+
+:root.dark[data-brand-color='blue'] {
+    --primary: hsl(217 91% 65%);
+    --primary-foreground: hsl(222 47% 11%);
+    --ring: hsl(217 91% 65%);
+    --sidebar-primary: hsl(217 91% 65%);
+    --sidebar-primary-foreground: hsl(222 47% 11%);
+    --sidebar-ring: hsl(217 91% 65%);
+}
+:root.dark[data-brand-color='green'] {
+    --primary: hsl(142 69% 58%);
+    --primary-foreground: hsl(150 45% 10%);
+    --ring: hsl(142 69% 58%);
+    --sidebar-primary: hsl(142 69% 58%);
+    --sidebar-primary-foreground: hsl(150 45% 10%);
+    --sidebar-ring: hsl(142 69% 58%);
+}
+:root.dark[data-brand-color='purple'] {
+    --primary: hsl(270 95% 75%);
+    --primary-foreground: hsl(270 50% 12%);
+    --ring: hsl(270 95% 75%);
+    --sidebar-primary: hsl(270 95% 75%);
+    --sidebar-primary-foreground: hsl(270 50% 12%);
+    --sidebar-ring: hsl(270 95% 75%);
+}
+:root.dark[data-brand-color='rose'] {
+    --primary: hsl(350 89% 72%);
+    --primary-foreground: hsl(346 55% 12%);
+    --ring: hsl(350 89% 72%);
+    --sidebar-primary: hsl(350 89% 72%);
+    --sidebar-primary-foreground: hsl(346 55% 12%);
+    --sidebar-ring: hsl(350 89% 72%);
+}
+:root.dark[data-brand-color='orange'] {
+    --primary: hsl(27 96% 67%);
+    --primary-foreground: hsl(25 60% 12%);
+    --ring: hsl(27 96% 67%);
+    --sidebar-primary: hsl(27 96% 67%);
+    --sidebar-primary-foreground: hsl(25 60% 12%);
+    --sidebar-ring: hsl(27 96% 67%);
 }
 
 @layer base {

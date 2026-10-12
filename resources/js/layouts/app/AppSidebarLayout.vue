@@ -1,15 +1,19 @@
 <script setup lang="ts">
-import AppContent from '@/components/AppContent.vue';
-import AppShell from '@/components/AppShell.vue';
-import AppSidebar from '@/components/AppSidebar.vue';
-import AppSidebarHeader from '@/components/AppSidebarHeader.vue';
-import { Toaster } from '@/components/ui/sonner';
-
+import { onMounted, ref } from 'vue';
+import AppContent from '@/components/layout/AppContent.vue';
+import AppShell from '@/components/layout/AppShell.vue';
+import AppSidebar from '@/components/layout/AppSidebar.vue';
+import AppSidebarHeader from '@/components/layout/AppSidebarHeader.vue';
 import type { BreadcrumbItem } from '@/types';
 
 type Props = {
     breadcrumbs?: BreadcrumbItem[];
 };
+
+const mounted = ref(false);
+onMounted(() => {
+    mounted.value = true;
+});
 
 withDefaults(defineProps<Props>(), {
     breadcrumbs: () => [],
@@ -18,11 +22,10 @@ withDefaults(defineProps<Props>(), {
 
 <template>
     <AppShell variant="sidebar">
-        <AppSidebar />
+        <AppSidebar v-if="mounted" />
         <AppContent variant="sidebar" class="min-w-0 overflow-x-clip">
             <AppSidebarHeader :breadcrumbs="breadcrumbs" />
             <slot />
         </AppContent>
-        <Toaster />
     </AppShell>
 </template>

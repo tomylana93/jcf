@@ -1,5 +1,13 @@
-import type { Auth, TimezoneSettings } from '@/types';
 import type { Directive } from 'vue';
+import type {
+    Auth,
+    BrandSettings,
+    GeneralSettings,
+    LayoutSettings,
+    LocaleSettings,
+    NotificationSummary,
+    TimezoneSettings,
+} from '@/types';
 
 // Extend ImportMeta interface for Vite...
 declare module 'vite/client' {
@@ -21,6 +29,11 @@ declare module '@inertiajs/core' {
             auth: Auth;
             timezone: TimezoneSettings;
             sidebarOpen: boolean;
+            general?: GeneralSettings;
+            brand?: BrandSettings;
+            layout?: LayoutSettings;
+            locale?: LocaleSettings;
+            notificationSummary?: NotificationSummary;
             [key: string]: unknown;
         };
     }

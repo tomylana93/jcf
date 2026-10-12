@@ -1,10 +1,17 @@
 import inertia from '@inertiajs/vite';
 import { wayfinder } from '@laravel/vite-plugin-wayfinder';
 import tailwindcss from '@tailwindcss/vite';
+import typescript6 from '@typescript/typescript6';
 import vue from '@vitejs/plugin-vue';
 import laravel from 'laravel-vite-plugin';
 import { bunny } from 'laravel-vite-plugin/fonts';
 import { defineConfig, lazyPlugins } from 'vite-plus';
+import { registerTS } from 'vue/compiler-sfc';
+
+registerTS(
+    () =>
+        typescript6 as unknown as ReturnType<Parameters<typeof registerTS>[0]>,
+);
 
 export default defineConfig({
     plugins: lazyPlugins(() => [
@@ -44,32 +51,25 @@ export default defineConfig({
         },
     },
     lint: {
-        jsPlugins: ['@stylistic/eslint-plugin'],
-        rules: {
-            '@stylistic/padding-line-between-statements': [
-                'error',
-                {
-                    blankLine: 'always',
-                    prev: ['const', 'let', 'var'],
-                    next: ['const', 'let', 'var'],
-                },
-            ],
-        },
         ignorePatterns: [
             'vendor/**',
             'node_modules/**',
             'public/**',
             'bootstrap/ssr/**',
             'tailwind.config.js',
+            'resources/js/lang/**',
             'resources/js/actions/**',
             'resources/js/components/ui/*',
             'resources/js/routes/**',
             'resources/js/wayfinder/**',
+            'vite.config.ts',
         ],
         options: {
             denyWarnings: true,
             typeAware: true,
+            typeCheck: true,
         },
+        plugins: ['eslint', 'typescript', 'unicorn', 'oxc', 'vue'],
     },
     fmt: {
         printWidth: 80,
@@ -78,26 +78,12 @@ export default defineConfig({
         semi: true,
         singleAttributePerLine: false,
         htmlWhitespaceSensitivity: 'css',
-        sortImports: {
-            groups: [
-                'builtin',
-                'external',
-                ['internal', 'subpath'],
-                ['parent', 'sibling', 'index'],
-                'style',
-                'type',
-                'unknown',
-            ],
-            internalPattern: ['@/'],
-            newlinesBetween: true,
-            order: 'asc',
-            sortSideEffects: false,
-        },
         ignorePatterns: [
             '.github/**',
             '.lerd.yaml',
             'composer.json',
             'resources/js/components/ui/*',
+            'resources/js/lang/**',
             'resources/views/mail/*',
             '.serena/**',
             '.vscode/**',
@@ -106,6 +92,17 @@ export default defineConfig({
         sortTailwindcss: {
             functions: ['clsx', 'cn', 'cva'],
             stylesheet: 'resources/css/app.css',
+        },
+        sortImports: {
+            groups: [
+                'builtin',
+                'external',
+                'internal',
+                'parent',
+                'sibling',
+                'index',
+            ],
+            newlinesBetween: false,
         },
     },
 });
