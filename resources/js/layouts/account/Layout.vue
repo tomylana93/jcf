@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
 import { computed } from 'vue';
+
 import PageContainer from '@/components/layout/PageContainer.vue';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -9,6 +10,7 @@ import { useTranslations } from '@/composables/useTranslations';
 import { toUrl } from '@/lib/utils';
 import { edit as editProfile } from '@/routes/profile';
 import { edit as editSecurity } from '@/routes/security';
+import { index as sessionsIndex } from '@/routes/sessions';
 import type { NavItem } from '@/types';
 
 const { t } = useTranslations();
@@ -22,6 +24,7 @@ const sidebarNavItems = computed<NavItem[]>(() => [
         title: t('account.link.security'),
         href: editSecurity(),
     },
+    { title: t('sessions.title'), href: sessionsIndex() },
 ]);
 
 const { isCurrentOrParentUrl } = useCurrentUrl();

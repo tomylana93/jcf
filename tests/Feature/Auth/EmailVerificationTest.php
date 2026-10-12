@@ -31,7 +31,7 @@ describe('email verification', function () {
 
         actingAs($user);
 
-        $response = get(route('appearance.edit'));
+        $response = get(route('sessions.index'));
 
         $response->assertRedirect(route('verification.notice'));
     });

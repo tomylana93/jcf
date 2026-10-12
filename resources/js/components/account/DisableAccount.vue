@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
 import { useTemplateRef } from 'vue';
-import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
+
+import ProfileController from '@/actions/App/Http/Controllers/Account/ProfileController';
 import Heading from '@/components/shared/Heading.vue';
 import InputError from '@/components/shared/InputError.vue';
 import PasswordInput from '@/components/shared/PasswordInput.vue';
@@ -23,7 +24,6 @@ import type { DisableAccountForm } from '@/types';
 const { t } = useTranslations();
 
 const passwordInput = useTemplateRef('passwordInput');
-
 const form = useForm<DisableAccountForm>({ password: '' });
 
 const submit = () => {

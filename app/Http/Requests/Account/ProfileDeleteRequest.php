@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Requests\Settings;
+namespace App\Http\Requests\Account;
 
 use App\Concerns\PasswordValidationRules;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-final class PasswordUpdateRequest extends FormRequest
+final class ProfileDeleteRequest extends FormRequest
 {
     use PasswordValidationRules;
 
@@ -20,8 +20,7 @@ final class PasswordUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'current_password' => $this->currentPasswordRules(),
-            'password' => $this->passwordRules(),
+            'password' => $this->currentPasswordRules(),
         ];
     }
 }
