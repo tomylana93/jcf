@@ -10,3 +10,4 @@ Before planning or editing, find the row whose globs match the file's path and r
 | lang/** | .ai/rules/lang.md |
 | database/migrations/** | .ai/rules/migrations.md |
 | app/Settings/** | .ai/rules/settings.md |
+| app/Tables/** | .ai/rules/tables.md |
