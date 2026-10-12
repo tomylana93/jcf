@@ -6,6 +6,11 @@ namespace App\Http\Middleware;
 
 use App\Actions\Account\GetUserPermissions;
 use App\Actions\Account\ResolveTimezone;
+use App\Actions\Settings\GetBrandSettings;
+use App\Actions\Settings\GetGeneralSettings;
+use App\Actions\Settings\GetLayoutSettings;
+use App\Enums\Locale;
+use App\Enums\Role;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -41,9 +46,17 @@ final class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
-            'name' => config('app.name'),
+            'locale' => [
+                'current' => app()->getLocale(),
+                'fallback' => config('app.fallback_locale'),
+                'options' => Locale::options(),
+            ],
+            'general' => fn (): array => resolve(GetGeneralSettings::class)->handle(),
+            'brand' => fn (): array => resolve(GetBrandSettings::class)->handle(),
+            'layout' => fn (): array => resolve(GetLayoutSettings::class)->handle(),
             'auth' => [
-                'user' => $request->user()?->append('avatar'),
+                'user' => fn () => $request->user()?->append('avatar'),
+                'super_admin' => fn (): bool => $request->user()?->hasRole(Role::SuperAdmin) ?? false,
                 'permissions' => fn (): array => resolve(GetUserPermissions::class)->handle($request->user()),
             ],
             'timezone' => fn (): array => resolve(ResolveTimezone::class)->handle($request->user(), $request->cookie('timezone')),

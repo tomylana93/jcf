@@ -1,5 +1,7 @@
-import { LayoutGrid } from '@lucide/vue';
+import { LayoutGrid, Settings } from '@lucide/vue';
+
 import { dashboard } from '@/routes';
+import { index as settingsIndex } from '@/routes/settings';
 import type {
     EditorLinkOption,
     NavGroup,
@@ -20,8 +22,8 @@ export function createMainNavigationItems(
 }
 
 export function createAdminNavigationGroups(
-    _t: (key: TranslationKey) => string,
-    _canViewSettings = false,
+    t: (key: TranslationKey) => string,
+    canViewSettings = false,
     _canViewUsers = false,
     _canViewUserPermissions = false,
     _canManageDocumentation = false,
@@ -29,7 +31,19 @@ export function createAdminNavigationGroups(
     _canViewSystem = false,
     _canManageBackups = false,
 ): NavGroup[] {
-    return [];
+    return canViewSettings
+        ? [
+              {
+                  items: [
+                      {
+                          title: t('navigation.link.settings'),
+                          href: settingsIndex(),
+                          icon: Settings,
+                      },
+                  ],
+              },
+          ]
+        : [];
 }
 
 export function createFooterNavigationItems(

@@ -2,11 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers\Settings;
+namespace App\Http\Controllers\Account;
 
+use App\Actions\Account\GetAvatarSettings;
+use App\Actions\Account\GetTimezoneOptions;
+use App\Actions\Account\UpdateProfile;
+use App\Enums\Role;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Settings\ProfileDeleteRequest;
-use App\Http\Requests\Settings\ProfileUpdateRequest;
+use App\Http\Requests\Account\ProfileDeleteRequest;
+use App\Http\Requests\Account\ProfileUpdateRequest;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,28 +23,25 @@ final class ProfileController extends Controller
     /**
      * Show the user's profile settings page.
      */
-    public function edit(Request $request): Response
+    public function edit(Request $request, GetAvatarSettings $getAvatarSettings, GetTimezoneOptions $getTimezoneOptions): Response
     {
-        return Inertia::render('settings/Profile', [
+        return Inertia::render('account/Profile', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => $request->session()->get('status'),
+            'canDisableAccount' => ! $request->user()->hasRole(Role::SuperAdmin),
+            'avatarSettings' => $getAvatarSettings->handle($request->user()),
+            'timezoneOptions' => $getTimezoneOptions->handle(),
         ]);
     }
 
     /**
      * Update the user's profile information.
      */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
+    public function update(ProfileUpdateRequest $request, UpdateProfile $updateProfile): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $updateProfile->handle($request->user(), $request->validated());
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
-        }
-
-        $request->user()->save();
-
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('Profile updated.')]);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('account.profile.status.updated')]);
 
         return to_route('profile.edit');
     }

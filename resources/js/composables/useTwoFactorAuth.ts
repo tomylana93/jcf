@@ -1,6 +1,7 @@
 import { useHttp } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import type { ComputedRef, Ref } from 'vue';
+
 import { useTranslations } from '@/composables/useTranslations';
 import { qrCode, recoveryCodes, secretKey } from '@/routes/two-factor';
 

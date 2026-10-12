@@ -1,4 +1,5 @@
 import { onScopeDispose, ref, watch } from 'vue';
+
 import type { GlobalSearchResults } from '@/types';
 
 // JCF stub: backend search route is not available yet (see jvst routes/search).

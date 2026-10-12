@@ -1,4 +1,5 @@
 import type { Directive } from 'vue';
+
 import type {
     Auth,
     BrandSettings,
@@ -25,14 +26,13 @@ declare module 'vite/client' {
 declare module '@inertiajs/core' {
     export interface InertiaConfig {
         sharedPageProps: {
-            name: string;
             auth: Auth;
             timezone: TimezoneSettings;
             sidebarOpen: boolean;
-            general?: GeneralSettings;
-            brand?: BrandSettings;
-            layout?: LayoutSettings;
-            locale?: LocaleSettings;
+            general: GeneralSettings;
+            brand: BrandSettings;
+            layout: LayoutSettings;
+            locale: LocaleSettings;
             notificationSummary?: NotificationSummary;
             [key: string]: unknown;
         };

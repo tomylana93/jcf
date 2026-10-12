@@ -13,7 +13,7 @@ use function Pest\Laravel\get;
 
 describe('shared application permissions', function (): void {
     it('shares an empty permission list for guests', function (): void {
-        get(route('home'))->assertOk()->assertInertia(fn (Assert $page) => $page
+        get(route('login'))->assertOk()->assertInertia(fn (Assert $page) => $page
             ->where('auth.permissions', [])
         );
     });
@@ -26,7 +26,7 @@ describe('shared application permissions', function (): void {
             ->where('auth.permissions', [])
         );
         get(route('profile.edit'))->assertOk();
-        get(route('appearance.edit'))->assertOk();
+        get(route('sessions.index'))->assertRedirect(route('password.confirm'));
     });
 
     it('shares only effective permissions evaluated by the server gate', function (): void {

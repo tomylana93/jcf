@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Search } from '@lucide/vue';
 import { inject } from 'vue';
+
 import { Button } from '@/components/ui/button';
 import { Kbd } from '@/components/ui/kbd';
 import { useTranslations } from '@/composables/useTranslations';

@@ -8,6 +8,7 @@ import {
     tableFeatures,
 } from '@tanstack/vue-table';
 import type { ColumnDef, RowData } from '@tanstack/vue-table';
+
 import type { DataTableExportValue } from '@/types';
 
 export const dataTableFeatures = tableFeatures({

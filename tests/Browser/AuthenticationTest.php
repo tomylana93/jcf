@@ -11,7 +11,7 @@ describe('browser authentication', function () {
     it('redirects guests from the dashboard to the login form', function (): void {
         visit(route('dashboard', absolute: false))
             ->assertPathIs('/login')
-            ->assertSee('Log in to your account')
+            ->assertSee(__('auth.login.card.title'))
             ->assertNoJavaScriptErrors();
 
         assertGuest();

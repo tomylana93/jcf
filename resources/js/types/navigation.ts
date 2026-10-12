@@ -1,5 +1,6 @@
 import type { InertiaLinkProps } from '@inertiajs/vue3';
 import type { LucideIcon } from '@lucide/vue';
+
 import type { TranslationKey } from './i18n';
 
 export type BreadcrumbItem = {

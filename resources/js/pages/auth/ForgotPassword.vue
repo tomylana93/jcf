@@ -1,66 +1,106 @@
 <script setup lang="ts">
-import { Form, Head } from '@inertiajs/vue3';
-import InputError from '@/components/shared/InputError.vue';
-import TextLink from '@/components/shared/TextLink.vue';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Spinner } from '@/components/ui/spinner';
-import { login } from '@/routes';
-import { email } from '@/routes/password';
+import { useForm, Head, Link, setLayoutProps } from '@inertiajs/vue3';
+import { Mail } from '@lucide/vue';
+import { watchEffect } from 'vue';
 
-defineOptions({
-    layout: {
-        title: 'Forgot password',
-        description: 'Enter your email to receive a password reset link',
-    },
+import { store as email } from '@/actions/Laravel/Fortify/Http/Controllers/PasswordResetLinkController';
+import { Button } from '@/components/ui/button';
+import { Field, FieldError, FieldGroup } from '@/components/ui/field';
+import {
+    InputGroup,
+    InputGroupAddon,
+    InputGroupInput,
+} from '@/components/ui/input-group';
+import { Separator } from '@/components/ui/separator';
+import { Spinner } from '@/components/ui/spinner';
+import { useTranslations } from '@/composables/useTranslations';
+import { login } from '@/routes';
+import type { ForgotPasswordForm } from '@/types';
+
+const { t } = useTranslations();
+
+watchEffect(() => {
+    setLayoutProps({
+        title: t('auth.forgot_password.card.title'),
+        description: t('auth.forgot_password.card.description'),
+    });
 });
 
 defineProps<{
     status?: string;
 }>();
+
+const form = useForm<ForgotPasswordForm>({
+    email: '',
+});
+
+const submit = () => {
+    form.submit(email(), {});
+};
 </script>
 
 <template>
-    <Head title="Forgot password" />
+    <div>
+        <Head :title="t('auth.forgot_password.title')" />
 
-    <div
-        v-if="status"
-        class="mb-4 text-center text-sm font-medium text-green-600"
-    >
-        {{ status }}
-    </div>
+        <div
+            v-if="status"
+            class="mb-4 text-center text-sm font-medium text-green-600"
+        >
+            {{ status }}
+        </div>
 
-    <div class="space-y-6">
-        <Form v-bind="email.form()" v-slot="{ errors, processing }">
-            <div class="grid gap-2">
-                <Label for="email">Email address</Label>
-                <Input
-                    id="email"
-                    type="email"
-                    name="email"
-                    autocomplete="off"
-                    v-focus
-                    placeholder="email@example.com"
-                />
-                <InputError :message="errors.email" />
-            </div>
+        <div class="flex flex-col gap-6">
+            <form
+                novalidate
+                @submit.prevent="submit"
+                class="flex flex-col gap-6"
+            >
+                <FieldGroup class="gap-6">
+                    <Field :data-invalid="!!form.errors.email">
+                        <InputGroup>
+                            <InputGroupInput
+                                id="email"
+                                name="email"
+                                v-model="form.email"
+                                autocomplete="off"
+                                v-focus
+                                :aria-label="t('user.label.email')"
+                                :aria-invalid="!!form.errors.email"
+                                :aria-describedby="
+                                    form.errors.email
+                                        ? 'email-error'
+                                        : undefined
+                                "
+                                :placeholder="t('user.placeholder.email')"
+                            />
 
-            <div class="my-6 flex items-center justify-start">
-                <Button
-                    class="w-full"
-                    :disabled="processing"
-                    data-test="email-password-reset-link-button"
-                >
-                    <Spinner v-if="processing" />
-                    Email password reset link
-                </Button>
-            </div>
-        </Form>
+                            <InputGroupAddon>
+                                <Mail aria-hidden="true" />
+                            </InputGroupAddon>
+                        </InputGroup>
 
-        <div class="space-x-1 text-center text-sm text-muted-foreground">
-            <span>Or, return to</span>
-            <TextLink :href="login()">log in</TextLink>
+                        <FieldError
+                            id="email-error"
+                            :errors="[form.errors.email]"
+                        />
+                    </Field>
+
+                    <Button
+                        :disabled="form.processing"
+                        data-test="email-password-reset-link-button"
+                    >
+                        <Spinner v-if="form.processing" />
+                        {{ t('common.button.send') }}
+                    </Button>
+                </FieldGroup>
+            </form>
+
+            <Separator />
+
+            <Button :as="Link" :href="login()" variant="secondary">
+                {{ t('auth.button.login') }}
+            </Button>
         </div>
     </div>
 </template>

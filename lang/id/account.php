@@ -68,19 +68,19 @@ return [
 
     'disable_account' => [
         'card' => [
-            'title' => 'Nonaktifkan akun',
-            'description' => 'Nonaktifkan akun dan semua resource terkait.',
+            'title' => 'Hapus akun',
+            'description' => 'Hapus akun dan semua resource terkait.',
         ],
         'helper' => [
             'warning' => 'Peringatan',
-            'access_disabled' => 'Akses akun akan dinonaktifkan.',
+            'access_disabled' => 'Data akun akan dihapus secara permanen.',
         ],
         'button' => [
-            'disable' => 'Nonaktifkan akun',
+            'disable' => 'Hapus akun',
         ],
         'dialog' => [
-            'title' => 'Konfirmasi penonaktifan akun',
-            'description' => 'Akun akan dinonaktifkan dan sesi login akan diakhiri. resource dan data terkait tetap tersimpan. Masukkan password untuk mengonfirmasi.',
+            'title' => 'Konfirmasi penghapusan akun',
+            'description' => 'Akun dan data terkait akan dihapus secara permanen. Masukkan password untuk mengonfirmasi.',
         ],
     ],
 

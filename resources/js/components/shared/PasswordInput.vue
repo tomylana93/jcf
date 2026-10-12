@@ -2,6 +2,7 @@
 import { Eye, EyeOff, LockKeyhole } from '@lucide/vue';
 import { ref, useTemplateRef } from 'vue';
 import type { HTMLAttributes } from 'vue';
+
 import {
     InputGroup,
     InputGroupAddon,

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ChevronRight } from '@lucide/vue';
 import { computed, ref, watch } from 'vue';
+
 import AppNavLink from '@/components/layout/AppNavLink.vue';
 import {
     Collapsible,

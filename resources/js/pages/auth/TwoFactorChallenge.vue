@@ -1,36 +1,70 @@
 <script setup lang="ts">
-import { Form, Head, setLayoutProps } from '@inertiajs/vue3';
-import { computed, ref, watchEffect } from 'vue';
-import InputError from '@/components/shared/InputError.vue';
+import { useForm, Head, setLayoutProps } from '@inertiajs/vue3';
+import { KeyRound } from '@lucide/vue';
+import {
+    computed,
+    ref,
+    useTemplateRef,
+    watchEffect,
+    watchPostEffect,
+} from 'vue';
+
+import { store } from '@/actions/Laravel/Fortify/Http/Controllers/TwoFactorAuthenticatedSessionController';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Field, FieldError, FieldGroup } from '@/components/ui/field';
+import {
+    InputGroup,
+    InputGroupAddon,
+    InputGroupInput,
+} from '@/components/ui/input-group';
 import {
     InputOTP,
     InputOTPGroup,
     InputOTPSlot,
 } from '@/components/ui/input-otp';
-import { store } from '@/routes/two-factor/login';
-import type { TwoFactorConfigContent } from '@/types';
+import { useTranslations } from '@/composables/useTranslations';
+import type {
+    TwoFactorConfigContent,
+    TwoFactorCodeForm,
+    TwoFactorRecoveryForm,
+} from '@/types';
+
+const { t } = useTranslations();
 
 const showRecoveryInput = ref<boolean>(false);
+const codeInputContainer = useTemplateRef('codeInputContainer');
+const codeForm = useForm<TwoFactorCodeForm>({
+    code: '',
+});
+const recoveryForm = useForm<TwoFactorRecoveryForm>({
+    recovery_code: '',
+});
 
-const code = ref<string>('');
+const submitCode = () => {
+    codeForm.submit(store(), {
+        onError: () => codeForm.reset(),
+    });
+};
+
+const submitRecoveryCode = () => {
+    recoveryForm.submit(store(), {
+        onError: () => recoveryForm.reset(),
+    });
+};
 
 const authConfigContent = computed<TwoFactorConfigContent>(() => {
     if (showRecoveryInput.value) {
         return {
-            title: 'Recovery code',
-            description:
-                'Please confirm access to your account by entering one of your emergency recovery codes.',
-            buttonText: 'login using an authentication code',
+            title: t('auth.two_factor.challenge.recovery.title'),
+            description: t('auth.two_factor.challenge.recovery.description'),
+            buttonText: t('auth.two_factor.button.use_code'),
         };
     }
 
     return {
-        title: 'Authentication code',
-        description:
-            'Enter the authentication code provided by your authenticator application.',
-        buttonText: 'login using a recovery code',
+        title: t('auth.two_factor.challenge.code.title'),
+        description: t('auth.two_factor.challenge.code.description'),
+        buttonText: t('auth.two_factor.button.use_recovery'),
     };
 });
 
@@ -41,94 +75,155 @@ watchEffect(() => {
     });
 });
 
-const toggleRecoveryMode = (clearErrors: () => void): void => {
+watchPostEffect(() => {
+    codeInputContainer.value?.querySelector('input')?.focus();
+});
+
+const toggleRecoveryMode = (): void => {
     showRecoveryInput.value = !showRecoveryInput.value;
-    clearErrors();
-    code.value = '';
+    codeForm.resetAndClearErrors();
+    recoveryForm.resetAndClearErrors();
 };
 </script>
 
 <template>
-    <Head title="Two-factor authentication" />
+    <div>
+        <Head :title="t('auth.two_factor.title')" />
 
-    <div class="space-y-6">
-        <template v-if="!showRecoveryInput">
-            <Form
-                v-bind="store.form()"
-                class="space-y-4"
-                reset-on-error
-                @error="code = ''"
-                #default="{ errors, processing, clearErrors }"
-            >
-                <input type="hidden" name="code" :value="code" />
-                <div
-                    class="flex flex-col items-center justify-center space-y-3 text-center"
-                >
-                    <div class="flex w-full items-center justify-center">
-                        <InputOTP
-                            id="otp"
-                            v-model="code"
-                            :maxlength="6"
-                            :disabled="processing"
-                            autofocus
+        <div class="flex flex-col gap-6">
+            <template v-if="!showRecoveryInput">
+                <form @submit.prevent="submitCode" class="flex flex-col gap-4">
+                    <FieldGroup class="gap-4">
+                        <Field
+                            :data-invalid="!!codeForm.errors.code"
+                            class="items-center text-center"
                         >
-                            <InputOTPGroup>
-                                <InputOTPSlot
-                                    v-for="index in 6"
-                                    :key="index"
-                                    :index="index - 1"
-                                />
-                            </InputOTPGroup>
-                        </InputOTP>
+                            <div
+                                ref="codeInputContainer"
+                                class="flex w-full items-center justify-center"
+                            >
+                                <InputOTP
+                                    id="otp"
+                                    v-model="codeForm.code"
+                                    :aria-label="
+                                        t(
+                                            'auth.two_factor.challenge.code.title',
+                                        )
+                                    "
+                                    :aria-invalid="!!codeForm.errors.code"
+                                    :aria-describedby="
+                                        codeForm.errors.code
+                                            ? 'code-error'
+                                            : undefined
+                                    "
+                                    :maxlength="6"
+                                    :disabled="codeForm.processing"
+                                >
+                                    <InputOTPGroup>
+                                        <InputOTPSlot
+                                            v-for="index in 6"
+                                            :key="index"
+                                            :index="index - 1"
+                                        />
+                                    </InputOTPGroup>
+                                </InputOTP>
+                            </div>
+
+                            <FieldError
+                                id="code-error"
+                                :errors="[codeForm.errors.code]"
+                            />
+                        </Field>
+                        <Button
+                            type="submit"
+                            class="w-full"
+                            :disabled="codeForm.processing"
+                        >
+                            {{ t('common.button.continue') }}
+                        </Button>
+                    </FieldGroup>
+
+                    <div class="text-center text-sm text-muted-foreground">
+                        <span>{{ t('common.helper.or') }} </span>
+                        <button
+                            type="button"
+                            class="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
+                            @click="toggleRecoveryMode"
+                        >
+                            {{ authConfigContent.buttonText }}
+                        </button>
                     </div>
-                    <InputError :message="errors.code" />
-                </div>
-                <Button type="submit" class="w-full" :disabled="processing"
-                    >Continue</Button
-                >
-                <div class="text-center text-sm text-muted-foreground">
-                    <span>or you can </span>
-                    <button
-                        type="button"
-                        class="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
-                        @click="() => toggleRecoveryMode(clearErrors)"
-                    >
-                        {{ authConfigContent.buttonText }}
-                    </button>
-                </div>
-            </Form>
-        </template>
+                </form>
+            </template>
 
-        <template v-else>
-            <Form
-                v-bind="store.form()"
-                class="space-y-4"
-                reset-on-error
-                #default="{ errors, processing, clearErrors }"
-            >
-                <Input
-                    name="recovery_code"
-                    type="text"
-                    placeholder="Enter recovery code"
-                    v-focus
-                    required
-                />
-                <InputError :message="errors.recovery_code" />
-                <Button type="submit" class="w-full" :disabled="processing"
-                    >Continue</Button
+            <template v-else>
+                <form
+                    @submit.prevent="submitRecoveryCode"
+                    class="flex flex-col gap-4"
                 >
+                    <FieldGroup class="gap-4">
+                        <Field
+                            :data-invalid="!!recoveryForm.errors.recovery_code"
+                        >
+                            <InputGroup>
+                                <InputGroupInput
+                                    id="recovery_code"
+                                    name="recovery_code"
+                                    v-model="recoveryForm.recovery_code"
+                                    type="text"
+                                    :aria-label="
+                                        t(
+                                            'auth.two_factor.challenge.recovery.title',
+                                        )
+                                    "
+                                    :aria-invalid="
+                                        !!recoveryForm.errors.recovery_code
+                                    "
+                                    :aria-describedby="
+                                        recoveryForm.errors.recovery_code
+                                            ? 'recovery-code-error'
+                                            : undefined
+                                    "
+                                    :placeholder="
+                                        t(
+                                            'auth.two_factor.placeholder.recovery_code',
+                                        )
+                                    "
+                                    v-focus
+                                    required
+                                />
 
-                <div class="text-center text-sm text-muted-foreground">
-                    <span>or you can </span>
-                    <button
-                        type="button"
-                        class="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
-                        @click="() => toggleRecoveryMode(clearErrors)"
-                    >
-                        {{ authConfigContent.buttonText }}
-                    </button>
-                </div>
-            </Form>
-        </template>
+                                <InputGroupAddon>
+                                    <KeyRound aria-hidden="true" />
+                                </InputGroupAddon>
+                            </InputGroup>
+
+                            <FieldError
+                                id="recovery-code-error"
+                                :errors="[recoveryForm.errors.recovery_code]"
+                            />
+                        </Field>
+                        <Button
+                            type="submit"
+                            class="w-full"
+                            :disabled="recoveryForm.processing"
+                        >
+                            {{ t('common.button.continue') }}
+                        </Button>
+                    </FieldGroup>
+
+                    <div class="text-center text-sm text-muted-foreground">
+                        <span>{{ t('common.helper.or') }} </span>
+                        <button
+                            type="button"
+                            class="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
+                            @click="toggleRecoveryMode"
+                        >
+                            {{ authConfigContent.buttonText }}
+                        </button>
+                    </div>
+                </form>
+            </template>
+        </div>
     </div>
 </template>

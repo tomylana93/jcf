@@ -2,6 +2,12 @@
 import { useForm } from '@inertiajs/vue3';
 import { Save } from '@lucide/vue';
 import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue';
+
+import {
+    discard,
+    update,
+    upload,
+} from '@/actions/App/Http/Controllers/Account/ProfileAvatarController';
 import Heading from '@/components/shared/Heading.vue';
 import ImageUploader from '@/components/shared/ImageUploader.vue';
 import { Button } from '@/components/ui/button';
@@ -9,11 +15,6 @@ import { Field, FieldError, FieldGroup } from '@/components/ui/field';
 import { Progress } from '@/components/ui/progress';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslations } from '@/composables/useTranslations';
-import {
-    discardAvatar as discard,
-    updateAvatar as update,
-    uploadAvatar as upload,
-} from '@/lib/accountAvatar';
 import type { AvatarSettings, SaveAvatarForm, UploadAvatarForm } from '@/types';
 
 const props = defineProps<{

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
+
 import AppNavLink from '@/components/layout/AppNavLink.vue';
 import Breadcrumbs from '@/components/layout/Breadcrumbs.vue';
 import UserMenuContent from '@/components/layout/UserMenuContent.vue';

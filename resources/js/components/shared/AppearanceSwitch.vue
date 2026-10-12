@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Monitor, Moon, Sun } from '@lucide/vue';
 import { useTemplateRef } from 'vue';
+
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,

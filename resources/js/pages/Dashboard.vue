@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head, setLayoutProps } from '@inertiajs/vue3';
 import { watchEffect } from 'vue';
+
 import PageContainer from '@/components/layout/PageContainer.vue';
 import PlaceholderPattern from '@/components/shared/PlaceholderPattern.vue';
 import { dashboard } from '@/routes';

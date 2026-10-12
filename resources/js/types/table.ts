@@ -1,4 +1,5 @@
 import type { Component } from 'vue';
+
 import type { BadgeVariants } from '@/components/ui/badge';
 import type { ButtonVariants } from '@/components/ui/button';
 

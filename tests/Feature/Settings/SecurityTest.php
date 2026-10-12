@@ -32,7 +32,7 @@ describe('security settings', function () {
 
         get(route('security.edit'))
             ->assertInertia(fn (Assert $page) => $page
-                ->component('settings/Security')
+                ->component('account/Security')
                 ->where('canManagePasskeys', true)
                 ->where('passkeys', [])
                 ->where('canManageTwoFactor', true)
@@ -70,7 +70,7 @@ describe('security settings', function () {
         get(route('security.edit'))
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
-                ->component('settings/Security')
+                ->component('account/Security')
                 ->where('canManagePasskeys', false)
                 ->where('passkeys', [])
                 ->where('canManageTwoFactor', false)

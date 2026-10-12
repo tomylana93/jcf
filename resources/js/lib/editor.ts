@@ -1,6 +1,7 @@
 import { Table, TableKit } from '@tiptap/extension-table';
 import StarterKit from '@tiptap/starter-kit';
 import type { Editor } from '@tiptap/vue-3';
+
 import type {
     EditorTableAction,
     TranslationKey,

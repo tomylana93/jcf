@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Requests\Settings;
+namespace App\Http\Requests\Account;
 
 use App\Actions\Account\GetTimezoneOptions;
 use App\Concerns\ProfileValidationRules;
@@ -10,6 +10,7 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
+/** @method array{name: string, email: string, timezone?: string|null} validated() */
 final class ProfileUpdateRequest extends FormRequest
 {
     use ProfileValidationRules;
