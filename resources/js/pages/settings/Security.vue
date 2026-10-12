@@ -1,16 +1,15 @@
 <script setup lang="ts">
-import { Form, Head } from '@inertiajs/vue3';
-
+import { Form, Head, setLayoutProps } from '@inertiajs/vue3';
+import { watchEffect } from 'vue';
 import SecurityController from '@/actions/App/Http/Controllers/Settings/SecurityController';
-import Heading from '@/components/Heading.vue';
-import InputError from '@/components/InputError.vue';
-import ManagePasskeys from '@/components/ManagePasskeys.vue';
-import ManageTwoFactor from '@/components/ManageTwoFactor.vue';
-import PasswordInput from '@/components/PasswordInput.vue';
+import ManagePasskeys from '@/components/auth/passkeys/ManagePasskeys.vue';
+import ManageTwoFactor from '@/components/auth/two-factor/ManageTwoFactor.vue';
+import Heading from '@/components/shared/Heading.vue';
+import InputError from '@/components/shared/InputError.vue';
+import PasswordInput from '@/components/shared/PasswordInput.vue';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { edit } from '@/routes/security';
-
 import type { ManagePasskeysProps, ManageTwoFactorProps } from '@/types';
 
 // oxfmt-ignore
@@ -21,16 +20,16 @@ type Props = {
 
 const props = defineProps<Props>();
 
-defineOptions({
-    layout: {
+watchEffect(() =>
+    setLayoutProps({
         breadcrumbs: [
             {
                 title: 'Security settings',
                 href: edit(),
             },
         ],
-    },
-});
+    }),
+);
 </script>
 
 <template>

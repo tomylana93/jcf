@@ -19,4 +19,9 @@ return [
         'Active' => 'Active',
         'Disabled' => 'Disabled',
     ],
+
+    'locale' => [
+        'English' => 'English',
+        'Indonesian' => 'Indonesian',
+    ],
 ];

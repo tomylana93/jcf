@@ -1,20 +1,20 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
-
-import AppearanceTabs from '@/components/AppearanceTabs.vue';
-import Heading from '@/components/Heading.vue';
+import { Head, setLayoutProps } from '@inertiajs/vue3';
+import { watchEffect } from 'vue';
+import AppearanceTabs from '@/components/shared/AppearanceTabs.vue';
+import Heading from '@/components/shared/Heading.vue';
 import { edit } from '@/routes/appearance';
 
-defineOptions({
-    layout: {
+watchEffect(() =>
+    setLayoutProps({
         breadcrumbs: [
             {
                 title: 'Appearance settings',
                 href: edit(),
             },
         ],
-    },
-});
+    }),
+);
 </script>
 
 <template>

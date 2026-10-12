@@ -1,5 +1,40 @@
 packages:
     - '.'
 
+supportedArchitectures:
+    os:
+        - current
+    cpu:
+        - current
+    libc:
+        - glibc
+        - musl
+
+overrides:
+    'concurrently>shell-quote': 1.11.0
+    'exceljs>uuid': 11.1.1
+    'source-map-resolve>decode-uri-component': 0.5.0
+    vite@*: 'catalog:'
+    vitest@*: 'catalog:'
+
 publicHoistPattern:
     - '@inertiajs/core'
+
+allowBuilds:
+    core-js@3.50.0: false
+    vue-demi@0.14.10: true
+    core-js: true
+    esbuild: true
+
+catalog:
+    vite: npm:@voidzero-dev/vite-plus-core@1.0.0
+    vitest: 5.0.1
+    vite-plus: 1.0.0
+    '@vitest/coverage-v8': 5.0.1
+peerDependencyRules:
+    allowAny:
+        - vite
+        - vitest
+    allowedVersions:
+        vite: '*'
+        vitest: '*'

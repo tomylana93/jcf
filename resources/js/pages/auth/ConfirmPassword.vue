@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { Form, Head } from '@inertiajs/vue3';
-
 import {
     index as confirmOptions,
     store as confirmStore,
 } from '@/actions/Laravel/Passkeys/Http/Controllers/PasskeyConfirmationController';
-import InputError from '@/components/InputError.vue';
-import PasskeyVerify from '@/components/PasskeyVerify.vue';
-import PasswordInput from '@/components/PasswordInput.vue';
+import PasskeyVerify from '@/components/auth/passkeys/PasskeyVerify.vue';
+import InputError from '@/components/shared/InputError.vue';
+import PasswordInput from '@/components/shared/PasswordInput.vue';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
