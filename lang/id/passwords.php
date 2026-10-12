@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 return [
     'reset' => 'Password berhasil direset.',
-    'sent' => 'Tautan reset password telah dikirim melalui email.',
-    'throttled' => 'Diperlukan jeda sebelum mencoba kembali.',
+    'sent' => 'Link reset password telah dikirim melalui email.',
+    'throttled' => 'Percobaan reset password berikutnya belum diizinkan.',
     'token' => 'Token reset password tidak valid.',
-    'user' => 'Pengguna dengan alamat email tersebut tidak ditemukan.',
+    'user' => 'Tidak ditemukan akun dengan alamat email yang diberikan.',
 ];

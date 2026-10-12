@@ -53,7 +53,7 @@ return [
     ],
 
     'status' => [
-        'created' => 'User berhasil dibuat.',
+        'created' => 'Pengguna ditambahkan. Undangan dijadwalkan untuk dikirim melalui email.',
         'updated' => 'Pengguna di-update.',
         'activated' => 'Pengguna diaktifkan.',
         'disabled' => 'Pengguna dinonaktifkan.',
