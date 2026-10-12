@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 return [
     'permission' => [
+        'ViewAuditLogs' => 'View audit logs',
         'ViewSettings' => 'View application settings',
         'ManageSettings' => 'Manage application settings',
         'ViewUsers' => 'View users',

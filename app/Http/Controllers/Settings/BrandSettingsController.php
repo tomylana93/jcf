@@ -27,7 +27,7 @@ final class BrandSettingsController extends Controller
 
     public function update(UpdateBrandSettingsRequest $request, UpdateBrandSettings $updateSettings): RedirectResponse
     {
-        $updateSettings->handle($request->validated());
+        $updateSettings->handle($request->validated(), $request->user());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('settings.brand.status.updated')]);
 

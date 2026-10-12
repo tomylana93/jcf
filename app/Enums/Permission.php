@@ -11,6 +11,7 @@ enum Permission: string
 {
     use HasLabel, HasOptions;
 
+    case ViewAuditLogs = 'audit.view';
     case ViewSettings = 'settings.view';
     case ManageSettings = 'settings.manage';
     case ViewUsers = 'users.view';

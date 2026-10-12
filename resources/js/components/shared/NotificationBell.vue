@@ -5,7 +5,7 @@ import { computed } from 'vue';
 
 import { buttonVariants } from '@/components/ui/button';
 import { useTranslations } from '@/composables/useTranslations';
-import { dashboard } from '@/routes';
+import { index } from '@/routes/notifications';
 
 const page = usePage();
 
@@ -23,7 +23,7 @@ const count = computed(
 
 <template>
     <Link
-        :href="dashboard()"
+        :href="index()"
         :class="[
             buttonVariants({ variant: 'ghost', size: 'icon' }),
             'relative shrink-0',
