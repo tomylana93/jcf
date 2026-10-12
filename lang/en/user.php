@@ -53,7 +53,7 @@ return [
     ],
 
     'status' => [
-        'created' => 'User created. The invitation has been queued for email delivery.',
+        'created' => 'User created.',
         'updated' => 'User updated.',
         'activated' => 'User activated.',
         'disabled' => 'User disabled.',

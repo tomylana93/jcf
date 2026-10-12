@@ -1,6 +1,7 @@
-import { LayoutGrid, Settings } from '@lucide/vue';
+import { LayoutGrid, Settings, Users } from '@lucide/vue';
 
 import { dashboard } from '@/routes';
+import { index as masterDataIndex } from '@/routes/master-data';
 import { index as settingsIndex } from '@/routes/settings';
 import type {
     EditorLinkOption,
@@ -24,26 +25,42 @@ export function createMainNavigationItems(
 export function createAdminNavigationGroups(
     t: (key: TranslationKey) => string,
     canViewSettings = false,
-    _canViewUsers = false,
+    canViewUsers = false,
     _canViewUserPermissions = false,
     _canManageDocumentation = false,
     _canViewAudit = false,
     _canViewSystem = false,
     _canManageBackups = false,
 ): NavGroup[] {
-    return canViewSettings
-        ? [
-              {
-                  items: [
-                      {
-                          title: t('navigation.link.settings'),
-                          href: settingsIndex(),
-                          icon: Settings,
-                      },
-                  ],
-              },
-          ]
-        : [];
+    if (!canViewSettings && !canViewUsers) {
+        return [];
+    }
+
+    return [
+        {
+            title: t('navigation.group.admin'),
+            items: [
+                ...(canViewUsers
+                    ? [
+                          {
+                              title: t('navigation.link.master_data'),
+                              href: masterDataIndex(),
+                              icon: Users,
+                          },
+                      ]
+                    : []),
+                ...(canViewSettings
+                    ? [
+                          {
+                              title: t('navigation.link.settings'),
+                              href: settingsIndex(),
+                              icon: Settings,
+                          },
+                      ]
+                    : []),
+            ],
+        },
+    ];
 }
 
 export function createFooterNavigationItems(
