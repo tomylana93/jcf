@@ -8,104 +8,123 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\URL;
 use Laravel\Fortify\Features;
 
-beforeEach(function () {
-    $this->skipUnlessFortifyHas(Features::emailVerification());
-});
+use function Pest\Laravel\actingAs;
+use function Pest\Laravel\get;
 
-test('email verification screen can be rendered', function () {
-    $user = User::factory()->unverified()->create();
+describe('email verification', function () {
+    beforeEach(function () {
+        skipUnlessFortifyHas(Features::emailVerification());
+    });
 
-    $response = $this->actingAs($user)->get(route('verification.notice'));
+    it('renders the email verification screen', function () {
+        $user = User::factory()->unverified()->create();
 
-    $response->assertOk();
-});
+        actingAs($user);
 
-test('unverified users are redirected to the email verification prompt', function () {
-    $user = User::factory()->unverified()->create();
+        $response = get(route('verification.notice'));
 
-    $response = $this->actingAs($user)->get(route('appearance.edit'));
+        $response->assertOk();
+    });
 
-    $response->assertRedirect(route('verification.notice'));
-});
+    it('redirects unverified users to the verification prompt', function () {
+        $user = User::factory()->unverified()->create();
 
-test('email can be verified', function () {
-    $user = User::factory()->unverified()->create();
+        actingAs($user);
 
-    Event::fake();
+        $response = get(route('appearance.edit'));
 
-    $verificationUrl = URL::temporarySignedRoute(
-        'verification.verify',
-        now()->addMinutes(60),
-        ['id' => $user->id, 'hash' => sha1($user->email)],
-    );
+        $response->assertRedirect(route('verification.notice'));
+    });
 
-    $response = $this->actingAs($user)->get($verificationUrl);
+    it('verifies email with a valid signed link', function () {
+        $user = User::factory()->unverified()->create();
 
-    Event::assertDispatched(Verified::class);
+        Event::fake();
 
-    expect($user->fresh()->hasVerifiedEmail())->toBeTrue();
-    $response->assertRedirect(route('dashboard', absolute: false).'?verified=1');
-});
+        $verificationUrl = URL::temporarySignedRoute(
+            'verification.verify',
+            now()->addMinutes(60),
+            ['id' => $user->id, 'hash' => sha1($user->email)],
+        );
 
-test('email is not verified with invalid hash', function () {
-    $user = User::factory()->unverified()->create();
+        actingAs($user);
 
-    Event::fake();
+        $response = get($verificationUrl);
 
-    $verificationUrl = URL::temporarySignedRoute(
-        'verification.verify',
-        now()->addMinutes(60),
-        ['id' => $user->id, 'hash' => sha1('wrong-email')],
-    );
+        Event::assertDispatched(Verified::class);
 
-    $this->actingAs($user)->get($verificationUrl);
+        expect($user->fresh()->hasVerifiedEmail())->toBeTrue();
+        $response->assertRedirect(route('dashboard', absolute: false).'?verified=1');
+    });
 
-    Event::assertNotDispatched(Verified::class);
-    expect($user->fresh()->hasVerifiedEmail())->toBeFalse();
-});
+    it('rejects an invalid email hash', function () {
+        $user = User::factory()->unverified()->create();
 
-test('email is not verified with invalid user id', function () {
-    $user = User::factory()->unverified()->create();
+        Event::fake();
 
-    Event::fake();
+        $verificationUrl = URL::temporarySignedRoute(
+            'verification.verify',
+            now()->addMinutes(60),
+            ['id' => $user->id, 'hash' => sha1('wrong-email')],
+        );
 
-    $verificationUrl = URL::temporarySignedRoute(
-        'verification.verify',
-        now()->addMinutes(60),
-        ['id' => 123, 'hash' => sha1($user->email)],
-    );
+        actingAs($user);
 
-    $this->actingAs($user)->get($verificationUrl);
+        get($verificationUrl);
 
-    Event::assertNotDispatched(Verified::class);
-    expect($user->fresh()->hasVerifiedEmail())->toBeFalse();
-});
+        Event::assertNotDispatched(Verified::class);
+        expect($user->fresh()->hasVerifiedEmail())->toBeFalse();
+    });
 
-test('verified user is redirected to dashboard from verification prompt', function () {
-    $user = User::factory()->create();
+    it('rejects an invalid user identifier', function () {
+        $user = User::factory()->unverified()->create();
 
-    Event::fake();
+        Event::fake();
 
-    $response = $this->actingAs($user)->get(route('verification.notice'));
+        $verificationUrl = URL::temporarySignedRoute(
+            'verification.verify',
+            now()->addMinutes(60),
+            ['id' => 123, 'hash' => sha1($user->email)],
+        );
 
-    Event::assertNotDispatched(Verified::class);
-    $response->assertRedirect(route('dashboard', absolute: false));
-});
+        actingAs($user);
 
-test('already verified user visiting verification link is redirected without firing event again', function () {
-    $user = User::factory()->create();
+        get($verificationUrl);
 
-    Event::fake();
+        Event::assertNotDispatched(Verified::class);
+        expect($user->fresh()->hasVerifiedEmail())->toBeFalse();
+    });
 
-    $verificationUrl = URL::temporarySignedRoute(
-        'verification.verify',
-        now()->addMinutes(60),
-        ['id' => $user->id, 'hash' => sha1($user->email)],
-    );
+    it('redirects verified users from the prompt to the dashboard', function () {
+        $user = User::factory()->create();
 
-    $this->actingAs($user)->get($verificationUrl)
-        ->assertRedirect(route('dashboard', absolute: false).'?verified=1');
+        Event::fake();
 
-    Event::assertNotDispatched(Verified::class);
-    expect($user->fresh()->hasVerifiedEmail())->toBeTrue();
+        actingAs($user);
+
+        $response = get(route('verification.notice'));
+
+        Event::assertNotDispatched(Verified::class);
+        $response->assertRedirect(route('dashboard', absolute: false));
+    });
+
+    it('redirects verified users without dispatching another verification event', function () {
+        $user = User::factory()->create();
+
+        Event::fake();
+
+        $verificationUrl = URL::temporarySignedRoute(
+            'verification.verify',
+            now()->addMinutes(60),
+            ['id' => $user->id, 'hash' => sha1($user->email)],
+        );
+
+        actingAs($user);
+
+        get($verificationUrl)
+            ->assertRedirect(route('dashboard', absolute: false).'?verified=1');
+
+        Event::assertNotDispatched(Verified::class);
+        expect($user->fresh()->hasVerifiedEmail())->toBeTrue();
+    });
 });

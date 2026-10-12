@@ -2,8 +2,12 @@
 
 declare(strict_types=1);
 
-test('returns a successful response', function () {
-    $response = $this->get(route('home'));
+use function Pest\Laravel\get;
 
-    $response->assertOk();
+describe('home page', function () {
+    it('renders the home page', function () {
+        $response = get(route('home'));
+
+        $response->assertOk();
+    });
 });

@@ -7,30 +7,37 @@ use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Support\Facades\Notification;
 use Laravel\Fortify\Features;
 
-beforeEach(function () {
-    $this->skipUnlessFortifyHas(Features::emailVerification());
-});
+use function Pest\Laravel\actingAs;
+use function Pest\Laravel\post;
 
-test('sends verification notification', function () {
-    Notification::fake();
+describe('verification notifications', function () {
+    beforeEach(function () {
+        skipUnlessFortifyHas(Features::emailVerification());
+    });
 
-    $user = User::factory()->unverified()->create();
+    it('sends verification notification', function () {
+        Notification::fake();
 
-    $this->actingAs($user)
-        ->post(route('verification.send'))
-        ->assertRedirect(route('home'));
+        $user = User::factory()->unverified()->create();
 
-    Notification::assertSentTo($user, VerifyEmail::class);
-});
+        actingAs($user);
 
-test('does not send verification notification if email is verified', function () {
-    Notification::fake();
+        post(route('verification.send'))
+            ->assertRedirect(route('home'));
 
-    $user = User::factory()->create();
+        Notification::assertSentTo($user, VerifyEmail::class);
+    });
 
-    $this->actingAs($user)
-        ->post(route('verification.send'))
-        ->assertRedirect(route('dashboard', absolute: false));
+    it('does not send verification notification if email is verified', function () {
+        Notification::fake();
 
-    Notification::assertNothingSent();
+        $user = User::factory()->create();
+
+        actingAs($user);
+
+        post(route('verification.send'))
+            ->assertRedirect(route('dashboard', absolute: false));
+
+        Notification::assertNothingSent();
+    });
 });

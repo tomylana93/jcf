@@ -4,24 +4,30 @@ declare(strict_types=1);
 
 use Laravel\Fortify\Features;
 
-beforeEach(function () {
-    $this->skipUnlessFortifyHas(Features::registration());
-});
+use function Pest\Laravel\assertAuthenticated;
+use function Pest\Laravel\get;
+use function Pest\Laravel\post;
 
-test('registration screen can be rendered', function () {
-    $response = $this->get(route('register'));
+describe('registration', function () {
+    beforeEach(function () {
+        skipUnlessFortifyHas(Features::registration());
+    });
 
-    $response->assertOk();
-});
+    it('renders the registration screen', function () {
+        $response = get(route('register'));
 
-test('new users can register', function () {
-    $response = $this->post(route('register.store'), [
-        'name' => 'Test User',
-        'email' => 'test@example.com',
-        'password' => 'password',
-        'password_confirmation' => 'password',
-    ]);
+        $response->assertOk();
+    });
 
-    $this->assertAuthenticated();
-    $response->assertRedirect(route('dashboard', absolute: false));
+    it('registers and authenticates new users', function () {
+        $response = post(route('register.store'), [
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ]);
+
+        assertAuthenticated();
+        $response->assertRedirect(route('dashboard', absolute: false));
+    });
 });

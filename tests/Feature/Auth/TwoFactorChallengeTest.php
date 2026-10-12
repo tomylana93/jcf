@@ -6,32 +6,37 @@ use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
 use Laravel\Fortify\Features;
 
-beforeEach(function () {
-    $this->skipUnlessFortifyHas(Features::twoFactorAuthentication());
-});
+use function Pest\Laravel\get;
+use function Pest\Laravel\post;
 
-test('two factor challenge redirects to login when not authenticated', function () {
-    $response = $this->get(route('two-factor.login'));
+describe('two-factor challenge', function () {
+    beforeEach(function () {
+        skipUnlessFortifyHas(Features::twoFactorAuthentication());
+    });
 
-    $response->assertRedirect(route('login'));
-});
+    it('redirects users without a pending challenge to login', function () {
+        $response = get(route('two-factor.login'));
 
-test('two factor challenge can be rendered', function () {
-    Features::twoFactorAuthentication([
-        'confirm' => true,
-        'confirmPassword' => true,
-    ]);
+        $response->assertRedirect(route('login'));
+    });
 
-    $user = User::factory()->withTwoFactor()->create();
+    it('renders the pending two-factor challenge', function () {
+        Features::twoFactorAuthentication([
+            'confirm' => true,
+            'confirmPassword' => true,
+        ]);
 
-    $this->post(route('login'), [
-        'email' => $user->email,
-        'password' => 'password',
-    ]);
+        $user = User::factory()->withTwoFactor()->create();
 
-    $this->get(route('two-factor.login'))
-        ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
-            ->component('auth/TwoFactorChallenge'),
-        );
+        post(route('login'), [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+
+        get(route('two-factor.login'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('auth/TwoFactorChallenge'),
+            );
+    });
 });

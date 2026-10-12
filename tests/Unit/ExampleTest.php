@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
-test('that true is true', function () {
-    expect(true)->toBeTrue();
+describe('boolean expectations', function () {
+    it('recognizes a true value', function () {
+        expect(true)->toBeTrue();
+    });
 });
