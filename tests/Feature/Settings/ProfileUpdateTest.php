@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Enums\Role;
+use App\Enums\UserStatus;
 use App\Models\User;
 
 use function Pest\Laravel\actingAs;
@@ -60,12 +62,12 @@ describe('profile settings', function () {
         expect($user->refresh()->email_verified_at)->not->toBeNull();
     });
 
-    it('deletes the account with the correct password', function () {
+    it('disables the account while retaining its data', function () {
         $user = User::factory()->create();
 
         actingAs($user);
 
-        $response = delete(route('profile.destroy'), [
+        $response = delete(route('profile.disable'), [
             'password' => 'password',
         ]);
 
@@ -74,16 +76,26 @@ describe('profile settings', function () {
             ->assertRedirect(route('home'));
 
         assertGuest();
-        expect($user->fresh())->toBeNull();
+        expect($user->refresh()->status)->toBe(UserStatus::Disabled)
+            ->and($user->refresh()->exists)->toBeTrue();
     });
 
-    it('rejects account deletion with an incorrect password', function () {
+    it('forbids superadministrators from disabling their account directly', function () {
+        $user = User::factory()->create();
+        $user->assignRole(Role::SuperAdmin);
+
+        actingAs($user)->delete(route('profile.disable'), ['password' => 'password'])->assertForbidden();
+
+        expect($user->refresh()->status)->toBe(UserStatus::Active);
+    });
+
+    it('keeps the account active when the password is incorrect', function () {
         $user = User::factory()->create();
 
         actingAs($user);
         from(route('profile.edit'));
 
-        $response = delete(route('profile.destroy'), [
+        $response = delete(route('profile.disable'), [
             'password' => 'wrong-password',
         ]);
 
@@ -91,6 +103,6 @@ describe('profile settings', function () {
             ->assertSessionHasErrors('password')
             ->assertRedirect(route('profile.edit'));
 
-        expect($user->fresh())->not->toBeNull();
+        expect($user->refresh()->status)->toBe(UserStatus::Active);
     });
 });
