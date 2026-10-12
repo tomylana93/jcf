@@ -58,9 +58,8 @@
         "setup": [
             "composer install",
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
-            "@php artisan key:generate",
-            "@php artisan migrate --force",
-            "pnpm install",
+            "@php artisan init:app --no-interaction",
+            "pnpm install --frozen-lockfile",
             "pnpm run build"
         ],
         "dev": [
@@ -68,25 +67,48 @@
             "@php artisan dev"
         ],
         "lint": [
-            "pint --parallel"
-        ],
-        "lint:check": [
-            "pint --parallel --test"
+            "rector",
+            "pint --parallel",
+            "pnpm run check:fix"
         ],
         "ci:check": [
             "Composer\\Config::disableProcessTimeout",
-            "pnpm run check",
-            "pnpm run types:check",
-            "@test"
+            "@test:lint",
+            "@test:types",
+            "@test:feature"
         ],
-        "types:check": [
-            "phpstan analyse"
+        "test:type-coverage": "pest --type-coverage --min=100",
+        "test:prepare": "pnpm run build",
+        "test:audit": [
+            "composer audit",
+            "pnpm audit"
+        ],
+        "test:feature": "pest --compact --exclude-testsuite=Browser",
+        "test:lint": [
+            "pint --parallel --test",
+            "rector --dry-run",
+            "pnpm run check"
+        ],
+        "test:browser": [
+            "@test:prepare",
+            "@test:browser:run"
+        ],
+        "test:browser:run": "pest tests/Browser --compact",
+        "test:unit": "@php tests/run-coverage.php",
+        "test:types": [
+            "phpstan analyse",
+            "pnpm run types:check"
+        ],
+        "test:backend": [
+            "@test:prepare",
+            "@test:lint",
+            "@test:types",
+            "@test:type-coverage",
+            "@test:unit",
+            "@test:browser:run"
         ],
         "test": [
-            "@php artisan config:clear --ansi",
-            "@lint:check",
-            "@types:check",
-            "@php artisan test"
+            "@test:backend"
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
