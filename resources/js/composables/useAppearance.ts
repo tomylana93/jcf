@@ -1,6 +1,7 @@
-import type { ComputedRef, Ref } from 'vue';
 import { computed, onMounted, ref } from 'vue';
+
 import type { Appearance, ResolvedAppearance } from '@/types';
+import type { ComputedRef, Ref } from 'vue';
 
 export type { Appearance, ResolvedAppearance };
 
@@ -19,6 +20,7 @@ export function updateTheme(value: Appearance): void {
         const mediaQueryList = window.matchMedia(
             '(prefers-color-scheme: dark)',
         );
+
         const systemTheme = mediaQueryList.matches ? 'dark' : 'light';
 
         document.documentElement.classList.toggle(

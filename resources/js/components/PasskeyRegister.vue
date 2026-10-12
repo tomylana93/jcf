@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { usePasskeyRegister } from '@laravel/passkeys/vue';
 import { ref } from 'vue';
+
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,6 +34,7 @@ const getDefaultPasskeyName = () => {
 };
 
 const name = ref(getDefaultPasskeyName());
+
 const showForm = ref(false);
 
 const { register, isLoading, error, isSupported } = usePasskeyRegister({

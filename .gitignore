@@ -25,11 +25,13 @@ yarn-error.log
 /.fleet
 /.idea
 /.nova
-/.vscode
+/.vscode/*
+!/.vscode/settings.json
 /.zed
 /.agents
 /.amp
 /.claude
+/.codex
 /.cursor
 /.factory
 /.grok
@@ -42,3 +44,6 @@ yarn-error.log
 /boost.json
 /opencode.json
 /opencode.jsonc
+.env.before_lerd
+/tests/Browser/Screenshots
+/tests/Browser/Traces

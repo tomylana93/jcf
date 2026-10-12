@@ -2,6 +2,7 @@
 import { Form } from '@inertiajs/vue3';
 import { Eye, EyeOff, LockKeyhole, RefreshCw } from '@lucide/vue';
 import { nextTick, onMounted, ref, useTemplateRef } from 'vue';
+
 import AlertError from '@/components/AlertError.vue';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,7 +16,9 @@ import { useTwoFactorAuth } from '@/composables/useTwoFactorAuth';
 import { regenerateRecoveryCodes } from '@/routes/two-factor';
 
 const { recoveryCodesList, fetchRecoveryCodes, errors } = useTwoFactorAuth();
+
 const isRecoveryCodesVisible = ref<boolean>(false);
+
 const recoveryCodeSectionRef = useTemplateRef('recoveryCodeSectionRef');
 
 const toggleRecoveryCodesVisibility = async () => {

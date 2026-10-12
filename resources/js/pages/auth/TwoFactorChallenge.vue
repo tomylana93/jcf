@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Form, Head, setLayoutProps } from '@inertiajs/vue3';
 import { computed, ref, watchEffect } from 'vue';
+
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,9 +11,11 @@ import {
     InputOTPSlot,
 } from '@/components/ui/input-otp';
 import { store } from '@/routes/two-factor/login';
+
 import type { TwoFactorConfigContent } from '@/types';
 
 const showRecoveryInput = ref<boolean>(false);
+
 const code = ref<string>('');
 
 const authConfigContent = computed<TwoFactorConfigContent>(() => {

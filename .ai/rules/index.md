@@ -1,0 +1,16 @@
+# Project Rules Index
+
+Before planning or editing, find the row whose globs match the file's path and read that rule file.
+
+| Applies to | Rule file |
+| --- | --- |
+| app/Actions/** | .ai/rules/actions.md |
+| app/Http/Controllers/** | .ai/rules/controllers.md |
+| app/Enums/** | .ai/rules/enums.md |
+| **/* | .ai/rules/general.md |
+| lang/** | .ai/rules/lang.md |
+| database/migrations/** | .ai/rules/migrations.md |
+| app/Settings/** | .ai/rules/settings.md |
+| app/Tables/** | .ai/rules/tables.md |
+| tests/** | .ai/rules/tests.md |
+| .github/workflows/** | .ai/rules/workflows.md |

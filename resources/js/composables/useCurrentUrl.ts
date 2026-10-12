@@ -1,8 +1,10 @@
-import type { InertiaLinkProps } from '@inertiajs/vue3';
 import { usePage } from '@inertiajs/vue3';
-import type { ComputedRef, DeepReadonly } from 'vue';
 import { computed, readonly } from 'vue';
+
 import { toUrl } from '@/lib/utils';
+
+import type { InertiaLinkProps } from '@inertiajs/vue3';
+import type { ComputedRef, DeepReadonly } from 'vue';
 
 export type UseCurrentUrlReturn = {
     currentUrl: DeepReadonly<ComputedRef<string>>;
@@ -23,6 +25,7 @@ export type UseCurrentUrlReturn = {
 };
 
 const page = usePage();
+
 const currentUrlReactive = computed(
     () =>
         new URL(
@@ -40,6 +43,7 @@ export function useCurrentUrl(): UseCurrentUrlReturn {
         startsWith: boolean = false,
     ) {
         const urlToCompare = currentUrl ?? currentUrlReactive.value;
+
         const urlString = toUrl(urlToCheck);
 
         const comparePath = (path: string): boolean =>
