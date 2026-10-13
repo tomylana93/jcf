@@ -22,15 +22,13 @@ import { Spinner } from '@/components/ui/spinner';
 import { useGlobalSearch } from '@/composables/useGlobalSearch';
 import { useTranslations } from '@/composables/useTranslations';
 import { createEditorLinkOptions } from '@/lib/navigation';
+import { show } from '@/routes/documentation';
+import { index } from '@/routes/master-data/users';
 
 const open = defineModel<boolean>('open', { required: true });
-
 const page = usePage();
-
 const { t } = useTranslations();
-
 const { query, results, loading, failed, load, reset } = useGlobalSearch();
-
 const pages = computed(() =>
     createEditorLinkOptions(t, page.props.auth.permissions)
         .filter((item) =>
@@ -40,7 +38,6 @@ const pages = computed(() =>
         )
         .slice(0, 5),
 );
-
 const empty = computed(
     () =>
         !pages.value.length &&
@@ -117,6 +114,52 @@ onUnmounted(() => window.removeEventListener('keydown', shortcut));
                             >{{ item.label }}</CommandItem
                         >
                     </CommandGroup>
+                    <CommandGroup
+                        v-if="results.documents.length"
+                        :heading="t('search.label.documents')"
+                    >
+                        <CommandItem
+                            v-for="item in results.documents"
+                            :key="item.id"
+                            :value="item.id"
+                            @select="navigate(show.url(item.slug))"
+                        >
+                            <div class="min-w-0">
+                                <div class="truncate">{{ item.title }}</div>
+                                <p
+                                    class="truncate text-xs text-muted-foreground"
+                                >
+                                    {{ item.summary }}
+                                </p>
+                            </div>
+                        </CommandItem>
+                    </CommandGroup>
+                    <CommandGroup
+                        v-if="results.users.length"
+                        :heading="t('search.label.users')"
+                    >
+                        <CommandItem
+                            v-for="item in results.users"
+                            :key="item.id"
+                            :value="item.id"
+                            @select="
+                                navigate(
+                                    index.url({
+                                        query: { 'filter[search]': item.email },
+                                    }),
+                                )
+                            "
+                        >
+                            <div class="min-w-0">
+                                <div class="truncate">{{ item.name }}</div>
+                                <p
+                                    class="truncate text-xs text-muted-foreground"
+                                >
+                                    {{ item.email }}
+                                </p>
+                            </div>
+                        </CommandItem>
+                    </CommandGroup>
                     <div
                         v-if="loading"
                         role="status"
@@ -143,7 +186,6 @@ onUnmounted(() => window.removeEventListener('keydown', shortcut));
                     </p>
                 </CommandList>
             </Command>
-            <Button class="sr-only" @click="load">Search</Button>
         </DialogContent>
     </Dialog>
 </template>
