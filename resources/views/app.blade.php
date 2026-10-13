@@ -42,7 +42,19 @@
 
         @vite(['resources/css/app.css', 'resources/js/app.ts', "resources/js/pages/{$page['component']}.vue"])
         <x-inertia::head>
-            <title>{{ app(\App\Settings\GeneralSettings::class)->site_name }}</title>
+            <title>{{ $page['props']['general']['site_name'] }}</title>
+            @if ($page['component'] === 'public/Home')
+                <meta name="description" content="{{ $page['props']['general']['site_description'] }}" data-inertia="description">
+                <link rel="canonical" href="{{ $page['props']['canonicalUrl'] }}" data-inertia="canonical">
+                <meta property="og:type" content="website" data-inertia="og:type">
+                <meta property="og:title" content="{{ $page['props']['general']['site_name'] }}" data-inertia="og:title">
+                <meta property="og:description" content="{{ $page['props']['general']['site_description'] }}" data-inertia="og:description">
+                <meta property="og:url" content="{{ $page['props']['canonicalUrl'] }}" data-inertia="og:url">
+                <meta property="og:site_name" content="{{ $page['props']['general']['site_name'] }}" data-inertia="og:site_name">
+                <meta name="twitter:card" content="summary" data-inertia="twitter:card">
+                <meta name="twitter:title" content="{{ $page['props']['general']['site_name'] }}" data-inertia="twitter:title">
+                <meta name="twitter:description" content="{{ $page['props']['general']['site_description'] }}" data-inertia="twitter:description">
+            @endif
         </x-inertia::head>
     </head>
     <body class="font-sans antialiased">
