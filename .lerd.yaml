@@ -11,6 +11,7 @@ services:
   - redis
 workers:
   - backups
+  - notifications
   - queue
   - reverb
   - schedule
@@ -22,3 +23,8 @@ custom_workers:
     restart: always
     check:
       file: app/Jobs/CreateSystemBackup.php
+  notifications:
+    label: Realtime notifications
+    command: php artisan queue:work realtime --queue=notifications --tries=3 --timeout=60 --sleep=1
+    check:
+      file: app/Events/NotificationRead.php
