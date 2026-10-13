@@ -127,7 +127,7 @@ describe('Account avatar', function (): void {
             resolve(SaveAvatar::class)->handle($user, Str::uuid()->toString(), false);
         } catch (ValidationException $exception) {
             expect($exception->errors())->toMatchArray([
-                'temporary_avatar' => [__('account.avatar.expired')],
+                'temporary_avatar' => [__('account.avatar.status.expired')],
             ]);
 
             return;

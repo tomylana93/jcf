@@ -30,7 +30,7 @@ describe('Backup dialogs', function (): void {
             ->keys('[role="dialog"]', 'Escape')
             ->click('tr:has-text("test.zip") button[aria-label="Actions"]')
             ->click(__('backup.button.restore'))
-            ->assertSee(__('backup.card.restore'))
+            ->assertSee(__('backup.dialog.restore'))
             ->click(__('common.button.cancel'));
 
         Queue::assertNothingPushed();
@@ -43,7 +43,7 @@ describe('Backup dialogs', function (): void {
         Queue::assertPushed(RestoreSystemBackup::class, fn (RestoreSystemBackup $job): bool => $job->filename === 'test.zip');
         $browser->click('tr:has-text("test.zip") button[aria-label="Actions"]')
             ->click(__('common.button.delete'))
-            ->assertSee(__('backup.card.delete'))
+            ->assertSee(__('backup.dialog.delete'))
             ->assertSee(__('backup.helper.delete', ['filename' => 'test.zip']))
             ->click(__('common.button.cancel'));
         $disk->assertExists('jcf/test.zip');

@@ -68,8 +68,8 @@ const uploadStatus = computed(() =>
     uploadForm.processing
         ? t(
               uploadForm.progress?.percentage === 100
-                  ? 'account.avatar.processing'
-                  : 'account.avatar.uploading',
+                  ? 'account.avatar.status.processing'
+                  : 'account.avatar.status.uploading',
           )
         : undefined,
 );
@@ -79,7 +79,7 @@ function uploadFile(file: File) {
     if (file.size > 2 * 1024 * 1024) {
         queuedFile.value = null;
         lastFile.value = null;
-        uploadForm.setError('avatar', t('account.avatar.too_large'));
+        uploadForm.setError('avatar', t('account.avatar.status.too_large'));
         return;
     }
     uploadForm.clearErrors();
@@ -204,14 +204,14 @@ onBeforeUnmount(() => {
                 <Progress
                     v-if="uploadForm.progress"
                     :model-value="uploadForm.progress.percentage"
-                    :aria-label="t('account.avatar.uploading')"
+                    :aria-label="t('account.avatar.status.uploading')"
                 />
                 <p class="text-sm text-muted-foreground">
                     {{
                         t(
                             uploadForm.progress?.percentage === 100
-                                ? 'account.avatar.processing'
-                                : 'account.avatar.uploading',
+                                ? 'account.avatar.status.processing'
+                                : 'account.avatar.status.uploading',
                         )
                     }}
                 </p>
@@ -221,7 +221,7 @@ onBeforeUnmount(() => {
                 class="text-sm text-muted-foreground"
                 role="status"
             >
-                {{ t('account.avatar.removing') }}
+                {{ t('account.avatar.status.removing') }}
             </p>
             <div class="flex flex-wrap gap-2">
                 <Button
@@ -239,7 +239,7 @@ onBeforeUnmount(() => {
                         data-icon="inline-start"
                     />
                     <Save v-else data-icon="inline-start" />
-                    {{ t('account.avatar.save') }}
+                    {{ t('account.avatar.button.save') }}
                 </Button>
                 <Button
                     v-if="settings.current_url"
@@ -253,7 +253,7 @@ onBeforeUnmount(() => {
                         t(
                             saveForm.remove_avatar
                                 ? 'common.button.undo'
-                                : 'account.avatar.remove',
+                                : 'account.avatar.button.remove',
                         )
                     }}
                 </Button>
@@ -264,7 +264,7 @@ onBeforeUnmount(() => {
                     :disabled="disabled || busy"
                     data-test="discard-avatar"
                     @click="discardPhoto"
-                    >{{ t('account.avatar.discard') }}</Button
+                    >{{ t('account.avatar.button.discard') }}</Button
                 >
                 <Button
                     v-if="uploadForm.errors.avatar && lastFile"
@@ -272,7 +272,7 @@ onBeforeUnmount(() => {
                     variant="outline"
                     :disabled="disabled || busy"
                     @click="uploadFile(lastFile)"
-                    >{{ t('account.avatar.retry') }}</Button
+                    >{{ t('account.avatar.button.retry') }}</Button
                 >
             </div>
         </form>

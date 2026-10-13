@@ -75,18 +75,24 @@ return [
 
     'avatar' => [
         'title' => 'Foto profil',
-        'choose' => 'Pilih foto',
-        'remove' => 'Hapus foto',
-        'save' => 'Simpan foto',
-        'discard' => 'Batalkan upload',
-        'retry' => 'Ulangi upload',
-        'uploading' => 'Meng-upload foto sementara…',
-        'processing' => 'Memproses foto…',
-        'removing' => 'Foto profil akan dihapus setelah disimpan.',
-        'saved' => 'Foto profil berhasil disimpan.',
-        'too_large' => 'Ukuran file maksimal 2 MB.',
-        'failed' => 'Foto gagal diproses. Coba upload gambar lain.',
-        'expired' => 'Upload kedaluwarsa. Silakan upload ulang foto.',
+
+        'button' => [
+            'choose' => 'Pilih foto',
+            'remove' => 'Hapus foto',
+            'save' => 'Simpan foto',
+            'discard' => 'Batalkan unggahan',
+            'retry' => 'Ulangi unggahan',
+        ],
+
+        'status' => [
+            'uploading' => 'Mengunggah foto sementara…',
+            'processing' => 'Memproses foto…',
+            'removing' => 'Foto profil akan dihapus setelah disimpan.',
+            'saved' => 'Foto profil berhasil disimpan.',
+            'too_large' => 'Ukuran file maksimal 2 MB.',
+            'failed' => 'Foto gagal diproses. Coba unggah gambar lain.',
+            'expired' => 'Unggahan kedaluwarsa. Silakan unggah ulang foto.',
+        ],
     ],
 
     'disable_account' => [

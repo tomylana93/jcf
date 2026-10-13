@@ -166,7 +166,7 @@ onBeforeUnmount(() => {
                 :aria-describedby="invalid ? `${kind}-error` : undefined"
                 :data-test="`choose-${kind}`"
                 @click="open = true"
-                >{{ chooseLabel ?? t('account.avatar.choose') }}</Button
+                >{{ chooseLabel ?? t('account.avatar.button.choose') }}</Button
             >
             <DialogContent class="sm:max-w-2xl" :aria-describedby="undefined">
                 <DialogHeader>

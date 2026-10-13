@@ -236,7 +236,7 @@ function selectArchive(event: Event): void {
             <AlertDialogContent>
                 <AlertDialogHeader
                     ><AlertDialogTitle>{{
-                        t('backup.card.restore')
+                        t('backup.dialog.restore')
                     }}</AlertDialogTitle
                     ><AlertDialogDescription>{{
                         t('backup.helper.restore', {
@@ -264,7 +264,7 @@ function selectArchive(event: Event): void {
             <AlertDialogContent>
                 <AlertDialogHeader>
                     <AlertDialogTitle>{{
-                        t('backup.card.delete')
+                        t('backup.dialog.delete')
                     }}</AlertDialogTitle>
                     <AlertDialogDescription>{{
                         t('backup.helper.delete', {

@@ -43,7 +43,7 @@ return [
             'auth_background' => 'Background split auth',
             'color' => 'Warna utama',
         ],
-        'hint' => [
+        'helper' => [
             'logo' => 'Gambar yang sudah memuat logo dan teks. Tidak ada teks tambahan yang ditampilkan.',
             'logo_text' => 'Gambar simbol tanpa teks. Nama aplikasi ditambahkan di sampingnya.',
             'auth_background' => 'Ditampilkan pada layout split auth. Gunakan gambar portrait, maksimal 5 MB. Ilustrasi default digunakan jika gambar kustom belum diatur.',

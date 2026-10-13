@@ -43,7 +43,7 @@ return [
             'auth_background' => 'Split authentication background',
             'color' => 'Primary color',
         ],
-        'hint' => [
+        'helper' => [
             'logo' => 'Image containing both the logo and text. No additional text is displayed.',
             'logo_text' => 'Symbol image without text. The application name is added beside it.',
             'auth_background' => 'Shown on the split authentication layout. Use a portrait image, up to 5 MB. The default illustration is used when no custom image is set.',

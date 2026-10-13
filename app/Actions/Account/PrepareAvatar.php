@@ -27,7 +27,7 @@ final class PrepareAvatar
 
             report($exception);
 
-            throw ValidationException::withMessages([$errorField => __('account.avatar.failed')]);
+            throw ValidationException::withMessages([$errorField => __('account.avatar.status.failed')]);
         }
     }
 }

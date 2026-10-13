@@ -6,9 +6,7 @@ return [
     'title' => 'Backup',
 
     'card' => [
-        'delete' => 'Hapus backup',
         'description' => 'Buat, upload, download, dan restore database serta file aplikasi.',
-        'restore' => 'Restore aplikasi aktif',
     ],
 
     'label' => [
@@ -56,4 +54,9 @@ return [
         'busy' => 'Backup atau restore lain sedang berjalan.',
         'restore_failed' => 'Restore gagal. Hubungi pengelola sistem untuk memeriksa log dan memulihkan maintenance mode.',
     ],
+    'dialog' => [
+        'delete' => 'Hapus backup',
+        'restore' => 'Restore aplikasi aktif',
+    ],
+
 ];

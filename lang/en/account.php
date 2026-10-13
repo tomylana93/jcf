@@ -75,18 +75,24 @@ return [
 
     'avatar' => [
         'title' => 'Profile photo',
-        'choose' => 'Choose photo',
-        'remove' => 'Remove photo',
-        'save' => 'Save photo',
-        'discard' => 'Discard upload',
-        'retry' => 'Retry upload',
-        'uploading' => 'Uploading temporary photo…',
-        'processing' => 'Processing photo…',
-        'removing' => 'The profile photo will be removed after saving.',
-        'saved' => 'Profile photo saved.',
-        'too_large' => 'The file must not exceed 2 MB.',
-        'failed' => 'The photo could not be processed. Try uploading another image.',
-        'expired' => 'The upload has expired. Upload the photo again.',
+
+        'button' => [
+            'choose' => 'Choose photo',
+            'remove' => 'Remove photo',
+            'save' => 'Save photo',
+            'discard' => 'Discard upload',
+            'retry' => 'Retry upload',
+        ],
+
+        'status' => [
+            'uploading' => 'Uploading temporary photo…',
+            'processing' => 'Processing photo…',
+            'removing' => 'The profile photo will be removed after saving.',
+            'saved' => 'Profile photo saved.',
+            'too_large' => 'The file must not exceed 2 MB.',
+            'failed' => 'The photo could not be processed. Try uploading another image.',
+            'expired' => 'The upload has expired. Upload the photo again.',
+        ],
     ],
 
     'disable_account' => [

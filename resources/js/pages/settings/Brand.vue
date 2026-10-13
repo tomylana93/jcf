@@ -227,7 +227,7 @@ function submit() {
                             t('settings.brand.label.logo')
                         }}</CardTitle>
                         <CardDescription>{{
-                            t('settings.brand.hint.logo')
+                            t('settings.brand.helper.logo')
                         }}</CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -295,7 +295,7 @@ function submit() {
                             t('settings.brand.label.logo_text')
                         }}</CardTitle>
                         <CardDescription>{{
-                            t('settings.brand.hint.logo_text')
+                            t('settings.brand.helper.logo_text')
                         }}</CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -433,7 +433,7 @@ function submit() {
                         t('settings.brand.label.auth_background')
                     }}</CardTitle>
                     <CardDescription>{{
-                        t('settings.brand.hint.auth_background')
+                        t('settings.brand.helper.auth_background')
                     }}</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -507,7 +507,7 @@ function submit() {
                     />
                     <CardTitle>{{ t('settings.brand.label.color') }}</CardTitle>
                     <CardDescription>{{
-                        t('settings.brand.hint.color')
+                        t('settings.brand.helper.color')
                     }}</CardDescription>
                 </CardHeader>
                 <CardContent>

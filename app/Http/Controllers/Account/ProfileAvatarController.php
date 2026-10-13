@@ -29,7 +29,7 @@ final class ProfileAvatarController extends Controller
     {
         $saveAvatar->handle($request->user(), $request->validated('temporary_avatar'), (bool) $request->validated('remove_avatar', false));
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('account.avatar.saved')]);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('account.avatar.status.saved')]);
 
         return to_route('profile.edit');
     }

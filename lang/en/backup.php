@@ -6,9 +6,7 @@ return [
     'title' => 'Backups',
 
     'card' => [
-        'delete' => 'Delete backup',
         'description' => 'Create, upload, download, and restore database and application files.',
-        'restore' => 'Restore active application',
     ],
 
     'label' => [
@@ -56,4 +54,9 @@ return [
         'busy' => 'Another backup or restore is running.',
         'restore_failed' => 'Restore failed. Contact the system operator to check logs and recover from maintenance mode.',
     ],
+    'dialog' => [
+        'delete' => 'Delete backup',
+        'restore' => 'Restore active application',
+    ],
+
 ];
