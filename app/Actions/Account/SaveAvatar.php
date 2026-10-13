@@ -44,7 +44,7 @@ final readonly class SaveAvatar
         } catch (ModelNotFoundException) {
             $prepared?->delete();
 
-            throw ValidationException::withMessages(['temporary_avatar' => __('account.avatar.expired')]);
+            throw ValidationException::withMessages(['temporary_avatar' => __('account.avatar.status.expired')]);
         } catch (Throwable $exception) {
             $prepared?->delete();
 

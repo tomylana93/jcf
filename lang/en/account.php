@@ -45,25 +45,54 @@ return [
             'title' => 'Update password',
             'description' => 'Use a long, random password to protect the account.',
         ],
+    ],
+    'sessions' => [
+        'title' => 'Sessions and devices',
+
+        'card' => [
+            'description' => 'Active browser sessions associated with this account.',
+        ],
+
+        'label' => [
+            'current' => 'Current device',
+            'unknown' => 'Unknown device',
+        ],
+
+        'helper' => [
+            'unsupported' => 'Session listing requires the database session driver. Other sessions can still be revoked.',
+            'empty' => 'No stored active sessions.',
+            'revoke' => 'Enter the current password to log out other devices. The current session remains active.',
+        ],
+
+        'button' => [
+            'revoke' => 'Log out other devices',
+        ],
+
         'status' => [
-            'password_updated' => 'Password updated.',
+            'revoked' => 'Other sessions revoked.',
         ],
     ],
 
     'avatar' => [
         'title' => 'Profile photo',
-        'choose' => 'Choose photo',
-        'remove' => 'Remove photo',
-        'save' => 'Save photo',
-        'discard' => 'Discard upload',
-        'retry' => 'Retry upload',
-        'uploading' => 'Uploading temporary photo…',
-        'processing' => 'Processing photo…',
-        'removing' => 'The profile photo will be removed after saving.',
-        'saved' => 'Profile photo saved.',
-        'too_large' => 'The file must not exceed 2 MB.',
-        'failed' => 'The photo could not be processed. Try uploading another image.',
-        'expired' => 'The upload has expired. Upload the photo again.',
+
+        'button' => [
+            'choose' => 'Choose photo',
+            'remove' => 'Remove photo',
+            'save' => 'Save photo',
+            'discard' => 'Discard upload',
+            'retry' => 'Retry upload',
+        ],
+
+        'status' => [
+            'uploading' => 'Uploading temporary photo…',
+            'processing' => 'Processing photo…',
+            'removing' => 'The profile photo will be removed after saving.',
+            'saved' => 'Profile photo saved.',
+            'too_large' => 'The file must not exceed 2 MB.',
+            'failed' => 'The photo could not be processed. Try uploading another image.',
+            'expired' => 'The upload has expired. Upload the photo again.',
+        ],
     ],
 
     'disable_account' => [
@@ -163,9 +192,9 @@ return [
             'remove_passkey' => 'Remove passkey',
         ],
         'status' => [
-            'verifying' => 'Verifying passkey...',
-            'registering' => 'Registering passkey...',
-            'removing' => 'Removing passkey...',
+            'verifying' => 'Verifying passkey…',
+            'registering' => 'Registering passkey…',
+            'removing' => 'Removing passkey…',
         ],
         'empty' => [
             'title' => 'No passkeys yet',

@@ -45,7 +45,7 @@ return [
         'account_updated' => 'Detail akun atau akses telah diperbarui.',
         'permissions_updated' => 'Permission tambahan akun telah diperbarui.',
         'invitation_queued' => 'Undangan untuk :subject telah masuk antrean pengiriman.',
-        'backup_ready' => 'Backup :subject siap di-download.',
+        'backup_ready' => 'Backup :subject siap diunduh.',
         'restore_ready' => 'Restore :subject selesai.',
         'restore_failed' => 'Restore gagal. Periksa log aplikasi dan maintenance mode.',
         'backup_failed' => 'Backup gagal. Periksa kesehatan sistem dan log aplikasi.',

@@ -35,7 +35,7 @@ return [
         ],
         'status' => [
             'verification_sent' => 'Link verifikasi baru telah dikirim ke alamat email.',
-            'updated' => 'Profil berhasil di-update.',
+            'updated' => 'Profil berhasil diperbarui.',
         ],
     ],
 
@@ -45,25 +45,54 @@ return [
             'title' => 'Update password',
             'description' => 'Gunakan password panjang dan acak untuk melindungi akun.',
         ],
+    ],
+    'sessions' => [
+        'title' => 'Sesi dan perangkat',
+
+        'card' => [
+            'description' => 'Sesi browser aktif yang terkait dengan akun ini.',
+        ],
+
+        'label' => [
+            'current' => 'Perangkat saat ini',
+            'unknown' => 'Perangkat tidak diketahui',
+        ],
+
+        'helper' => [
+            'unsupported' => 'Daftar sesi memerlukan driver session database. Sesi lain tetap dapat dicabut.',
+            'empty' => 'Tidak ada sesi aktif tersimpan.',
+            'revoke' => 'Masukkan password saat ini untuk logout perangkat lain. Sesi saat ini tetap aktif.',
+        ],
+
+        'button' => [
+            'revoke' => 'Logout perangkat lain',
+        ],
+
         'status' => [
-            'password_updated' => 'Password berhasil di-update.',
+            'revoked' => 'Sesi lain dicabut.',
         ],
     ],
 
     'avatar' => [
         'title' => 'Foto profil',
-        'choose' => 'Pilih foto',
-        'remove' => 'Hapus foto',
-        'save' => 'Simpan foto',
-        'discard' => 'Batalkan upload',
-        'retry' => 'Ulangi upload',
-        'uploading' => 'Meng-upload foto sementara…',
-        'processing' => 'Memproses foto…',
-        'removing' => 'Foto profil akan dihapus setelah disimpan.',
-        'saved' => 'Foto profil berhasil disimpan.',
-        'too_large' => 'Ukuran file maksimal 2 MB.',
-        'failed' => 'Foto gagal diproses. Coba upload gambar lain.',
-        'expired' => 'Upload kedaluwarsa. Silakan upload ulang foto.',
+
+        'button' => [
+            'choose' => 'Pilih foto',
+            'remove' => 'Hapus foto',
+            'save' => 'Simpan foto',
+            'discard' => 'Batalkan unggahan',
+            'retry' => 'Ulangi unggahan',
+        ],
+
+        'status' => [
+            'uploading' => 'Mengunggah foto sementara…',
+            'processing' => 'Memproses foto…',
+            'removing' => 'Foto profil akan dihapus setelah disimpan.',
+            'saved' => 'Foto profil berhasil disimpan.',
+            'too_large' => 'Ukuran file maksimal 2 MB.',
+            'failed' => 'Foto gagal diproses. Coba unggah gambar lain.',
+            'expired' => 'Unggahan kedaluwarsa. Silakan unggah ulang foto.',
+        ],
     ],
 
     'disable_account' => [
@@ -163,9 +192,9 @@ return [
             'remove_passkey' => 'Hapus passkey',
         ],
         'status' => [
-            'verifying' => 'Memverifikasi passkey...',
-            'registering' => 'Mendaftarkan passkey...',
-            'removing' => 'Menghapus passkey...',
+            'verifying' => 'Memverifikasi passkey…',
+            'registering' => 'Mendaftarkan passkey…',
+            'removing' => 'Menghapus passkey…',
         ],
         'empty' => [
             'title' => 'Belum ada passkey',

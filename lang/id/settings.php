@@ -25,7 +25,7 @@ return [
             'public_pages_enabled' => 'Tampilkan halaman beranda publik pada URL root. Saat dinonaktifkan, URL root mengarah ke login atau dashboard.',
         ],
         'status' => [
-            'updated' => 'Pengaturan umum berhasil di-update.',
+            'updated' => 'Pengaturan umum berhasil diperbarui.',
         ],
     ],
 
@@ -43,7 +43,7 @@ return [
             'auth_background' => 'Background split auth',
             'color' => 'Warna utama',
         ],
-        'hint' => [
+        'helper' => [
             'logo' => 'Gambar yang sudah memuat logo dan teks. Tidak ada teks tambahan yang ditampilkan.',
             'logo_text' => 'Gambar simbol tanpa teks. Nama aplikasi ditambahkan di sampingnya.',
             'auth_background' => 'Ditampilkan pada layout split auth. Gunakan gambar portrait, maksimal 5 MB. Ilustrasi default digunakan jika gambar kustom belum diatur.',
@@ -60,7 +60,7 @@ return [
             'choose_favicon' => 'Pilih favicon',
         ],
         'status' => [
-            'updated' => 'Pengaturan brand di-update.',
+            'updated' => 'Pengaturan brand berhasil diperbarui.',
             'default' => 'Default',
             'current' => 'Gambar saat ini',
             'selected' => 'Gambar baru dipilih',
@@ -91,7 +91,7 @@ return [
             'email_verification_required' => 'Akun yang belum diverifikasi harus memverifikasi email sebelum mengakses halaman terlindungi.',
         ],
         'status' => [
-            'updated' => 'Pengaturan autentikasi berhasil di-update.',
+            'updated' => 'Pengaturan autentikasi berhasil diperbarui.',
         ],
     ],
 
@@ -106,7 +106,7 @@ return [
             'auth_layout' => 'Layout autentikasi',
         ],
         'status' => [
-            'updated' => 'Pengaturan layout berhasil di-update.',
+            'updated' => 'Pengaturan layout berhasil diperbarui.',
         ],
     ],
 
@@ -148,7 +148,7 @@ return [
             'brand' => 'Logo dan warna tombol mengikuti Pengaturan Brand.',
         ],
         'status' => [
-            'updated' => 'Pengaturan mail di-update.',
+            'updated' => 'Pengaturan mail berhasil diperbarui.',
             'password_saved' => 'Password sudah tersimpan.',
             'test_sent' => 'Email uji diproses.',
             'test_failed' => 'Email uji gagal dikirim. Periksa pengaturan mail.',

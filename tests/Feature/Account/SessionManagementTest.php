@@ -47,7 +47,7 @@ describe('Session management', function (): void {
             ->and($sessions[0]['device'])->toBe('Firefox')
             ->and($sessions[0]['current'])->toBeTrue()
             ->and($sessions[0])->not->toHaveKeys(['id', 'payload'])
-            ->and($sessions[1]['device'])->toBe(__('sessions.label.unknown'));
+            ->and($sessions[1]['device'])->toBe(__('account.sessions.label.unknown'));
 
         resolve(RevokeOtherSessions::class)->handle($user, 'current-secret');
 

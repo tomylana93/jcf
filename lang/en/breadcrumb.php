@@ -6,7 +6,6 @@ return [
     'documentation' => 'Documentation',
     'audit' => 'Audit log',
     'notifications' => 'Notifications',
-    'dashboard' => 'Dashboard',
     'settings' => 'Settings',
     'general' => 'General settings',
     'brand' => 'Brand Settings',

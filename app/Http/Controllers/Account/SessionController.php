@@ -28,7 +28,7 @@ final class SessionController extends Controller
     {
         Auth::logoutOtherDevices($request->validated('password'));
         $revokeOtherSessions->handle($request->user(), $request->session()->getId());
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('sessions.status.revoked')]);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('account.sessions.status.revoked')]);
 
         return back();
     }

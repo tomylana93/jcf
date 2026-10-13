@@ -24,7 +24,7 @@ final class GetUserSessions
             ->orderByDesc('last_activity')->orderBy('id')
             ->get(['id', 'user_agent', 'ip_address', 'last_activity'])
             ->map(/** @param object{id: string, user_agent: string|null, ip_address: string|null, last_activity: int} $session */ fn (object $session): array => [
-                'device' => $session->user_agent ?: __('sessions.label.unknown'),
+                'device' => $session->user_agent ?: __('account.sessions.label.unknown'),
                 'ip_address' => $session->ip_address,
                 'last_active_at' => CarbonImmutable::createFromTimestamp($session->last_activity)->toIso8601String(),
                 'current' => hash_equals($currentSessionId, $session->id),

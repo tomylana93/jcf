@@ -42,6 +42,6 @@ return [
     ],
 
     'status' => [
-        'updated' => 'Permission user berhasil di-update.',
+        'updated' => 'Permission user berhasil diperbarui.',
     ],
 ];

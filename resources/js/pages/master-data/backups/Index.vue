@@ -171,11 +171,11 @@ function selectArchive(event: Event): void {
         <div class="flex flex-wrap items-center gap-3">
             <Badge variant="secondary"
                 >{{ t('backup.label.backup') }}:
-                {{ t(`backup.backup_status.${backupStatus}`) }}</Badge
+                {{ t(`backup.badge.${backupStatus}`) }}</Badge
             >
             <Badge variant="secondary"
                 >{{ t('backup.label.restore') }}:
-                {{ t(`backup.backup_status.${restoreStatus}`) }}</Badge
+                {{ t(`backup.badge.${restoreStatus}`) }}</Badge
             >
         </div>
         <p v-if="!backupConfigured" class="text-sm text-muted-foreground">
@@ -236,7 +236,7 @@ function selectArchive(event: Event): void {
             <AlertDialogContent>
                 <AlertDialogHeader
                     ><AlertDialogTitle>{{
-                        t('backup.card.restore')
+                        t('backup.dialog.restore')
                     }}</AlertDialogTitle
                     ><AlertDialogDescription>{{
                         t('backup.helper.restore', {
@@ -264,7 +264,7 @@ function selectArchive(event: Event): void {
             <AlertDialogContent>
                 <AlertDialogHeader>
                     <AlertDialogTitle>{{
-                        t('backup.card.delete')
+                        t('backup.dialog.delete')
                     }}</AlertDialogTitle>
                     <AlertDialogDescription>{{
                         t('backup.helper.delete', {

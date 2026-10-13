@@ -18,8 +18,8 @@ return [
         'normalized' => 'HTML conversion preview',
     ],
     'placeholder' => [
-        'application_page' => 'Choose an application page...',
-        'search_pages' => 'Search pages...',
+        'application_page' => 'Choose an application page…',
+        'search_pages' => 'Search pages…',
         'url' => '/documentation or https://example.com',
     ],
 

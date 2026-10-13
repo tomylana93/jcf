@@ -18,7 +18,7 @@ const { formatDateTime } = useDateTime();
 const form = useForm<ConfirmPasswordForm>({ password: '' });
 watchEffect(() =>
     setLayoutProps({
-        breadcrumbs: [{ title: t('sessions.title'), href: index() }],
+        breadcrumbs: [{ title: t('account.sessions.title'), href: index() }],
     }),
 );
 function submit() {
@@ -30,20 +30,20 @@ function submit() {
 </script>
 <template>
     <div class="flex flex-col gap-6">
-        <Head :title="t('sessions.title')" />
+        <Head :title="t('account.sessions.title')" />
         <Heading
             variant="small"
-            :title="t('sessions.title')"
-            :description="t('sessions.card.description')"
+            :title="t('account.sessions.title')"
+            :description="t('account.sessions.card.description')"
         />
         <p v-if="!canListSessions" class="text-sm text-muted-foreground">
-            {{ t('sessions.helper.unsupported') }}
+            {{ t('account.sessions.helper.unsupported') }}
         </p>
         <p
             v-else-if="sessions.length === 0"
             class="text-sm text-muted-foreground"
         >
-            {{ t('sessions.helper.empty') }}
+            {{ t('account.sessions.helper.empty') }}
         </p>
         <ul class="flex flex-col gap-3">
             <li
@@ -53,17 +53,21 @@ function submit() {
             >
                 <p class="text-sm wrap-anywhere">{{ session.device }}</p>
                 <Badge v-if="session.current" variant="secondary">{{
-                    t('sessions.label.current')
+                    t('account.sessions.label.current')
                 }}</Badge>
                 <p class="text-sm text-muted-foreground">
-                    {{ session.ip_address ?? t('sessions.label.unknown') }} ?
+                    {{
+                        session.ip_address ??
+                        t('account.sessions.label.unknown')
+                    }}
+                    ?
                     {{ formatDateTime(session.last_active_at) }}
                 </p>
             </li>
         </ul>
         <form novalidate @submit.prevent="submit" class="flex flex-col gap-3">
             <p class="text-sm text-muted-foreground">
-                {{ t('sessions.helper.revoke') }}
+                {{ t('account.sessions.helper.revoke') }}
             </p>
             <PasswordInput
                 id="session_password"
@@ -79,7 +83,7 @@ function submit() {
                 :errors="[form.errors.password]"
             />
             <Button :disabled="form.processing">{{
-                t('sessions.button.revoke')
+                t('account.sessions.button.revoke')
             }}</Button>
         </form>
     </div>

@@ -6,9 +6,7 @@ return [
     'title' => 'Backup',
 
     'card' => [
-        'delete' => 'Hapus backup',
         'description' => 'Buat, upload, download, dan restore database serta file aplikasi.',
-        'restore' => 'Restore aplikasi aktif',
     ],
 
     'label' => [
@@ -36,24 +34,29 @@ return [
 
     'status' => [
         'deleted' => 'Backup berhasil dihapus.',
-        'queued' => 'Backup masuk queue. Notifikasi akan melaporkan hasilnya.',
-        'uploaded' => 'Backup berhasil di-upload dan divalidasi.',
-        'restore_queued' => 'Restore masuk queue. Aplikasi akan masuk maintenance mode.',
+        'queued' => 'Backup masuk antrean. Notifikasi akan melaporkan hasilnya.',
+        'uploaded' => 'Backup berhasil diunggah dan divalidasi.',
+        'restore_queued' => 'Restore masuk antrean. Aplikasi akan masuk mode pemeliharaan.',
     ],
 
-    'error' => [
-        'delete_failed' => 'Backup gagal dihapus. Coba lagi.',
-        'backup_failed' => 'Backup gagal. Periksa log aplikasi dan utilitas database.',
-        'not_configured' => 'Backup nonaktif atau password arsip belum tersedia.',
-        'invalid_archive' => 'Arsip tidak valid, tidak aman, tidak memiliki dump database, atau tidak dapat dibuka dengan password backup yang dikonfigurasi.',
-        'busy' => 'Backup atau restore lain sedang berjalan.',
-        'restore_failed' => 'Restore gagal. Hubungi pengelola sistem untuk memeriksa log dan memulihkan maintenance mode.',
-    ],
-
-    'backup_status' => [
+    'badge' => [
         'idle' => 'Siaga',
         'running' => 'Berjalan',
         'completed' => 'Selesai',
         'failed' => 'Gagal',
     ],
+
+    'error' => [
+        'delete_failed' => 'Backup gagal dihapus. Coba lagi.',
+        'backup_failed' => 'Backup gagal. Periksa log aplikasi untuk detailnya.',
+        'not_configured' => 'Backup nonaktif atau password backup belum tersedia.',
+        'invalid_archive' => 'Arsip tidak valid atau tidak dapat dibuka dengan password backup yang dikonfigurasi.',
+        'busy' => 'Backup atau restore lain sedang berjalan.',
+        'restore_failed' => 'Restore gagal. Hubungi pengelola sistem untuk memeriksa log dan memulihkan maintenance mode.',
+    ],
+    'dialog' => [
+        'delete' => 'Hapus backup',
+        'restore' => 'Restore aplikasi aktif',
+    ],
+
 ];
