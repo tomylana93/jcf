@@ -32,6 +32,14 @@ return [
     */
 
     'connections' => [
+        'realtime' => [
+            'driver' => 'database',
+            'connection' => env('DB_QUEUE_CONNECTION'),
+            'table' => env('DB_QUEUE_TABLE', 'jobs'),
+            'queue' => 'notifications',
+            'retry_after' => 90,
+            'after_commit' => true,
+        ],
         'backups' => [
             'driver' => 'database',
             'connection' => env('DB_QUEUE_CONNECTION'),

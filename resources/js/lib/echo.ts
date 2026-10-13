@@ -1,6 +1,8 @@
 import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
 
+import { authenticate } from '@/actions/Illuminate/Broadcasting/BroadcastController';
+
 let echo: Echo<'reverb'> | undefined;
 
 export function getRealtimeEcho(): Echo<'reverb'> | undefined {
@@ -20,10 +22,7 @@ export function getRealtimeEcho(): Echo<'reverb'> | undefined {
             forceTLS:
                 (import.meta.env.VITE_REVERB_SCHEME || 'https') === 'https',
             enabledTransports: ['ws' as const, 'wss' as const],
-            // NOTE: intentionally not imported from wayfinder-generated actions
-            // (backend broadcast route is not generated in this repo).
-            // Keep in sync with the framework default: /broadcasting/auth.
-            authEndpoint: '/broadcasting/auth',
+            authEndpoint: authenticate.url(),
         };
         echo = new Echo({
             ...options,

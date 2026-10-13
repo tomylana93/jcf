@@ -52,3 +52,4 @@ yarn-error.log
 .env.before_lerd
 /tests/Browser/Screenshots
 /tests/Browser/Traces
+.env.lerd_override

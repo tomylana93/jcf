@@ -4,11 +4,13 @@ import { provide, ref } from 'vue';
 
 import GlobalSearch from '@/components/shared/GlobalSearch.vue';
 import { useBrowserTimezone } from '@/composables/useBrowserTimezone';
+import { useRealtimeNotifications } from '@/composables/useRealtimeNotifications';
 import AppHeaderLayout from '@/layouts/app/AppHeaderLayout.vue';
 import AppSidebarLayout from '@/layouts/app/AppSidebarLayout.vue';
 import { globalSearchKey, type BreadcrumbItem } from '@/types';
 
 useBrowserTimezone();
+useRealtimeNotifications();
 
 const searchOpen = ref(false);
 provide(globalSearchKey, searchOpen);
