@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Actions\Account\ResolveTimezone;
 use App\Models\User;
 
-describe('timezone resolution', function (): void {
+describe('Timezone resolution', function (): void {
     it('prefers the profile timezone over the device', function (): void {
         $user = User::factory()->make(['timezone' => 'Asia/Jakarta']);
 

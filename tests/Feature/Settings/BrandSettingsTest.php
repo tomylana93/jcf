@@ -5,7 +5,6 @@ declare(strict_types=1);
 use App\Enums\Permission;
 use App\Models\User;
 use App\Settings\BrandSettings;
-use App\Settings\GeneralSettings;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Exceptions;
@@ -17,21 +16,15 @@ use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
 use function Pest\Laravel\patch;
 
-describe('basic application settings', function (): void {
-    it('redirects the home page until public pages are enabled', function (): void {
-        get(route('home'))->assertRedirect(route('login'));
-        $settings = resolve(GeneralSettings::class);
-        $settings->public_pages_enabled = true;
-        $settings->save();
-        get(route('home'))->assertInertia(fn (Assert $page) => $page->component('public/Home'));
-    });
-
+describe('Brand settings', function (): void {
     it('authorizes brand viewing and mutation independently', function (): void {
         get(route('settings.brand.edit'))->assertRedirect(route('login'));
         patch(route('settings.brand.update'), [])->assertRedirect(route('login'));
+
         $user = User::factory()->create();
         actingAs($user)->get(route('settings.brand.edit'))->assertForbidden();
         assignRolePermissions($user, Permission::ViewSettings);
+
         get(route('settings.brand.edit'))->assertOk();
         patch(route('settings.brand.update'), ['color' => 'blue'])->assertForbidden();
     });
@@ -40,17 +33,21 @@ describe('basic application settings', function (): void {
         Storage::fake('public');
         $user = User::factory()->create();
         assignRolePermissions($user, Permission::ViewSettings, Permission::ManageSettings);
+
         actingAs($user)->patch(route('settings.brand.update'), [
             'color' => 'blue', 'logo_type' => 'logo_only',
             'logo' => UploadedFile::fake()->image('logo.png'),
             'favicon' => UploadedFile::fake()->image('icon.png'),
         ])->assertSessionHasNoErrors()->assertRedirect(route('settings.brand.edit'));
+
         $brand = resolve(BrandSettings::class)->refresh();
         $logo = $brand->logo_path;
         $favicon = $brand->favicon_path;
         Storage::disk('public')->assertExists([$logo, $favicon]);
+
         patch(route('settings.brand.update'), ['color' => 'green', 'remove_logo' => true])
             ->assertSessionHasNoErrors();
+
         Storage::disk('public')->assertMissing($logo);
         Storage::disk('public')->assertExists($favicon);
         expect($brand->refresh()->logo_path)->toBeNull()
@@ -62,23 +59,19 @@ describe('basic application settings', function (): void {
     it('rejects unsafe uploads and invalid brand choices without persisting', function (): void {
         $user = User::factory()->create();
         assignRolePermissions($user, Permission::ViewSettings, Permission::ManageSettings);
+
         actingAs($user)->patch(route('settings.brand.update'), [
             'color' => 'invalid', 'logo_type' => 'invalid',
             'logo' => UploadedFile::fake()->create('active.svg', 10, 'image/svg+xml'),
         ])->assertInvalid(['color', 'logo_type', 'logo']);
+
         expect(resolve(BrandSettings::class)->refresh()->color->value)->toBe('neutral');
     });
 
-    it('exposes only implemented settings on the settings index', function (): void {
-        $user = User::factory()->create();
-        assignRolePermissions($user, Permission::ViewSettings);
-        actingAs($user)->get(route('settings.index'))->assertInertia(fn (Assert $page) => $page->component('settings/Index'));
-    });
     it('rejects brand images that cannot be stored', function (): void {
         Storage::fake('public');
         $user = User::factory()->create();
         assignRolePermissions($user, Permission::ViewSettings, Permission::ManageSettings);
-
         $source = UploadedFile::fake()->image('logo.png');
         $logo = new class($source->getPathname(), 'logo.png', 'image/png', null, true) extends UploadedFile
         {

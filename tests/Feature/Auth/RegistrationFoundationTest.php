@@ -9,7 +9,7 @@ use Laravel\Fortify\Features;
 use function Pest\Laravel\assertAuthenticatedAs;
 use function Pest\Laravel\post;
 
-describe('registration foundation', function (): void {
+describe('Registration foundation', function (): void {
     it('creates an active UUID user without accepting privileged input', function (): void {
         skipUnlessFortifyHas(Features::registration());
 

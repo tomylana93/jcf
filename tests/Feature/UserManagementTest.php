@@ -20,7 +20,7 @@ use function Pest\Laravel\getJson;
 use function Pest\Laravel\patch;
 use function Pest\Laravel\post;
 
-describe('user management', function (): void {
+describe('User management', function (): void {
     it('lists users with safe resource fields and excludes superadmins', function (): void {
         $actor = User::factory()->create();
         assignRolePermissions($actor, Permission::ViewUsers);

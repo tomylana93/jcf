@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Event;
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\postJson;
 
-describe('private realtime notifications', function (): void {
+describe('Private realtime notifications', function (): void {
     beforeEach(function (): void {
         config(['broadcasting.default' => 'reverb', 'broadcasting.connections.reverb.key' => 'test-key', 'broadcasting.connections.reverb.secret' => 'test-secret', 'broadcasting.connections.reverb.app_id' => 'test-app']);
         require base_path('routes/channels.php');

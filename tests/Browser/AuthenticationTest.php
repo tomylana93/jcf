@@ -7,7 +7,7 @@ use App\Models\User;
 use function Pest\Laravel\assertAuthenticatedAs;
 use function Pest\Laravel\assertGuest;
 
-describe('browser authentication', function () {
+describe('Browser authentication', function () {
     it('redirects guests from the dashboard to the login form', function (): void {
         visit(route('dashboard', absolute: false))
             ->assertPathIs('/login')

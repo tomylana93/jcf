@@ -15,7 +15,7 @@ use function Pest\Laravel\assertGuest;
 use function Pest\Laravel\get;
 use function Pest\Laravel\patch;
 
-describe('direct user permissions', function (): void {
+describe('Direct user permissions', function (): void {
     it('enforces the permission management policy for each actor and target', function (bool $superAdmin, bool $disabled, bool $protectedTarget, bool $expected): void {
         $actor = User::factory()->create(['status' => $disabled ? 'disabled' : 'active']);
         if ($superAdmin) {

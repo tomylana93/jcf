@@ -17,7 +17,7 @@ use Spatie\MediaLibrary\Support\PathGenerator\PathGeneratorFactory;
 
 use function Pest\Laravel\artisan;
 
-describe('temporary avatar cleanup', function (): void {
+describe('Temporary avatar cleanup', function (): void {
     it('cleans orphaned brand uploads while retaining active images and unrelated files', function (): void {
         Storage::fake('local');
         config(['media-library.temporary_directory_path' => Storage::disk('local')->path('media-library-temp')]);

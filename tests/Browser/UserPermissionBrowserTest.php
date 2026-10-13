@@ -9,7 +9,7 @@ use App\Models\User;
 
 use function Pest\Laravel\actingAs;
 
-describe('user permission browser flows', function (): void {
+describe('User permission browser flows', function (): void {
     it('filters, resets, saves and clears additional access while retaining role access', function (): void {
         $actor = User::factory()->create();
         $actor->assignRole(CoreRole::SuperAdmin);

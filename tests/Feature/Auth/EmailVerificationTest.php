@@ -11,7 +11,7 @@ use Laravel\Fortify\Features;
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
 
-describe('email verification', function () {
+describe('Email verification', function () {
     beforeEach(function () {
         skipUnlessFortifyHas(Features::emailVerification());
     });

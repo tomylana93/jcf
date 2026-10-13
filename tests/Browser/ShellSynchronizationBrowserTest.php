@@ -10,7 +10,7 @@ use App\Settings\GeneralSettings;
 
 use function Pest\Laravel\actingAs;
 
-describe('shell synchronization', function (): void {
+describe('Shell synchronization', function (): void {
     it('restores translations and document language through browser history', function (): void {
         actingAs(User::factory()->create());
         $page = visit(route('dashboard'));

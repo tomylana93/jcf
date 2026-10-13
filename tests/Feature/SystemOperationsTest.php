@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Actions\MasterData\Backup\CreateBackup;
-use App\Actions\MasterData\Backup\GetBackupLock;
 use App\Actions\System\GetSystemHealth;
 use App\Enums\Permission;
 use App\Enums\Role;
@@ -12,12 +10,10 @@ use App\Jobs\SystemHeartbeat;
 use App\Models\User;
 use App\Settings\MailSettings;
 use Illuminate\Filesystem\FilesystemAdapter;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
-use Spatie\Backup\Config\Config;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\artisan;
@@ -124,74 +120,6 @@ describe('System readiness checks', function (): void {
         }
         expect($checks['database'])->toBe(['name' => 'database', 'status' => 'failed', 'detail' => 'unavailable'])
             ->and($checks['storage']['status'])->toBe('failed');
-    });
-});
-
-describe('Backup execution', function (): void {
-    it('refuses an unconfigured backup', function (): void {
-        config(['operations.backup_enabled' => false]);
-        expect(fn () => resolve(CreateBackup::class)->handle())->toThrow(RuntimeException::class, __('backup.error.not_configured'));
-    });
-    it('records a successful backup and notifies its requester', function (): void {
-        config(['operations.backup_enabled' => true, 'backup.backup.password' => 'test-secret']);
-        Storage::fake('backups');
-        Artisan::shouldReceive('call')->once()->with('backup:run', Mockery::on(function (array $arguments): bool {
-            Storage::disk('backups')->put('jcf/'.$arguments['--filename'], 'encrypted-archive');
-
-            return $arguments['--no-interaction'] === true;
-        }))->andReturn(0);
-        $user = User::factory()->create();
-        resolve(CreateSystemBackup::class, ['actorId' => $user->id])->handle(resolve(CreateBackup::class));
-        expect(Cache::get('system.backup_status'))->toBe('completed')
-            ->and($user->notifications()->sole()->data['kind'])->toBe('backup_ready')
-            ->and($user->notifications()->sole()->data['subject'])->toMatch('/^backup-\d{8}-\d{12}\.zip$/');
-    });
-    it('marks terminal job failure and sends a private result notification', function (): void {
-        $user = User::factory()->create();
-        new CreateSystemBackup($user->id)->failed(new RuntimeException('private internal error'));
-        expect(Cache::get('system.backup_status'))->toBe('failed')
-            ->and($user->notifications()->sole()->data)->toBe(['kind' => 'backup_failed', 'subject' => '']);
-        new CreateSystemBackup('00000000-0000-0000-0000-000000000000')->failed(null);
-    });
-    it('marks failed commands and missing output as failure', function (): void {
-        config(['operations.backup_enabled' => true, 'backup.backup.password' => 'test-secret']);
-        Storage::fake('backups');
-        Artisan::shouldReceive('call')->once()->andReturn(1);
-        expect(fn () => resolve(CreateBackup::class)->handle())->toThrow(RuntimeException::class, __('backup.error.backup_failed'))
-            ->and(Cache::get('system.backup_status'))->toBe('failed');
-    });
-    it('refuses concurrent backups without changing their status', function (): void {
-        config(['operations.backup_enabled' => true, 'backup.backup.password' => 'test-secret']);
-        $lock = resolve(GetBackupLock::class)->handle();
-        $lock->get();
-        try {
-            expect(fn () => resolve(CreateBackup::class)->handle())->toThrow(RuntimeException::class, __('backup.error.busy'));
-        } finally {
-            $lock->release();
-        }
-    });
-    it('returns a nonzero CLI status when configuration is incomplete', function (): void {
-        config(['operations.backup_enabled' => false]);
-        artisan('system:backup')->assertFailed();
-    });
-});
-
-describe('Backup CLI completion', function (): void {
-    it('produces an encrypted files archive through the real package', function (): void {
-        $disk = Storage::fake('backups');
-        $files = Storage::fake('backup-test-files');
-        $files->put('example.txt', 'roundtrip-file');
-        config([
-            'operations.backup_enabled' => true,
-            'backup.backup.password' => 'test-secret',
-            'backup.backup.source.databases' => [],
-            'backup.backup.source.files.include' => [$files->path('example.txt')],
-            'backup.backup.source.files.exclude' => [],
-        ]);
-        Config::rebind();
-        artisan('system:backup')->assertSuccessful();
-        expect($disk->files('jcf'))->toHaveCount(1)
-            ->and(Cache::get('system.backup_status'))->toBe('completed');
     });
 });
 

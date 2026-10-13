@@ -11,7 +11,7 @@ use Inertia\Testing\AssertableInertia as Assert;
 use function Pest\Laravel\get;
 use function Pest\Laravel\getJson;
 
-describe('safe web error pages', function (): void {
+describe('Safe web error pages', function (): void {
     beforeEach(function (): void {
         app()->instance('env', 'production');
         config(['app.debug' => false]);

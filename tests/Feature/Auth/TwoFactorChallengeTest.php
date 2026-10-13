@@ -9,7 +9,7 @@ use Laravel\Fortify\Features;
 use function Pest\Laravel\get;
 use function Pest\Laravel\post;
 
-describe('two-factor challenge', function () {
+describe('Two-factor challenge', function () {
     beforeEach(function () {
         skipUnlessFortifyHas(Features::twoFactorAuthentication());
     });

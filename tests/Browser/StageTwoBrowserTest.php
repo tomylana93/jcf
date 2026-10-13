@@ -8,7 +8,7 @@ use App\Settings\GeneralSettings;
 
 use function Pest\Laravel\actingAs;
 
-describe('basic settings and account browser flows', function (): void {
+describe('Basic settings and account browser flows', function (): void {
     it('saves general settings through the typed form', function (): void {
         $user = User::factory()->create();
         assignRolePermissions($user, Permission::ViewSettings, Permission::ManageSettings);

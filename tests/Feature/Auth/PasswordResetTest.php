@@ -10,7 +10,7 @@ use Laravel\Fortify\Features;
 use function Pest\Laravel\get;
 use function Pest\Laravel\post;
 
-describe('password reset', function () {
+describe('Password reset', function () {
     beforeEach(function () {
         skipUnlessFortifyHas(Features::resetPasswords());
     });

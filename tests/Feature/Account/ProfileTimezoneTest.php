@@ -8,7 +8,7 @@ use Inertia\Testing\AssertableInertia as Assert;
 
 use function Pest\Laravel\actingAs;
 
-describe('profile timezone', function (): void {
+describe('Profile timezone', function (): void {
     it('saves or clears a valid timezone', function (?string $timezone): void {
         $user = User::factory()->create(['timezone' => 'Europe/London']);
 

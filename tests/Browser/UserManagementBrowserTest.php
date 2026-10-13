@@ -7,7 +7,7 @@ use App\Models\User;
 
 use function Pest\Laravel\actingAs;
 
-describe('user management browser flows', function (): void {
+describe('User management browser flows', function (): void {
     it('creates and edits users through the sheet and searches the table', function (): void {
         $actor = User::factory()->create();
         assignRolePermissions($actor, Permission::ViewUsers, Permission::ManageUsers);

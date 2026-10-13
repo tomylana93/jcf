@@ -8,7 +8,7 @@ use function Pest\Laravel\assertAuthenticated;
 use function Pest\Laravel\get;
 use function Pest\Laravel\post;
 
-describe('registration', function () {
+describe('Registration', function () {
     beforeEach(function () {
         skipUnlessFortifyHas(Features::registration());
     });

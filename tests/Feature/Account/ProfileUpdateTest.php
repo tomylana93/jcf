@@ -13,7 +13,7 @@ use function Pest\Laravel\from;
 use function Pest\Laravel\get;
 use function Pest\Laravel\patch;
 
-describe('profile settings', function () {
+describe('Profile settings', function () {
     it('renders the profile page', function () {
         $user = User::factory()->create();
 

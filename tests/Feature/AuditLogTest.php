@@ -21,7 +21,7 @@ use function Pest\Laravel\artisan;
 use function Pest\Laravel\get;
 use function Pest\Laravel\patch;
 
-describe('audit access and filtering', function (): void {
+describe('Audit access and filtering', function (): void {
     it('requires authentication and the audit permission', function (): void {
         get(route('audit.index'))->assertRedirect(route('login'));
         actingAs(User::factory()->create())->get(route('audit.index'))->assertForbidden();
@@ -53,7 +53,7 @@ describe('audit access and filtering', function (): void {
     ]);
 });
 
-describe('sensitive change recording', function (): void {
+describe('Sensitive change recording', function (): void {
     it('records user creation and queued invitations without credentials', function (): void {
         Queue::fake();
         $actor = User::factory()->create();

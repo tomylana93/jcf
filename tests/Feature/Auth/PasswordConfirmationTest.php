@@ -8,7 +8,7 @@ use Inertia\Testing\AssertableInertia as Assert;
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
 
-describe('password confirmation', function () {
+describe('Password confirmation', function () {
     it('renders the password confirmation screen', function () {
         $user = User::factory()->create();
 

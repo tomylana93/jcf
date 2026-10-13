@@ -9,7 +9,7 @@ use App\Notifications\ApplicationNotification;
 
 use function Pest\Laravel\actingAs;
 
-describe('realtime notification browser lifecycle', function (): void {
+describe('Realtime notification browser lifecycle', function (): void {
     it('refreshes notifications, deduplicates delivery, resubscribes and disconnects on logout', function (): void {
         config(['broadcasting.default' => 'reverb', 'broadcasting.connections.reverb.key' => 'browser-key', 'broadcasting.connections.reverb.secret' => 'browser-secret', 'broadcasting.connections.reverb.app_id' => 'browser-app']);
         require base_path('routes/channels.php');

@@ -10,7 +10,7 @@ use App\Models\User;
 
 use function Pest\Laravel\artisan;
 
-describe('permission initialization', function (): void {
+describe('Permission initialization', function (): void {
     it('creates enum roles idempotently without removing direct permissions or custom roles', function (): void {
         $user = User::factory()->create();
         $permission = Permission::factory()->create();

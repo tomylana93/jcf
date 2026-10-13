@@ -20,7 +20,7 @@ use function Pest\Laravel\patch;
 use function Pest\Laravel\post;
 use function Pest\Laravel\travel;
 
-describe('account avatar', function (): void {
+describe('Account avatar', function (): void {
     it('keeps temporary uploads private and saves the selected avatar', function (): void {
         Storage::fake('local');
         Storage::fake('public');

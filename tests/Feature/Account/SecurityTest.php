@@ -13,7 +13,7 @@ use function Pest\Laravel\get;
 use function Pest\Laravel\put;
 use function Pest\Laravel\withSession;
 
-describe('security settings', function () {
+describe('Security settings', function () {
     it('renders enabled passkey and two-factor settings', function () {
         skipUnlessFortifyHas(Features::twoFactorAuthentication());
 

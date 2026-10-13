@@ -9,7 +9,7 @@ use Mockery\MockInterface;
 
 use function Pest\Laravel\mock;
 
-describe('production password defaults', function () {
+describe('Production password defaults', function () {
     beforeEach(function (): void {
         app()->instance('env', 'production');
     });

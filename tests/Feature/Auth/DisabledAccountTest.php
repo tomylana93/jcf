@@ -16,7 +16,7 @@ use function Pest\Laravel\from;
 use function Pest\Laravel\get;
 use function Pest\Laravel\post;
 
-describe('disabled accounts', function (): void {
+describe('Disabled accounts', function (): void {
     it('does not disclose account status for an incorrect password', function (): void {
         $user = User::factory()->disabled()->create();
 

@@ -18,7 +18,7 @@ beforeEach(function (): void {
     }
 });
 
-describe('application initialization', function (): void {
+describe('Application initialization', function (): void {
     it('rejects environments outside local and testing', function (string $environment): void {
         app()->instance('env', $environment);
 

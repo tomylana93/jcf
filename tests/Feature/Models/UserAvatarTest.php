@@ -11,7 +11,7 @@ use Spatie\MediaLibrary\MediaCollections\Exceptions\FileUnacceptableForCollectio
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\assertModelMissing;
 
-describe('user avatars', function (): void {
+describe('User avatars', function (): void {
     it('stores one public avatar with webp thumbnail and preview', function (): void {
         Storage::fake('public');
         $user = User::factory()->create();

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use App\Settings\GeneralSettings;
 
-describe('public home and error recovery', function (): void {
+describe('Public home and error recovery', function (): void {
     it('renders home metadata without duplicates after hydration and navigates to login', function (): void {
         $settings = resolve(GeneralSettings::class);
         $settings->public_pages_enabled = true;

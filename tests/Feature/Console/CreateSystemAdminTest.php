@@ -14,7 +14,7 @@ beforeEach(function (): void {
     config(['superadmin.name' => 'System Admin', 'superadmin.email' => 'ADMIN@example.com', 'superadmin.password' => 'Strong-password-123!']);
 });
 
-describe('superadmin initialization', function (): void {
+describe('Superadmin initialization', function (): void {
     it('creates a verified active administrator with a normalized email and hashed password', function (): void {
         artisan('init:permission')->assertSuccessful();
         artisan('init:superadmin')->expectsOutput('System administrator created.')->assertSuccessful();

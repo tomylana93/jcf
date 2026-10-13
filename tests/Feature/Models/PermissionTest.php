@@ -9,7 +9,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 use Spatie\Permission\Exceptions\GuardDoesNotMatch;
 
-describe('single role users', function (): void {
+describe('Single role users', function (): void {
     it('creates users without inherited access', function (): void {
         $user = User::factory()->create();
 

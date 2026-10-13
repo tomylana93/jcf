@@ -14,7 +14,7 @@ use function Pest\Laravel\actingAs;
 use function Pest\Laravel\assertGuest;
 use function Pest\Laravel\get;
 
-describe('application permission gates', function (): void {
+describe('Application permission gates', function (): void {
     it('denies application permissions to ordinary accounts', function (Permission $permission): void {
         $user = User::factory()->create();
 
@@ -89,7 +89,7 @@ describe('application permission gates', function (): void {
     });
 });
 
-describe('permission middleware boundary', function (): void {
+describe('Permission middleware boundary', function (): void {
     beforeEach(function (): void {
         Route::middleware(['web', 'auth', 'verified', 'can:'.Permission::ManageUsers->value])
             ->get('/_test/permission-boundary', fn () => response()->noContent());

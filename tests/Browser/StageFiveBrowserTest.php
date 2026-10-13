@@ -9,7 +9,7 @@ use App\Notifications\ApplicationNotification;
 
 use function Pest\Laravel\actingAs;
 
-describe('audit and notification browser flows', function (): void {
+describe('Audit and notification browser flows', function (): void {
     it('opens the notification bell and marks personal messages read', function (): void {
         $user = User::factory()->create();
         $user->notify(new ApplicationNotification('account_updated'));

@@ -12,7 +12,7 @@ use function Pest\Laravel\assertGuest;
 use function Pest\Laravel\get;
 use function Pest\Laravel\post;
 
-describe('authentication', function () {
+describe('Authentication', function () {
     it('renders the login screen', function () {
         $response = get(route('login'));
 

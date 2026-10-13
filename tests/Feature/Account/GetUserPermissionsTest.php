@@ -11,7 +11,7 @@ use Inertia\Testing\AssertableInertia as Assert;
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
 
-describe('shared application permissions', function (): void {
+describe('Shared application permissions', function (): void {
     it('shares an empty permission list for guests', function (): void {
         get(route('login'))->assertOk()->assertInertia(fn (Assert $page) => $page
             ->where('auth.permissions', [])
