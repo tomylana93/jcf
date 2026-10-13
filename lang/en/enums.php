@@ -38,6 +38,8 @@ return [
     ],
 
     'permission' => [
+        'ViewDocumentation' => 'View documentation',
+        'ManageDocumentation' => 'Manage documentation',
         'ViewSystem' => 'View system health',
         'ManageBackups' => 'Manage backups',
         'ViewAuditLogs' => 'View audit log',

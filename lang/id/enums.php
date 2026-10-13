@@ -38,6 +38,8 @@ return [
     ],
 
     'permission' => [
+        'ViewDocumentation' => 'Lihat dokumentasi',
+        'ManageDocumentation' => 'Kelola dokumentasi',
         'ViewSystem' => 'Lihat kesehatan sistem',
         'ManageBackups' => 'Kelola backup',
         'ViewAuditLogs' => 'Lihat audit log',
