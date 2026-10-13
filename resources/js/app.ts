@@ -15,6 +15,8 @@ void createInertiaApp({
     title: (title, page) => formatPageTitle(title, page),
     layout: (name) => {
         switch (true) {
+            case name === 'ErrorPage':
+                return undefined;
             case name.startsWith('public/'):
                 return PublicLayout;
             case name.startsWith('auth/'):

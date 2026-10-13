@@ -13,6 +13,8 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
 use Illuminate\Session\Middleware\AuthenticateSession;
+use Inertia\Inertia;
+use Symfony\Component\HttpFoundation\Response;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -38,6 +40,34 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        $exceptions->respond(function (Response $response, Throwable $exception, Request $request): Response {
+            if (app()->environment('testing') || $request->is('api/*') || $request->expectsJson() || ! in_array($response->getStatusCode(), [403, 404, 419, 500, 503], true)) {
+                return $response;
+            }
+
+            Inertia::flushShared();
+            Inertia::disableSsr();
+            Inertia::setRootView('error');
+
+            $errorResponse = Inertia::render('ErrorPage', [
+                'status' => $response->getStatusCode(),
+                'general' => ['site_name' => config('app.name')],
+                'locale' => [
+                    'current' => app()->getLocale(),
+                    'fallback' => config('app.fallback_locale'),
+                ],
+            ])->toResponse($request)
+                ->setStatusCode($response->getStatusCode())
+                ->setPrivate();
+
+            $errorResponse->headers->set('Cache-Control', 'no-store, private');
+            if ($response->headers->has('Retry-After')) {
+                $errorResponse->headers->set('Retry-After', $response->headers->get('Retry-After'));
+            }
+
+            return $errorResponse;
+        });
+
         $exceptions->dontFlash(['smtp_password']);
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),

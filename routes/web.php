@@ -5,13 +5,12 @@ declare(strict_types=1);
 use App\Http\Controllers\Audit\AuditLogController;
 use App\Http\Controllers\Notification\NotificationController;
 use App\Http\Controllers\Permission\UserPermissionController;
+use App\Http\Controllers\Public\HomeController;
 use App\Http\Controllers\Search\GlobalSearchController;
 use App\Http\Controllers\System\SystemController;
-use App\Settings\GeneralSettings;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
-Route::get('/', fn (GeneralSettings $settings) => $settings->public_pages_enabled ? Inertia::render('public/Home') : to_route(auth()->check() ? 'dashboard' : 'login'))->name('home');
+Route::get('/', HomeController::class)->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('search', GlobalSearchController::class)->middleware('throttle:60,1')->name('search');
