@@ -40,6 +40,7 @@ export function useLocale() {
         document.cookie = `locale=${encodeURIComponent(value)};path=/;max-age=${365 * 24 * 60 * 60};SameSite=Lax`;
         router.reload({
             preserveErrors: true,
+            invalidateCacheTags: ['navigation'],
         });
     }
 

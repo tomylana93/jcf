@@ -1,5 +1,5 @@
-import { createInertiaApp, router } from '@inertiajs/vue3';
-import { createApp } from 'vue';
+import { createInertiaApp, usePage } from '@inertiajs/vue3';
+import { createApp, watch } from 'vue';
 
 import { Toaster } from '@/components/ui/sonner';
 import { initializeTheme } from '@/composables/useAppearance';
@@ -10,8 +10,30 @@ import PublicLayout from '@/layouts/PublicLayout.vue';
 import { initializeFlashToast } from '@/lib/flashToast';
 import { createTranslationPlugin } from '@/lib/i18n';
 import { formatPageTitle } from '@/lib/pageTitle';
+import type { BrandSettings, LocaleSettings } from '@/types';
 
-void createInertiaApp({
+void createInertiaApp<{
+    locale?: LocaleSettings;
+    brand?: BrandSettings;
+}>({
+    defaults: {
+        visitOptions: (_href, options) => {
+            if (!options.method || options.method === 'get') {
+                return {};
+            }
+
+            return {
+                invalidateCacheTags: [
+                    ...new Set([
+                        ...(typeof options.invalidateCacheTags === 'string'
+                            ? [options.invalidateCacheTags]
+                            : (options.invalidateCacheTags ?? [])),
+                        'navigation',
+                    ]),
+                ],
+            };
+        },
+    },
     title: (title, page) => formatPageTitle(title, page),
     layout: (name) => {
         switch (true) {
@@ -30,14 +52,11 @@ void createInertiaApp({
         }
     },
     withApp: (app, { page, ssr }) => {
-        const locale =
-            (page.props.locale as { current?: string } | undefined)?.current ??
-            'en';
-
-        const fallback =
-            (page.props.locale as { fallback?: string } | undefined)
-                ?.fallback ?? 'en';
-        app.use(createTranslationPlugin(locale, fallback));
+        const translations = createTranslationPlugin(
+            page.props.locale?.current ?? 'en',
+            page.props.locale?.fallback ?? 'en',
+        );
+        app.use(translations);
         app.directive('focus', {
             mounted: (el: HTMLElement, shouldFocus) => {
                 if (shouldFocus.value !== false) {
@@ -48,18 +67,50 @@ void createInertiaApp({
         if (ssr) {
             return;
         }
-        const applyBrand = (brand: unknown) => {
-            document.documentElement.dataset.brandColor =
-                brand &&
-                typeof brand === 'object' &&
-                'color' in brand &&
-                typeof brand.color === 'string'
-                    ? brand.color
-                    : 'neutral';
-        };
-        applyBrand(page.props.brand);
-        router.on('navigate', (event) =>
-            applyBrand(event.detail.page.props.brand),
+        const currentPage = usePage<{
+            locale?: LocaleSettings;
+            brand?: BrandSettings;
+        }>();
+        watch(
+            () => currentPage.props.locale,
+            (locale) => {
+                if (!locale) {
+                    return;
+                }
+
+                translations.global.locale.value = locale.current;
+                translations.global.fallbackLocale.value =
+                    translations.global.availableLocales.find(
+                        (available) => available === locale.fallback,
+                    ) ?? 'en';
+                document.documentElement.lang = locale.current.replaceAll(
+                    '_',
+                    '-',
+                );
+            },
+            { immediate: true },
+        );
+        watch(
+            () => currentPage.props.brand,
+            (brand) => {
+                document.documentElement.dataset.brandColor =
+                    brand?.color ?? 'neutral';
+                const icons = Array.from(
+                    document.querySelectorAll<HTMLLinkElement>(
+                        'link[rel="icon"]',
+                    ),
+                );
+                const icon = icons.shift() ?? document.createElement('link');
+                icons.forEach((duplicate) => duplicate.remove());
+                icon.rel = 'icon';
+                icon.href = brand?.favicon_url ?? '/favicon.svg';
+                icon.removeAttribute('sizes');
+                icon.removeAttribute('type');
+                if (!icon.isConnected) {
+                    document.head.appendChild(icon);
+                }
+            },
+            { immediate: true },
         );
         const notifications = document.createElement('div');
         document.body.appendChild(notifications);
