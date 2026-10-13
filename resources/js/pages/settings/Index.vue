@@ -2,9 +2,9 @@
 import { Head, setLayoutProps } from '@inertiajs/vue3';
 import {
     LayoutTemplate,
+    Mail,
     Palette,
     Settings,
-    Mail,
     ShieldCheck,
 } from '@lucide/vue';
 import { watchEffect } from 'vue';
@@ -29,22 +29,6 @@ watchEffect(() => {
 
 const cards: NavigationCard[] = [
     {
-        id: 'auth',
-        href: editAuth(),
-        icon: ShieldCheck,
-        title: 'settings.auth.card.title',
-        description: 'settings.auth.card.description',
-        dataTest: 'auth-settings-card',
-    },
-    {
-        id: 'mail',
-        href: editMail(),
-        icon: Mail,
-        title: 'settings.mail.card.title',
-        description: 'settings.mail.card.description',
-        dataTest: 'mail-settings-card',
-    },
-    {
         id: 'general',
         href: edit(),
         icon: Settings,
@@ -61,12 +45,28 @@ const cards: NavigationCard[] = [
         dataTest: 'brand-settings-card',
     },
     {
+        id: 'auth',
+        href: editAuth(),
+        icon: ShieldCheck,
+        title: 'settings.auth.card.title',
+        description: 'settings.auth.card.description',
+        dataTest: 'auth-settings-card',
+    },
+    {
         id: 'layout',
         href: editLayout(),
         icon: LayoutTemplate,
         title: 'settings.layout.card.title',
         description: 'settings.layout.card.description',
         dataTest: 'layout-settings-card',
+    },
+    {
+        id: 'mail',
+        href: editMail(),
+        icon: Mail,
+        title: 'settings.mail.card.title',
+        description: 'settings.mail.card.description',
+        dataTest: 'mail-settings-card',
     },
 ];
 </script>
