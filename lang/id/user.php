@@ -15,8 +15,8 @@ return [
     'label' => [
         'name' => 'Nama lengkap',
         'email' => 'Alamat email',
-        'no_role' => 'Tanpa role',
         'role' => 'Role',
+        'no_role' => 'Tanpa role',
         'status' => 'Status',
         'created_at' => 'Dibuat',
         'password' => 'Password',
@@ -40,6 +40,14 @@ return [
         'email_verified' => 'Terverifikasi',
     ],
 
+    'status' => [
+        'created' => 'Pengguna ditambahkan. Undangan dijadwalkan untuk dikirim melalui email.',
+        'updated' => 'Pengguna di-update.',
+        'activated' => 'Pengguna diaktifkan.',
+        'disabled' => 'Pengguna dinonaktifkan.',
+        'invitation_queued' => 'Undangan dijadwalkan untuk dikirim melalui email.',
+    ],
+
     'invitation' => [
         'create_hint' => 'Link untuk mengatur password dan memverifikasi email akan dikirim otomatis.',
         'pending' => 'Undangan belum diterima.',
@@ -50,13 +58,5 @@ return [
         'expires' => 'Link berlaku selama :minutes menit.',
         'verification' => 'Email otomatis terverifikasi setelah password berhasil diatur.',
         'unavailable' => 'Undangan hanya tersedia untuk akun aktif yang belum menerima undangan.',
-    ],
-
-    'status' => [
-        'created' => 'Pengguna ditambahkan. Undangan dijadwalkan untuk dikirim melalui email.',
-        'updated' => 'Pengguna di-update.',
-        'activated' => 'Pengguna diaktifkan.',
-        'disabled' => 'Pengguna dinonaktifkan.',
-        'invitation_queued' => 'Undangan dijadwalkan untuk dikirim melalui email.',
     ],
 ];

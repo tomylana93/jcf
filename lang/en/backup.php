@@ -41,6 +41,13 @@ return [
         'restore_queued' => 'Restore queued. The application will enter maintenance mode.',
     ],
 
+    'backup_status' => [
+        'idle' => 'Idle',
+        'running' => 'Running',
+        'completed' => 'Completed',
+        'failed' => 'Failed',
+    ],
+
     'error' => [
         'delete_failed' => 'Backup could not be deleted. Try again.',
         'backup_failed' => 'Backup failed. Check the application logs and database tools.',
@@ -48,12 +55,5 @@ return [
         'invalid_archive' => 'The archive is invalid, unsafe, missing the database dump, or cannot be opened with the configured backup password.',
         'busy' => 'Another backup or restore is running.',
         'restore_failed' => 'Restore failed. Contact the system operator to check logs and recover from maintenance mode.',
-    ],
-
-    'backup_status' => [
-        'idle' => 'Idle',
-        'running' => 'Running',
-        'completed' => 'Completed',
-        'failed' => 'Failed',
     ],
 ];

@@ -41,6 +41,13 @@ return [
         'restore_queued' => 'Restore masuk antrean. Aplikasi akan masuk mode pemeliharaan.',
     ],
 
+    'backup_status' => [
+        'idle' => 'Siaga',
+        'running' => 'Berjalan',
+        'completed' => 'Selesai',
+        'failed' => 'Gagal',
+    ],
+
     'error' => [
         'delete_failed' => 'Backup gagal dihapus. Coba lagi.',
         'backup_failed' => 'Backup gagal. Periksa log aplikasi dan utilitas database.',
@@ -48,12 +55,5 @@ return [
         'invalid_archive' => 'Arsip tidak valid, tidak aman, tidak memiliki dump database, atau tidak dapat dibuka dengan password backup yang dikonfigurasi.',
         'busy' => 'Backup atau restore lain sedang berjalan.',
         'restore_failed' => 'Restore gagal. Hubungi pengelola sistem untuk memeriksa log dan memulihkan maintenance mode.',
-    ],
-
-    'backup_status' => [
-        'idle' => 'Siaga',
-        'running' => 'Berjalan',
-        'completed' => 'Selesai',
-        'failed' => 'Gagal',
     ],
 ];
