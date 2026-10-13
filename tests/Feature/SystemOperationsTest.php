@@ -67,9 +67,7 @@ describe('System operations authorization', function (): void {
         get('/master-data/backups/invalid.txt')->assertNotFound();
     });
     it('validates configuration and queues a backup on the isolated worker connection', function (): void {
-        $user = User::factory()->create();
-        $user->syncRoles(Role::SuperAdmin);
-        actingAs($user);
+        $user = actingAsSuperAdmin();
         withSession(['auth.password_confirmed_at' => time()]);
         config(['operations.backup_enabled' => false]);
         post(route('master-data.backups.store'))->assertSessionHasErrors(['backup' => __('backup.error.not_configured')]);

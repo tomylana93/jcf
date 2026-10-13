@@ -11,7 +11,6 @@ use function Pest\Laravel\actingAs;
 use function Pest\Laravel\from;
 use function Pest\Laravel\get;
 use function Pest\Laravel\put;
-use function Pest\Laravel\withSession;
 
 describe('Security settings', function () {
     it('renders enabled passkey and two-factor settings', function () {
@@ -27,8 +26,7 @@ describe('Security settings', function () {
 
         $user = User::factory()->create();
 
-        actingAs($user);
-        withSession(['auth.password_confirmed_at' => time()]);
+        actingAsWithConfirmedPassword($user);
 
         get(route('security.edit'))
             ->assertInertia(fn (Assert $page) => $page
@@ -64,8 +62,7 @@ describe('Security settings', function () {
 
         $user = User::factory()->create();
 
-        actingAs($user);
-        withSession(['auth.password_confirmed_at' => time()]);
+        actingAsWithConfirmedPassword($user);
 
         get(route('security.edit'))
             ->assertOk()

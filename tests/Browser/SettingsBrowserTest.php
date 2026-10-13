@@ -64,9 +64,7 @@ describe('Mail settings in the browser', function (): void {
 
 describe('Auth settings in the browser', function (): void {
     it('persists the registration switch from the auth settings page', function (): void {
-        $user = User::factory()->create();
-        assignRolePermissions($user, Permission::ViewSettings, Permission::ManageSettings);
-        actingAs($user);
+        $user = actingAsUserWithPermissions(Permission::ViewSettings, Permission::ManageSettings);
         visit(route('settings.auth.edit'))->click('#registration_enabled')->click('@save-auth-settings')
             ->assertSee(__('settings.auth.status.updated'))->assertNoJavaScriptErrors();
         expect(resolve(AuthSettings::class)->refresh()->registration_enabled)->toBeFalse();
@@ -74,9 +72,7 @@ describe('Auth settings in the browser', function (): void {
 
     it('creates an invited account without showing password fields', function (): void {
         Queue::fake([SendUserInvitation::class]);
-        $user = User::factory()->create();
-        assignRolePermissions($user, Permission::ViewUsers, Permission::ManageUsers);
-        actingAs($user);
+        $user = actingAsUserWithPermissions(Permission::ViewUsers, Permission::ManageUsers);
         visit(route('master-data.users.index'))->click(__('common.button.create'))
             ->fill('#user-name', 'Browser Invited')->fill('#user-email', 'browser-invited@example.test')
             ->click('#send-invitation')->assertMissing('#user-password')

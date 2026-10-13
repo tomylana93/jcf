@@ -41,8 +41,7 @@ describe('Backup management', function (): void {
         post(route('master-data.backups.upload'))->assertRedirect(route('login'));
         post(route('master-data.backups.restore', 'test.zip'))->assertRedirect(route('login'));
         $user = User::factory()->create();
-        actingAs($user);
-        withSession(['auth.password_confirmed_at' => time()]);
+        actingAsWithConfirmedPassword($user);
         get(route('master-data.backups.index'))->assertForbidden();
         post(route('master-data.backups.upload'))->assertForbidden();
         post(route('master-data.backups.restore', 'test.zip'))->assertForbidden();
@@ -53,8 +52,7 @@ describe('Backup management', function (): void {
         $url = route('master-data.backups.destroy', 'test.zip');
         delete($url)->assertRedirect(route('login'));
         $user = User::factory()->create();
-        actingAs($user);
-        withSession(['auth.password_confirmed_at' => time()]);
+        actingAsWithConfirmedPassword($user);
         delete($url)->assertForbidden();
         $user->syncRoles(Role::SuperAdmin);
         withSession(['auth.password_confirmed_at' => 0]);
@@ -67,9 +65,7 @@ describe('Backup management', function (): void {
         $disk->put('jcf/test.zip', 'archive');
         $disk->put('jcf/keep.zip', 'archive');
         config(['operations.backup_enabled' => false]);
-        $user = User::factory()->create();
-        $user->syncRoles(Role::SuperAdmin);
-        actingAs($user);
+        $user = actingAsSuperAdmin();
         withSession(['auth.password_confirmed_at' => time()]);
 
         delete(route('master-data.backups.destroy', 'test.zip'))->assertRedirect()->assertSessionHasNoErrors();
@@ -83,9 +79,7 @@ describe('Backup management', function (): void {
     it('preserves archives while a backup or restore holds the lock', function (): void {
         $disk = Storage::fake('backups');
         $disk->put('jcf/test.zip', 'archive');
-        $user = User::factory()->create();
-        $user->syncRoles(Role::SuperAdmin);
-        actingAs($user);
+        $user = actingAsSuperAdmin();
         withSession(['auth.password_confirmed_at' => time()]);
         $lock = resolve(GetBackupLock::class)->handle();
         $lock->get();
@@ -102,9 +96,7 @@ describe('Backup management', function (): void {
         Storage::shouldReceive('disk')->with('backups')->once()->andReturn($disk);
         $disk->shouldReceive('exists')->with('jcf/test.zip')->once()->andReturnTrue();
         $disk->shouldReceive('delete')->with('jcf/test.zip')->once()->andReturnFalse();
-        $user = User::factory()->create();
-        $user->syncRoles(Role::SuperAdmin);
-        actingAs($user);
+        $user = actingAsSuperAdmin();
         withSession(['auth.password_confirmed_at' => time()]);
 
         delete(route('master-data.backups.destroy', 'test.zip'))->assertSessionHasErrors(['backup' => __('backup.error.delete_failed')]);
@@ -141,16 +133,12 @@ describe('Backup management', function (): void {
         get(route('master-data.backups.index', ['sort' => 'untrusted']))->assertSessionHasErrors('sort');
     });
     it('requires password confirmation before uploading or restoring', function (): void {
-        $user = User::factory()->create();
-        $user->syncRoles(Role::SuperAdmin);
-        actingAs($user);
+        $user = actingAsSuperAdmin();
         post(route('master-data.backups.upload'))->assertRedirect(route('password.confirm'));
         post(route('master-data.backups.restore', 'test.zip'))->assertRedirect(route('password.confirm'));
     });
     it('validates backup upload configuration and required files', function (): void {
-        $user = User::factory()->create();
-        $user->syncRoles(Role::SuperAdmin);
-        actingAs($user);
+        $user = actingAsSuperAdmin();
         withSession(['auth.password_confirmed_at' => time()]);
         config(['operations.backup_enabled' => false]);
         post(route('master-data.backups.upload'))->assertSessionHasErrors(['archive' => __('backup.error.not_configured')]);
@@ -163,9 +151,7 @@ describe('Backup management', function (): void {
         config(['operations.backup_enabled' => true, 'backup.backup.password' => 'test-secret']);
         createBackupTestArchive(['db-dumps/postgresql-pgsql.sql' => 'SELECT 1;', 'storage/app/public/avatar.txt' => 'image'], 'test-secret');
         $upload = new UploadedFile($disk->path('jcf/test.zip'), 'external.zip', test: true);
-        $user = User::factory()->create();
-        $user->syncRoles(Role::SuperAdmin);
-        actingAs($user);
+        $user = actingAsSuperAdmin();
         withSession(['auth.password_confirmed_at' => time()]);
         post(route('master-data.backups.upload'), ['archive' => $upload])->assertSessionHasNoErrors()->assertRedirect();
         $files = $disk->files('jcf');
@@ -176,9 +162,7 @@ describe('Backup management', function (): void {
         $disk = Storage::fake('backups');
         config(['operations.backup_enabled' => true, 'backup.backup.password' => 'test-secret']);
         createBackupTestArchive($entries, $password);
-        $user = User::factory()->create();
-        $user->syncRoles(Role::SuperAdmin);
-        actingAs($user);
+        $user = actingAsSuperAdmin();
         withSession(['auth.password_confirmed_at' => time()]);
         post(route('master-data.backups.upload'), ['archive' => new UploadedFile($disk->path('jcf/test.zip'), 'test.zip', test: true)])->assertSessionHasErrors(['archive' => __('backup.error.invalid_archive')]);
         expect($disk->files('jcf'))->toBe(['jcf/test.zip']);
@@ -190,9 +174,7 @@ describe('Backup management', function (): void {
     ]);
     it('validates restore configuration confirmation and archive existence before queuing', function (): void {
         $disk = Storage::fake('backups');
-        $user = User::factory()->create();
-        $user->syncRoles(Role::SuperAdmin);
-        actingAs($user);
+        $user = actingAsSuperAdmin();
         withSession(['auth.password_confirmed_at' => time()]);
         config(['operations.backup_enabled' => false]);
         post(route('master-data.backups.restore', 'test.zip'))->assertSessionHasErrors(['backup' => __('backup.error.not_configured')]);

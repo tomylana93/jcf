@@ -30,9 +30,7 @@ describe('Shared application permissions', function (): void {
     });
 
     it('shares only effective permissions evaluated by the server gate', function (): void {
-        $user = User::factory()->create();
-        assignRolePermissions($user, Permission::ViewUsers, Permission::AssignUserPermissions);
-        actingAs($user);
+        $user = actingAsUserWithPermissions(Permission::ViewUsers, Permission::AssignUserPermissions);
 
         get(route('dashboard'))->assertOk()->assertInertia(fn (Assert $page) => $page
             ->where('auth.permissions', ['users.view'])

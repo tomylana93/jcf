@@ -106,9 +106,7 @@ describe('Permission middleware boundary', function (): void {
     });
 
     it('allows accounts with the required role permission', function (): void {
-        $user = User::factory()->create();
-        assignRolePermissions($user, Permission::ManageUsers);
-        actingAs($user);
+        $user = actingAsUserWithPermissions(Permission::ManageUsers);
 
         get('/_test/permission-boundary')->assertNoContent();
     });

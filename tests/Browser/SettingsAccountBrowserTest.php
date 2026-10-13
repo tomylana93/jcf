@@ -10,9 +10,7 @@ use function Pest\Laravel\actingAs;
 
 describe('Basic settings and account browser flows', function (): void {
     it('saves general settings through the typed form', function (): void {
-        $user = User::factory()->create();
-        assignRolePermissions($user, Permission::ViewSettings, Permission::ManageSettings);
-        actingAs($user);
+        $user = actingAsUserWithPermissions(Permission::ViewSettings, Permission::ManageSettings);
 
         visit(route('settings.general.edit', absolute: false))
             ->fill('#site_name', 'JCF Browser')
