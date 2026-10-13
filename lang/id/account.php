@@ -35,7 +35,7 @@ return [
         ],
         'status' => [
             'verification_sent' => 'Link verifikasi baru telah dikirim ke alamat email.',
-            'updated' => 'Profil berhasil di-update.',
+            'updated' => 'Profil berhasil diperbarui.',
         ],
     ],
 

@@ -42,7 +42,7 @@ return [
 
     'status' => [
         'created' => 'Pengguna ditambahkan. Undangan dijadwalkan untuk dikirim melalui email.',
-        'updated' => 'Pengguna di-update.',
+        'updated' => 'Pengguna berhasil diperbarui.',
         'activated' => 'Pengguna diaktifkan.',
         'disabled' => 'Pengguna dinonaktifkan.',
         'invitation_queued' => 'Undangan dijadwalkan untuk dikirim melalui email.',

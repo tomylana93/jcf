@@ -49,7 +49,7 @@ return [
 
         'status' => [
             'preparing' => 'Menyiapkan :format…',
-            'ready' => ':format siap di-download.',
+            'ready' => ':format siap diunduh.',
         ],
 
         'error' => [
