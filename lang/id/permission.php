@@ -15,6 +15,7 @@ return [
     'label' => [
         'search' => 'Pencarian',
         'direct' => 'Direct permission',
+        'inherited' => 'Permission dari role',
         'added' => 'Ditambahkan',
         'removed' => 'Dilepas',
         'module' => 'Modul',
@@ -28,6 +29,7 @@ return [
 
     'helper' => [
         'all_access' => 'Memiliki seluruh akses',
+        'inherited' => 'Permission dari role tetap aktif dan tidak dapat dihapus di sini.',
         'unchanged' => 'Belum ada perubahan.',
         'no_results' => 'Permission tidak ditemukan.',
     ],

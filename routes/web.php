@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Audit\AuditLogController;
 use App\Http\Controllers\Notification\NotificationController;
+use App\Http\Controllers\Permission\UserPermissionController;
 use App\Http\Controllers\System\SystemController;
 use App\Settings\GeneralSettings;
 use Illuminate\Support\Facades\Route;
@@ -12,6 +13,9 @@ use Inertia\Inertia;
 Route::get('/', fn (GeneralSettings $settings) => $settings->public_pages_enabled ? Inertia::render('public/Home') : to_route(auth()->check() ? 'dashboard' : 'login'))->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('permissions', [UserPermissionController::class, 'index'])->name('permissions.index');
+    Route::get('permissions/{user}/edit', [UserPermissionController::class, 'edit'])->whereUuid('user')->name('permissions.edit');
+    Route::patch('permissions/{user}', [UserPermissionController::class, 'update'])->whereUuid('user')->name('permissions.update');
     Route::get('system', [SystemController::class, 'index'])->name('system.index');
     Route::get('audit', [AuditLogController::class, 'index'])->name('audit.index');
     Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
