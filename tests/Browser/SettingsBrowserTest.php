@@ -62,7 +62,7 @@ describe('Mail settings in the browser', function (): void {
     });
 });
 
-describe('Stage four browser interactions', function (): void {
+describe('Auth settings in the browser', function (): void {
     it('persists the registration switch from the auth settings page', function (): void {
         $user = User::factory()->create();
         assignRolePermissions($user, Permission::ViewSettings, Permission::ManageSettings);
