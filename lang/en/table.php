@@ -12,7 +12,7 @@ return [
 
     'placeholder' => [
         'all' => 'All',
-        'search' => 'Search data...',
+        'search' => 'Search data…',
     ],
 
     'helper' => [

@@ -61,11 +61,11 @@ return [
         'helper' => [
             'unsupported' => 'Session listing requires the database session driver. Other sessions can still be revoked.',
             'empty' => 'No stored active sessions.',
-            'revoke' => 'Enter the current password to sign out other devices. The current session remains active.',
+            'revoke' => 'Enter the current password to log out other devices. The current session remains active.',
         ],
 
         'button' => [
-            'revoke' => 'Sign out other devices',
+            'revoke' => 'Log out other devices',
         ],
 
         'status' => [
@@ -192,9 +192,9 @@ return [
             'remove_passkey' => 'Remove passkey',
         ],
         'status' => [
-            'verifying' => 'Verifying passkey...',
-            'registering' => 'Registering passkey...',
-            'removing' => 'Removing passkey...',
+            'verifying' => 'Verifying passkey…',
+            'registering' => 'Registering passkey…',
+            'removing' => 'Removing passkey…',
         ],
         'empty' => [
             'title' => 'No passkeys yet',

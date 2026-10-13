@@ -18,8 +18,8 @@ return [
         'normalized' => 'Preview konversi HTML',
     ],
     'placeholder' => [
-        'application_page' => 'Pilih halaman aplikasi...',
-        'search_pages' => 'Cari halaman...',
+        'application_page' => 'Pilih halaman aplikasi…',
+        'search_pages' => 'Cari halaman…',
         'url' => '/documentation atau https://example.com',
     ],
 

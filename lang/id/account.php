@@ -192,9 +192,9 @@ return [
             'remove_passkey' => 'Hapus passkey',
         ],
         'status' => [
-            'verifying' => 'Memverifikasi passkey...',
-            'registering' => 'Mendaftarkan passkey...',
-            'removing' => 'Menghapus passkey...',
+            'verifying' => 'Memverifikasi passkey…',
+            'registering' => 'Mendaftarkan passkey…',
+            'removing' => 'Menghapus passkey…',
         ],
         'empty' => [
             'title' => 'Belum ada passkey',
