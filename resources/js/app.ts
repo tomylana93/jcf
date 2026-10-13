@@ -72,7 +72,7 @@ void createInertiaApp<{
             brand?: BrandSettings;
         }>();
         watch(
-            () => currentPage.props.locale,
+            () => (currentPage.props ?? page.props).locale,
             (locale) => {
                 if (!locale) {
                     return;
@@ -91,7 +91,7 @@ void createInertiaApp<{
             { immediate: true },
         );
         watch(
-            () => currentPage.props.brand,
+            () => (currentPage.props ?? page.props).brand,
             (brand) => {
                 document.documentElement.dataset.brandColor =
                     brand?.color ?? 'neutral';
