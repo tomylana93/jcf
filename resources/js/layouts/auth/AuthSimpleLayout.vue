@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
 
+import AuthFooter from '@/components/layout/AuthFooter.vue';
 import AppLogo from '@/components/shared/AppLogo.vue';
 import { home } from '@/routes';
 
@@ -36,5 +37,6 @@ defineProps<{
                 </div>
             </div>
         </main>
+        <AuthFooter />
     </div>
 </template>

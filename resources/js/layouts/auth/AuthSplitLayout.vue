@@ -2,6 +2,7 @@
 import { Link, usePage } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 
+import AuthFooter from '@/components/layout/AuthFooter.vue';
 import AppLogo from '@/components/shared/AppLogo.vue';
 import { home } from '@/routes';
 
@@ -82,6 +83,7 @@ defineProps<{
                     <slot />
                 </div>
             </main>
+            <AuthFooter />
         </div>
     </div>
 </template>

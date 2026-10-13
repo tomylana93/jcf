@@ -2,6 +2,7 @@
 import { onMounted, ref } from 'vue';
 
 import AppContent from '@/components/layout/AppContent.vue';
+import AppFooter from '@/components/layout/AppFooter.vue';
 import AppShell from '@/components/layout/AppShell.vue';
 import AppSidebar from '@/components/layout/AppSidebar.vue';
 import AppSidebarHeader from '@/components/layout/AppSidebarHeader.vue';
@@ -27,6 +28,7 @@ withDefaults(defineProps<Props>(), {
         <AppContent variant="sidebar" class="min-w-0 overflow-x-clip">
             <AppSidebarHeader :breadcrumbs="breadcrumbs" />
             <slot />
+            <AppFooter />
         </AppContent>
     </AppShell>
 </template>

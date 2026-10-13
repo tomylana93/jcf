@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppContent from '@/components/layout/AppContent.vue';
+import AppFooter from '@/components/layout/AppFooter.vue';
 import AppHeader from '@/components/layout/AppHeader.vue';
 import AppShell from '@/components/layout/AppShell.vue';
 import AppSidebar from '@/components/layout/AppSidebar.vue';
@@ -20,6 +21,7 @@ withDefaults(defineProps<Props>(), {
         <AppHeader :breadcrumbs="breadcrumbs" />
         <AppContent variant="header">
             <slot />
+            <AppFooter />
         </AppContent>
     </AppShell>
 </template>
