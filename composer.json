@@ -83,7 +83,7 @@
             "composer audit",
             "pnpm audit"
         ],
-        "test:feature": "pest --compact --exclude-testsuite=Browser",
+        "test:feature": "pest --compact --parallel --exclude-testsuite=Browser",
         "test:lint": [
             "pint --parallel --test",
             "rector --dry-run",
