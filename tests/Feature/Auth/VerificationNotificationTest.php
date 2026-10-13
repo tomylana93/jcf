@@ -10,12 +10,12 @@ use Laravel\Fortify\Features;
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\post;
 
-describe('verification notifications', function () {
-    beforeEach(function () {
+describe('Verification notifications', function (): void {
+    beforeEach(function (): void {
         skipUnlessFortifyHas(Features::emailVerification());
     });
 
-    it('sends verification notification', function () {
+    it('sends verification notification', function (): void {
         Notification::fake();
 
         $user = User::factory()->unverified()->create();
@@ -28,7 +28,7 @@ describe('verification notifications', function () {
         Notification::assertSentTo($user, VerifyEmail::class);
     });
 
-    it('does not send verification notification if email is verified', function () {
+    it('does not send verification notification if email is verified', function (): void {
         Notification::fake();
 
         $user = User::factory()->create();

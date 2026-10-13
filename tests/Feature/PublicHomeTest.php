@@ -10,7 +10,7 @@ use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
 use function Pest\Laravel\withSession;
 
-describe('public home', function (): void {
+describe('Public home', function (): void {
     it('renders saved content and canonical metadata without consuming intended URLs', function (bool $authenticated): void {
         $settings = resolve(GeneralSettings::class);
         $settings->public_pages_enabled = true;
@@ -51,5 +51,15 @@ describe('public home', function (): void {
         actingAs(User::factory()->create());
 
         get('/')->assertRedirect(route('dashboard'));
+    });
+
+    it('redirects the home page until public pages are enabled', function (): void {
+        get(route('home'))->assertRedirect(route('login'));
+
+        $settings = resolve(GeneralSettings::class);
+        $settings->public_pages_enabled = true;
+        $settings->save();
+
+        get(route('home'))->assertInertia(fn (Assert $page) => $page->component('public/Home'));
     });
 });

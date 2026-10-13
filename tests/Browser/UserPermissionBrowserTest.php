@@ -9,7 +9,7 @@ use App\Models\User;
 
 use function Pest\Laravel\actingAs;
 
-describe('user permission browser flows', function (): void {
+describe('User permission browser flows', function (): void {
     it('filters, resets, saves and clears additional access while retaining role access', function (): void {
         $actor = User::factory()->create();
         $actor->assignRole(CoreRole::SuperAdmin);
@@ -20,6 +20,7 @@ describe('user permission browser flows', function (): void {
         actingAs($actor);
 
         $page = visit(route('permissions.index', absolute: false));
+
         $page->assertSee(__('permission.card.description'))
             ->fill('[aria-label="'.__('table.label.search').'"]', $target->email)
             ->assertDontSee($actor->email)
@@ -70,7 +71,9 @@ describe('user permission browser flows', function (): void {
             ->screenshot(filename: 'session-one-permissions-mobile');
 
         expect($target->fresh()->can(Permission::ViewUsers))->toBeTrue();
+
         actingAs($target);
+
         visit(route('dashboard', absolute: false))
             ->assertMissing('nav a[href="'.route('permissions.index', absolute: false).'"]')
             ->assertNoJavaScriptErrors();

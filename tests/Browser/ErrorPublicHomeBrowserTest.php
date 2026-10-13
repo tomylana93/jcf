@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use App\Settings\GeneralSettings;
 
-describe('public home and error recovery', function (): void {
+describe('Public home and error recovery', function (): void {
     it('renders home metadata without duplicates after hydration and navigates to login', function (): void {
         $settings = resolve(GeneralSettings::class);
         $settings->public_pages_enabled = true;
@@ -14,9 +14,12 @@ describe('public home and error recovery', function (): void {
 
         $page = visit('/')->assertSee('JCF Public')->assertSee('Shipping and tracking')
             ->assertNoJavaScriptErrors()->screenshot(filename: 'session-six-home-desktop');
+
         expect($page->script('document.querySelectorAll(\'meta[name="description"]\').length'))->toBe(1)
             ->and($page->script('document.querySelector(\'meta[property="og:title"]\').content'))->toBe('JCF Public');
+
         $page->click('main [data-slot="button"]')->assertPathIs('/login')->assertNoJavaScriptErrors();
+
         expect($page->script('document.querySelectorAll(\'link[rel="canonical"]\').length'))->toBe(0);
     });
 

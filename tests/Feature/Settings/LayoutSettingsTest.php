@@ -20,6 +20,7 @@ describe('Layout settings', function (): void {
 
         $user = User::factory()->create();
         actingAs($user)->get(route('settings.layout.edit'))->assertForbidden();
+
         patch(route('settings.layout.update'), ['app_layout' => 'header', 'auth_layout' => 'card'])->assertForbidden();
     });
 
@@ -42,6 +43,7 @@ describe('Layout settings', function (): void {
         actingAs($user)->get(route('settings.layout.edit'))->assertInertia(fn (Assert $page): Assert => $page
             ->component('settings/Layout')
             ->where('settings.app_layout', 'sidebar'));
+
         patch(route('settings.layout.update'), ['app_layout' => 'header', 'auth_layout' => 'card'])->assertForbidden();
     });
 
@@ -55,12 +57,16 @@ describe('Layout settings', function (): void {
         ])->assertSessionHasNoErrors()->assertRedirect(route('settings.layout.edit'));
 
         $settings = resolve(LayoutSettings::class)->refresh();
+
         expect($settings->app_layout)->toBe(AppLayout::Header)
             ->and($settings->auth_layout)->toBe(AuthLayout::Card);
+
         get(route('settings.layout.edit'))->assertInertia(fn (Assert $page): Assert => $page
             ->where('layout.app_layout', 'header')
             ->where('layout.auth_layout', 'card'));
+
         auth()->logout();
+
         get(route('login'))->assertInertia(fn (Assert $page): Assert => $page
             ->where('layout.app_layout', 'header')
             ->where('layout.auth_layout', 'card'));
@@ -73,6 +79,7 @@ describe('Layout settings', function (): void {
         actingAs($user)->patch(route('settings.layout.update'), $data)->assertInvalid([$field]);
 
         $settings = resolve(LayoutSettings::class)->refresh();
+
         expect($settings->app_layout)->toBe(AppLayout::Sidebar)
             ->and($settings->auth_layout)->toBe(AuthLayout::Split);
     })->with([

@@ -8,21 +8,19 @@ use App\Models\User;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 
-use function Pest\Laravel\actingAs;
 use function Pest\Laravel\artisan;
-use function Pest\Laravel\withSession;
 
 describe('Backup dialogs', function (): void {
     it('validates the upload dialog and cancels or confirms restore from the row action menu', function (): void {
         artisan('init:permission')->assertSuccessful();
+
         $user = User::factory()->create();
         $user->syncRoles(Role::SuperAdmin);
         $disk = Storage::fake('backups');
         config(['operations.backup_enabled' => true, 'backup.backup.password' => 'test-secret']);
         createBackupTestArchive(['db-dumps/postgresql-pgsql.sql' => 'SELECT 1;'], 'test-secret');
         Queue::fake([RestoreSystemBackup::class]);
-        actingAs($user);
-        withSession(['auth.password_confirmed_at' => time()]);
+        actingAsWithConfirmedPassword($user);
 
         $browser = visit(route('master-data.backups.index'))
             ->click(__('backup.button.upload'))
@@ -34,6 +32,7 @@ describe('Backup dialogs', function (): void {
             ->click(__('backup.button.restore'))
             ->assertSee(__('backup.card.restore'))
             ->click(__('common.button.cancel'));
+
         Queue::assertNothingPushed();
 
         $browser->click('tr:has-text("test.zip") button[aria-label="Actions"]')

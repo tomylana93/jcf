@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Enums\Permission;
+use App\Enums\Role as RoleEnum;
 use App\Models\Permission as PermissionModel;
 use App\Models\Role;
 use App\Models\User;
@@ -26,7 +27,9 @@ use PHPUnit\Framework\Assert;
 use Spatie\TemporaryDirectory\TemporaryDirectory;
 use Tests\TestCase;
 
+use function Pest\Laravel\actingAs;
 use function Pest\Laravel\freezeTime;
+use function Pest\Laravel\withSession;
 
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
@@ -71,6 +74,30 @@ function assignRolePermissions(User $user, Permission ...$permissions): void
     ));
 
     $user->syncRoles($role);
+}
+
+function actingAsUserWithPermissions(Permission ...$permissions): User
+{
+    $user = User::factory()->create();
+    assignRolePermissions($user, ...$permissions);
+    actingAs($user);
+
+    return $user;
+}
+
+function actingAsSuperAdmin(): User
+{
+    $user = User::factory()->create();
+    $user->syncRoles(RoleEnum::SuperAdmin);
+    actingAs($user);
+
+    return $user;
+}
+
+function actingAsWithConfirmedPassword(User $user): void
+{
+    actingAs($user);
+    withSession(['auth.password_confirmed_at' => time()]);
 }
 
 /** @param array<string, string> $files */

@@ -34,6 +34,7 @@ describe('General settings', function (): void {
         assignRolePermissions($user, Permission::ViewSettings, Permission::ManageSettings);
 
         actingAs($user)->get(route('settings.general.edit'))->assertRedirect(route('verification.notice'));
+
         patch(route('settings.general.update'), [])->assertRedirect(route('verification.notice'));
     });
 
@@ -55,9 +56,11 @@ describe('General settings', function (): void {
         $name = resolve(GeneralSettings::class)->site_name;
 
         actingAs($user)->get(route('settings.general.edit'))->assertForbidden();
+
         patch(route('settings.general.update'), ['site_name' => 'Unauthorized', 'site_description' => '', 'support_email' => null, 'public_pages_enabled' => false])->assertForbidden();
 
         expect(resolve(GeneralSettings::class)->refresh()->site_name)->toBe($name);
+
         actingAs($user)->withHeaders(['Precognition' => 'true'])->patch(route('settings.general.update'), [])->assertForbidden();
     });
 
@@ -74,6 +77,7 @@ describe('General settings', function (): void {
             ->where('settings.support_email', resolve(GeneralSettings::class)->support_email)
             ->where('settings.public_pages_enabled', false)
             ->where('auth.permissions', ['settings.view']));
+
         patch(route('settings.general.update'), ['site_name' => 'Unauthorized', 'site_description' => '', 'support_email' => null, 'public_pages_enabled' => false])->assertForbidden();
     });
 
@@ -102,6 +106,7 @@ describe('General settings', function (): void {
         assertDatabaseHas('settings', ['group' => 'general', 'name' => 'site_name', 'payload' => '"New Brand"']);
         assertDatabaseHas('settings', ['group' => 'general', 'name' => 'site_description', 'payload' => '"Application description"']);
         assertDatabaseHas('settings', ['group' => 'general', 'name' => 'support_email', 'payload' => '"override@example.com"']);
+
         get(route('settings.general.edit'))->assertInertia(fn (Assert $page): Assert => $page
             ->where('general.site_name', 'New Brand')
             ->where('settings.site_name', 'New Brand')

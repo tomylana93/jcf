@@ -19,11 +19,14 @@ describe('Global search browser', function (): void {
         $settings->save();
         $document = Documentation::factory()->published()->create(['title' => 'Mail setup', 'content_text' => 'configuration guide']);
         actingAs($user);
+
         visit(route('dashboard'))->click('[data-test="global-search-trigger"]')->type('[data-test="global-search-input"]', 'configuration')->assertSee('Mail setup')->click('Mail setup')->assertUrlIs(route('documentation.show', $document->slug))->assertNoJavaScriptErrors();
     })->with([AppLayout::Header, AppLayout::Sidebar]);
     it('opens by shortcut, selects by keyboard and works on mobile', function (): void {
         actingAs(tap(User::factory()->create(), fn (User $user) => assignRolePermissions($user, Permission::ViewDocumentation)));
+
         $page = visit(route('dashboard'));
+
         $page->assertVisible('[data-test="global-search-trigger"]');
         $page->click('[data-test="global-search-trigger"]')->keys('[data-test="global-search-input"]', 'Escape')->keys('[data-test="global-search-trigger"]', 'Control+k')
             ->assertVisible('[data-test="global-search-input"]');
@@ -71,7 +74,9 @@ describe('Global search browser', function (): void {
         assignRolePermissions($user, Permission::ViewDocumentation);
         Documentation::factory()->published()->create(['title' => 'Needle guide']);
         actingAs($user);
+
         $page = visit(route('dashboard'))->click('[data-test="global-search-trigger"]');
+
         $page->script(<<<'JS'
             () => {
             window.searchOriginalOpen = XMLHttpRequest.prototype.open;
@@ -92,7 +97,9 @@ describe('Global search browser', function (): void {
 
     it('debounces typing and cancels pending searches when the dialog closes', function (): void {
         actingAs(User::factory()->create());
+
         $page = visit(route('dashboard'))->click('[data-test="global-search-trigger"]');
+
         $page->script(<<<'JS'
             async () => {
             window.searchRequests = [];

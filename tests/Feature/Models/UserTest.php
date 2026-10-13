@@ -30,6 +30,7 @@ describe('UUID users', function (): void {
         assertDatabaseHas('sessions', [
             'id' => 'uuid-user-session',
             'user_id' => $user->id,
+
         ]);
     });
 
@@ -57,6 +58,7 @@ describe('User status', function (): void {
         expect(UserStatus::options())->toBe([
             ['value' => 'active', 'label' => $activeLabel, 'name' => 'Active'],
             ['value' => 'disabled', 'label' => $disabledLabel, 'name' => 'Disabled'],
+
         ]);
     })->with([
         'English' => ['en', 'Active', 'Disabled'],
