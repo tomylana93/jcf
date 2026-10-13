@@ -1,4 +1,6 @@
 import {
+    BookOpen,
+    FilePenLine,
     LayoutGrid,
     Settings,
     Users,
@@ -9,6 +11,8 @@ import {
 
 import { dashboard } from '@/routes';
 import { index as auditIndex } from '@/routes/audit';
+import { index as documentationIndex } from '@/routes/documentation';
+import { index as manageDocumentationIndex } from '@/routes/documentation/manage';
 import { index as masterDataIndex } from '@/routes/master-data';
 import { index as permissionsIndex } from '@/routes/permissions';
 import { index as settingsIndex } from '@/routes/settings';
@@ -37,7 +41,7 @@ export function createAdminNavigationGroups(
     canViewSettings = false,
     canViewUsers = false,
     canViewUserPermissions = false,
-    _canManageDocumentation = false,
+    canManageDocumentation = false,
     canViewAudit = false,
     canViewSystem = false,
     canManageBackups = false,
@@ -46,6 +50,7 @@ export function createAdminNavigationGroups(
         !canViewSettings &&
         !canViewUsers &&
         !canViewUserPermissions &&
+        !canManageDocumentation &&
         !canViewAudit &&
         !canViewSystem &&
         !canManageBackups
@@ -57,6 +62,15 @@ export function createAdminNavigationGroups(
         {
             title: t('navigation.group.admin'),
             items: [
+                ...(canManageDocumentation
+                    ? [
+                          {
+                              title: t('navigation.link.manage_documentation'),
+                              href: manageDocumentationIndex(),
+                              icon: FilePenLine,
+                          },
+                      ]
+                    : []),
                 ...(canViewUserPermissions
                     ? [
                           {
@@ -108,11 +122,19 @@ export function createAdminNavigationGroups(
 }
 
 export function createFooterNavigationItems(
-    _t: (key: TranslationKey) => string,
-    _canViewDocumentation = false,
-    _canManageDocumentation = false,
+    t: (key: TranslationKey) => string,
+    canViewDocumentation = false,
+    canManageDocumentation = false,
 ): NavItem[] {
-    return [];
+    return canViewDocumentation || canManageDocumentation
+        ? [
+              {
+                  title: t('navigation.link.documentation'),
+                  href: documentationIndex(),
+                  icon: BookOpen,
+              },
+          ]
+        : [];
 }
 
 export function createNavigationGroups(
@@ -169,12 +191,7 @@ export function createEditorLinkOptions(
         .map((item) => ({
             label: item.title,
             href: typeof item.href === 'string' ? item.href : item.href.url,
-        }))
-        .filter(
-            (item) =>
-                item.href !== dashboard.url() ||
-                permissions.includes('dashboard.view'),
-        );
+        }));
 }
 
 export function flattenNavigationItems(items: NavItem[]): NavItem[] {

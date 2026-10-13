@@ -29,3 +29,5 @@ require __DIR__.'/settings.php';
 require __DIR__.'/account.php';
 
 require __DIR__.'/master-data.php';
+
+require __DIR__.'/documentation.php';

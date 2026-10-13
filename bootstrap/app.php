@@ -21,6 +21,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->trimStrings(except: ['content_json.*']);
+
         $middleware->alias(['verified' => EnsureEmailIsVerifiedWhenRequired::class]);
 
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state', 'timezone', 'locale']);

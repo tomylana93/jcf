@@ -19,4 +19,6 @@ enum Permission: string
     case ViewUsers = 'users.view';
     case ManageUsers = 'users.manage';
     case AssignUserPermissions = 'users.permissions.assign';
+    case ViewDocumentation = 'documentation.view';
+    case ManageDocumentation = 'documentation.manage';
 }
