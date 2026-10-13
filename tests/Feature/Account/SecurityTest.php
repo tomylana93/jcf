@@ -12,8 +12,8 @@ use function Pest\Laravel\from;
 use function Pest\Laravel\get;
 use function Pest\Laravel\put;
 
-describe('Security settings', function () {
-    it('renders enabled passkey and two-factor settings', function () {
+describe('Security settings', function (): void {
+    it('renders enabled passkey and two-factor settings', function (): void {
         skipUnlessFortifyHas(Features::twoFactorAuthentication());
 
         Features::twoFactorAuthentication([
@@ -38,7 +38,7 @@ describe('Security settings', function () {
             );
     });
 
-    it('requires password confirmation when enabled', function () {
+    it('requires password confirmation when enabled', function (): void {
         skipUnlessFortifyHas(Features::twoFactorAuthentication());
 
         $user = User::factory()->create();
@@ -55,7 +55,7 @@ describe('Security settings', function () {
         $response->assertRedirect(route('password.confirm'));
     });
 
-    it('renders security settings with authentication features disabled', function () {
+    it('renders security settings with authentication features disabled', function (): void {
         skipUnlessFortifyHas(Features::twoFactorAuthentication());
 
         config(['fortify.features' => []]);
@@ -76,7 +76,7 @@ describe('Security settings', function () {
             );
     });
 
-    it('updates the password with the correct current password', function () {
+    it('updates the password with the correct current password', function (): void {
         $user = User::factory()->create();
 
         actingAs($user);
@@ -86,6 +86,7 @@ describe('Security settings', function () {
             'current_password' => 'password',
             'password' => 'new-password',
             'password_confirmation' => 'new-password',
+
         ]);
 
         $response
@@ -95,7 +96,7 @@ describe('Security settings', function () {
         expect(Hash::check('new-password', $user->refresh()->password))->toBeTrue();
     });
 
-    it('rejects password updates with an incorrect current password', function () {
+    it('rejects password updates with an incorrect current password', function (): void {
         $user = User::factory()->create();
 
         actingAs($user);
@@ -105,6 +106,7 @@ describe('Security settings', function () {
             'current_password' => 'wrong-password',
             'password' => 'new-password',
             'password_confirmation' => 'new-password',
+
         ]);
 
         $response

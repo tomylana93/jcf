@@ -36,11 +36,14 @@ describe('Admin user invitations', function (): void {
         ])->assertRedirect(route('master-data.users.index'));
 
         $user = User::query()->where('email', 'invited@example.test')->firstOrFail();
+
         expect($user->invited_at)->not->toBeNull()
             ->and($user->email_verified_at)->toBeNull()
             ->and($user->invitation_accepted_at)->toBeNull()
             ->and(Hash::check('password', $user->password))->toBeFalse();
+
         Queue::assertPushed(SendUserInvitation::class, fn (SendUserInvitation $job): bool => $job->userId === $user->id && $job->email === $user->email && $job->afterCommit === true);
+
         get(route('master-data.users.index', ['filter' => ['search' => $user->email]]))
             ->assertInertia(fn (Assert $page): Assert => $page->where('users.data.0.invitation_pending', true));
     });
@@ -53,6 +56,7 @@ describe('Admin user invitations', function (): void {
         $job->handle();
         $notification = Notification::sent($user, UserInvitation::class)->sole();
         $mail = $notification->toMail($user);
+
         expect($mail->subject)->toBe(__('user.invitation.subject'))
             ->and($mail->actionText)->toBe(__('user.invitation.action'))
             ->and($mail->actionUrl)->toContain(urlencode($user->email))
@@ -62,16 +66,21 @@ describe('Admin user invitations', function (): void {
         post(route('password.update'), [
             'email' => $user->email, 'token' => $notification->token,
             'password' => 'New-secure-password123!', 'password_confirmation' => 'New-secure-password123!',
+
         ])->assertSessionHasNoErrors();
 
         expect($user->fresh()->hasVerifiedEmail())->toBeTrue()
             ->and($user->fresh()->invitation_accepted_at)->not->toBeNull()
             ->and(Hash::check('New-secure-password123!', $user->fresh()->password))->toBeTrue();
+
         Event::assertDispatchedTimes(Verified::class, 1);
+
         post(route('password.update'), [
             'email' => $user->email, 'token' => $notification->token,
             'password' => 'Another-password123!', 'password_confirmation' => 'Another-password123!',
+
         ])->assertSessionHasErrors('email');
+
         post(route('login'), ['email' => $user->email, 'password' => 'New-secure-password123!'])->assertRedirect();
         get(route('dashboard'))->assertSuccessful();
     });
@@ -79,12 +88,15 @@ describe('Admin user invitations', function (): void {
     it('rejects invalid and expired invitation tokens without verifying the account', function (bool $expired): void {
         $user = User::factory()->unverified()->create(['invited_at' => now()]);
         $token = $expired ? Password::broker()->createToken($user) : 'invalid-token';
+
         travel(61)->minutes();
 
         post(route('password.update'), [
             'email' => $user->email, 'token' => $token,
             'password' => 'New-secure-password123!', 'password_confirmation' => 'New-secure-password123!',
+
         ])->assertSessionHasErrors('email');
+
         expect($user->fresh()->email_verified_at)->toBeNull()
             ->and($user->fresh()->invitation_accepted_at)->toBeNull();
     })->with(['invalid' => false, 'expired' => true]);
@@ -92,10 +104,13 @@ describe('Admin user invitations', function (): void {
     it('does not verify ordinary accounts on password reset', function (): void {
         $user = User::factory()->unverified()->create();
         $token = Password::broker()->createToken($user);
+
         post(route('password.update'), [
             'email' => $user->email, 'token' => $token,
             'password' => 'New-secure-password123!', 'password_confirmation' => 'New-secure-password123!',
+
         ])->assertSessionHasNoErrors();
+
         expect($user->fresh()->email_verified_at)->toBeNull()
             ->and($user->fresh()->invitation_accepted_at)->toBeNull();
     });
@@ -103,11 +118,15 @@ describe('Admin user invitations', function (): void {
     it('accepts an invitation for an already verified account without repeating verification', function (): void {
         $user = User::factory()->create(['invited_at' => now()]);
         Event::fake([Verified::class]);
+
         post(route('password.update'), [
             'email' => $user->email, 'token' => Password::broker()->createToken($user),
             'password' => 'New-secure-password123!', 'password_confirmation' => 'New-secure-password123!',
+
         ])->assertSessionHasNoErrors();
+
         expect($user->fresh()->invitation_accepted_at)->not->toBeNull();
+
         Event::assertNotDispatched(Verified::class);
     });
 
@@ -117,7 +136,9 @@ describe('Admin user invitations', function (): void {
         assignRolePermissions($admin, Permission::ViewSettings, Permission::ManageSettings, Permission::ViewUsers, Permission::ManageUsers);
         $user = User::factory()->unverified()->create(['invited_at' => now()]);
         actingAs($admin)->post(route('master-data.users.invitation', $user))->assertRedirect();
+
         post(route('master-data.users.invitation', $user))->assertSessionHasErrors('invitation');
+
         Queue::assertPushed(SendUserInvitation::class, 1);
     });
 
@@ -137,7 +158,9 @@ describe('Admin user invitations', function (): void {
     it('protects resend access from guests and unauthorized users and protects superadmins', function (): void {
         Queue::fake();
         $target = User::factory()->create(['invited_at' => now()]);
+
         post(route('master-data.users.invitation', $target))->assertRedirect(route('login'));
+
         $ordinary = User::factory()->create();
         actingAs($ordinary)->post(route('master-data.users.invitation', $target))->assertForbidden();
         $admin = User::factory()->create();
@@ -172,13 +195,17 @@ describe('Admin user invitations', function (): void {
         actingAs($admin)->patch(route('master-data.users.update', $user), [
             'name' => $user->name, 'email' => 'changed@example.test', 'send_invitation' => true, 'status' => 'active',
         ])->assertRedirect();
+
         expect($user->fresh()->hasVerifiedEmail())->toBeFalse()
             ->and(DB::table('password_reset_tokens')->where('email', $oldEmail)->exists())->toBeFalse();
+
         Queue::assertPushed(SendUserInvitation::class, fn (SendUserInvitation $job): bool => $job->email === 'changed@example.test');
         auth()->logout();
+
         post(route('password.update'), [
             'email' => $oldEmail, 'token' => $oldToken,
             'password' => 'New-secure-password123!', 'password_confirmation' => 'New-secure-password123!',
+
         ])->assertSessionHasErrors('email');
     });
 
@@ -207,9 +234,12 @@ describe('Invitation account boundaries', function (): void {
         $user = User::factory()->unverified()->create(['invited_at' => now()]);
         $token = Password::broker()->createToken($user);
         $user->forceFill(['status' => 'disabled'])->save();
+
         post(route('password.update'), ['email' => $user->email, 'token' => $token,
             'password' => 'New-secure-password123!', 'password_confirmation' => 'New-secure-password123!',
+
         ])->assertForbidden();
+
         expect($user->fresh()->invitation_accepted_at)->toBeNull()->and($user->fresh()->email_verified_at)->toBeNull();
     });
 });

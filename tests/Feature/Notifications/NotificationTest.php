@@ -62,10 +62,13 @@ describe('Notification center', function (): void {
         actingAs($user)->from(route('notifications.index'))->patch(route('notifications.read', $notification->id))
             ->assertRedirect(route('notifications.index'));
         $readAt = $notification->refresh()->read_at;
+
         expect($readAt)->not->toBeNull()->and($user->unreadNotifications()->count())->toBe(0);
 
         patch(route('notifications.read', $notification->id))->assertRedirect();
+
         expect($notification->refresh()->read_at->equalTo($readAt))->toBeTrue();
+
         get(route('notifications.index', ['status' => 'read']))->assertInertia(fn (Assert $page): Assert => $page->has('notifications.data', 1)->where('notificationSummary.unread_count', 0));
     });
 
@@ -75,7 +78,9 @@ describe('Notification center', function (): void {
         $notification = $owner->notifications()->sole();
 
         actingAs(User::factory()->create())->patch(route('notifications.read', $notification->id))->assertNotFound();
+
         expect($notification->refresh()->read_at)->toBeNull();
+
         patch(route('notifications.read', '01999abc-1111-7111-8111-111111111111'))->assertNotFound();
         patch(route('notifications.read', 'invalid'))->assertNotFound();
     });
@@ -88,7 +93,9 @@ describe('Notification center', function (): void {
         $other->notify(new ApplicationNotification('account_updated'));
 
         actingAs($user)->from(route('notifications.index'))->patch(route('notifications.read-all'))->assertRedirect(route('notifications.index'));
+
         expect($user->unreadNotifications()->count())->toBe(0)->and($other->unreadNotifications()->count())->toBe(1);
+
         patch(route('notifications.read-all'))->assertRedirect();
     });
 

@@ -54,6 +54,7 @@ describe('Private realtime notifications', function (): void {
         DB::beginTransaction();
         $user->notify(new ApplicationNotification('account_updated'));
         DB::rollBack();
+
         expect($user->notifications()->count())->toBe(0)
             ->and(DB::table('jobs')->where('queue', 'notifications')->count())->toBe(0);
     });
@@ -77,9 +78,12 @@ describe('Private realtime notifications', function (): void {
         $user->notify(new ApplicationNotification('account_updated'));
         Event::fake([NotificationRead::class]);
         DB::beginTransaction();
+
         resolve(MarkAllNotificationsRead::class)->handle($user);
+
         DB::rollBack();
         Event::assertNotDispatched(NotificationRead::class);
+
         expect($user->unreadNotifications()->count())->toBe(1);
     });
 });

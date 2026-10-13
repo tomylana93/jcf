@@ -24,6 +24,7 @@ use function Pest\Laravel\patch;
 describe('Audit access and filtering', function (): void {
     it('requires authentication and the audit permission', function (): void {
         get(route('audit.index'))->assertRedirect(route('login'));
+
         actingAs(User::factory()->create())->get(route('audit.index'))->assertForbidden();
     });
 
@@ -36,6 +37,7 @@ describe('Audit access and filtering', function (): void {
         actingAs($actor)->get(route('audit.index', ['filter' => ['search' => 'search target', 'event' => 'user.updated'], 'sort' => '-created_at']))
             ->assertInertia(fn (Assert $page): Assert => $page->component('audit/Index')->has('logs.data', 1)
                 ->where('logs.data.0.id', $log->id)->where('logs.data.0.before.name', 'Previous name')->where('logs.data.0.after.name', 'Updated name'));
+
         get(route('audit.index', ['filter' => ['search' => $actor->name]]))->assertInertia(fn (Assert $page): Assert => $page->has('logs.data', 1));
         get(route('audit.index', ['filter' => ['event' => 'settings.updated']]))
             ->assertInertia(fn (Assert $page): Assert => $page->where('logs.data.0.subject_label', 'General settings')->where('logs.data.0.actor_name', 'System'));
@@ -65,11 +67,13 @@ describe('Sensitive change recording', function (): void {
 
         $target = User::query()->where('email', 'invited@example.test')->sole();
         $log = AuditLog::query()->where('event', 'user.created')->sole();
+
         expect($log->actor_id)->toBe($actor->id)
             ->and($log->after)->toBe(['name' => 'Invited User', 'email' => 'invited@example.test', 'status' => 'active', 'role' => ['operator']])
             ->and(json_encode(AuditLog::all()))->not->toContain('password', 'token', $target->password)
             ->and($target->unreadNotifications()->sole()->data['kind'])->toBe('account_created')
             ->and($actor->unreadNotifications()->sole()->data['kind'])->toBe('invitation_queued');
+
         Queue::assertPushed(SendUserInvitation::class);
     });
 
@@ -81,12 +85,17 @@ describe('Sensitive change recording', function (): void {
         $data = ['name' => 'After', 'email' => $target->email, 'role' => $role->name, 'status' => 'active'];
 
         actingAs($actor)->patch(route('master-data.users.update', $target), $data)->assertSessionHasNoErrors();
+
         patch(route('master-data.users.update', $target), $data)->assertSessionHasNoErrors();
+
         $log = AuditLog::query()->sole();
+
         expect($log->before)->toBe(['name' => 'Before', 'role' => []])->and($log->after)->toBe(['name' => 'After', 'role' => ['reviewer']])
             ->and($target->unreadNotifications()->count())->toBe(1);
+
         patch(route('master-data.users.status', $target), ['status' => 'disabled'])->assertSessionHasNoErrors();
         patch(route('master-data.users.status', $target), ['status' => 'disabled'])->assertSessionHasNoErrors();
+
         expect(AuditLog::query()->where('event', 'user.status_updated')->sole()->after)->toBe(['status' => 'disabled'])
             ->and($target->unreadNotifications()->count())->toBe(2);
     });
@@ -100,8 +109,10 @@ describe('Sensitive change recording', function (): void {
             'from_name' => 'Example', 'show_logo' => true, 'footer_text' => '',
         ])->assertSessionHasNoErrors();
         $log = AuditLog::query()->sole();
+
         expect($log->actor_id)->toBe($actor->id)->and($log->after['smtp_password_changed'])->toBeTrue()
             ->and(json_encode($log))->not->toContain('secret-smtp-value', '"smtp_password"');
+
         get(route('audit.index'))->assertDontSee('secret-smtp-value');
     });
 
@@ -110,7 +121,9 @@ describe('Sensitive change recording', function (): void {
             'nested' => ['api_key' => 'private-key', 'token' => 'private-token', 'password' => 'private-password', 'name' => 'Safe'],
             'secret' => 'private-secret',
             'password_min_length' => 12,
+
         ]);
+
         expect($log->after)->toBe(['nested' => ['name' => 'Safe'], 'password_min_length' => 12])
             ->and(resolve(RecordAuditLog::class)->handle(null, 'settings.updated', 'settings', 'mail', 'mail', ['token' => 'old'], ['token' => 'new']))->toBeNull();
     });
@@ -118,8 +131,11 @@ describe('Sensitive change recording', function (): void {
     it('rolls back user audit and notifications together', function (): void {
         $target = User::factory()->create(['name' => 'Before']);
         DB::beginTransaction();
+
         resolve(UpdateUser::class)->handle($target, ['name' => 'Rolled back', 'email' => $target->email, 'status' => UserStatus::Active->value]);
+
         DB::rollBack();
+
         expect(AuditLog::query()->count())->toBe(0)->and($target->notifications()->count())->toBe(0)->and($target->refresh()->name)->toBe('Before');
     });
 
@@ -127,8 +143,11 @@ describe('Sensitive change recording', function (): void {
         $settings = resolve(GeneralSettings::class);
         $before = $settings->site_name;
         DB::beginTransaction();
+
         resolve(UpdateGeneralSettings::class)->handle(['site_name' => 'Rolled back', 'site_description' => '', 'support_email' => null, 'public_pages_enabled' => false]);
+
         DB::rollBack();
+
         expect(AuditLog::query()->count())->toBe(0)->and($settings->refresh()->site_name)->toBe($before);
     });
 
@@ -138,8 +157,11 @@ describe('Sensitive change recording', function (): void {
         $old = AuditLog::factory()->create(['actor_id' => $actor->id, 'actor_name' => $actor->name, 'created_at' => now()->subDays(31)]);
         $recent = AuditLog::factory()->create(['created_at' => now()->subDays(29)]);
         $actor->delete();
+
         expect($old->refresh()->actor_id)->toBeNull()->and($old->actor_name)->toBe('Former administrator');
+
         artisan('model:prune', ['--model' => [AuditLog::class]])->assertSuccessful();
+
         expect(AuditLog::query()->find($old->id))->toBeNull()->and($recent->fresh())->not->toBeNull();
     });
 });

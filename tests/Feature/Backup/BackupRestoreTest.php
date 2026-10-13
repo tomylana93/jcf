@@ -22,7 +22,9 @@ describe('Backup archive validation', function (): void {
         Storage::fake('backups');
         config(['backup.backup.password' => 'test-secret']);
         $archive = createBackupTestArchive(['storage/app/public/' => '', 'storage/app/public/avatar.jpg' => 'image', 'db-dumps/postgresql-pgsql.sql' => 'SELECT 1;'], 'test-secret');
+
         $directory = resolve(ExtractBackup::class)->handle(...array_values($archive));
+
         try {
             expect(File::get($directory->path('storage/app/public/avatar.jpg')))->toBe('image');
             artisan('system:backup-checksum', ['backup' => $archive['filename']])->expectsOutput($archive['checksum'])->assertSuccessful();
@@ -32,39 +34,50 @@ describe('Backup archive validation', function (): void {
     });
     it('rejects invalid filenames and missing or mismatched archives', function (): void {
         Storage::fake('backups');
+
         expect(fn () => resolve(ExtractBackup::class)->handle('../test.zip', str_repeat('0', 64)))->toThrow(RuntimeException::class, 'Invalid backup filename.')
             ->and(fn () => resolve(GetBackupChecksum::class)->handle('../test.zip'))->toThrow(RuntimeException::class, 'Invalid backup filename.');
+
         artisan('system:backup-checksum', ['backup' => 'missing.zip'])->assertFailed();
+
         expect(fn () => resolve(ExtractBackup::class)->handle('missing.zip', str_repeat('0', 64)))->toThrow(RuntimeException::class, 'Backup checksum mismatch');
+
         $archive = createBackupTestArchive(['db-dumps/postgresql-pgsql.sql' => 'SELECT 1;']);
+
         expect(fn () => resolve(ExtractBackup::class)->handle($archive['filename'], str_repeat('0', 64)))->toThrow(RuntimeException::class, 'Backup checksum mismatch');
     });
     it('rejects files that are not zip archives', function (): void {
         Storage::fake('backups')->put('jcf/test.zip', 'not a zip');
+
         expect(fn () => resolve(ExtractBackup::class)->handle('test.zip', hash('sha256', 'not a zip')))->toThrow(RuntimeException::class, 'Invalid backup archive.');
     });
     it('rejects unsafe archive paths before restoring a database', function (string $path): void {
         Storage::fake('backups');
         $archive = createBackupTestArchive([$path => 'unsafe']);
+
         expect(fn () => resolve(ExtractBackup::class)->handle(...array_values($archive)))->toThrow(RuntimeException::class, 'Unsafe or unsupported backup entry.');
     })->with(['storage/app/../../outside.txt', '/storage/app/private/file.txt', 'storage\\app\\file.txt', 'storage/app/C:drive', '.env', 'db-dumps/other.dump']);
     it('rejects excessive expanded size and symlinks', function (): void {
         $disk = Storage::fake('backups');
         config(['operations.restore_max_bytes' => 3]);
         $archive = createBackupTestArchive(['storage/app/public/test.txt' => 'four']);
+
         expect(fn () => resolve(ExtractBackup::class)->handle(...array_values($archive)))->toThrow(RuntimeException::class, 'Unsafe or unsupported backup entry.');
+
         config(['operations.restore_max_bytes' => 10000]);
         $zip = new ZipArchive;
         $path = $disk->path('jcf/test.zip');
         $zip->open($path);
         $zip->setExternalAttributesName('storage/app/public/test.txt', ZipArchive::OPSYS_UNIX, 0120777 << 16);
         $zip->close();
+
         expect(fn () => resolve(ExtractBackup::class)->handle('test.zip', hash_file('sha256', $path)))->toThrow(RuntimeException::class, 'Archive symlinks are not allowed.');
     });
     it('rejects an incorrect archive password', function (): void {
         Storage::fake('backups');
         config(['backup.backup.password' => 'wrong']);
         $archive = createBackupTestArchive(['storage/app/public/file.txt' => 'secret'], 'correct');
+
         expect(fn () => resolve(ExtractBackup::class)->handle(...array_values($archive)))->toThrow(RuntimeException::class, 'Archive password or content is invalid.');
     });
 });
@@ -76,9 +89,12 @@ describe('Isolated restore', function (): void {
     });
     it('refuses the active connection, aliases and unsupported database engines', function (): void {
         $action = resolve(RestoreBackup::class);
+
         expect(fn () => $action->handle('test.zip', 'checksum', config('database.default')))->toThrow(RuntimeException::class, 'isolated target connection')
             ->and(fn () => $action->handle('test.zip', 'checksum', 'missing'))->toThrow(RuntimeException::class, 'isolated target connection');
+
         config(['database.connections.source_alias' => DB::connection()->getConfig()]);
+
         expect(fn () => $action->handle('test.zip', 'checksum', 'source_alias'))->toThrow(RuntimeException::class, 'separate PostgreSQL')
             ->and(fn () => $action->handle('test.zip', 'checksum', 'sqlite'))->toThrow(RuntimeException::class, 'separate PostgreSQL');
     });

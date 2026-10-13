@@ -10,18 +10,18 @@ use Laravel\Fortify\Features;
 use function Pest\Laravel\get;
 use function Pest\Laravel\post;
 
-describe('Password reset', function () {
-    beforeEach(function () {
+describe('Password reset', function (): void {
+    beforeEach(function (): void {
         skipUnlessFortifyHas(Features::resetPasswords());
     });
 
-    it('renders the password reset link screen', function () {
+    it('renders the password reset link screen', function (): void {
         $response = get(route('password.request'));
 
         $response->assertOk();
     });
 
-    it('sends a password reset link', function () {
+    it('sends a password reset link', function (): void {
         Notification::fake();
 
         $user = User::factory()->create();
@@ -31,7 +31,7 @@ describe('Password reset', function () {
         Notification::assertSentTo($user, ResetPassword::class);
     });
 
-    it('renders the password reset screen', function () {
+    it('renders the password reset screen', function (): void {
         Notification::fake();
 
         $user = User::factory()->create();
@@ -47,7 +47,7 @@ describe('Password reset', function () {
         });
     });
 
-    it('resets the password with a valid token', function () {
+    it('resets the password with a valid token', function (): void {
         Notification::fake();
 
         $user = User::factory()->create();
@@ -70,7 +70,7 @@ describe('Password reset', function () {
         });
     });
 
-    it('rejects an invalid password reset token', function () {
+    it('rejects an invalid password reset token', function (): void {
         $user = User::factory()->create();
 
         $response = post(route('password.update'), [
@@ -78,6 +78,7 @@ describe('Password reset', function () {
             'email' => $user->email,
             'password' => 'newpassword123',
             'password_confirmation' => 'newpassword123',
+
         ]);
 
         $response->assertSessionHasErrors('email');

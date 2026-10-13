@@ -12,26 +12,28 @@ use function Pest\Laravel\assertGuest;
 use function Pest\Laravel\get;
 use function Pest\Laravel\post;
 
-describe('Authentication', function () {
-    it('renders the login screen', function () {
+describe('Authentication', function (): void {
+    it('renders the login screen', function (): void {
         $response = get(route('login'));
 
         $response->assertOk();
     });
 
-    it('authenticates users with valid credentials', function () {
+    it('authenticates users with valid credentials', function (): void {
         $user = User::factory()->create();
 
         $response = post(route('login.store'), [
             'email' => $user->email,
             'password' => 'password',
+
         ]);
 
         assertAuthenticated();
+
         $response->assertRedirect(route('dashboard', absolute: false));
     });
 
-    it('redirects users with two-factor authentication to the challenge', function () {
+    it('redirects users with two-factor authentication to the challenge', function (): void {
         skipUnlessFortifyHas(Features::twoFactorAuthentication());
 
         Features::twoFactorAuthentication([
@@ -44,25 +46,28 @@ describe('Authentication', function () {
         $response = post(route('login'), [
             'email' => $user->email,
             'password' => 'password',
+
         ]);
 
         $response->assertRedirect(route('two-factor.login'));
         $response->assertSessionHas('login.id', $user->id);
+
         assertGuest();
     });
 
-    it('rejects an invalid password', function () {
+    it('rejects an invalid password', function (): void {
         $user = User::factory()->create();
 
         post(route('login.store'), [
             'email' => $user->email,
             'password' => 'wrong-password',
+
         ]);
 
         assertGuest();
     });
 
-    it('logs out authenticated users', function () {
+    it('logs out authenticated users', function (): void {
         $user = User::factory()->create();
 
         actingAs($user);
@@ -74,7 +79,7 @@ describe('Authentication', function () {
         assertGuest();
     });
 
-    it('rate limits failed login attempts', function () {
+    it('rate limits failed login attempts', function (): void {
         $user = User::factory()->create();
 
         RateLimiter::increment(md5('login'.implode('|', [$user->email, '127.0.0.1'])), amount: 5);
@@ -82,6 +87,7 @@ describe('Authentication', function () {
         $response = post(route('login.store'), [
             'email' => $user->email,
             'password' => 'wrong-password',
+
         ]);
 
         $response->assertTooManyRequests();

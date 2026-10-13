@@ -31,16 +31,20 @@ describe('System operations authorization', function (): void {
     it('separates health viewing from access to full backups', function (): void {
         $user = User::factory()->create();
         assignRolePermissions($user, Permission::ViewSystem);
+
         expect($user->can(Permission::ViewSystem))->toBeTrue()
             ->and($user->can(Permission::ManageBackups))->toBeFalse();
     });
     it('forbids ordinary users and backup access by administrators', function (): void {
         actingAs(User::factory()->create());
+
         get(route('system.index'))->assertForbidden();
+
         $admin = User::factory()->create();
         assignRolePermissions($admin, Permission::ViewSystem);
         actingAs($admin);
         withSession(['auth.password_confirmed_at' => time()]);
+
         post(route('master-data.backups.store'))->assertForbidden();
         get(route('master-data.backups.download', 'test.zip'))->assertForbidden();
     });
@@ -60,8 +64,11 @@ describe('System operations authorization', function (): void {
         $user->syncRoles(Role::SuperAdmin);
         actingAs($user)->get(route('master-data.backups.index'))->assertInertia(fn (Assert $page) => $page
             ->component('master-data/backups/Index')->has('backups.data', 1)->where('backups.data.0.filename', '2026-10-06.zip')->where('backups.data.0.size', 7));
+
         get(route('master-data.backups.download', '2026-10-06.zip'))->assertRedirect(route('password.confirm'));
+
         withSession(['auth.password_confirmed_at' => time()]);
+
         get(route('master-data.backups.download', '2026-10-06.zip'))->assertDownload('2026-10-06.zip')->assertStreamedContent('archive');
         get(route('master-data.backups.download', 'missing.zip'))->assertNotFound();
         get('/master-data/backups/invalid.txt')->assertNotFound();
@@ -70,10 +77,14 @@ describe('System operations authorization', function (): void {
         $user = actingAsSuperAdmin();
         withSession(['auth.password_confirmed_at' => time()]);
         config(['operations.backup_enabled' => false]);
+
         post(route('master-data.backups.store'))->assertSessionHasErrors(['backup' => __('backup.error.not_configured')]);
+
         config(['operations.backup_enabled' => true, 'backup.backup.password' => 'test-secret']);
         Queue::fake([CreateSystemBackup::class]);
+
         post(route('master-data.backups.store'))->assertSessionHasNoErrors()->assertRedirect();
+
         Queue::assertPushed(CreateSystemBackup::class, fn (CreateSystemBackup $job): bool => $job->actorId === $user->id && $job->connection === 'backups');
     });
 });
@@ -81,13 +92,19 @@ describe('System operations authorization', function (): void {
 describe('System readiness checks', function (): void {
     it('records scheduler and asynchronous worker heartbeats', function (): void {
         Queue::fake([SystemHeartbeat::class]);
+
         artisan('system:heartbeat')->assertSuccessful();
+
         expect(Cache::get('system.scheduler_heartbeat'))->toBe(now()->timestamp);
+
         Queue::assertPushed(SystemHeartbeat::class);
+
         resolve(SystemHeartbeat::class)->handle();
+
         config(['queue.default' => 'database', 'operations.backup_enabled' => true, 'backup.backup.password' => 'test-secret', 'mail.default' => 'smtp']);
         Storage::fake('backups')->put('jcf/test.zip', 'backup');
         $checks = collect(resolve(GetSystemHealth::class)->handle())->keyBy('name');
+
         expect($checks['queue']['detail'])->toBe('recent')
             ->and($checks['scheduler']['detail'])->toBe('recent')
             ->and($checks['backup']['detail'])->toBe('recent')
@@ -102,6 +119,7 @@ describe('System readiness checks', function (): void {
         $mail->mailer = 'smtp';
         $mail->smtp_host = 'smtp.example.com';
         $checks = collect(resolve(GetSystemHealth::class)->handle())->keyBy('name');
+
         expect($checks['queue']['detail'])->toBe('stale')
             ->and($checks['scheduler']['detail'])->toBe('stale')
             ->and($checks['backup']['detail'])->toBe('stale')
@@ -116,6 +134,7 @@ describe('System readiness checks', function (): void {
         } finally {
             config(['database.default' => $original]);
         }
+
         expect($checks['database'])->toBe(['name' => 'database', 'status' => 'failed', 'detail' => 'unavailable'])
             ->and($checks['storage']['status'])->toBe('failed');
     });
@@ -130,6 +149,7 @@ describe('Storage readiness failure', function (): void {
         $disk->shouldReceive('delete')->once()->andReturn(true);
         Storage::partialMock()->shouldReceive('disk')->withNoArgs()->andReturn($disk);
         $checks = collect($action->handle())->keyBy('name');
+
         expect($checks['storage'])->toBe(['name' => 'storage', 'status' => 'failed', 'detail' => 'unavailable']);
     });
 });

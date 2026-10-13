@@ -38,6 +38,7 @@ describe('Temporary avatar cleanup', function (): void {
         artisan('avatars:clean', ['--grace' => 0, '--dry-run' => true])
             ->expectsOutputToContain('Found 1 orphaned brand images.')
             ->assertSuccessful();
+
         $disk->assertExists($orphan);
 
         artisan('avatars:clean', ['--grace' => 0])
@@ -53,21 +54,30 @@ describe('Temporary avatar cleanup', function (): void {
         config(['media-library.temporary_directory_path' => Storage::disk('local')->path('media-library-temp')]);
         Storage::fake('public');
         $user = User::factory()->create();
+
         $active = resolve(PrepareAvatar::class)->handle($user, UploadedFile::fake()->image('active.png'), 'avatar');
         $draft = resolve(PrepareAvatar::class)->handle($user, UploadedFile::fake()->image('draft.png'), 'avatar_pending');
+
         $other = User::factory()->create();
+
         $missing = resolve(PrepareAvatar::class)->handle($other, UploadedFile::fake()->image('missing.png'), 'avatar_pending');
+
         Storage::disk('local')->delete($missing->getPathRelativeToRoot());
+
         $orphan = resolve(PrepareAvatar::class)->handle(User::factory()->create(), UploadedFile::fake()->image('orphan.png'), 'avatar_pending');
+
         $orphan->update(['model_id' => Str::uuid()]);
+
         $prepared = resolve(PrepareAvatar::class)->handle($user, UploadedFile::fake()->image('prepared.png'), 'avatar_prepared');
         $expired = resolve(PrepareAvatar::class)->handle(User::factory()->create(), UploadedFile::fake()->image('expired.png'), 'avatar_pending');
+
         $expired->update(['created_at' => now()->subDay()]);
 
         artisan('avatars:clean', ['--grace' => 0])->assertSuccessful();
 
         expect($draft->fresh())->not->toBeNull()
             ->and($active->fresh())->not->toBeNull();
+
         foreach ([$missing, $orphan, $prepared, $expired] as $media) {
             expect($media->fresh())->toBeNull();
             Storage::disk($media->disk)->assertMissing($media->getPathRelativeToRoot());
@@ -79,7 +89,9 @@ describe('Temporary avatar cleanup', function (): void {
         Storage::fake('local');
         config(['media-library.temporary_directory_path' => Storage::disk('local')->path('media-library-temp')]);
         Storage::fake('public');
+
         $media = resolve(PrepareAvatar::class)->handle(User::factory()->create(), UploadedFile::fake()->image('photo.png'), 'avatar_pending');
+
         if ($missingFile) {
             Storage::disk('local')->delete($media->getPathRelativeToRoot($conversion));
         } else {
@@ -89,6 +101,7 @@ describe('Temporary avatar cleanup', function (): void {
         artisan('avatars:clean', ['--grace' => 0])->assertSuccessful();
 
         expect($media->fresh())->toBeNull();
+
         Storage::disk('local')->assertMissing($media->getPathRelativeToRoot());
     })->with([['thumb', true], ['preview', true], ['thumb', false], ['preview', false]]);
 
@@ -96,7 +109,9 @@ describe('Temporary avatar cleanup', function (): void {
         Storage::fake('local');
         config(['media-library.temporary_directory_path' => Storage::disk('local')->path('media-library-temp')]);
         Storage::fake('public');
+
         $prepared = resolve(PrepareAvatar::class)->handle(User::factory()->create(), UploadedFile::fake()->image('photo.png'), 'avatar_prepared');
+
         $disk = Storage::disk('local');
         $path = '99999/'.Str::uuid().'.png';
         $disk->put($path, 'upload in progress');
@@ -104,6 +119,7 @@ describe('Temporary avatar cleanup', function (): void {
         artisan('avatars:clean')->assertSuccessful();
 
         expect($prepared->fresh())->not->toBeNull();
+
         $disk->assertExists($path);
         Storage::disk('public')->assertExists($prepared->getPathRelativeToRoot());
     });
@@ -112,7 +128,9 @@ describe('Temporary avatar cleanup', function (): void {
         Storage::fake('local');
         config(['media-library.temporary_directory_path' => Storage::disk('local')->path('media-library-temp')]);
         Storage::fake('public');
+
         $media = resolve(PrepareAvatar::class)->handle(User::factory()->create(), UploadedFile::fake()->image('photo.png'), 'avatar_pending');
+
         $media->update(['model_id' => Str::uuid()]);
         $orphanPath = '99999/'.Str::uuid().'.png';
         Storage::disk('local')->put($orphanPath, 'orphan');
@@ -122,6 +140,7 @@ describe('Temporary avatar cleanup', function (): void {
             ->assertSuccessful();
 
         expect($media->fresh())->not->toBeNull();
+
         Storage::disk('local')->assertExists($media->getPathRelativeToRoot());
         Storage::disk('local')->assertExists($orphanPath);
     });
@@ -131,7 +150,9 @@ describe('Temporary avatar cleanup', function (): void {
         config(['media-library.temporary_directory_path' => Storage::disk('local')->path('media-library-temp')]);
         Storage::fake('public');
         $disk = Storage::disk('local');
+
         $media = resolve(PrepareAvatar::class)->handle(User::factory()->create(), UploadedFile::fake()->image('draft.png'), 'avatar_pending');
+
         $orphan = '99999/'.Str::uuid().'.png';
         $disk->put($orphan, 'orphan');
         $disk->put('99998/document.pdf', 'unrelated numeric directory');
@@ -144,6 +165,7 @@ describe('Temporary avatar cleanup', function (): void {
 
         $disk->assertMissing($orphan);
         $disk->assertExists(['99998/document.pdf', 'uploads/document.txt', $media->getPathRelativeToRoot()]);
+
         expect($disk->directoryExists('99997'))->toBeTrue()
             ->and($media->fresh())->not->toBeNull();
     });
@@ -153,8 +175,10 @@ describe('Temporary avatar cleanup', function (): void {
         config(['media-library.temporary_directory_path' => Storage::disk('local')->path('media-library-temp')]);
         Storage::fake('public');
         $user = User::factory()->create();
+
         $active = resolve(PrepareAvatar::class)->handle($user, UploadedFile::fake()->image('active.png'), 'avatar');
         $prepared = resolve(PrepareAvatar::class)->handle($user, UploadedFile::fake()->image('prepared.png'), 'avatar_prepared');
+
         DB::table('media')->where('id', $prepared->id)->delete();
 
         artisan('avatars:clean', ['--grace' => 0])
@@ -163,6 +187,7 @@ describe('Temporary avatar cleanup', function (): void {
 
         Storage::disk('public')->assertMissing($prepared->getPathRelativeToRoot());
         Storage::disk('public')->assertExists($active->getPathRelativeToRoot());
+
         expect($active->fresh())->not->toBeNull();
     });
 
@@ -194,6 +219,7 @@ describe('Temporary avatar cleanup', function (): void {
 
         expect(fn () => resolve(CleanTemporaryAvatars::class)->handle(false, 0))
             ->toThrow(RuntimeException::class, 'Failed to delete orphaned avatar directory: 99999');
+
         $disk->assertExists($path);
     });
 
@@ -208,11 +234,13 @@ describe('Temporary avatar cleanup', function (): void {
         artisan('avatars:clean', ['--grace' => 0, '--dry-run' => true])
             ->expectsOutputToContain('Found 1 conversion temp directories.')
             ->assertSuccessful();
+
         $disk->assertExists($path);
 
         artisan('avatars:clean', ['--grace' => 0])
             ->expectsOutputToContain('Deleted 1 conversion temp directories.')
             ->assertSuccessful();
+
         $disk->assertMissing($path);
     });
 
@@ -225,6 +253,7 @@ describe('Temporary avatar cleanup', function (): void {
         $disk->put($path, 'conversion in progress');
 
         artisan('avatars:clean')->assertSuccessful();
+
         $disk->assertExists($path);
 
         touch($disk->path($path), now()->subMinutes(6)->getTimestamp());
@@ -238,6 +267,7 @@ describe('Temporary avatar cleanup', function (): void {
             ->assertSuccessful();
 
         $disk->assertMissing($path);
+
         expect($disk->directoryExists($empty))->toBeFalse();
     });
 
@@ -252,6 +282,7 @@ describe('Temporary avatar cleanup', function (): void {
 
         expect(fn () => resolve(CleanTemporaryAvatars::class)->handle(false, 0))
             ->toThrow(RuntimeException::class, 'Failed to delete conversion temp directory:');
+
         $disk->assertExists($path);
     });
 
@@ -297,6 +328,7 @@ describe('Temporary avatar cleanup', function (): void {
 
         expect(fn () => resolve(CleanOrphanedBrandImages::class)->handle(false, 0))
             ->toThrow(RuntimeException::class, 'Failed to delete orphaned brand file:');
+
         $disk->assertExists($path);
     });
 

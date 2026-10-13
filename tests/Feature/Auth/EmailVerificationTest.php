@@ -11,12 +11,12 @@ use Laravel\Fortify\Features;
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
 
-describe('Email verification', function () {
-    beforeEach(function () {
+describe('Email verification', function (): void {
+    beforeEach(function (): void {
         skipUnlessFortifyHas(Features::emailVerification());
     });
 
-    it('renders the email verification screen', function () {
+    it('renders the email verification screen', function (): void {
         $user = User::factory()->unverified()->create();
 
         actingAs($user);
@@ -26,7 +26,7 @@ describe('Email verification', function () {
         $response->assertOk();
     });
 
-    it('redirects unverified users to the verification prompt', function () {
+    it('redirects unverified users to the verification prompt', function (): void {
         $user = User::factory()->unverified()->create();
 
         actingAs($user);
@@ -36,7 +36,7 @@ describe('Email verification', function () {
         $response->assertRedirect(route('verification.notice'));
     });
 
-    it('verifies email with a valid signed link', function () {
+    it('verifies email with a valid signed link', function (): void {
         $user = User::factory()->unverified()->create();
 
         Event::fake();
@@ -54,10 +54,11 @@ describe('Email verification', function () {
         Event::assertDispatched(Verified::class);
 
         expect($user->fresh()->hasVerifiedEmail())->toBeTrue();
+
         $response->assertRedirect(route('dashboard', absolute: false).'?verified=1');
     });
 
-    it('rejects an invalid email hash', function () {
+    it('rejects an invalid email hash', function (): void {
         $user = User::factory()->unverified()->create();
 
         Event::fake();
@@ -73,10 +74,11 @@ describe('Email verification', function () {
         get($verificationUrl);
 
         Event::assertNotDispatched(Verified::class);
+
         expect($user->fresh()->hasVerifiedEmail())->toBeFalse();
     });
 
-    it('rejects an invalid user identifier', function () {
+    it('rejects an invalid user identifier', function (): void {
         $user = User::factory()->unverified()->create();
 
         Event::fake();
@@ -92,10 +94,11 @@ describe('Email verification', function () {
         get($verificationUrl);
 
         Event::assertNotDispatched(Verified::class);
+
         expect($user->fresh()->hasVerifiedEmail())->toBeFalse();
     });
 
-    it('redirects verified users from the prompt to the dashboard', function () {
+    it('redirects verified users from the prompt to the dashboard', function (): void {
         $user = User::factory()->create();
 
         Event::fake();
@@ -108,7 +111,7 @@ describe('Email verification', function () {
         $response->assertRedirect(route('dashboard', absolute: false));
     });
 
-    it('redirects verified users without dispatching another verification event', function () {
+    it('redirects verified users without dispatching another verification event', function (): void {
         $user = User::factory()->create();
 
         Event::fake();
@@ -125,6 +128,7 @@ describe('Email verification', function () {
             ->assertRedirect(route('dashboard', absolute: false).'?verified=1');
 
         Event::assertNotDispatched(Verified::class);
+
         expect($user->fresh()->hasVerifiedEmail())->toBeTrue();
     });
 });

@@ -11,6 +11,7 @@ describe('Timezone resolution', function (): void {
 
         expect(resolve(ResolveTimezone::class)->handle($user, 'Europe/London'))->toBe([
             'current' => 'Asia/Jakarta', 'source' => 'profile',
+
         ]);
     });
 
@@ -19,12 +20,14 @@ describe('Timezone resolution', function (): void {
 
         expect(resolve(ResolveTimezone::class)->handle($user, 'Europe/London'))->toBe([
             'current' => 'Europe/London', 'source' => 'device',
+
         ]);
     })->with([null, 'invalid']);
 
     it('falls back to UTC for missing or invalid device timezones', function (mixed $cookie): void {
         expect(resolve(ResolveTimezone::class)->handle(null, $cookie))->toBe([
             'current' => 'UTC', 'source' => 'default',
+
         ]);
     })->with([null, 'invalid', [['Asia/Jakarta']]]);
 });

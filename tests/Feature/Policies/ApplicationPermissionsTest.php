@@ -81,6 +81,7 @@ describe('Application permission gates', function (): void {
     it('revokes inherited access when a role is replaced', function (): void {
         $user = User::factory()->create();
         assignRolePermissions($user, Permission::ManageUsers);
+
         expect($user->can(Permission::ManageUsers))->toBeTrue();
 
         $user->syncRoles(Role::factory()->create());

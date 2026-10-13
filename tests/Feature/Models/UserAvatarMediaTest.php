@@ -25,6 +25,7 @@ describe('User avatars', function (): void {
             ->and($replacement->disk)->toBe('public')
             ->and(getimagesize($replacement->getPath('thumb')))->toMatchArray([0 => 128, 1 => 128, 'mime' => 'image/webp'])
             ->and(getimagesize($replacement->getPath('preview')))->toMatchArray([0 => 512, 1 => 512, 'mime' => 'image/webp']);
+
         Storage::disk('public')->assertMissing($original->getPathRelativeToRoot());
         actingAs($user)->get(route('profile.edit'))->assertInertia(fn (Assert $page): Assert => $page
             ->where('auth.user.avatar', $replacement->getUrl('thumb'))
@@ -41,6 +42,7 @@ describe('User avatars', function (): void {
 
         expect($pending->disk)->toBe('local')
             ->and($user->refresh()->avatar)->toBe($active->getUrl('thumb'));
+
         Storage::disk('local')->assertExists($pending->getPathRelativeToRoot());
     });
 
@@ -62,6 +64,7 @@ describe('User avatars', function (): void {
         $user->delete();
 
         assertModelMissing($avatar);
+
         Storage::disk('public')->assertMissing($avatar->getPathRelativeToRoot());
     });
 });

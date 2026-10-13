@@ -41,6 +41,7 @@ describe('Authentication settings', function (): void {
         $user->syncRoles(RoleModel::findOrCreate(Role::SuperAdmin->value, 'web'));
 
         actingAs($user)->get(route('settings.auth.edit'))->assertRedirect(route('verification.notice'));
+
         patch(route('settings.auth.update'), [])->assertRedirect(route('verification.notice'));
     });
 
@@ -52,10 +53,12 @@ describe('Authentication settings', function (): void {
         actingAs($reader)->get(route('settings.auth.edit'))->assertInertia(fn (Assert $page): Assert => $page
             ->component('settings/Auth')
             ->where('settings.password_min_length', 8));
+
         patch(route('settings.auth.update'), [])->assertForbidden();
 
         $user = User::factory()->create();
         actingAs($user)->get(route('settings.auth.edit'))->assertForbidden();
+
         patch(route('settings.auth.update'), [])->assertForbidden();
     });
 
@@ -73,6 +76,7 @@ describe('Authentication settings', function (): void {
         ])->assertSessionHasNoErrors()->assertRedirect(route('settings.auth.edit'));
 
         assertDatabaseHas('settings', ['group' => 'auth', 'name' => 'password_min_length', 'payload' => '16']);
+
         get(route('settings.auth.edit'))->assertInertia(fn (Assert $page): Assert => $page
             ->where('settings.registration_enabled', false)
             ->where('settings.email_verification_required', false)
@@ -137,8 +141,11 @@ describe('Authentication settings enforcement', function (): void {
             'email' => 'blocked@example.com',
             'password' => 'NewPassword123!',
             'password_confirmation' => 'NewPassword123!',
+
         ])->assertNotFound();
+
         assertDatabaseMissing('users', ['email' => 'blocked@example.com']);
+
         get(route('login'))->assertInertia(fn (Assert $page): Assert => $page->where('canRegister', false));
     });
 
@@ -150,6 +157,7 @@ describe('Authentication settings enforcement', function (): void {
         $user->syncRoles(RoleModel::findOrCreate(Role::SuperAdmin->value, 'web'));
 
         actingAs($user)->get(route('dashboard'))->assertOk();
+
         get(route('profile.edit'))->assertInertia(fn (Assert $page): Assert => $page->where('mustVerifyEmail', false));
         get(route('settings.auth.edit'))->assertOk();
     });
@@ -165,7 +173,9 @@ describe('Authentication settings enforcement', function (): void {
             'email' => 'new@example.com',
             'password' => 'NewPassword123!',
             'password_confirmation' => 'NewPassword123!',
+
         ])->assertInvalid(['password']);
+
         assertDatabaseMissing('users', ['email' => 'new@example.com']);
     });
 
@@ -189,6 +199,7 @@ describe('Authentication settings enforcement', function (): void {
             'email' => $user->email,
             'password' => 'NewPassword123!',
             'password_confirmation' => 'NewPassword123!',
+
         ])->assertInvalid(['password']);
     });
 

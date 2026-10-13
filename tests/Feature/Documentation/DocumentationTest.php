@@ -23,12 +23,14 @@ describe('Documentation', function (): void {
         Documentation::factory()->create(['content_text' => 'Petunjuk konfigurasi email']);
         actingAs(tap(User::factory()->create(), fn (User $user) => assignRolePermissions($user, Permission::ViewDocumentation)))->get(route('documentation.index', ['search' => 'konfigurasi']))
             ->assertInertia(fn (Assert $page): Assert => $page->component('documentation/Index')->has('documents.data', 1)->where('documents.data.0.id', $document->id)->where('manage', false));
+
         get(route('documentation.show', $document->slug))->assertInertia(fn (Assert $page): Assert => $page->component('documentation/Show')->where('document.content_html', $document->content_html));
     });
 
     it('refuses every management endpoint and draft detail to readers', function (): void {
         $document = Documentation::factory()->create();
         actingAs(tap(User::factory()->create(), fn (User $user) => assignRolePermissions($user, Permission::ViewDocumentation)));
+
         get(route('documentation.manage.index'))->assertForbidden();
         get(route('documentation.manage.create'))->assertForbidden();
         get(route('documentation.manage.edit', $document))->assertForbidden();
@@ -42,6 +44,7 @@ describe('Documentation', function (): void {
         $user = User::factory()->create();
         $user->roles()->detach();
         actingAs($user)->get(route('documentation.index'))->assertForbidden();
+
         get(route('documentation.show', Documentation::factory()->published()->create()->slug))->assertForbidden();
     });
 
@@ -50,23 +53,37 @@ describe('Documentation', function (): void {
         assignRolePermissions($author, Permission::ManageDocumentation);
         actingAs($author)->get(route('documentation.manage.create'))->assertInertia(fn (Assert $page): Assert => $page->component('documentation/Edit')->where('document', null));
         $data = ['title' => 'Getting started', 'slug' => 'getting-started', 'summary' => 'A guide', 'status' => 'draft', 'content_json' => ['type' => 'doc', 'content' => [['type' => 'paragraph', 'content' => [['type' => 'text', 'text' => '  <script>example</script>  ']]]]]];
+
         post(route('documentation.manage.store'), [...$data, 'content_html' => '<script>attack</script>', 'author_id' => 'spoofed'])->assertSessionHasNoErrors();
+
         $document = Documentation::query()->sole();
+
         expect($document->content_html)->toBe('<p>  &lt;script&gt;example&lt;/script&gt;  </p>')->and($document->content_text)->toBe('<script>example</script>')->and($document->author_id)->toBe($author->id)->and($document->published_at)->toBeNull()->and($document->schema_version)->toBe(1);
+
         get(route('documentation.manage.edit', $document))->assertInertia(fn (Assert $page): Assert => $page->component('documentation/Edit')->where('document.content_json', $data['content_json']));
         get(route('documentation.manage.index'))->assertInertia(fn (Assert $page): Assert => $page->where('manage', true)->has('documents.data', 1));
         get(route('documentation.show', $document->slug))->assertOk();
+
         $editor = User::factory()->create();
         assignRolePermissions($editor, Permission::ManageDocumentation);
         actingAs($editor);
+
         patch(route('documentation.manage.update', $document), [...$data, 'status' => 'published'])->assertRedirect(route('documentation.manage.edit', $document));
+
         expect($document->fresh()->author_id)->toBe($author->id)->and($document->fresh()->updated_by)->toBe($editor->id)->and($document->fresh()->published_at)->not->toBeNull();
+
         $publishedAt = $document->fresh()->published_at;
+
         patch(route('documentation.manage.update', $document), [...$data, 'status' => 'published', 'title' => 'Updated'])->assertSessionHasNoErrors();
+
         expect($document->fresh()->published_at->equalTo($publishedAt))->toBeTrue();
+
         patch(route('documentation.manage.update', $document), $data)->assertSessionHasNoErrors();
+
         expect($document->fresh()->published_at)->toBeNull();
+
         delete(route('documentation.manage.destroy', $document))->assertRedirect(route('documentation.manage.index'));
+
         expect(Documentation::query()->count())->toBe(0);
     });
 
@@ -80,6 +97,7 @@ describe('Documentation', function (): void {
             'status' => 'draft',
             'content_json' => ['type' => 'doc', 'content' => [['type' => 'paragraph', 'content' => [['type' => 'text', 'text' => 'Guide content']]]]],
             ...$slugData,
+
         ])->assertSessionHasNoErrors();
 
         expect(Documentation::query()->sole()->slug)->toBe($expectedSlug);
@@ -99,9 +117,11 @@ describe('Documentation', function (): void {
         $data = ['title' => 'Updated Guide', 'status' => 'draft', 'content_json' => ['type' => 'doc', 'content' => [['type' => 'paragraph', 'content' => [['type' => 'text', 'text' => 'Guide content']]]]]];
 
         patch(route('documentation.manage.update', $document), [...$data, 'slug' => ''])->assertSessionHasNoErrors();
+
         expect($document->fresh()->slug)->toBe('updated-guide');
 
         patch(route('documentation.manage.update', $document), [...$data, 'slug' => 'custom-guide'])->assertSessionHasNoErrors();
+
         expect($document->fresh()->slug)->toBe('custom-guide');
 
         patch(route('documentation.manage.update', $document), [...$data, 'slug' => 'custom-guide'])->assertSessionHasNoErrors();
@@ -118,6 +138,7 @@ describe('Documentation', function (): void {
             'status' => 'draft',
             'content_json' => ['type' => 'doc', 'content' => [['type' => 'paragraph', 'content' => [['type' => 'text', 'text' => 'Guide content']]]]],
             ...$slugData,
+
         ])->assertSessionHasErrors('slug');
 
         expect(Documentation::query()->count())->toBe(1);
@@ -143,6 +164,7 @@ describe('Documentation', function (): void {
         ])->assertSessionHasErrors('slug');
 
         expect($document->fresh()->slug)->toBe('existing-guide');
+
         get(route('documentation.show', 'existing-guide'))->assertOk();
     });
 
@@ -150,8 +172,11 @@ describe('Documentation', function (): void {
         $admin = User::factory()->create();
         assignRolePermissions($admin, Permission::ManageDocumentation);
         actingAs($admin);
+
         post(route('documentation.manage.store'), [])->assertSessionHasErrors(['title', 'slug', 'content_json', 'status']);
+
         $existing = Documentation::factory()->create();
+
         post(route('documentation.manage.store'), ['title' => 'Title', 'slug' => $existing->slug, 'status' => 'published', 'summary' => str_repeat('x', 2001), 'content_json' => ['type' => 'script']])->assertSessionHasErrors(['slug', 'summary']);
         post(route('documentation.manage.store'), ['title' => 'Title', 'slug' => 'valid-slug', 'status' => 'draft', 'content_json' => ['type' => 'script']])->assertSessionHasErrors('content_json');
         get(route('documentation.index', ['search' => str_repeat('x', 201), 'page' => 0]))->assertSessionHasErrors(['search', 'page']);
@@ -162,6 +187,7 @@ describe('Documentation', function (): void {
         $title = Documentation::factory()->published()->create(['title' => 'Konfigurasi']);
         actingAs(tap(User::factory()->create(), fn (User $user) => assignRolePermissions($user, Permission::ViewDocumentation)))->get(route('documentation.index', ['search' => 'konfigurasi']))->assertInertia(fn (Assert $page): Assert => $page->has('documents.data', 2)->where('documents.data.0.id', $title->id));
         $body->update(['content_text' => 'different']);
+
         get(route('documentation.index', ['search' => 'konfigurasi']))->assertInertia(fn (Assert $page): Assert => $page->has('documents.data', 1));
         get(route('documentation.index', ['search' => "' OR 1=1 --"]))->assertInertia(fn (Assert $page): Assert => $page->has('documents.data', 0));
     });
@@ -193,6 +219,7 @@ describe('Documentation', function (): void {
         actingAs($manager)->get(route('documentation.index', ['search' => 'Matching', 'page' => 2]))
             ->assertInertia(fn (Assert $page): Assert => $page->has('documents.data', 1)
                 ->where('documents.total', 13)->where('documents.current_page', 2));
+
         get(route('documentation.index', ['search' => 'Private']))
             ->assertInertia(fn (Assert $page): Assert => $page->has('documents.data', 0));
         get(route('documentation.manage.index', ['search' => 'Private']))

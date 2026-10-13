@@ -14,6 +14,7 @@ describe('User management browser flows', function (): void {
         actingAs($actor);
 
         $page = visit(route('master-data.users.index', absolute: false));
+
         $page->assertSee(__('navigation.group.admin'))
             ->assertMissing('[data-sidebar="menu-sub"]')
             ->click('[data-sidebar="menu-button"][href="'.route('master-data.index', absolute: false).'"]')

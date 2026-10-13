@@ -29,8 +29,10 @@ describe('Disabled accounts', function (): void {
     it('rejects an account disabled while a two-factor challenge is pending', function (): void {
         skipUnlessFortifyHas(Features::twoFactorAuthentication());
         $user = User::factory()->withTwoFactor()->create();
+
         post(route('login.store'), ['email' => $user->email, 'password' => 'password'])
             ->assertRedirect(route('two-factor.login'));
+
         $user->status = UserStatus::Disabled;
         $user->save();
 
@@ -60,11 +62,13 @@ describe('Disabled accounts', function (): void {
         Event::fake([Login::class]);
 
         from(route('login'));
+
         post(route('login.store'), ['email' => $user->email, 'password' => 'password'])
             ->assertRedirect(route('login'))
             ->assertSessionHasErrors(['email' => $message]);
 
         assertGuest();
+
         Event::assertNotDispatched(Login::class);
     })->with([
         'English' => ['en', 'The account is disabled. Contact an administrator to reactivate the account.'],
@@ -77,12 +81,14 @@ describe('Disabled accounts', function (): void {
         Event::fake([Login::class]);
 
         from(route('login'));
+
         post(route('login.store'), ['email' => $user->email, 'password' => 'password'])
             ->assertRedirect(route('login'))
             ->assertSessionHasErrors(['email' => __('auth.disabled')])
             ->assertSessionMissing('login.id');
 
         assertGuest();
+
         Event::assertNotDispatched(Login::class);
     });
 
@@ -95,6 +101,7 @@ describe('Disabled accounts', function (): void {
 
         assertGuest();
         expect($user->refresh()->name)->toBe($originalName);
+
         get(route('login'))->assertOk();
     });
 });

@@ -21,8 +21,11 @@ describe('Session management', function (): void {
     });
     it('requires confirmation and reports unsupported session listing', function (): void {
         actingAs(User::factory()->create());
+
         get(route('sessions.index'))->assertRedirect(route('password.confirm'));
+
         withSession(['auth.password_confirmed_at' => time()]);
+
         get(route('sessions.index'))->assertInertia(fn (Assert $page) => $page
             ->component('account/Sessions')->where('canListSessions', false)->where('sessions', []));
     });
@@ -36,33 +39,47 @@ describe('Session management', function (): void {
             ['id' => 'expired', 'user_id' => $user->id, 'ip_address' => null, 'user_agent' => null, 'payload' => '', 'last_activity' => now()->subDay()->timestamp],
             ['id' => 'foreign', 'user_id' => $other->id, 'ip_address' => null, 'user_agent' => 'Other', 'payload' => '', 'last_activity' => now()->timestamp],
         ]);
+
         $sessions = resolve(GetUserSessions::class)->handle($user, 'current-secret');
+
         expect($sessions)->toHaveCount(2)
             ->and($sessions[0])->toHaveKeys(['device', 'ip_address', 'last_active_at', 'current'])
             ->and($sessions[0]['device'])->toBe('Firefox')
             ->and($sessions[0]['current'])->toBeTrue()
             ->and($sessions[0])->not->toHaveKeys(['id', 'payload'])
             ->and($sessions[1]['device'])->toBe(__('sessions.label.unknown'));
+
         resolve(RevokeOtherSessions::class)->handle($user, 'current-secret');
+
         expect(DB::table('sessions')->where('user_id', $user->id)->pluck('id')->all())->toBe(['current-secret'])
             ->and(DB::table('sessions')->where('id', 'foreign')->exists())->toBeTrue();
     });
     it('rejects missing and incorrect passwords', function (): void {
         actingAs(User::factory()->create());
+
         delete(route('sessions.destroy'))->assertSessionHasErrors(['password' => __('validation.required', ['attribute' => 'password'])]);
         delete(route('sessions.destroy'), ['password' => 'wrong'])->assertSessionHasErrors('password');
     });
     it('preserves the current login while invalidating an older session', function (): void {
         $user = User::factory()->create();
+
         post(route('login.store'), ['email' => $user->email, 'password' => 'password'])->assertSessionHasNoErrors();
+
         Auth::forgetGuards();
+
         get(route('dashboard'))->assertOk();
+
         $oldSession = session()->all();
+
         delete(route('sessions.destroy'), ['password' => 'password'])->assertSessionHasNoErrors()->assertRedirect();
+
         Auth::forgetGuards();
+
         get(route('dashboard'))->assertOk();
+
         withSession($oldSession);
         Auth::forgetGuards();
+
         get(route('dashboard'))->assertRedirect(route('login'));
     });
 });

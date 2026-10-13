@@ -37,6 +37,7 @@ describe('Mail settings in the browser', function (): void {
             ->assertNoJavaScriptErrors();
 
         $settings = resolve(MailSettings::class)->refresh();
+
         expect($settings->mailer)->toBe('smtp')
             ->and($settings->smtp_host)->toBe('smtp.mailtrap.io')
             ->and($settings->smtp_password)->toBe('mailtrap-password')
@@ -65,20 +66,25 @@ describe('Mail settings in the browser', function (): void {
 describe('Auth settings in the browser', function (): void {
     it('persists the registration switch from the auth settings page', function (): void {
         $user = actingAsUserWithPermissions(Permission::ViewSettings, Permission::ManageSettings);
+
         visit(route('settings.auth.edit'))->click('#registration_enabled')->click('@save-auth-settings')
             ->assertSee(__('settings.auth.status.updated'))->assertNoJavaScriptErrors();
+
         expect(resolve(AuthSettings::class)->refresh()->registration_enabled)->toBeFalse();
     });
 
     it('creates an invited account without showing password fields', function (): void {
         Queue::fake([SendUserInvitation::class]);
         $user = actingAsUserWithPermissions(Permission::ViewUsers, Permission::ManageUsers);
+
         visit(route('master-data.users.index'))->click(__('common.button.create'))
             ->fill('#user-name', 'Browser Invited')->fill('#user-email', 'browser-invited@example.test')
             ->click('#send-invitation')->assertMissing('#user-password')
             ->click('[role="dialog"] button[type="submit"]')->assertSee(__('user.status.created'))
             ->assertNoJavaScriptErrors();
+
         expect(User::query()->where('email', 'browser-invited@example.test')->sole()->invited_at)->not->toBeNull();
+
         Queue::assertPushed(SendUserInvitation::class);
     });
 });

@@ -86,6 +86,7 @@ describe('Browser locale preferences', function (): void {
         withUnencryptedCookie('locale', 'id');
 
         post(route('logout'))->assertRedirect(route('home'));
+
         Auth::forgetGuards();
 
         get(route('login'))

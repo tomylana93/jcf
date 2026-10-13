@@ -50,8 +50,10 @@ describe('Brand settings', function (): void {
 
         Storage::disk('public')->assertMissing($logo);
         Storage::disk('public')->assertExists($favicon);
+
         expect($brand->refresh()->logo_path)->toBeNull()
             ->and($brand->color->value)->toBe('green');
+
         get(route('settings.brand.edit'))->assertInertia(fn (Assert $page) => $page
             ->where('brand.color', 'green')->where('brand.favicon_url', Storage::disk('public')->url($favicon)));
     });

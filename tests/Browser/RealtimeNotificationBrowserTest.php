@@ -15,7 +15,9 @@ describe('Realtime notification browser lifecycle', function (): void {
         require base_path('routes/channels.php');
         $user = User::factory()->create();
         actingAs($user);
+
         $page = visit(route('notifications.index'));
+
         $page->page()->context()->addInitScript(<<<'JS_WRAP'
             (() => {
                 window.realtimeSockets = [];
@@ -61,9 +63,11 @@ describe('Realtime notification browser lifecycle', function (): void {
             ->assertAttribute('[data-test="notification-bell"]', 'aria-label', __('notification.label.open', ['count' => 1]));
         $reloads = $page->script('() => window.realtimeReloads');
         $page->script('() => window.realtimeChannel.deliver("Illuminate\\\\Notifications\\\\Events\\\\BroadcastNotificationCreated", {id: "'.$id.'", kind: "account_updated"})');
+
         expect($page->script('() => window.realtimeReloads'))->toBe($reloads);
 
         resolve(MarkNotificationRead::class)->handle($user, $id);
+
         $page->script('() => window.realtimeChannel.deliver("App\\\\Events\\\\NotificationRead", {})');
         $page->assertAttribute('[data-test="notification-bell"]', 'aria-label', __('notification.label.open', ['count' => 0]));
 
@@ -71,13 +75,16 @@ describe('Realtime notification browser lifecycle', function (): void {
         $page->script('() => window.realtimeChannel.deliver("pusher_internal:subscription_succeeded", {})');
         $page->assertSee(__('notification.message.permissions_updated'))
             ->assertAttribute('[data-test="notification-bell"]', 'aria-label', __('notification.label.open', ['count' => 1]));
+
         resolve(MarkAllNotificationsRead::class)->handle($user);
+
         $page->script('() => window.realtimeChannel.deliver("App\\\\Events\\\\NotificationRead", {})');
         $page->assertAttribute('[data-test="notification-bell"]', 'aria-label', __('notification.label.open', ['count' => 0]))
             ->assertNoJavaScriptErrors();
         $page->script('() => { window.realtimeClosed = false; const socket = window.realtimeChannel; const close = socket.close.bind(socket); socket.close = () => { window.realtimeClosed = true; sessionStorage.setItem("realtimeClosed", "yes"); close(); }; }');
         $page->click('[data-test="sidebar-menu-button"]')->click('[data-test="logout-button"]');
         $page->assertUrlIs(route('login'))->assertNoJavaScriptErrors();
+
         expect($page->script('() => sessionStorage.getItem("realtimeClosed")'))->toBe('yes');
     });
 });

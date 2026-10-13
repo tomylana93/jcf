@@ -40,8 +40,10 @@ describe('Backup management', function (): void {
         get(route('master-data.backups.index'))->assertRedirect(route('login'));
         post(route('master-data.backups.upload'))->assertRedirect(route('login'));
         post(route('master-data.backups.restore', 'test.zip'))->assertRedirect(route('login'));
+
         $user = User::factory()->create();
         actingAsWithConfirmedPassword($user);
+
         get(route('master-data.backups.index'))->assertForbidden();
         post(route('master-data.backups.upload'))->assertForbidden();
         post(route('master-data.backups.restore', 'test.zip'))->assertForbidden();
@@ -50,13 +52,19 @@ describe('Backup management', function (): void {
         $disk = Storage::fake('backups');
         $disk->put('jcf/test.zip', 'archive');
         $url = route('master-data.backups.destroy', 'test.zip');
+
         delete($url)->assertRedirect(route('login'));
+
         $user = User::factory()->create();
         actingAsWithConfirmedPassword($user);
+
         delete($url)->assertForbidden();
+
         $user->syncRoles(Role::SuperAdmin);
         withSession(['auth.password_confirmed_at' => 0]);
+
         delete($url)->assertRedirect(route('password.confirm'));
+
         $disk->assertExists('jcf/test.zip');
     });
 
@@ -72,6 +80,7 @@ describe('Backup management', function (): void {
 
         $disk->assertMissing('jcf/test.zip');
         $disk->assertExists('jcf/keep.zip');
+
         delete(route('master-data.backups.destroy', 'test.zip'))->assertNotFound();
         delete(route('master-data.backups.destroy', 'keep.txt'))->assertNotFound();
     });
@@ -81,7 +90,9 @@ describe('Backup management', function (): void {
         $disk->put('jcf/test.zip', 'archive');
         $user = actingAsSuperAdmin();
         withSession(['auth.password_confirmed_at' => time()]);
+
         $lock = resolve(GetBackupLock::class)->handle();
+
         $lock->get();
         try {
             delete(route('master-data.backups.destroy', 'test.zip'))->assertSessionHasErrors(['backup' => __('backup.error.busy')]);
@@ -102,7 +113,9 @@ describe('Backup management', function (): void {
         delete(route('master-data.backups.destroy', 'test.zip'))->assertSessionHasErrors(['backup' => __('backup.error.delete_failed')]);
 
         $lock = resolve(GetBackupLock::class)->handle();
+
         expect($lock->get())->toBeTrue();
+
         $lock->release();
     });
 
@@ -113,12 +126,16 @@ describe('Backup management', function (): void {
 
     it('lets a backup manager enter master data without user-view permission', function (): void {
         artisan('init:permission')->assertSuccessful();
+
         $user = User::factory()->create();
         $user->syncRoles([]);
         $user->givePermissionTo('backups.manage');
         actingAs($user)->get(route('master-data.index'))->assertOk();
+
         get(route('master-data.backups.index'))->assertOk();
+
         $user->revokePermissionTo('backups.manage');
+
         get(route('master-data.index'))->assertForbidden();
     });
     it('filters sorts and paginates backup archives', function (): void {
@@ -129,11 +146,13 @@ describe('Backup management', function (): void {
         $user = User::factory()->create();
         $user->syncRoles(Role::SuperAdmin);
         actingAs($user)->get(route('master-data.backups.index', ['sort' => '-size', 'page' => 2, 'per_page' => 10]))->assertInertia(fn (Assert $page) => $page->where('backups.total', 12)->has('backups.data', 2)->where('backups.data.0.filename', 'archive-02.zip'));
+
         get(route('master-data.backups.index', ['filter' => ['search' => 'ARCHIVE-12'], 'sort' => 'filename']))->assertInertia(fn (Assert $page) => $page->where('backups.total', 1)->where('backups.data.0.filename', 'archive-12.zip'));
         get(route('master-data.backups.index', ['sort' => 'untrusted']))->assertSessionHasErrors('sort');
     });
     it('requires password confirmation before uploading or restoring', function (): void {
         $user = actingAsSuperAdmin();
+
         post(route('master-data.backups.upload'))->assertRedirect(route('password.confirm'));
         post(route('master-data.backups.restore', 'test.zip'))->assertRedirect(route('password.confirm'));
     });
@@ -141,8 +160,11 @@ describe('Backup management', function (): void {
         $user = actingAsSuperAdmin();
         withSession(['auth.password_confirmed_at' => time()]);
         config(['operations.backup_enabled' => false]);
+
         post(route('master-data.backups.upload'))->assertSessionHasErrors(['archive' => __('backup.error.not_configured')]);
+
         config(['operations.backup_enabled' => true, 'backup.backup.password' => 'test-secret']);
+
         post(route('master-data.backups.upload'))->assertSessionHasErrors('archive');
         post(route('master-data.backups.upload'), ['archive' => UploadedFile::fake()->create('image.txt', 1, 'text/plain')])->assertSessionHasErrors('archive');
     });
@@ -153,8 +175,11 @@ describe('Backup management', function (): void {
         $upload = new UploadedFile($disk->path('jcf/test.zip'), 'external.zip', test: true);
         $user = actingAsSuperAdmin();
         withSession(['auth.password_confirmed_at' => time()]);
+
         post(route('master-data.backups.upload'), ['archive' => $upload])->assertSessionHasNoErrors()->assertRedirect();
+
         $files = $disk->files('jcf');
+
         expect($files)->toHaveCount(2)
             ->and(collect($files)->filter(fn (string $path): bool => str_starts_with(basename($path), 'upload-')))->toHaveCount(1);
     });
@@ -164,7 +189,9 @@ describe('Backup management', function (): void {
         createBackupTestArchive($entries, $password);
         $user = actingAsSuperAdmin();
         withSession(['auth.password_confirmed_at' => time()]);
+
         post(route('master-data.backups.upload'), ['archive' => new UploadedFile($disk->path('jcf/test.zip'), 'test.zip', test: true)])->assertSessionHasErrors(['archive' => __('backup.error.invalid_archive')]);
+
         expect($disk->files('jcf'))->toBe(['jcf/test.zip']);
     })->with([
         'unsafe' => [['storage/app/public/../unsafe.txt' => 'bad'], 'test-secret'],
@@ -177,14 +204,20 @@ describe('Backup management', function (): void {
         $user = actingAsSuperAdmin();
         withSession(['auth.password_confirmed_at' => time()]);
         config(['operations.backup_enabled' => false]);
+
         post(route('master-data.backups.restore', 'test.zip'))->assertSessionHasErrors(['backup' => __('backup.error.not_configured')]);
+
         config(['operations.backup_enabled' => true, 'backup.backup.password' => 'test-secret']);
+
         post(route('master-data.backups.restore', 'test.zip'), ['confirmation' => false])->assertSessionHasErrors('confirmation');
         post(route('master-data.backups.restore', 'test.zip'), ['confirmation' => true])->assertNotFound();
         travel(61)->seconds();
+
         $disk->put('jcf/test.zip', 'archive');
         Queue::fake([RestoreSystemBackup::class]);
+
         post(route('master-data.backups.restore', 'test.zip'), ['confirmation' => true])->assertSessionHasNoErrors()->assertRedirect();
+
         Queue::assertPushed(RestoreSystemBackup::class, fn (RestoreSystemBackup $job): bool => $job->filename === 'test.zip' && $job->checksum === hash('sha256', 'archive') && $job->actorId === $user->id && $job->connection === 'backups');
     });
 });
@@ -235,7 +268,9 @@ describe('Backup execution', function (): void {
 
     it('refuses concurrent backups without changing their status', function (): void {
         config(['operations.backup_enabled' => true, 'backup.backup.password' => 'test-secret']);
+
         $lock = resolve(GetBackupLock::class)->handle();
+
         $lock->get();
 
         try {
@@ -367,8 +402,10 @@ describe('Active application restore', function (): void {
     it('reports failed restore jobs to existing requesters and handles removed requesters', function (): void {
         $user = User::factory()->create();
         new RestoreSystemBackup('test.zip', 'checksum', $user->id)->failed(new RuntimeException('failure'));
+
         expect($user->notifications()->sole()->data['kind'])->toBe('restore_failed')
             ->and(Cache::store('file')->get('system.restore_status'))->toBe('failed');
+
         new RestoreSystemBackup('test.zip', 'checksum', '00000000-0000-0000-0000-000000000000')->failed(null);
     });
     it('rejects symlinked active storage without replacing it', function (): void {

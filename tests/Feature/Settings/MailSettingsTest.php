@@ -49,6 +49,7 @@ describe('Mail settings', function (): void {
         $user = User::factory()->create();
 
         actingAs($user)->get(route('settings.mail.edit'))->assertForbidden();
+
         get(route('settings.mail.preview'))->assertForbidden();
         patch(route('settings.mail.update'), mailSettingsPayload())->assertForbidden();
         post(route('settings.mail.test'), ['test_email' => 'recipient@example.test'])->assertForbidden();
@@ -79,12 +80,15 @@ describe('Mail settings', function (): void {
         assignRolePermissions($admin, Permission::ViewSettings, Permission::ManageSettings, Permission::ViewUsers, Permission::ManageUsers);
 
         actingAs($admin)->patch(route('settings.mail.update'), mailSettingsPayload())->assertSessionHasNoErrors();
+
         patch(route('settings.mail.update'), mailSettingsPayload([
             'smtp_password' => '',
             'smtp_host' => 'mail.example.test',
+
         ]))->assertSessionHasNoErrors();
 
         $settings = resolve(MailSettings::class)->refresh();
+
         expect($settings->smtp_password)->toBe('app-password')
             ->and($settings->smtp_host)->toBe('mail.example.test');
     });
@@ -105,6 +109,7 @@ describe('Mail settings', function (): void {
 
         expect(Mail::mailer()->getSymfonyTransport())->toBeInstanceOf(SettingsMailTransport::class)
             ->and((string) Mail::mailer()->getSymfonyTransport())->toBe('settings-mail');
+
         get(route('settings.mail.preview'))->assertOk()->assertSeeHtml('&lt;script&gt;unsafe&lt;/script&gt;')->assertDontSeeHtml('<script>unsafe</script>');
 
         Mail::mailer()->getSymfonyTransport()->send(
@@ -127,7 +132,9 @@ describe('Mail settings', function (): void {
 
         $admin = User::factory()->create();
         assignRolePermissions($admin, Permission::ViewSettings, Permission::ManageSettings, Permission::ViewUsers, Permission::ManageUsers);
+
         expect((new MailSettingsTestMessage)->render())->toContain(__('settings.mail.test.heading'));
+
         Mail::fake();
 
         actingAs($admin)->post(route('settings.mail.test'), ['test_email' => 'recipient@example.test'])
@@ -146,6 +153,7 @@ describe('Mail settings', function (): void {
             ->assertInvalid(['test_email']);
 
         Mail::shouldReceive('to')->once()->andThrow(new RuntimeException('Internal transport failure'));
+
         post(route('settings.mail.test'), ['test_email' => 'recipient@example.test'])
             ->assertInvalid(['test_email' => __('settings.mail.status.test_failed')]);
     });
@@ -201,7 +209,9 @@ describe('Mailpit and secret boundaries', function (): void {
             'smtp_host' => 'lerd-mailpit', 'smtp_port' => 1025, 'smtp_scheme' => 'none',
             'smtp_username' => '', 'smtp_password' => '',
         ]))->assertSessionHasNoErrors();
+
         expect(resolve(MailSettings::class)->refresh()->smtp_scheme)->toBe('none');
+
         patch(route('settings.mail.update'), mailSettingsPayload(['from_address' => 'invalid', 'smtp_password' => 'private-value']))
             ->assertInvalid('from_address')->assertSessionMissing('_old_input.smtp_password');
     });
@@ -218,6 +228,7 @@ describe('Branded mail rendering', function (): void {
         $settings->show_logo = true;
         $settings->save();
         $html = (string) resolve(GetMailPreview::class)->handle()->render();
+
         expect($html)->toContain('branding/custom-logo.png')->toContain($accent);
     })->with([
         ['blue', '#2563eb'], ['green', '#198b46'], ['purple', '#7c3aed'],
@@ -232,6 +243,7 @@ describe('Mail logo selection', function (): void {
         $brand->logo_path = 'branding/custom-icon.png';
         $brand->save();
         $html = (string) resolve(GetMailPreview::class)->handle()->render();
+
         expect($html)->toContain('branding/custom-icon.png')->not->toContain('class="brand-name"');
     });
 });

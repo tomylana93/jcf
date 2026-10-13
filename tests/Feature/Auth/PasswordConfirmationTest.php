@@ -8,8 +8,8 @@ use Inertia\Testing\AssertableInertia as Assert;
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
 
-describe('Password confirmation', function () {
-    it('renders the password confirmation screen', function () {
+describe('Password confirmation', function (): void {
+    it('renders the password confirmation screen', function (): void {
         $user = User::factory()->create();
 
         actingAs($user);
@@ -23,7 +23,7 @@ describe('Password confirmation', function () {
         );
     });
 
-    it('redirects guests to login before password confirmation', function () {
+    it('redirects guests to login before password confirmation', function (): void {
         $response = get(route('password.confirm'));
 
         $response->assertRedirect(route('login'));

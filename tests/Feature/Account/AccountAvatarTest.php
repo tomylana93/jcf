@@ -29,12 +29,15 @@ describe('Account avatar', function (): void {
             'avatar' => UploadedFile::fake()->image('photo.png', 600, 400),
         ])->assertSessionHasNoErrors()->assertRedirect(route('profile.edit'));
         $temporary = $user->getFirstMedia('avatar_pending');
+
         expect($temporary)->not->toBeNull()
             ->and($temporary->disk)->toBe('local')
             ->and($user->getFirstMedia('avatar'))->toBeNull();
+
         get(route('profile.avatar.preview', $temporary->uuid))->assertOk()->assertHeader('Cache-Control', 'no-store, private');
         patch(route('profile.avatar.update'), ['temporary_avatar' => $temporary->uuid, 'remove_avatar' => false])
             ->assertSessionHasNoErrors()->assertRedirect(route('profile.edit'));
+
         expect($user->fresh()->getFirstMedia('avatar'))->not->toBeNull()
             ->and($user->fresh()->getFirstMedia('avatar_pending'))->toBeNull();
     });
@@ -46,15 +49,20 @@ describe('Account avatar', function (): void {
         actingAs($owner)->post(route('profile.avatar.upload'), ['avatar' => UploadedFile::fake()->image('photo.png')])->assertSessionHasNoErrors();
         $temporary = $owner->getFirstMedia('avatar_pending');
         actingAs(User::factory()->create())->get(route('profile.avatar.preview', $temporary->uuid))->assertNotFound();
+
         patch(route('profile.avatar.update'), ['temporary_avatar' => $temporary->uuid])->assertInvalid('temporary_avatar');
+
         actingAs($owner);
+
         travel(25)->hours();
         patch(route('profile.avatar.update'), ['temporary_avatar' => $temporary->uuid])->assertInvalid('temporary_avatar');
+
         expect($owner->fresh()->getFirstMedia('avatar'))->toBeNull();
     });
 
     it('rejects unsupported uploads and protects endpoints from guests', function (): void {
         post(route('profile.avatar.upload'))->assertRedirect(route('login'));
+
         actingAs(User::factory()->create())->post(route('profile.avatar.upload'), [
             'avatar' => UploadedFile::fake()->create('active.svg', 10, 'image/svg+xml'),
         ])->assertInvalid('avatar');
@@ -74,6 +82,7 @@ describe('Account avatar', function (): void {
         expect($expired->fresh())->toBeNull()
             ->and($saved->fresh())->not->toBeNull()
             ->and($recent->fresh())->not->toBeNull();
+
         Storage::disk('public')->assertExists($saved->getPathRelativeToRoot());
         Storage::disk('local')->assertExists($recent->getPathRelativeToRoot());
     });
@@ -90,6 +99,7 @@ describe('Account avatar', function (): void {
 
         expect($user->refresh()->getFirstMedia('avatar')->id)->toBe($active->id)
             ->and($user->getFirstMedia('avatar_pending'))->toBeNull();
+
         Storage::disk('local')->assertMissing($temporary->getPathRelativeToRoot());
     });
 
@@ -105,6 +115,7 @@ describe('Account avatar', function (): void {
 
         expect($user->refresh()->getMedia('avatar'))->toBeEmpty()
             ->and($user->getMedia('avatar_pending'))->toBeEmpty();
+
         Storage::disk('public')->assertMissing($active->getPathRelativeToRoot());
         Storage::disk('local')->assertMissing($temporary->getPathRelativeToRoot());
     });

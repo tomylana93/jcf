@@ -10,6 +10,7 @@ describe('User enum options', function (): void {
 
         expect(Role::options())->toBe([
             ['value' => 'superadmin', 'label' => 'Super Admin', 'name' => 'SuperAdmin', 'color' => 'red'],
+
         ]);
     })->with(['en', 'id']);
 });

@@ -15,7 +15,9 @@ use function Pest\Laravel\getJson;
 describe('Global search', function (): void {
     it('requires authentication and verification', function (): void {
         get(route('search', ['query' => 'guide']))->assertRedirect(route('login'));
+
         actingAs(User::factory()->unverified()->create());
+
         get(route('search', ['query' => 'guide']))->assertRedirect(route('verification.notice'));
     });
 
@@ -48,6 +50,7 @@ describe('Global search', function (): void {
         getJson(route('search', ['query' => 'guide']))->assertOk()->assertExactJson(['documents' => [], 'users' => []]);
         $queries = collect(DB::getQueryLog())->pluck('query');
         DB::disableQueryLog();
+
         expect($queries->filter(fn (string $sql): bool => str_contains($sql, 'search_vector') || str_contains($sql, 'ilike')))->toBeEmpty();
     });
 

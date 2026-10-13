@@ -40,6 +40,7 @@ describe('User management', function (): void {
                 ->where('users.data.0.roles.0.name', 'editor')
                 ->missing('users.data.0.password')->missing('users.data.0.two_factor_secret')
                 ->missing('users.data.0.remember_token'));
+
         get(route('master-data.users.index'))->assertInertia(fn (Assert $page): Assert => $page->where('users.total', 2));
         get(route('master-data.index'))->assertOk();
     });
@@ -68,6 +69,7 @@ describe('User management', function (): void {
 
         actingAs($actor)->get(route('master-data.users.index', ['sort' => 'name', 'per_page' => 10]))->assertInertia(fn (Assert $page): Assert => $page
             ->has('users.data', 10)->where('users.data.0.id', $first->id)->where('users.total', 13));
+
         get(route('master-data.users.index', ['sort' => 'name', 'per_page' => 10, 'page' => 2]))->assertInertia(fn (Assert $page): Assert => $page->has('users.data', 3));
         get(route('master-data.users.index', ['per_page' => 999, 'filter' => ['search' => '  ']]))->assertInertia(fn (Assert $page): Assert => $page->where('users.per_page', 10));
         get(route('master-data.users.index', ['per_page' => 25]))->assertInertia(fn (Assert $page): Assert => $page->where('users.per_page', 25));
@@ -93,6 +95,7 @@ describe('User management', function (): void {
         ])->assertSessionHasNoErrors()->assertRedirect(route('master-data.users.index'));
 
         $created = User::query()->where('email', 'created@example.test')->sole();
+
         expect(Hash::check('initial-password', $created->password))->toBeTrue()
             ->and($created->getRoleNames()->all())->toBe(['editor'])
             ->and($created->status)->toBe(UserStatus::Active)
@@ -107,6 +110,7 @@ describe('User management', function (): void {
             'name' => 'Unassigned', 'email' => 'unassigned@example.test',
             'password' => 'initial-password', 'password_confirmation' => 'initial-password',
         ])->assertSessionHasNoErrors()->assertRedirect();
+
         expect(User::query()->where('email', 'unassigned@example.test')->sole()->getRoleNames())->toBeEmpty();
     });
 
@@ -116,6 +120,7 @@ describe('User management', function (): void {
         actingAs($actor)->post(route('master-data.users.store'), [
             'name' => 'Rejected', 'email' => 'rejected@example.test', ...$data,
         ])->assertSessionHasErrors('password');
+
         assertDatabaseMissing('users', ['email' => 'rejected@example.test']);
     })->with([
         [[]],
@@ -132,9 +137,12 @@ describe('User management', function (): void {
             'name' => 'Rejected', 'email' => 'rejected@example.test', 'role' => $role,
             'password' => 'initial-password', 'password_confirmation' => 'initial-password',
         ])->assertSessionHasErrors('role');
+
         patch(route('master-data.users.update', $target), [
             'name' => 'Rejected', 'email' => $target->email, 'role' => $role, 'status' => 'active',
+
         ])->assertSessionHasErrors('role');
+
         expect($target->refresh()->name)->not->toBe('Rejected');
     })->with(['superadmin', 'missing', 'api-editor']);
 
@@ -149,6 +157,7 @@ describe('User management', function (): void {
             'name' => 'Changed', 'email' => 'Changed@Example.Test', 'role' => $role->name, 'status' => 'disabled',
             'password' => 'replacement-password',
         ])->assertSessionHasNoErrors()->assertRedirect(route('master-data.users.index'));
+
         expect($target->refresh()->email)->toBe('changed@example.test')
             ->and($target->email_verified_at)->toBeNull()
             ->and($target->status)->toBe(UserStatus::Disabled)
@@ -158,7 +167,9 @@ describe('User management', function (): void {
 
         patch(route('master-data.users.update', $target), [
             'name' => 'Changed again', 'email' => $target->email, 'status' => 'active', 'role' => null,
+
         ])->assertSessionHasNoErrors();
+
         expect($target->refresh()->getRoleNames())->toBeEmpty();
     });
 
@@ -170,9 +181,12 @@ describe('User management', function (): void {
             'name' => 'Duplicate', 'email' => 'Existing@Example.Test',
             'password' => 'initial-password', 'password_confirmation' => 'initial-password',
         ])->assertSessionHasErrors('email');
+
         patch(route('master-data.users.update', $target), [
             'name' => $target->name, 'email' => 'Existing@Example.Test', 'status' => 'invalid',
+
         ])->assertSessionHasErrors(['email', 'status']);
+
         patch(route('master-data.users.status', $target), ['status' => 'invalid'])->assertSessionHasErrors('status');
     });
 
@@ -183,6 +197,7 @@ describe('User management', function (): void {
             'name' => 'Preview', 'email' => 'preview@example.test',
             'password' => 'initial-password', 'password_confirmation' => 'initial-password',
         ], ['Precognition' => 'true'])->assertNoContent();
+
         assertDatabaseMissing('users', ['email' => 'preview@example.test']);
     });
 
@@ -195,7 +210,9 @@ describe('User management', function (): void {
         actingAs($actor)->patch(route('master-data.users.update', $target), [
             'name' => 'Changed', 'email' => $target->email, 'status' => 'disabled',
         ])->assertForbidden();
+
         patch(route('master-data.users.status', $target), ['status' => 'disabled'])->assertForbidden();
+
         expect($target->refresh()->status)->toBe(UserStatus::Active);
     });
 
@@ -203,8 +220,10 @@ describe('User management', function (): void {
         $actor = User::factory()->create();
         assignRolePermissions($actor, Permission::ManageUsers);
         actingAs($actor)->patch(route('master-data.users.status', $actor), ['status' => 'disabled'])->assertForbidden();
+
         patch(route('master-data.users.update', $actor), [
             'name' => $actor->name, 'email' => $actor->email, 'status' => 'disabled',
+
         ])->assertForbidden();
     });
 
@@ -213,8 +232,11 @@ describe('User management', function (): void {
         assignRolePermissions($actor, Permission::ManageUsers);
         $target = User::factory()->create();
         actingAs($actor)->patch(route('master-data.users.status', $target), ['status' => 'disabled'])->assertRedirect();
+
         assertDatabaseHas('users', ['id' => $target->id, 'status' => 'disabled']);
+
         patch(route('master-data.users.status', $target), ['status' => 'active'])->assertRedirect();
+
         assertDatabaseHas('users', ['id' => $target->id, 'status' => 'active']);
     });
 
@@ -225,8 +247,11 @@ describe('User management', function (): void {
         }
         $target = User::factory()->create();
         actingAs($actor);
+
         get(route('master-data.users.index'))->assertStatus($canView ? 200 : 403);
+
         getJson(route('master-data.users.export'))->assertStatus($canView ? 200 : 403);
+
         post(route('master-data.users.store'), [])->assertForbidden();
         patch(route('master-data.users.update', $target), [])->assertForbidden();
         patch(route('master-data.users.status', $target), ['status' => 'disabled'])->assertForbidden();
@@ -235,9 +260,11 @@ describe('User management', function (): void {
     it('requires authentication and valid UUID route bindings', function (): void {
         get(route('master-data.users.index'))->assertRedirect(route('login'));
         post(route('master-data.users.store'), [])->assertRedirect(route('login'));
+
         $actor = User::factory()->create();
         assignRolePermissions($actor, Permission::ManageUsers);
         actingAs($actor)->patch(route('master-data.users.update', 'invalid'), [])->assertNotFound();
+
         patch(route('master-data.users.update', '00000000-0000-4000-8000-000000000000'), [])->assertNotFound();
     });
 
@@ -253,7 +280,9 @@ describe('User management', function (): void {
         assignRolePermissions($actor, Permission::ViewUsers);
         User::factory()->count(25)->create();
         actingAs($actor);
+
         get(route('master-data.users.index', ['per_page' => 10]))->assertOk();
+
         DB::enableQueryLog();
         getJson(route('master-data.users.export', ['filter' => ['search' => 'no matching records']]))->assertOk();
         $emptyCount = count(DB::getQueryLog());
@@ -261,6 +290,7 @@ describe('User management', function (): void {
         getJson(route('master-data.users.export'))->assertOk();
         $fullCount = count(DB::getQueryLog());
         DB::disableQueryLog();
+
         expect($fullCount - $emptyCount)->toBeLessThanOrEqual(3);
     });
 });

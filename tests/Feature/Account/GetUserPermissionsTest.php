@@ -15,6 +15,7 @@ describe('Shared application permissions', function (): void {
     it('shares an empty permission list for guests', function (): void {
         get(route('login'))->assertOk()->assertInertia(fn (Assert $page) => $page
             ->where('auth.permissions', [])
+
         );
     });
 
@@ -24,7 +25,9 @@ describe('Shared application permissions', function (): void {
 
         get(route('dashboard'))->assertOk()->assertInertia(fn (Assert $page) => $page
             ->where('auth.permissions', [])
+
         );
+
         get(route('profile.edit'))->assertOk();
         get(route('sessions.index'))->assertRedirect(route('password.confirm'));
     });
@@ -34,6 +37,7 @@ describe('Shared application permissions', function (): void {
 
         get(route('dashboard'))->assertOk()->assertInertia(fn (Assert $page) => $page
             ->where('auth.permissions', ['users.view'])
+
         );
     });
 
@@ -46,6 +50,7 @@ describe('Shared application permissions', function (): void {
             ->where('auth.permissions', [
                 'system.view', 'backups.manage', 'audit.view', 'settings.view', 'settings.manage', 'users.view', 'users.manage', 'users.permissions.assign', 'documentation.view', 'documentation.manage',
             ])
+
         );
     });
 

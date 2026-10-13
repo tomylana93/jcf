@@ -14,6 +14,7 @@ describe('Audit and notification browser flows', function (): void {
         $user = User::factory()->create();
         $user->notify(new ApplicationNotification('account_updated'));
         actingAs($user);
+
         visit(route('dashboard', absolute: false))
             ->click('[data-test="notification-bell"]')
             ->assertSee(__('notification.message.account_updated'))
@@ -21,6 +22,7 @@ describe('Audit and notification browser flows', function (): void {
             ->click(__('notification.status.unread'))
             ->assertSee(__('notification.helper.empty'))
             ->assertNoJavaScriptErrors();
+
         expect($user->unreadNotifications()->count())->toBe(0);
     });
 
@@ -29,6 +31,7 @@ describe('Audit and notification browser flows', function (): void {
         assignRolePermissions($user, Permission::ViewAuditLogs);
         AuditLog::factory()->create(['subject_label' => 'Audit browser target']);
         actingAs($user);
+
         visit(route('audit.index', absolute: false))->on()->mobile()
             ->assertSee('Audit browser target')
             ->click(__('audit.button.detail'))

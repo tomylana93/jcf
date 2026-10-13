@@ -35,6 +35,7 @@ describe('Basic settings and account browser flows', function (): void {
 
     it('persists the selected locale through navigation', function (): void {
         $page = visit(route('login', absolute: false));
+
         $page->click('[aria-label="'.__('locale.label.change').'"]')
             ->click('[role="menuitemradio"][aria-label="Indonesian"]')
             ->assertSee('Lupa password?')

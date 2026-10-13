@@ -9,18 +9,22 @@ describe('Editor schema', function (): void {
     it('renders internal URLs and anchors in the same tab with escaped parameters', function (string $href): void {
         $text = ['type' => 'text', 'text' => 'Application page', 'marks' => [['type' => 'link', 'attrs' => ['href' => $href, 'target' => '_blank', 'title' => 'Guide "Application"']]]];
         $document = ['type' => 'doc', 'content' => [['type' => 'paragraph', 'content' => [$text]]]];
+
         $output = resolve(RenderEditorContent::class)->handle($document);
+
         expect($output['html'])->toContain('href="'.e($href).'"', 'target="_self"', 'title="Guide &quot;Application&quot;"', '>Application page</a>');
     })->with(['/dashboard', '/documentation?search=email&sort=title#help', '#section']);
 
     it('rejects malformed link titles', function (): void {
         $text = ['type' => 'text', 'text' => 'Guide', 'marks' => [['type' => 'link', 'attrs' => ['href' => '/documentation', 'title' => ['unsafe']]]]];
+
         expect(fn () => resolve(RenderEditorContent::class)->handle(['type' => 'doc', 'content' => [['type' => 'paragraph', 'content' => [$text]]]]))->toThrow(ValidationException::class);
     });
 
     it('rejects internal-looking URLs that can become protocol-relative browser links', function (): void {
         $href = '/'.chr(92).'other.example/path';
         $text = ['type' => 'text', 'text' => 'Application page', 'marks' => [['type' => 'link', 'attrs' => ['href' => $href]]]];
+
         expect(fn () => resolve(RenderEditorContent::class)->handle(['type' => 'doc', 'content' => [['type' => 'paragraph', 'content' => [$text]]]]))->toThrow(ValidationException::class);
     });
 
@@ -30,13 +34,16 @@ describe('Editor schema', function (): void {
             ['type' => 'tableRow', 'content' => [['type' => 'tableHeader', 'attrs' => ['colspan' => 2, 'rowspan' => 2, 'colwidth' => [120, 180], 'align' => 'center'], 'content' => [$paragraph]], ['type' => 'tableCell', 'content' => [$paragraph]]]],
             ['type' => 'tableRow', 'content' => [['type' => 'tableCell', 'attrs' => ['colspan' => 1, 'rowspan' => 1, 'colwidth' => null, 'align' => null], 'content' => [['type' => 'paragraph']]]]],
         ]]]];
+
         $output = resolve(RenderEditorContent::class)->handle($document);
+
         expect($output['html'])->toContain('<table><tbody><tr>', '<th colspan="2" rowspan="2" colwidth="120,180" style="text-align: center">', '<td><p>Value &lt;unsafe&gt;</p></td>', '</tbody></table>')
             ->and($output['text'])->toContain('Value <unsafe>');
     });
 
     it('rejects malformed table cells and unsafe attributes', function (array $attrs): void {
         $document = ['type' => 'doc', 'content' => [['type' => 'table', 'content' => [['type' => 'tableRow', 'content' => [['type' => 'tableCell', 'attrs' => $attrs, 'content' => [['type' => 'paragraph']]]]]]]]];
+
         expect(fn () => resolve(RenderEditorContent::class)->handle($document))->toThrow(ValidationException::class);
     })->with([
         'unsafe attribute' => [['onclick' => 'alert(1)']],
@@ -54,6 +61,7 @@ describe('Editor schema', function (): void {
         for ($i = 0; $i < 70; $i++) {
             $node = ['type' => 'blockquote', 'content' => [$node]];
         }
+
         expect(fn () => $renderer->handle(['type' => 'doc', 'content' => [$node]]))->toThrow(ValidationException::class)
             ->and(fn () => $renderer->handle(['type' => 'doc', 'content' => [['type' => 'paragraph', 'content' => [['type' => 'text', 'text' => "\xFF"]]]]]))->toThrow(ValidationException::class)
             ->and(fn () => $renderer->handle(['type' => 'doc', 'content' => array_fill(0, 10_001, ['type' => 'paragraph'])]))->toThrow(ValidationException::class);
@@ -71,7 +79,9 @@ describe('Editor schema', function (): void {
             ['type' => 'codeBlock', 'attrs' => ['language' => 'php'], 'content' => [['type' => 'text', 'text' => '<?php echo "Hi";']]],
             ['type' => 'horizontalRule'],
         ]];
+
         $output = resolve(RenderEditorContent::class)->handle($document);
+
         expect($output['html'])->toContain('<strong>', '<em>', '<u>', '<s>', '<code>', '<br>', '<h2>Heading</h2>', '<ul>', '<ol start="3">', '<blockquote>', '<pre>', '<hr>', '&lt;code&gt;', 'rel="noopener noreferrer nofollow"')
             ->and($output['text'])->toContain('Heading', 'Example <code>', '<?php echo "Hi";')->not->toContain('<strong>');
     });
@@ -108,10 +118,12 @@ describe('Editor schema', function (): void {
     it('rejects oversized and deeply nested documents', function (): void {
         expect(fn () => resolve(RenderEditorContent::class)->handle(['type' => 'paragraph']))->toThrow(ValidationException::class)
             ->and(fn () => resolve(RenderEditorContent::class)->handle(['type' => 'doc', 'content' => [['type' => 'paragraph', 'content' => [['type' => 'text', 'text' => str_repeat('x', 500_001)]]]]]))->toThrow(ValidationException::class);
+
         $node = ['type' => 'paragraph'];
         for ($i = 0; $i < 31; $i++) {
             $node = ['type' => 'blockquote', 'content' => [$node]];
         }
+
         expect(fn () => resolve(RenderEditorContent::class)->handle(['type' => 'doc', 'content' => [$node]]))->toThrow(ValidationException::class);
     });
 });

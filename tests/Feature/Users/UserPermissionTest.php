@@ -45,6 +45,7 @@ describe('Direct user permissions', function (): void {
         $target->givePermissionTo(PermissionModel::findOrCreate('users.view', 'web'));
 
         actingAs($actor);
+
         get(route('permissions.index', ['filter' => ['search' => 'permission target']]))
             ->assertInertia(fn (Assert $page): Assert => $page->component('user-permissions/Index')
                 ->has('users.data', 1)->where('users.data.0.id', $target->id)
@@ -66,20 +67,25 @@ describe('Direct user permissions', function (): void {
 
         patch(route('permissions.update', $target), [
             'permissions' => ['settings.view', 'audit.view'], 'role' => 'superadmin', 'status' => 'disabled',
+
         ])->assertRedirect()->assertSessionHasNoErrors();
 
         $target->refresh();
+
         expect($target->getDirectPermissions()->pluck('name')->all())->toBe(['audit.view'])
             ->and($target->roles->sole()->id)->toBe($roleId)
             ->and($target->status->value)->toBe('active')
             ->and($target->can(Permission::ViewSettings))->toBeTrue()
             ->and($target->can(Permission::ViewUsers))->toBeFalse();
+
         $audit = AuditLog::query()->where('event', 'user.permissions_updated')->sole();
+
         expect($audit->actor_id)->toBe($actor->id)
             ->and($audit->subject_id)->toBe($target->id)
             ->and($audit->before)->toBe(['permissions' => ['users.view']])
             ->and($audit->after)->toBe(['permissions' => ['audit.view']])
             ->and($target->notifications()->sole()->data)->toBe(['kind' => 'permissions_updated', 'subject' => '']);
+
         Log::shouldHaveReceived('info')->once()->with('User direct permissions updated', [
             'actor_id' => $actor->id, 'user_id' => $target->id,
             'before' => ['users.view'], 'after' => ['audit.view'], 'changed_at' => now()->toIso8601String(),
@@ -113,6 +119,7 @@ describe('Direct user permissions', function (): void {
 
         expect(AuditLog::query()->count())->toBe(0)
             ->and($target->notifications()->count())->toBe(0);
+
         Log::shouldNotHaveReceived('info');
     });
 
@@ -152,9 +159,11 @@ describe('Direct user permissions', function (): void {
         get(route('permissions.edit', $target))->assertInertia(fn (Assert $page): Assert => $page
             ->component('user-permissions/Edit')->has('permissions', 1)
             ->where('permissions.0.value', 'users.view')->where('user.inherited_permissions', ['settings.view']));
+
         foreach (['system.view', 'legacy.permission', 'audit.view'] as $value) {
             patch(route('permissions.update', $target), ['permissions' => [$value]])->assertSessionHasErrors('permissions.0');
         }
+
         expect($target->fresh()->getDirectPermissions())->toBeEmpty();
     });
 
@@ -168,6 +177,7 @@ describe('Direct user permissions', function (): void {
         get(route('permissions.index'))->assertForbidden();
         get(route('permissions.edit', $target))->assertForbidden();
         patch(route('permissions.update', $target), ['permissions' => []])->assertForbidden();
+
         expect($target->fresh()->getDirectPermissions())->toBeEmpty();
     });
 
@@ -180,6 +190,7 @@ describe('Direct user permissions', function (): void {
 
         get(route('permissions.edit', $target))->assertInertia(fn (Assert $page): Assert => $page->where('user.super_admin', true));
         patch(route('permissions.update', $target), ['permissions' => []])->assertForbidden();
+
         expect($target->fresh()->getDirectPermissions())->toBeEmpty();
     });
 

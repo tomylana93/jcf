@@ -13,8 +13,8 @@ use function Pest\Laravel\from;
 use function Pest\Laravel\get;
 use function Pest\Laravel\patch;
 
-describe('Profile settings', function () {
-    it('renders the profile page', function () {
+describe('Profile settings', function (): void {
+    it('renders the profile page', function (): void {
         $user = User::factory()->create();
 
         actingAs($user);
@@ -24,7 +24,7 @@ describe('Profile settings', function () {
         $response->assertOk();
     });
 
-    it('updates profile information and clears email verification', function () {
+    it('updates profile information and clears email verification', function (): void {
         $user = User::factory()->create();
 
         actingAs($user);
@@ -32,6 +32,7 @@ describe('Profile settings', function () {
         $response = patch(route('profile.update'), [
             'name' => 'Test User',
             'email' => 'test@example.com',
+
         ]);
 
         $response
@@ -45,7 +46,7 @@ describe('Profile settings', function () {
             ->and($user->email_verified_at)->toBeNull();
     });
 
-    it('preserves verification when the email address is unchanged', function () {
+    it('preserves verification when the email address is unchanged', function (): void {
         $user = User::factory()->create();
 
         actingAs($user);
@@ -53,6 +54,7 @@ describe('Profile settings', function () {
         $response = patch(route('profile.update'), [
             'name' => 'Test User',
             'email' => $user->email,
+
         ]);
 
         $response
@@ -62,13 +64,14 @@ describe('Profile settings', function () {
         expect($user->refresh()->email_verified_at)->not->toBeNull();
     });
 
-    it('disables the account while retaining its data', function () {
+    it('disables the account while retaining its data', function (): void {
         $user = User::factory()->create();
 
         actingAs($user);
 
         $response = delete(route('profile.disable'), [
             'password' => 'password',
+
         ]);
 
         $response
@@ -80,7 +83,7 @@ describe('Profile settings', function () {
             ->and($user->refresh()->exists)->toBeTrue();
     });
 
-    it('forbids superadministrators from disabling their account directly', function () {
+    it('forbids superadministrators from disabling their account directly', function (): void {
         $user = User::factory()->create();
         $user->assignRole(Role::SuperAdmin);
 
@@ -89,7 +92,7 @@ describe('Profile settings', function () {
         expect($user->refresh()->status)->toBe(UserStatus::Active);
     });
 
-    it('keeps the account active when the password is incorrect', function () {
+    it('keeps the account active when the password is incorrect', function (): void {
         $user = User::factory()->create();
 
         actingAs($user);
@@ -97,6 +100,7 @@ describe('Profile settings', function () {
 
         $response = delete(route('profile.disable'), [
             'password' => 'wrong-password',
+
         ]);
 
         $response

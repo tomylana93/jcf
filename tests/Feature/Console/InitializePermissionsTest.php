@@ -44,7 +44,9 @@ describe('Permission initialization', function (): void {
         $existing = Permission::factory()->create(['name' => CorePermission::ViewUsers->value]);
 
         artisan('init:permission')->assertSuccessful();
+
         $identifiers = Permission::query()->orderBy('name')->pluck('id', 'name')->all();
+
         artisan('init:permission')->assertSuccessful();
 
         expect(Permission::query()->orderBy('name')->pluck('id', 'name')->all())->toBe($identifiers)

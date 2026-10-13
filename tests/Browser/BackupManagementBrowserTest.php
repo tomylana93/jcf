@@ -13,6 +13,7 @@ use function Pest\Laravel\artisan;
 describe('Backup dialogs', function (): void {
     it('validates the upload dialog and cancels or confirms restore from the row action menu', function (): void {
         artisan('init:permission')->assertSuccessful();
+
         $user = User::factory()->create();
         $user->syncRoles(Role::SuperAdmin);
         $disk = Storage::fake('backups');
@@ -31,6 +32,7 @@ describe('Backup dialogs', function (): void {
             ->click(__('backup.button.restore'))
             ->assertSee(__('backup.card.restore'))
             ->click(__('common.button.cancel'));
+
         Queue::assertNothingPushed();
 
         $browser->click('tr:has-text("test.zip") button[aria-label="Actions"]')
