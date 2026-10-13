@@ -24,9 +24,18 @@ const showImageOnly = computed(
                     :alt="name"
                     class="block h-8 w-40 object-contain object-left"
                 />
-                <span v-else class="truncate text-sm font-semibold">{{
-                    name
-                }}</span>
+                <template v-else>
+                    <img
+                        src="/logo-wordmark.svg"
+                        :alt="name"
+                        class="block h-8 w-40 object-contain object-left dark:hidden"
+                    />
+                    <img
+                        src="/logo-wordmark-dark.svg"
+                        :alt="name"
+                        class="hidden h-8 w-40 object-contain object-left dark:block"
+                    />
+                </template>
             </span>
         </template>
         <template v-else>
