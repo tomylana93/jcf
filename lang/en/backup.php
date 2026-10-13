@@ -41,7 +41,7 @@ return [
         'restore_queued' => 'Restore queued. The application will enter maintenance mode.',
     ],
 
-    'backup_status' => [
+    'badge' => [
         'idle' => 'Idle',
         'running' => 'Running',
         'completed' => 'Completed',

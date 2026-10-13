@@ -24,7 +24,7 @@ const sidebarNavItems = computed<NavItem[]>(() => [
         title: t('account.link.security'),
         href: editSecurity(),
     },
-    { title: t('sessions.title'), href: sessionsIndex() },
+    { title: t('account.sessions.title'), href: sessionsIndex() },
 ]);
 
 const { isCurrentOrParentUrl } = useCurrentUrl();

@@ -41,7 +41,7 @@ return [
         'restore_queued' => 'Restore masuk antrean. Aplikasi akan masuk mode pemeliharaan.',
     ],
 
-    'backup_status' => [
+    'badge' => [
         'idle' => 'Siaga',
         'running' => 'Berjalan',
         'completed' => 'Selesai',
