@@ -39,4 +39,15 @@ final class UserPolicy
             && ! $target->hasRole(Role::SuperAdmin)
             && ! $target->is($user);
     }
+
+    public function viewPermissions(User $user): bool
+    {
+        return $user->can(Permission::AssignUserPermissions);
+    }
+
+    public function assignPermissions(User $user, User $target): bool
+    {
+        return $user->can(Permission::AssignUserPermissions)
+            && ! $target->hasRole(Role::SuperAdmin);
+    }
 }

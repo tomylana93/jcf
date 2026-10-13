@@ -15,6 +15,7 @@ return [
     'label' => [
         'search' => 'Search',
         'direct' => 'Direct permissions',
+        'inherited' => 'Permissions inherited from role',
         'added' => 'Added',
         'removed' => 'Removed',
         'module' => 'Module',
@@ -28,6 +29,7 @@ return [
 
     'helper' => [
         'all_access' => 'Has full access',
+        'inherited' => 'Role permissions remain active and cannot be removed here.',
         'unchanged' => 'No changes yet.',
         'no_results' => 'No permissions found.',
     ],
