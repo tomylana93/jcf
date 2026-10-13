@@ -62,12 +62,12 @@ export function createAdminNavigationGroups(
         {
             title: t('navigation.group.admin'),
             items: [
-                ...(canManageDocumentation
+                ...(canViewUsers || canManageBackups
                     ? [
                           {
-                              title: t('navigation.link.manage_documentation'),
-                              href: manageDocumentationIndex(),
-                              icon: FilePenLine,
+                              title: t('navigation.link.master_data'),
+                              href: masterDataIndex(),
+                              icon: Users,
                           },
                       ]
                     : []),
@@ -80,12 +80,21 @@ export function createAdminNavigationGroups(
                           },
                       ]
                     : []),
-                ...(canViewSystem
+                ...(canViewSettings
                     ? [
                           {
-                              title: t('navigation.link.system'),
-                              href: systemIndex(),
-                              icon: Activity,
+                              title: t('navigation.link.settings'),
+                              href: settingsIndex(),
+                              icon: Settings,
+                          },
+                      ]
+                    : []),
+                ...(canManageDocumentation
+                    ? [
+                          {
+                              title: t('navigation.link.manage_documentation'),
+                              href: manageDocumentationIndex(),
+                              icon: FilePenLine,
                           },
                       ]
                     : []),
@@ -98,21 +107,12 @@ export function createAdminNavigationGroups(
                           },
                       ]
                     : []),
-                ...(canViewUsers || canManageBackups
+                ...(canViewSystem
                     ? [
                           {
-                              title: t('navigation.link.master_data'),
-                              href: masterDataIndex(),
-                              icon: Users,
-                          },
-                      ]
-                    : []),
-                ...(canViewSettings
-                    ? [
-                          {
-                              title: t('navigation.link.settings'),
-                              href: settingsIndex(),
-                              icon: Settings,
+                              title: t('navigation.link.system'),
+                              href: systemIndex(),
+                              icon: Activity,
                           },
                       ]
                     : []),
