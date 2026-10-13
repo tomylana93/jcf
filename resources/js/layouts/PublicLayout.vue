@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import PublicFooter from '@/components/layout/PublicFooter.vue';
 import PublicNavigation from '@/components/layout/PublicNavigation.vue';
 import { useBrowserTimezone } from '@/composables/useBrowserTimezone';
 import { useTranslations } from '@/composables/useTranslations';
@@ -23,5 +24,6 @@ useBrowserTimezone();
         >
             <slot />
         </main>
+        <PublicFooter />
     </div>
 </template>

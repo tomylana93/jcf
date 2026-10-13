@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
 
+import AuthFooter from '@/components/layout/AuthFooter.vue';
 import AppLogo from '@/components/shared/AppLogo.vue';
 import {
     Card,
@@ -43,5 +44,6 @@ defineProps<{
                 </div>
             </div>
         </main>
+        <AuthFooter />
     </div>
 </template>
