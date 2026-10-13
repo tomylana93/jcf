@@ -36,9 +36,9 @@ return [
 
     'status' => [
         'deleted' => 'Backup berhasil dihapus.',
-        'queued' => 'Backup masuk queue. Notifikasi akan melaporkan hasilnya.',
+        'queued' => 'Backup masuk antrean. Notifikasi akan melaporkan hasilnya.',
         'uploaded' => 'Backup berhasil di-upload dan divalidasi.',
-        'restore_queued' => 'Restore masuk queue. Aplikasi akan masuk maintenance mode.',
+        'restore_queued' => 'Restore masuk antrean. Aplikasi akan masuk mode pemeliharaan.',
     ],
 
     'error' => [

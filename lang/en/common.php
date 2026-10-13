@@ -3,11 +3,6 @@
 declare(strict_types=1);
 
 return [
-    'label' => [
-        'application_version' => 'Application version',
-        'starterkit_version' => 'Starterkit version',
-    ],
-
     'helper' => [
         'or' => 'or',
     ],

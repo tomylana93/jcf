@@ -45,9 +45,6 @@ return [
             'title' => 'Update password',
             'description' => 'Gunakan password panjang dan acak untuk melindungi akun.',
         ],
-        'status' => [
-            'password_updated' => 'Password berhasil di-update.',
-        ],
     ],
 
     'avatar' => [

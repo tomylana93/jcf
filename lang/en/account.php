@@ -45,9 +45,6 @@ return [
             'title' => 'Update password',
             'description' => 'Use a long, random password to protect the account.',
         ],
-        'status' => [
-            'password_updated' => 'Password updated.',
-        ],
     ],
 
     'avatar' => [

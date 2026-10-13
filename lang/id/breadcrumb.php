@@ -6,7 +6,6 @@ return [
     'documentation' => 'Dokumentasi',
     'audit' => 'Audit log',
     'notifications' => 'Notifikasi',
-    'dashboard' => 'Dashboard',
     'settings' => 'Pengaturan',
     'general' => 'Pengaturan umum',
     'brand' => 'Pengaturan Brand',

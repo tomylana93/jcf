@@ -20,22 +20,16 @@ return [
         'home' => 'Home',
         'system' => 'System health',
         'audit' => 'Audit log',
-        'notifications' => 'Notifications',
-        'users' => 'Users',
         'dashboard' => 'Dashboard',
         'settings' => 'Settings',
         'permission' => 'Permission',
         'account' => 'Account',
         'master_data' => 'Master Data',
-        'repository' => 'Repository',
         'manage_documentation' => 'Manage Documentation',
         'documentation' => 'Documentation',
     ],
 
     'group' => [
-        'navigation' => 'Navigation',
         'admin' => 'Admin',
-        'platform' => 'Platform',
-        'resources' => 'Resources',
     ],
 ];

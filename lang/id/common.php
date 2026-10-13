@@ -3,11 +3,6 @@
 declare(strict_types=1);
 
 return [
-    'label' => [
-        'application_version' => 'Versi aplikasi',
-        'starterkit_version' => 'Versi starterkit',
-    ],
-
     'helper' => [
         'or' => 'atau',
     ],

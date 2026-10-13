@@ -20,22 +20,16 @@ return [
         'home' => 'Beranda',
         'system' => 'Kesehatan sistem',
         'audit' => 'Audit log',
-        'notifications' => 'Notifikasi',
-        'users' => 'Pengguna',
         'dashboard' => 'Dashboard',
         'settings' => 'Pengaturan',
         'permission' => 'Permission',
         'account' => 'Akun',
         'master_data' => 'Master Data',
-        'repository' => 'Repository',
         'manage_documentation' => 'Kelola Dokumentasi',
         'documentation' => 'Dokumentasi',
     ],
 
     'group' => [
-        'navigation' => 'Navigasi',
         'admin' => 'Admin',
-        'platform' => 'Platform',
-        'resources' => 'Resources',
     ],
 ];
