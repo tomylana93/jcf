@@ -94,8 +94,8 @@
             "pnpm run types:check"
         ],
         "test:backend": [
-            "@test:prepare",
             "@test:lint",
+            "@test:prepare",
             "@test:types",
             "@test:type-coverage",
             "@test:unit",
