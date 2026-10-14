@@ -39,7 +39,7 @@ pest()->extend(TestCase::class)
         Str::createUuidsNormally();
         Http::preventStrayRequests();
         config([
-            'operations.backup_lock_directory' => storage_path('framework/testing/backup-locks-'.getmypid()),
+            'jalara.operations.backup_lock_directory' => storage_path('framework/testing/backup-locks-'.getmypid()),
             'cache.stores.file.path' => storage_path('framework/testing/file-cache-'.getmypid()),
             'cache.stores.file.lock_path' => storage_path('framework/testing/file-cache-'.getmypid()),
         ]);
@@ -149,7 +149,7 @@ function withIsolatedRestoreDatabase(Closure $test, string $connection = 'restor
 function isolateBackupOperations(): TemporaryDirectory
 {
     $directory = new TemporaryDirectory(storage_path('framework/testing/active-restore'))->create();
-    config(['operations.restore_files_directory' => $directory->path('active'), 'operations.restore_directory' => $directory->path('staging'), 'operations.backup_enabled' => true, 'backup.backup.password' => 'test-secret']);
+    config(['jalara.operations.restore_files_directory' => $directory->path('active'), 'jalara.operations.restore_directory' => $directory->path('staging'), 'jalara.operations.backup_enabled' => true, 'backup.backup.password' => 'test-secret']);
     File::ensureDirectoryExists($directory->path('active'));
     app()->instance(MaintenanceMode::class, new class($directory->path('maintenance.json')) extends FileBasedMaintenanceMode
     {

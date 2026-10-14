@@ -12,7 +12,7 @@ final readonly class CreateBackup
 
     public function handle(): string
     {
-        if (! config('operations.backup_enabled') || ! config('backup.backup.password')) {
+        if (! config('jalara.operations.backup_enabled') || ! config('backup.backup.password')) {
             throw new RuntimeException(__('backup.error.not_configured'));
         }
 

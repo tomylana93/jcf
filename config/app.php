@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Support\Jalara;
+
 return [
 
     /*
@@ -15,7 +17,9 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', Jalara::Name),
+
+    'description' => env('APP_DESCRIPTION', Jalara::Description),
 
     /*
     |--------------------------------------------------------------------------

@@ -21,9 +21,9 @@ final class CreateSystemAdmin extends Command
     public function handle(): int
     {
         $validator = Validator::make([
-            'name' => config('superadmin.name'),
-            'email' => config('superadmin.email'),
-            'password' => config('superadmin.password'),
+            'name' => config('jalara.superadmin.name'),
+            'email' => config('jalara.superadmin.email'),
+            'password' => config('jalara.superadmin.password'),
         ], [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255'],

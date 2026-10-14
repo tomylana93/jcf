@@ -83,7 +83,7 @@ describe('Realtime notification browser lifecycle', function (): void {
             ->assertNoJavaScriptErrors();
         $page->script('() => { window.realtimeClosed = false; const socket = window.realtimeChannel; const close = socket.close.bind(socket); socket.close = () => { window.realtimeClosed = true; sessionStorage.setItem("realtimeClosed", "yes"); close(); }; }');
         $page->click('[data-test="sidebar-menu-button"]')->click('[data-test="logout-button"]');
-        $page->assertUrlIs(route('login'))->assertNoJavaScriptErrors();
+        $page->assertUrlIs(route('home'))->assertNoJavaScriptErrors();
 
         expect($page->script('() => sessionStorage.getItem("realtimeClosed")'))->toBe('yes');
     });

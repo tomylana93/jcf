@@ -14,14 +14,14 @@ use function Pest\Laravel\patch;
 
 describe('General settings', function (): void {
     it('initializes support email from superadmin configuration', function (): void {
-        config(['superadmin.email' => 'initial@example.com']);
+        config(['jalara.superadmin.email' => 'initial@example.com']);
         $migration = require glob(database_path('settings/*create_general_settings.php'))[0];
         $migration->down();
 
         $migration->up();
 
         expect(resolve(GeneralSettings::class)->refresh()->support_email)->toBe('initial@example.com')
-            ->and(resolve(GeneralSettings::class)->public_pages_enabled)->toBeFalse();
+            ->and(resolve(GeneralSettings::class)->public_pages_enabled)->toBeTrue();
     });
 
     it('redirects guests to login', function (): void {
@@ -67,7 +67,7 @@ describe('General settings', function (): void {
     it('shows settings and configured support email with read-only access', function (): void {
         $user = User::factory()->create();
         assignRolePermissions($user, Permission::ViewSettings);
-        config(['superadmin.email' => 'support@example.com']);
+        config(['jalara.superadmin.email' => 'support@example.com']);
         $name = resolve(GeneralSettings::class)->site_name;
 
         actingAs($user)->get(route('settings.general.edit'))->assertInertia(fn (Assert $page): Assert => $page
@@ -75,7 +75,7 @@ describe('General settings', function (): void {
             ->where('settings.site_name', $name)
             ->where('settings.site_description', 'A modern, modular starterkit for building simple, purposeful applications.')
             ->where('settings.support_email', resolve(GeneralSettings::class)->support_email)
-            ->where('settings.public_pages_enabled', false)
+            ->where('settings.public_pages_enabled', true)
             ->where('auth.permissions', ['settings.view']));
 
         patch(route('settings.general.update'), ['site_name' => 'Unauthorized', 'site_description' => '', 'support_email' => null, 'public_pages_enabled' => false])->assertForbidden();
@@ -87,7 +87,7 @@ describe('General settings', function (): void {
         $settings = resolve(GeneralSettings::class);
         $settings->support_email = 'stored@example.com';
         $settings->save();
-        config(['superadmin.email' => null]);
+        config(['jalara.superadmin.email' => null]);
 
         actingAs($user)->get(route('settings.general.edit'))->assertInertia(fn (Assert $page): Assert => $page->where('settings.support_email', 'stored@example.com'));
     });
@@ -95,7 +95,7 @@ describe('General settings', function (): void {
     it('saves settings and returns the updated global brand after redirect', function (): void {
         $user = User::factory()->create();
         assignRolePermissions($user, Permission::ViewSettings, Permission::ManageSettings);
-        config(['superadmin.email' => 'support@example.com']);
+        config(['jalara.superadmin.email' => 'support@example.com']);
 
         actingAs($user)->patch(route('settings.general.update'), [
             'site_name' => 'New Brand',

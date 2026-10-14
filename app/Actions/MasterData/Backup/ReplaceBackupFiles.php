@@ -14,7 +14,7 @@ final class ReplaceBackupFiles
 {
     public function handle(TemporaryDirectory $directory, Closure $importDatabase): void
     {
-        $root = config('operations.restore_files_directory');
+        $root = config('jalara.operations.restore_files_directory');
         $swapped = [];
         try {
             foreach (['private', 'public'] as $name) {

@@ -17,7 +17,7 @@ final readonly class RestoreActiveBackup
 
     public function handle(string $filename, string $checksum): void
     {
-        throw_unless(config('operations.backup_enabled') && config('backup.backup.password'), RuntimeException::class, __('backup.error.not_configured'));
+        throw_unless(config('jalara.operations.backup_enabled') && config('backup.backup.password'), RuntimeException::class, __('backup.error.not_configured'));
         $lock = $this->getBackupLock->handle();
         throw_unless($lock->get(), RuntimeException::class, __('backup.error.busy'));
         try {

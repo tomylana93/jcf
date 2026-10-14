@@ -35,12 +35,20 @@ describe('Public home', function (): void {
     })->with([false, true]);
 
     it('redirects guests to login when disabled and retains the intended URL', function (): void {
+        $settings = resolve(GeneralSettings::class);
+        $settings->public_pages_enabled = false;
+        $settings->save();
+
         withSession(['url.intended' => route('profile.edit')]);
 
         get('/')->assertRedirect(route('login'))->assertSessionHas('url.intended', route('profile.edit'));
     });
 
     it('redirects signed-in users to their intended destination when disabled', function (): void {
+        $settings = resolve(GeneralSettings::class);
+        $settings->public_pages_enabled = false;
+        $settings->save();
+
         actingAs(User::factory()->create());
         withSession(['url.intended' => route('profile.edit')]);
 
@@ -48,12 +56,20 @@ describe('Public home', function (): void {
     });
 
     it('redirects signed-in users to dashboard without an intended destination', function (): void {
+        $settings = resolve(GeneralSettings::class);
+        $settings->public_pages_enabled = false;
+        $settings->save();
+
         actingAs(User::factory()->create());
 
         get('/')->assertRedirect(route('dashboard'));
     });
 
     it('redirects the home page until public pages are enabled', function (): void {
+        $settings = resolve(GeneralSettings::class);
+        $settings->public_pages_enabled = false;
+        $settings->save();
+
         get(route('home'))->assertRedirect(route('login'));
 
         $settings = resolve(GeneralSettings::class);

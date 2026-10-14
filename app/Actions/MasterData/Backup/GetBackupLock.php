@@ -12,6 +12,6 @@ final class GetBackupLock
 {
     public function handle(): Lock
     {
-        return new FileStore(new Filesystem, config('operations.backup_lock_directory'))->lock('system.backup', 1900);
+        return new FileStore(new Filesystem, config('jalara.operations.backup_lock_directory'))->lock('system.backup', 1900);
     }
 }

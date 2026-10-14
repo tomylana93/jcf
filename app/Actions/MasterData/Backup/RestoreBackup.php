@@ -34,7 +34,7 @@ final readonly class RestoreBackup
                     'PGPASSWORD' => (string) $target->getConfig('password'),
                     'PGSSLMODE' => (string) $target->getConfig('sslmode'),
                 ])->input($this->getDatabaseDumpInput->handle($sqlPath, version_compare((string) $target->getPdo()->getAttribute(PDO::ATTR_SERVER_VERSION), '17', '>=')))->run([
-                    config('operations.psql_binary'), '--no-psqlrc', '--no-password',
+                    config('jalara.operations.psql_binary'), '--no-psqlrc', '--no-password',
                     '--host='.(string) $target->getConfig('host'),
                     '--port='.(string) $target->getConfig('port'),
                     '--username='.(string) $target->getConfig('username'),

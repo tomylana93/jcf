@@ -17,7 +17,7 @@ describe('Backup dialogs', function (): void {
         $user = User::factory()->create();
         $user->syncRoles(Role::SuperAdmin);
         $disk = Storage::fake('backups');
-        config(['operations.backup_enabled' => true, 'backup.backup.password' => 'test-secret']);
+        config(['jalara.operations.backup_enabled' => true, 'backup.backup.password' => 'test-secret']);
         createBackupTestArchive(['db-dumps/postgresql-pgsql.sql' => 'SELECT 1;'], 'test-secret');
         Queue::fake([RestoreSystemBackup::class]);
         actingAsWithConfirmedPassword($user);
