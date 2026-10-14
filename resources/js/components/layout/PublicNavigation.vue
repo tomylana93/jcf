@@ -4,7 +4,7 @@ import { Link, usePage } from '@inertiajs/vue3';
 import AppLogo from '@/components/shared/AppLogo.vue';
 import { Button } from '@/components/ui/button';
 import { useTranslations } from '@/composables/useTranslations';
-import { dashboard, home, login } from '@/routes';
+import { dashboard, home } from '@/routes';
 
 const page = usePage();
 
@@ -36,16 +36,8 @@ const siteName = page.props.general.site_name;
                 >
                     {{ t('navigation.link.home') }}
                 </Link>
-                <Button
-                    :as="Link"
-                    :href="page.props.auth.user ? dashboard() : login()"
-                    size="sm"
-                >
-                    {{
-                        page.props.auth.user
-                            ? t('navigation.link.dashboard')
-                            : t('auth.button.login')
-                    }}
+                <Button :as="Link" :href="dashboard()" size="sm">
+                    {{ t('navigation.link.dashboard') }}
                 </Button>
             </nav>
         </div>

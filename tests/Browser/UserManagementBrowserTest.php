@@ -8,6 +8,22 @@ use App\Models\User;
 use function Pest\Laravel\actingAs;
 
 describe('User management browser flows', function (): void {
+    it('exposes the current table sort direction to assistive technology', function (): void {
+        $actor = User::factory()->create();
+        assignRolePermissions($actor, Permission::ViewUsers);
+        actingAs($actor);
+
+        $header = 'th:has-text("'.__('user.label.email').'")';
+
+        visit(route('master-data.users.index', absolute: false))
+            ->assertAttribute($header, 'aria-sort', 'none')
+            ->click($header.' button')
+            ->assertAttribute($header, 'aria-sort', 'ascending')
+            ->click($header.' button')
+            ->assertAttribute($header, 'aria-sort', 'descending')
+            ->assertNoJavaScriptErrors();
+    });
+
     it('creates and edits users through the sheet and searches the table', function (): void {
         $actor = User::factory()->create();
         assignRolePermissions($actor, Permission::ViewUsers, Permission::ManageUsers);

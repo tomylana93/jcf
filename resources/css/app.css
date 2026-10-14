@@ -1,6 +1,33 @@
 @import 'tailwindcss';
 
 @layer components {
+    @media (width < 40rem), (pointer: coarse) {
+        [data-slot='button'],
+        button[data-size],
+        a[data-size],
+        [data-slot='input'],
+        [data-slot='input-group'],
+        [data-slot='input-group-control'],
+        [data-slot='select-trigger'] {
+            @apply min-h-11;
+        }
+
+        [data-slot='button'],
+        button[data-size],
+        a[data-size],
+        [data-slot='select-trigger'] {
+            @apply min-w-11;
+        }
+
+        [data-slot='input-group'] {
+            @apply min-h-12;
+        }
+
+        [data-slot='input-group-addon'][data-align^='inline-'] {
+            @apply py-0;
+        }
+    }
+
     .editor-content {
         @apply leading-7 break-words;
         & > * + * {

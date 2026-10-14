@@ -329,6 +329,16 @@ const search = computed({
                             <TableHead
                                 v-for="header in headerGroup.headers"
                                 :key="header.id"
+                                :aria-sort="
+                                    header.column.getCanSort()
+                                        ? header.column.getIsSorted() === 'asc'
+                                            ? 'ascending'
+                                            : header.column.getIsSorted() ===
+                                                'desc'
+                                              ? 'descending'
+                                              : 'none'
+                                        : undefined
+                                "
                             >
                                 <Button
                                     v-if="header.column.getCanSort()"

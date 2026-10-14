@@ -7,7 +7,12 @@ import { store } from '@/actions/Laravel/Fortify/Http/Controllers/AuthenticatedS
 import PasskeyVerify from '@/components/auth/passkeys/PasskeyVerify.vue';
 import PasswordInput from '@/components/shared/PasswordInput.vue';
 import { Button } from '@/components/ui/button';
-import { Field, FieldError, FieldGroup } from '@/components/ui/field';
+import {
+    Field,
+    FieldError,
+    FieldGroup,
+    FieldLabel,
+} from '@/components/ui/field';
 import {
     InputGroup,
     InputGroupAddon,
@@ -66,10 +71,17 @@ const submit = () => {
         <form novalidate @submit.prevent="submit" class="flex flex-col gap-6">
             <FieldGroup class="gap-6">
                 <Field :data-invalid="!!form.errors.email">
+                    <FieldLabel for="email">{{
+                        t('user.label.email')
+                    }}</FieldLabel>
                     <InputGroup>
                         <InputGroupInput
                             id="email"
                             name="email"
+                            type="email"
+                            inputmode="email"
+                            autocapitalize="none"
+                            spellcheck="false"
                             v-model="form.email"
                             v-focus
                             autocomplete="email"
@@ -93,6 +105,9 @@ const submit = () => {
                 </Field>
 
                 <Field :data-invalid="!!form.errors.password">
+                    <FieldLabel for="password">{{
+                        t('user.label.password')
+                    }}</FieldLabel>
                     <PasswordInput
                         id="password"
                         name="password"
