@@ -59,12 +59,12 @@ describe('Backup archive validation', function (): void {
     })->with(['storage/app/../../outside.txt', '/storage/app/private/file.txt', 'storage\\app\\file.txt', 'storage/app/C:drive', '.env', 'db-dumps/other.dump']);
     it('rejects excessive expanded size and symlinks', function (): void {
         $disk = Storage::fake('backups');
-        config(['operations.restore_max_bytes' => 3]);
+        config(['jalara.operations.restore_max_bytes' => 3]);
         $archive = createBackupTestArchive(['storage/app/public/test.txt' => 'four']);
 
         expect(fn () => resolve(ExtractBackup::class)->handle(...array_values($archive)))->toThrow(RuntimeException::class, 'Unsafe or unsupported backup entry.');
 
-        config(['operations.restore_max_bytes' => 10000]);
+        config(['jalara.operations.restore_max_bytes' => 10000]);
         $zip = new ZipArchive;
         $path = $disk->path('jcf/test.zip');
         $zip->open($path);
@@ -174,7 +174,7 @@ describe('Linux backup and restore integration', function (): void {
                     'backup.backup.source.files.exclude' => [],
                     'backup.backup.source.files.relative_path' => $workspace->path(),
                     'backup.backup.password' => 'integration-only-test-secret',
-                    'operations.backup_enabled' => true,
+                    'jalara.operations.backup_enabled' => true,
                 ]);
                 Config::rebind();
                 Process::swap(new Factory);

@@ -152,7 +152,7 @@ describe('Sensitive change recording', function (): void {
     });
 
     it('retains the actor snapshot after deletion and prunes only expired records', function (): void {
-        config(['audit.retention_days' => 30]);
+        config(['jalara.audit.retention_days' => 30]);
         $actor = User::factory()->create(['name' => 'Former administrator']);
         $old = AuditLog::factory()->create(['actor_id' => $actor->id, 'actor_name' => $actor->name, 'created_at' => now()->subDays(31)]);
         $recent = AuditLog::factory()->create(['created_at' => now()->subDays(29)]);

@@ -1,6 +1,8 @@
 <?php
 
 declare(strict_types=1);
+
+use App\Support\Jalara;
 use Spatie\Backup\Notifications\Notifiable;
 use Spatie\Backup\Notifications\Notifications\BackupHasFailedNotification;
 use Spatie\Backup\Notifications\Notifications\BackupWasSuccessfulNotification;
@@ -55,7 +57,7 @@ return [
         'notifiable' => Notifiable::class,
         'mail' => [
             'to' => env('BACKUP_NOTIFICATION_EMAIL') ?: 'no-reply@example.com',
-            'from' => ['address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'), 'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'JCF'))],
+            'from' => ['address' => env('MAIL_FROM_ADDRESS', Jalara::Email), 'name' => env('MAIL_FROM_NAME', env('APP_NAME', Jalara::Name))],
         ],
     ],
     'log_channel' => null,

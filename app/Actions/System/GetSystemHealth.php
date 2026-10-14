@@ -58,7 +58,7 @@ final readonly class GetSystemHealth
             }),
             $this->check('scheduler', fn (): string => $this->heartbeat('system.scheduler_heartbeat')),
             $this->check('backup', function (): string {
-                if (! config('operations.backup_enabled') || ! config('backup.backup.password')) {
+                if (! config('jalara.operations.backup_enabled') || ! config('backup.backup.password')) {
                     return 'not_configured';
                 }
                 $disk = Storage::disk('backups');
@@ -94,7 +94,7 @@ final readonly class GetSystemHealth
     {
         $timestamp = Cache::get($key);
 
-        return is_int($timestamp) && $timestamp >= now()->timestamp - config('operations.heartbeat_seconds')
+        return is_int($timestamp) && $timestamp >= now()->timestamp - config('jalara.operations.heartbeat_seconds')
             ? 'recent' : 'stale';
     }
 }

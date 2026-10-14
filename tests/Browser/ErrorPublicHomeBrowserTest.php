@@ -23,13 +23,13 @@ describe('Public home and error recovery', function (): void {
         expect($page->script('document.querySelectorAll(\'link[rel="canonical"]\').length'))->toBe(0);
     });
 
-    it('renders a standalone mobile error page and recovers to login', function (): void {
+    it('renders a standalone mobile error page and recovers to home', function (): void {
         app()->instance('env', 'local');
 
         visit('/missing-public-page')->on()->mobile()
             ->assertSee(__('error_page.404.title'))
             ->assertDontSee(__('navigation.link.dashboard'))
             ->assertNoJavaScriptErrors()->screenshot(filename: 'session-six-error-mobile')
-            ->click(__('error_page.action.home'))->assertPathIs('/login')->assertNoJavaScriptErrors();
+            ->click(__('error_page.action.home'))->assertPathIs('/')->assertNoJavaScriptErrors();
     });
 });

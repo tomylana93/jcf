@@ -42,7 +42,7 @@ SQL;
                 'PGPASSWORD' => (string) $connection->getConfig('password'),
                 'PGSSLMODE' => (string) $connection->getConfig('sslmode'),
             ])->run([
-                config('operations.psql_binary'), '--no-psqlrc', '--no-password',
+                config('jalara.operations.psql_binary'), '--no-psqlrc', '--no-password',
                 '--host='.(string) $connection->getConfig('host'),
                 '--port='.(string) $connection->getConfig('port'),
                 '--username='.(string) $connection->getConfig('username'),

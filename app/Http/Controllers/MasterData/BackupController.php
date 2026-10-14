@@ -32,7 +32,7 @@ final class BackupController extends Controller
 
         return Inertia::render('master-data/backups/Index', [
             'backups' => $getBackupPage->handle($request->string('filter.search')->toString(), $request->string('sort', '-created_at')->toString(), $request->integer('per_page', 10), $request->integer('page', 1)),
-            'backupConfigured' => (bool) config('operations.backup_enabled') && (bool) config('backup.backup.password'),
+            'backupConfigured' => (bool) config('jalara.operations.backup_enabled') && (bool) config('backup.backup.password'),
             'backupStatus' => Cache::get('system.backup_status', 'idle'),
             'restoreStatus' => Cache::store('file')->get('system.restore_status', 'idle'),
         ]);
@@ -41,7 +41,7 @@ final class BackupController extends Controller
     public function store(Request $request): RedirectResponse
     {
         Gate::authorize(Permission::ManageBackups);
-        throw_unless(config('operations.backup_enabled') && config('backup.backup.password'), ValidationException::withMessages(['backup' => __('backup.error.not_configured')]));
+        throw_unless(config('jalara.operations.backup_enabled') && config('backup.backup.password'), ValidationException::withMessages(['backup' => __('backup.error.not_configured')]));
         dispatch(new CreateSystemBackup($request->user()->id));
         Inertia::flash('toast', ['type' => 'success', 'message' => __('backup.status.queued')]);
 
@@ -51,8 +51,8 @@ final class BackupController extends Controller
     public function upload(Request $request, UploadBackup $uploadBackup): RedirectResponse
     {
         Gate::authorize(Permission::ManageBackups);
-        throw_unless(config('operations.backup_enabled') && config('backup.backup.password'), ValidationException::withMessages(['archive' => __('backup.error.not_configured')]));
-        $request->validate(['archive' => ['required', 'file', 'mimes:zip', 'extensions:zip', 'max:'.config('operations.backup_upload_max_kilobytes')]]);
+        throw_unless(config('jalara.operations.backup_enabled') && config('backup.backup.password'), ValidationException::withMessages(['archive' => __('backup.error.not_configured')]));
+        $request->validate(['archive' => ['required', 'file', 'mimes:zip', 'extensions:zip', 'max:'.config('jalara.operations.backup_upload_max_kilobytes')]]);
         $archive = $request->file('archive');
         throw_unless($archive instanceof UploadedFile, ValidationException::withMessages(['archive' => __('backup.error.invalid_archive')]));
         $uploadBackup->handle($archive);
@@ -64,7 +64,7 @@ final class BackupController extends Controller
     public function restore(Request $request, string $backup, GetBackupChecksum $getBackupChecksum): RedirectResponse
     {
         Gate::authorize(Permission::ManageBackups);
-        throw_unless(config('operations.backup_enabled') && config('backup.backup.password'), ValidationException::withMessages(['backup' => __('backup.error.not_configured')]));
+        throw_unless(config('jalara.operations.backup_enabled') && config('backup.backup.password'), ValidationException::withMessages(['backup' => __('backup.error.not_configured')]));
         $request->validate(['confirmation' => ['required', 'accepted']]);
         abort_unless(Storage::disk('backups')->exists(config('backup.backup.name').'/'.$backup), 404);
         dispatch(new RestoreSystemBackup($backup, $getBackupChecksum->handle($backup), $request->user()->id));

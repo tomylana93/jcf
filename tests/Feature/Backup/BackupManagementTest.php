@@ -73,7 +73,7 @@ describe('Backup management', function (): void {
         $disk = Storage::fake('backups');
         $disk->put('jcf/test.zip', 'archive');
         $disk->put('jcf/keep.zip', 'archive');
-        config(['operations.backup_enabled' => false]);
+        config(['jalara.operations.backup_enabled' => false]);
         $user = actingAsSuperAdmin();
         withSession(['auth.password_confirmed_at' => time()]);
 
@@ -160,18 +160,18 @@ describe('Backup management', function (): void {
     it('validates backup upload configuration and required files', function (): void {
         $user = actingAsSuperAdmin();
         withSession(['auth.password_confirmed_at' => time()]);
-        config(['operations.backup_enabled' => false]);
+        config(['jalara.operations.backup_enabled' => false]);
 
         post(route('master-data.backups.upload'))->assertSessionHasErrors(['archive' => __('backup.error.not_configured')]);
 
-        config(['operations.backup_enabled' => true, 'backup.backup.password' => 'test-secret']);
+        config(['jalara.operations.backup_enabled' => true, 'backup.backup.password' => 'test-secret']);
 
         post(route('master-data.backups.upload'))->assertSessionHasErrors('archive');
         post(route('master-data.backups.upload'), ['archive' => UploadedFile::fake()->create('image.txt', 1, 'text/plain')])->assertSessionHasErrors('archive');
     });
     it('accepts an encrypted archive under a generated private filename', function (): void {
         $disk = Storage::fake('backups');
-        config(['operations.backup_enabled' => true, 'backup.backup.password' => 'test-secret']);
+        config(['jalara.operations.backup_enabled' => true, 'backup.backup.password' => 'test-secret']);
         createBackupTestArchive(['db-dumps/postgresql-pgsql.sql' => 'SELECT 1;', 'storage/app/public/avatar.txt' => 'image'], 'test-secret');
         $upload = new UploadedFile($disk->path('jcf/test.zip'), 'external.zip', test: true);
         $user = actingAsSuperAdmin();
@@ -186,7 +186,7 @@ describe('Backup management', function (): void {
     });
     it('rejects invalid unsafe incomplete unencrypted and wrong-password uploads without retaining them', function (array $entries, ?string $password): void {
         $disk = Storage::fake('backups');
-        config(['operations.backup_enabled' => true, 'backup.backup.password' => 'test-secret']);
+        config(['jalara.operations.backup_enabled' => true, 'backup.backup.password' => 'test-secret']);
         createBackupTestArchive($entries, $password);
         $user = actingAsSuperAdmin();
         withSession(['auth.password_confirmed_at' => time()]);
@@ -204,11 +204,11 @@ describe('Backup management', function (): void {
         $disk = Storage::fake('backups');
         $user = actingAsSuperAdmin();
         withSession(['auth.password_confirmed_at' => time()]);
-        config(['operations.backup_enabled' => false]);
+        config(['jalara.operations.backup_enabled' => false]);
 
         post(route('master-data.backups.restore', 'test.zip'))->assertSessionHasErrors(['backup' => __('backup.error.not_configured')]);
 
-        config(['operations.backup_enabled' => true, 'backup.backup.password' => 'test-secret']);
+        config(['jalara.operations.backup_enabled' => true, 'backup.backup.password' => 'test-secret']);
 
         post(route('master-data.backups.restore', 'test.zip'), ['confirmation' => false])->assertSessionHasErrors('confirmation');
         post(route('master-data.backups.restore', 'test.zip'), ['confirmation' => true])->assertNotFound();
@@ -225,13 +225,13 @@ describe('Backup management', function (): void {
 
 describe('Backup execution', function (): void {
     it('refuses an unconfigured backup', function (): void {
-        config(['operations.backup_enabled' => false]);
+        config(['jalara.operations.backup_enabled' => false]);
 
         expect(fn () => resolve(CreateBackup::class)->handle())->toThrow(RuntimeException::class, __('backup.error.not_configured'));
     });
 
     it('records a successful backup and notifies its requester', function (): void {
-        config(['operations.backup_enabled' => true, 'backup.backup.password' => 'test-secret']);
+        config(['jalara.operations.backup_enabled' => true, 'backup.backup.password' => 'test-secret']);
         Storage::fake('backups');
         Artisan::shouldReceive('call')->once()->with('backup:run', Mockery::on(function (array $arguments): bool {
             Storage::disk('backups')->put('jcf/'.$arguments['--filename'], 'encrypted-archive');
@@ -259,7 +259,7 @@ describe('Backup execution', function (): void {
     });
 
     it('marks failed commands and missing output as failure', function (): void {
-        config(['operations.backup_enabled' => true, 'backup.backup.password' => 'test-secret']);
+        config(['jalara.operations.backup_enabled' => true, 'backup.backup.password' => 'test-secret']);
         Storage::fake('backups');
         Artisan::shouldReceive('call')->once()->andReturn(1);
 
@@ -268,7 +268,7 @@ describe('Backup execution', function (): void {
     });
 
     it('refuses concurrent backups without changing their status', function (): void {
-        config(['operations.backup_enabled' => true, 'backup.backup.password' => 'test-secret']);
+        config(['jalara.operations.backup_enabled' => true, 'backup.backup.password' => 'test-secret']);
 
         $lock = resolve(GetBackupLock::class)->handle();
 
@@ -282,7 +282,7 @@ describe('Backup execution', function (): void {
     });
 
     it('returns a nonzero CLI status when configuration is incomplete', function (): void {
-        config(['operations.backup_enabled' => false]);
+        config(['jalara.operations.backup_enabled' => false]);
 
         artisan('system:backup')->assertFailed();
     });
@@ -294,7 +294,7 @@ describe('Backup CLI completion', function (): void {
         $files = Storage::fake('backup-test-files');
         $files->put('example.txt', 'roundtrip-file');
         config([
-            'operations.backup_enabled' => true,
+            'jalara.operations.backup_enabled' => true,
             'backup.backup.password' => 'test-secret',
             'backup.backup.source.databases' => [],
             'backup.backup.source.files.include' => [$files->path('example.txt')],
@@ -358,9 +358,9 @@ describe('Active application restore', function (): void {
         $workspace = isolateBackupOperations();
         $action = resolve(RestoreActiveBackup::class);
         try {
-            config(['operations.backup_enabled' => false]);
+            config(['jalara.operations.backup_enabled' => false]);
             expect(fn () => $action->handle('test.zip', 'checksum'))->toThrow(RuntimeException::class, __('backup.error.not_configured'));
-            config(['operations.backup_enabled' => true]);
+            config(['jalara.operations.backup_enabled' => true]);
             $lock = resolve(GetBackupLock::class)->handle();
             $lock->get();
             try {

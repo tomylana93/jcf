@@ -12,7 +12,7 @@ return new class extends SettingsMigration
     {
         $this->migrator->add('brand.logo_path', null);
         $this->migrator->add('brand.logo_text_path', null);
-        $this->migrator->add('brand.logo_type', LogoType::LogoText);
+        $this->migrator->add('brand.logo_type', LogoType::LogoOnly);
         $this->migrator->add('brand.favicon_path', null);
         $this->migrator->add('brand.auth_background_path', null);
         $this->migrator->add('brand.color', BrandColor::Neutral);

@@ -34,7 +34,7 @@ final class AuditLog extends Model
     /** @return Builder<self> */
     public function prunable(): Builder
     {
-        return self::query()->where('created_at', '<=', now()->subDays(max(1, (int) config('audit.retention_days', 365))));
+        return self::query()->where('created_at', '<=', now()->subDays(max(1, (int) config('jalara.audit.retention_days', 365))));
     }
 
     /** @return array<string, string> */

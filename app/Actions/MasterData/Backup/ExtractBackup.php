@@ -23,7 +23,7 @@ final class ExtractBackup
         $zip = new ZipArchive;
         throw_if($zip->open($path) !== true, RuntimeException::class, 'Invalid backup archive.');
         $zip->setPassword((string) config('backup.backup.password'));
-        $directory = new TemporaryDirectory(config('operations.restore_directory'))->name((string) Str::uuid())->create();
+        $directory = new TemporaryDirectory(config('jalara.operations.restore_directory'))->name((string) Str::uuid())->create();
         try {
             $total = 0;
             for ($index = 0; $index < $zip->numFiles; $index++) {
@@ -31,7 +31,7 @@ final class ExtractBackup
                 throw_if($entry === false, RuntimeException::class, 'Invalid archive entry.');
                 $name = $entry['name'];
                 $total += $entry['size'];
-                throw_if($total > config('operations.restore_max_bytes')
+                throw_if($total > config('jalara.operations.restore_max_bytes')
                     || str_contains($name, '..') || str_contains($name, '\\') || str_contains($name, ':')
                     || (! str_starts_with($name, 'storage/app/private/') && ! str_starts_with($name, 'storage/app/public/') && ! preg_match('#^db-dumps/[A-Za-z0-9_-]+\.sql$#D', $name)), RuntimeException::class, 'Unsafe or unsupported backup entry.');
                 $opsys = 0;

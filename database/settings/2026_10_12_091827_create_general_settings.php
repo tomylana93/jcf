@@ -9,9 +9,9 @@ return new class extends SettingsMigration
     public function up(): void
     {
         $this->migrator->add('general.site_name', config('app.name'));
-        $this->migrator->add('general.site_description', 'A modern, modular starterkit for building simple, purposeful applications.');
-        $this->migrator->add('general.support_email', config('superadmin.email'));
-        $this->migrator->add('general.public_pages_enabled', false);
+        $this->migrator->add('general.site_description', config('app.description'));
+        $this->migrator->add('general.support_email', config('jalara.superadmin.email'));
+        $this->migrator->add('general.public_pages_enabled', true);
     }
 
     public function down(): void

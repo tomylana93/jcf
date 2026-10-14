@@ -11,7 +11,7 @@ use function Pest\Laravel\artisan;
 use function Pest\Laravel\assertDatabaseCount;
 
 beforeEach(function (): void {
-    config(['superadmin.name' => 'System Admin', 'superadmin.email' => 'ADMIN@example.com', 'superadmin.password' => 'Strong-password-123!']);
+    config(['jalara.superadmin.name' => 'System Admin', 'jalara.superadmin.email' => 'ADMIN@example.com', 'jalara.superadmin.password' => 'Strong-password-123!']);
 });
 
 describe('Superadmin initialization', function (): void {
@@ -53,7 +53,7 @@ describe('Superadmin initialization', function (): void {
     });
 
     it('rejects invalid configuration without creating an account', function (string $key, mixed $value): void {
-        config(['superadmin.'.$key => $value]);
+        config(['jalara.superadmin.'.$key => $value]);
 
         artisan('init:superadmin')->assertFailed();
 
