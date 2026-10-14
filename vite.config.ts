@@ -127,6 +127,7 @@ export default defineConfig({
         htmlWhitespaceSensitivity: 'css',
         ignorePatterns: [
             '.github/**',
+            '.impeccable/**',
             '.lerd.yaml',
             'composer.json',
             'resources/js/components/ui/*',
