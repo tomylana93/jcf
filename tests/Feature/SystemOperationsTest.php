@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Settings\MailSettings;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -20,6 +21,17 @@ use function Pest\Laravel\artisan;
 use function Pest\Laravel\get;
 use function Pest\Laravel\post;
 use function Pest\Laravel\withSession;
+
+describe('Queue failover', function (): void {
+    it('queues jobs through the configured primary connection', function (): void {
+        config(['queue.connections.database.after_commit' => false]);
+
+        Queue::connection('failover')->push(new SystemHeartbeat);
+
+        expect(DB::table('jobs')->count())->toBe(1)
+            ->and(Queue::connection('database')->size())->toBe(1);
+    });
+});
 
 describe('System operations authorization', function (): void {
     beforeEach(fn () => artisan('init:permission')->assertSuccessful());

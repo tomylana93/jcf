@@ -12,6 +12,7 @@ use App\Enums\Role;
 use App\Jobs\CreateSystemBackup;
 use App\Jobs\RestoreSystemBackup;
 use App\Models\User;
+use Illuminate\Contracts\Process\ProcessResult;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Process\Factory;
@@ -346,7 +347,8 @@ describe('Active application restore', function (): void {
                 ->and(File::get($workspace->path('active/private/old.txt')))->toBe('original')
                 ->and(File::exists($workspace->path('active/public/new.txt')))->toBeFalse()
                 ->and(app()->isDownForMaintenance())->toBeTrue()
-                ->and(Cache::store('file')->get('system.restore_status'))->toBe('failed');
+                ->and(Cache::store('file')->get('system.restore_status'))->toBe('failed')
+                ->and(File::directories($workspace->path('staging')))->toBeEmpty();
             Process::assertRan(fn (PendingProcess $process): bool => is_array($process->command) && $process->command[0] === 'psql');
         } finally {
             $workspace->delete();
@@ -407,6 +409,79 @@ describe('Active application restore', function (): void {
             ->and(Cache::store('file')->get('system.restore_status'))->toBe('failed');
 
         new RestoreSystemBackup('test.zip', 'checksum', '00000000-0000-0000-0000-000000000000')->failed(null);
+    });
+    it('records queued restore failures notifies the requester and permits another restore', function (): void {
+        Storage::fake('backups');
+        $workspace = isolateBackupOperations();
+        config(['queue.connections.backups.after_commit' => false]);
+        $user = User::factory()->create();
+
+        try {
+            dispatch(new RestoreSystemBackup('missing.zip', 'checksum', $user->id));
+            expect(DB::table('jobs')->where('queue', 'backups')->count())->toBe(1);
+
+            artisan('queue:work', ['connection' => 'backups', '--queue' => 'backups', '--once' => true, '--force' => true, '--tries' => 1, '--sleep' => 0])->assertSuccessful();
+
+            expect(DB::table('jobs')->where('queue', 'backups')->count())->toBe(0)
+                ->and(DB::table('failed_jobs')->count())->toBe(1)
+                ->and($user->notifications()->sole()->data['kind'])->toBe('restore_failed')
+                ->and(Cache::store('file')->get('system.restore_status'))->toBe('failed');
+
+            dispatch(new RestoreSystemBackup('missing.zip', 'checksum', $user->id));
+            expect(DB::table('jobs')->where('queue', 'backups')->count())->toBe(1);
+        } finally {
+            $workspace->delete();
+        }
+    });
+    it('keeps the completion notification queued when restore resets queue identifiers', function (): void {
+        Storage::fake('backups');
+        $workspace = isolateBackupOperations();
+        config(['queue.connections.backups.after_commit' => false]);
+        $user = User::factory()->create();
+        $archive = createBackupTestArchive(['db-dumps/postgresql-pgsql.sql' => 'SELECT 1;'], 'test-secret');
+        $console = Artisan::getFacadeRoot();
+        fakeSafetyBackup();
+        Process::fake(['*psql*' => function (): ProcessResult {
+            DB::statement('TRUNCATE TABLE jobs RESTART IDENTITY');
+
+            return Process::result();
+        }]);
+        DB::statement('TRUNCATE TABLE jobs RESTART IDENTITY');
+
+        try {
+            dispatch(new RestoreSystemBackup($archive['filename'], $archive['checksum'], $user->id));
+            expect($console->call('queue:work', ['connection' => 'backups', '--queue' => 'backups', '--once' => true, '--force' => true, '--tries' => 1, '--sleep' => 0]))->toBe(0)
+                ->and(DB::table('jobs')->where('queue', 'backups')->count())->toBe(0)
+                ->and(DB::table('jobs')->where('queue', 'notifications')->count())->toBe(1)
+                ->and($user->notifications()->sole()->data['kind'])->toBe('restore_ready');
+            Process::assertRan(fn (PendingProcess $process): bool => is_array($process->command) && $process->command[0] === 'psql');
+        } finally {
+            $workspace->delete();
+        }
+    });
+    it('preserves staged original files when file rollback fails', function (): void {
+        Storage::fake('backups');
+        $workspace = isolateBackupOperations();
+        File::ensureDirectoryExists($workspace->path('active/private'));
+        File::put($workspace->path('active/private/old.txt'), 'original');
+        $archive = createBackupTestArchive(['db-dumps/postgresql-pgsql.sql' => 'invalid SQL;'], 'test-secret');
+        fakeSafetyBackup();
+        Process::fake(['*psql*' => Process::result(exitCode: 1)]);
+        $filesystem = File::getFacadeRoot();
+        File::partialMock()->shouldReceive('moveDirectory')->andReturnUsing(
+            fn (string $from, string $to): bool => str_contains($from, '/previous/private') ? false : $filesystem->moveDirectory($from, $to),
+        );
+
+        try {
+            expect(fn () => resolve(RestoreActiveBackup::class)->handle(...array_values($archive)))->toThrow(RuntimeException::class, 'File rollback failed');
+            $staging = File::directories($workspace->path('staging'));
+            expect($staging)->toHaveCount(1)
+                ->and(File::get($staging[0].'/previous/private/old.txt'))->toBe('original')
+                ->and(app()->isDownForMaintenance())->toBeTrue();
+            Process::assertRan(fn (PendingProcess $process): bool => is_array($process->command) && $process->command[0] === 'psql');
+        } finally {
+            $workspace->delete();
+        }
     });
     it('rejects symlinked active storage without replacing it', function (): void {
         Storage::fake('backups');

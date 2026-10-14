@@ -102,14 +102,6 @@ return [
         'failover' => [
             'driver' => 'failover',
             'connections' => [
-                'backups' => [
-                    'driver' => 'database',
-                    'connection' => env('DB_QUEUE_CONNECTION'),
-                    'table' => env('DB_QUEUE_TABLE', 'jobs'),
-                    'queue' => 'backups',
-                    'retry_after' => 1900,
-                    'after_commit' => true,
-                ],
                 'database',
                 'deferred',
             ],

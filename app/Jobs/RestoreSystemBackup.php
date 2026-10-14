@@ -30,8 +30,8 @@ final class RestoreSystemBackup implements ShouldBeUnique, ShouldQueue
 
     public function handle(RestoreActiveBackup $restoreBackup): void
     {
-        $this->delete();
         $restoreBackup->handle($this->filename, $this->checksum);
+        $this->delete();
         User::query()->find($this->actorId)?->notify(new ApplicationNotification('restore_ready', $this->filename));
     }
 
