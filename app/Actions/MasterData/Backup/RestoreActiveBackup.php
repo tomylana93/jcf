@@ -6,6 +6,7 @@ namespace App\Actions\MasterData\Backup;
 
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use RuntimeException;
 use Spatie\Permission\PermissionRegistrar;
 use Throwable;
@@ -37,6 +38,9 @@ final readonly class RestoreActiveBackup
                 $directory->delete();
             } catch (Throwable $exception) {
                 Cache::store('file')->put('system.restore_status', 'failed', 86400);
+                if (! File::isDirectory($directory->path().'/previous/private') && ! File::isDirectory($directory->path().'/previous/public')) {
+                    $directory->delete();
+                }
                 throw $exception;
             }
         } finally {

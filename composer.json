@@ -71,12 +71,6 @@
             "pint --parallel",
             "pnpm run check:fix"
         ],
-        "ci:check": [
-            "Composer\\Config::disableProcessTimeout",
-            "@test:lint",
-            "@test:types",
-            "@test:feature"
-        ],
         "test:type-coverage": "pest --type-coverage --min=100",
         "test:prepare": "pnpm run build",
         "test:audit": [
