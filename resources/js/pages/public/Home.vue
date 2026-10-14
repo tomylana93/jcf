@@ -3,7 +3,7 @@ import { Head, Link, usePage } from '@inertiajs/vue3';
 
 import { Button } from '@/components/ui/button';
 import { useTranslations } from '@/composables/useTranslations';
-import { dashboard, login } from '@/routes';
+import { dashboard } from '@/routes';
 
 defineProps<{ canonicalUrl: string }>();
 
@@ -66,16 +66,8 @@ const { t } = useTranslations();
                 {{ page.props.general.site_description }}
             </p>
         </div>
-        <Button
-            :as="Link"
-            :href="page.props.auth.user ? dashboard() : login()"
-            size="lg"
-        >
-            {{
-                page.props.auth.user
-                    ? t('navigation.link.dashboard')
-                    : t('auth.button.login')
-            }}
+        <Button :as="Link" :href="dashboard()" size="lg">
+            {{ t('navigation.link.dashboard') }}
         </Button>
     </section>
 </template>
