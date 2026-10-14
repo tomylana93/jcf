@@ -184,7 +184,13 @@ watchEffect(() =>
                         id="document-title"
                         v-model="form.title"
                         :aria-invalid="!!form.errors.title"
+                        :aria-describedby="
+                            form.errors.title
+                                ? 'document-title-error'
+                                : undefined
+                        "
                         :disabled="form.processing" /><FieldError
+                        id="document-title-error"
                         :errors="[form.errors.title]"
                 /></Field>
                 <Field :data-invalid="!!form.errors.slug"
@@ -196,7 +202,11 @@ watchEffect(() =>
                         v-model="form.slug"
                         :placeholder="t('documentation.placeholder.slug')"
                         :aria-invalid="!!form.errors.slug"
+                        :aria-describedby="
+                            form.errors.slug ? 'document-slug-error' : undefined
+                        "
                         :disabled="form.processing" /><FieldError
+                        id="document-slug-error"
                         :errors="[form.errors.slug]"
                 /></Field>
                 <Field
@@ -209,7 +219,13 @@ watchEffect(() =>
                         id="document-summary"
                         v-model="form.summary"
                         :aria-invalid="!!form.errors.summary"
+                        :aria-describedby="
+                            form.errors.summary
+                                ? 'document-summary-error'
+                                : undefined
+                        "
                         :disabled="form.processing" /><FieldError
+                        id="document-summary-error"
                         :errors="[form.errors.summary]"
                 /></Field>
             </FieldGroup>

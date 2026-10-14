@@ -21,6 +21,9 @@ describe('Browser login flows', function (): void {
         $user = User::factory()->create();
 
         visit(route('login', absolute: false))
+            ->assertSee(__('user.label.email'))
+            ->assertSee(__('user.label.password'))
+            ->assertAttribute('#email', 'type', 'email')
             ->fill('email', $user->email)
             ->fill('password', 'password')
             ->click('@login-button')
@@ -39,6 +42,7 @@ describe('Browser login flows', function (): void {
             ->fill('password', 'incorrect-password')
             ->click('@login-button')
             ->assertSee(__('auth.failed'))
+            ->assertAttribute('#email', 'aria-describedby', 'email-error')
             ->assertPathIs('/login')
             ->assertNoJavaScriptErrors();
 

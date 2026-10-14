@@ -9,6 +9,26 @@ use App\Models\User;
 use function Pest\Laravel\actingAs;
 
 describe('Documentation editor', function (): void {
+    it('associates validation errors with the documentation fields', function (): void {
+        $admin = User::factory()->create();
+        assignRolePermissions($admin, Permission::ManageDocumentation);
+        actingAs($admin);
+
+        visit(route('dashboard'))
+            ->click(__('navigation.link.manage_documentation'))->click(__('common.button.create'))
+            ->fill('#document-title', '')
+            ->fill('#document-slug', 'Invalid slug!')
+            ->fill('#document-summary', str_repeat('a', 2001))
+            ->click('@save-documentation')
+            ->assertVisible('#document-title-error')
+            ->assertVisible('#document-slug-error')
+            ->assertVisible('#document-summary-error')
+            ->assertAttribute('#document-title', 'aria-describedby', 'document-title-error')
+            ->assertAttribute('#document-slug', 'aria-describedby', 'document-slug-error')
+            ->assertAttribute('#document-summary', 'aria-describedby', 'document-summary-error')
+            ->assertNoJavaScriptErrors();
+    });
+
     it('searches application pages in the link combobox and navigates internal links in the same tab', function (): void {
         $admin = User::factory()->create();
         assignRolePermissions($admin, Permission::ManageDocumentation);
