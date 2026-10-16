@@ -18,6 +18,14 @@ use Spatie\TemporaryDirectory\TemporaryDirectory;
 use function Pest\Laravel\artisan;
 
 describe('Backup archive validation', function (): void {
+    it('rejects a non-string checksum filename', function (): void {
+        Storage::fake('backups');
+
+        artisan('system:backup-checksum', ['backup' => ['test.zip']])
+            ->expectsOutput('The backup filename must be a string.')
+            ->assertFailed();
+    });
+
     it('extracts encrypted application files and reports the stored checksum', function (): void {
         Storage::fake('backups');
         config(['backup.backup.password' => 'test-secret']);
@@ -83,6 +91,17 @@ describe('Backup archive validation', function (): void {
 });
 
 describe('Isolated restore', function (): void {
+    it('rejects non-string restore filenames and connections', function (array $parameters): void {
+        Storage::fake('backups');
+
+        artisan('system:restore', [...$parameters, '--confirm' => true, '--sha256' => str_repeat('0', 64)])
+            ->expectsOutput('The backup filename and target connection must be strings.')
+            ->assertFailed();
+    })->with([
+        'filename' => [['backup' => ['test.zip'], '--connection' => 'backup_restore']],
+        'connection' => [['backup' => 'test.zip', '--connection' => ['backup_restore']]],
+    ]);
+
     it('requires explicit confirmation and a checksum', function (): void {
         artisan('system:restore', ['backup' => 'test.zip'])->assertFailed();
         artisan('system:restore', ['backup' => 'test.zip', '--confirm' => true, '--sha256' => 'invalid'])->assertFailed();
