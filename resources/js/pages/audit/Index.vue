@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { Head, setLayoutProps } from '@inertiajs/vue3';
-import { computed, h, ref, watchEffect } from 'vue';
+import { computed, ref, watchEffect } from 'vue';
 
 import { DataTable } from '@/components/datatable';
-import type { DataTableColumnDef } from '@/components/datatable';
 import PageContainer from '@/components/layout/PageContainer.vue';
-import { Button } from '@/components/ui/button';
 import {
     Sheet,
     SheetContent,
@@ -18,11 +16,16 @@ import { useTranslations } from '@/composables/useTranslations';
 import { index } from '@/routes/audit';
 import type { AuditLogRow, DataTableFilter, TablePaginator } from '@/types';
 
+import { createColumns } from './columns';
+
 defineProps<{ logs: TablePaginator<AuditLogRow> }>();
+
 const { t } = useTranslations();
 const { formatDateTime } = useDateTime();
+
 const selected = ref<AuditLogRow | null>(null);
 const detailOpen = ref(false);
+
 const fields = computed(() =>
     selected.value
         ? [
@@ -34,58 +37,8 @@ const fields = computed(() =>
         : [],
 );
 
-function showDetail(log: AuditLogRow): void {
-    selected.value = log;
-    detailOpen.value = true;
-}
+const columns = computed(() => createColumns(t, formatDateTime, showDetail));
 
-function displayValue(value: unknown): string {
-    if (value === undefined || value === null) {
-        return '—';
-    }
-    if (typeof value === 'string') {
-        return value;
-    }
-    return JSON.stringify(value);
-}
-
-const columns = computed<DataTableColumnDef<AuditLogRow>[]>(() => [
-    {
-        accessorKey: 'created_at',
-        header: t('audit.label.time'),
-        cell: ({ row }) => formatDateTime(row.original.created_at),
-        enableSorting: true,
-    },
-    {
-        accessorKey: 'actor_name',
-        header: t('audit.label.actor'),
-        enableSorting: false,
-    },
-    {
-        accessorKey: 'event_label',
-        header: t('audit.label.event'),
-        enableSorting: false,
-    },
-    {
-        accessorKey: 'subject_label',
-        header: t('audit.label.subject'),
-        enableSorting: false,
-    },
-    {
-        id: 'actions',
-        enableHiding: false,
-        cell: ({ row }) =>
-            h(
-                Button,
-                {
-                    variant: 'outline',
-                    size: 'sm',
-                    onClick: () => showDetail(row.original),
-                },
-                () => t('audit.button.detail'),
-            ),
-    },
-]);
 const filters = computed<DataTableFilter[]>(() => [
     {
         key: 'event',
@@ -114,6 +67,21 @@ const filters = computed<DataTableFilter[]>(() => [
     },
 ]);
 
+function showDetail(log: AuditLogRow): void {
+    selected.value = log;
+    detailOpen.value = true;
+}
+
+function displayValue(value: unknown): string {
+    if (value === undefined || value === null) {
+        return '—';
+    }
+    if (typeof value === 'string') {
+        return value;
+    }
+    return JSON.stringify(value);
+}
+
 watchEffect(() =>
     setLayoutProps({
         breadcrumbs: [{ title: t('breadcrumb.audit'), href: index() }],
@@ -122,11 +90,12 @@ watchEffect(() =>
 </script>
 
 <template>
+    <Head :title="t('audit.title')" />
+
     <PageContainer
         :title="t('audit.card.title')"
         :description="t('audit.card.description')"
     >
-        <Head :title="t('audit.title')" />
         <DataTable
             :url="index.url()"
             data-key="logs"
@@ -140,13 +109,18 @@ watchEffect(() =>
         <Sheet v-model:open="detailOpen">
             <SheetContent class="overflow-y-auto sm:max-w-xl">
                 <SheetHeader>
-                    <SheetTitle>{{ t('audit.card.detail_title') }}</SheetTitle>
-                    <SheetDescription
-                        >{{ selected?.event_label }} —
-                        {{ selected?.subject_label }}</SheetDescription
-                    >
+                    <SheetTitle>
+                        {{ t('audit.card.detail_title') }}
+                    </SheetTitle>
+                    <SheetDescription>
+                        {{ selected?.event_label }} —
+                        {{ selected?.subject_label }}
+                    </SheetDescription>
                 </SheetHeader>
-                <div v-if="selected" class="space-y-6 px-4 pb-6">
+                <div
+                    v-if="selected"
+                    class="space-y-6 px-4 pb-6"
+                >
                     <dl class="grid gap-3 text-sm">
                         <div>
                             <dt class="text-muted-foreground">
