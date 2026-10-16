@@ -7,6 +7,12 @@ use Illuminate\Support\Facades\File;
 use function Pest\Laravel\artisan;
 
 describe('Frontend translations', function (): void {
+    it('rejects a non-string output path', function (): void {
+        artisan('lang:export', ['--output' => ['messages.json']])
+            ->expectsOutput('The output path must be a string.')
+            ->assertFailed();
+    });
+
     it('exports the application language groups to the default JSON destination', function (): void {
         artisan('lang:export')->assertSuccessful();
 

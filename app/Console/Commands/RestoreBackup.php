@@ -21,8 +21,17 @@ final class RestoreBackup extends Command
 
             return self::FAILURE;
         }
+        $backup = $this->argument('backup');
+        $connection = $this->option('connection');
+
+        if (! is_string($backup) || ! is_string($connection)) {
+            $this->error('The backup filename and target connection must be strings.');
+
+            return self::FAILURE;
+        }
+
         try {
-            $path = $restoreBackup->handle($this->argument('backup'), $this->option('sha256'), $this->option('connection'));
+            $path = $restoreBackup->handle($backup, $this->option('sha256'), $connection);
             $this->info('Restore completed. Application files are staged at: '.$path);
             $this->warn('Verify restored data and file references before a separate maintenance-window cutover. Retain the original APP_KEY and archive password.');
 

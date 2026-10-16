@@ -33,6 +33,12 @@ final class ExportFrontendTranslations extends Command
         }
 
         $output = $this->option('output') ?? resource_path('js/lang/messages.json');
+        if (! is_string($output)) {
+            $this->error('The output path must be a string.');
+
+            return self::FAILURE;
+        }
+
         File::ensureDirectoryExists(dirname($output));
         File::put($output, json_encode($messages, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES).PHP_EOL);
 

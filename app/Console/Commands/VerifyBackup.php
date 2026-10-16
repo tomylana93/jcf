@@ -16,8 +16,16 @@ final class VerifyBackup extends Command
 {
     public function handle(GetBackupChecksum $getBackupChecksum): int
     {
+        $backup = $this->argument('backup');
+
+        if (! is_string($backup)) {
+            $this->error('The backup filename must be a string.');
+
+            return self::FAILURE;
+        }
+
         try {
-            $this->info($getBackupChecksum->handle($this->argument('backup')));
+            $this->info($getBackupChecksum->handle($backup));
 
             return self::SUCCESS;
         } catch (Throwable $exception) {
