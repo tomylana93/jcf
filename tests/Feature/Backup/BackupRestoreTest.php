@@ -9,10 +9,12 @@ use App\Actions\MasterData\Backup\RestoreBackup;
 use Illuminate\Process\Factory;
 use Illuminate\Process\PendingProcess;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Backup\Config\Config;
+use Spatie\Backup\Events\BackupHasFailed;
 use Spatie\TemporaryDirectory\TemporaryDirectory;
 
 use function Pest\Laravel\artisan;
@@ -178,6 +180,9 @@ describe('Linux backup and restore integration', function (): void {
             test()->markTestSkipped('Native backup integration runs in Linux CI with PostgreSQL tools.');
         }
         Storage::fake('backups');
+        Event::listen(BackupHasFailed::class, static function (BackupHasFailed $event): void {
+            throw $event->exception;
+        });
         $workspace = new TemporaryDirectory(storage_path('framework/testing/backup-source'))->create();
         File::ensureDirectoryExists($workspace->path('storage/app/public'));
         File::put($workspace->path('storage/app/public/roundtrip.txt'), 'verified-upload');
