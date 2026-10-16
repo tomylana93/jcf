@@ -13,10 +13,10 @@ use App\Http\Requests\Settings\SendMailSettingsTestRequest;
 use App\Http\Requests\Settings\UpdateMailSettingsRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
-use RuntimeException;
 use Throwable;
 
 final class MailSettingsController extends Controller
@@ -46,8 +46,10 @@ final class MailSettingsController extends Controller
     {
         try {
             $sendTest->handle($request->validated('test_email'));
-        } catch (Throwable) {
-            report(new RuntimeException('Mail settings test delivery failed.'));
+        } catch (Throwable $exception) {
+            Log::error('Mail settings test delivery failed.', [
+                'exception_type' => $exception::class,
+            ]);
 
             throw ValidationException::withMessages(['test_email' => __('settings.mail.status.test_failed')]);
         }

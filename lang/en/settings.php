@@ -143,6 +143,7 @@ return [
             'smtps' => 'TLS (usually port 465)',
         ],
         'hint' => [
+            'mailpit' => 'Local Mailpit uses host lerd-mailpit, port 1025, no encryption, and empty credentials. Save changes before sending a test email.',
             'log' => 'Messages are recorded in the application log and are not delivered.',
             'smtp_password' => 'Leave blank to keep the saved password.',
             'brand' => 'Logo and button color follow Brand Settings.',
