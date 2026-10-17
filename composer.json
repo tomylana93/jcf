@@ -76,7 +76,7 @@
         "types:check": "pnpm run types:check",
         "lint": [
             "rector",
-            "pint --parallel",
+            "pint --parallel --max-processes=2",
             "@check:fix"
         ],
         "test:type-coverage": "pest --type-coverage --min=100",
@@ -85,9 +85,9 @@
             "composer audit",
             "pnpm audit"
         ],
-        "test:feature": "pest --compact --parallel --exclude-testsuite=Browser",
+        "test:feature": "pest --compact --parallel --processes=2 --exclude-testsuite=Browser",
         "test:lint": [
-            "pint --parallel --test",
+            "pint --parallel --max-processes=2 --test",
             "rector --dry-run",
             "@check"
         ],
@@ -98,7 +98,7 @@
         "test:browser:run": "pest tests/Browser --compact",
         "test:unit": "@php tests/run-coverage.php",
         "test:types": [
-            "phpstan analyse",
+            "phpstan analyse --memory-limit=512M",
             "@types:check"
         ],
         "test:backend": [
