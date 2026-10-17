@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 use Laravel\Fortify\Contracts\PasskeyUser;
 use Laravel\Fortify\PasskeyAuthenticatable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -40,12 +41,13 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @property string|null $two_factor_secret
  * @property string|null $two_factor_recovery_codes
  * @property Carbon|null $two_factor_confirmed_at
+ * @property string|null $session_token
  * @property string|null $remember_token
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
 #[Fillable(['name', 'email', 'password', 'timezone'])]
-#[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token', 'media'])]
+#[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token', 'session_token', 'media'])]
 final class User extends Authenticatable implements HasMedia, MustVerifyEmail, PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
@@ -72,6 +74,16 @@ final class User extends Authenticatable implements HasMedia, MustVerifyEmail, P
         $this->addMediaConversion('preview')->nonOptimized()->nonQueued()
             ->performOnCollections('avatar', 'avatar_pending', 'avatar_prepared')
             ->fit(Fit::Crop, 512, 512)->format('webp');
+    }
+
+    protected static function booted(): void
+    {
+        self::updating(function (User $user): void {
+            if ($user->isDirty('status') && $user->status === UserStatus::Disabled) {
+                $user->session_token = (string) Str::uuid();
+                $user->setRememberToken(Str::random(60));
+            }
+        });
     }
 
     /** @return Attribute<string, never> */

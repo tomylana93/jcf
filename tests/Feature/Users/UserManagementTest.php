@@ -103,6 +103,48 @@ describe('User management', function (): void {
             ->and($created->invited_at)->toBeNull();
     });
 
+    it('rejects roles with permissions the manager cannot grant on create and self update', function (): void {
+        $actor = User::factory()->create();
+        assignRolePermissions($actor, Permission::ManageUsers, Permission::ViewUsers);
+        $originalRole = $actor->getRoleNames()->sole();
+        $privileged = Role::factory()->create();
+        $privileged->givePermissionTo(App\Models\Permission::findOrCreate(Permission::ManageBackups->value, 'web'));
+
+        actingAs($actor)->post(route('master-data.users.store'), [
+            'name' => 'Escalated', 'email' => 'escalated@example.test', 'role' => $privileged->name,
+            'password' => 'initial-password', 'password_confirmation' => 'initial-password',
+        ])->assertSessionHasErrors('role');
+        assertDatabaseMissing('users', ['email' => 'escalated@example.test']);
+
+        patch(route('master-data.users.update', $actor), [
+            'name' => $actor->name, 'email' => $actor->email, 'status' => 'active', 'role' => $privileged->name,
+        ])->assertSessionHasErrors('role');
+        expect($actor->fresh()->getRoleNames()->all())->toBe([$originalRole]);
+        get(route('master-data.users.index'))->assertInertia(fn (Assert $page): Assert => $page
+            ->where('roles', fn ($roles): bool => collect($roles)->doesntContain('value', $privileged->name)));
+    });
+
+    it('allows roles whose permissions the manager already holds', function (bool $superadmin): void {
+        $actor = User::factory()->create();
+        if ($superadmin) {
+            $actor->syncRoles(SystemRole::SuperAdmin);
+        } else {
+            assignRolePermissions($actor, Permission::ManageUsers, Permission::ManageBackups);
+        }
+        $role = Role::factory()->create();
+        $role->givePermissionTo(App\Models\Permission::findOrCreate(Permission::ManageBackups->value, 'web'));
+        actingAs($actor)->post(route('master-data.users.store'), [
+            'name' => 'Allowed', 'email' => 'allowed@example.test', 'role' => $role->name,
+            'password' => 'initial-password', 'password_confirmation' => 'initial-password',
+        ])->assertSessionHasNoErrors();
+        $target = User::query()->where('email', 'allowed@example.test')->sole();
+        expect($target->getRoleNames()->all())->toBe([$role->name]);
+        patch(route('master-data.users.update', $target), [
+            'name' => 'Updated', 'email' => $target->email, 'status' => 'active', 'role' => $role->name,
+        ])->assertSessionHasNoErrors();
+        expect($target->fresh()->name)->toBe('Updated');
+    })->with([false, true]);
+
     it('creates a user without assigning a role', function (): void {
         $actor = User::factory()->create();
         assignRolePermissions($actor, Permission::ManageUsers);

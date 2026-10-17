@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\MasterData\User;
 
-use App\Enums\Role;
+use App\Actions\MasterData\User\GetAssignableUserRoles;
 use App\Enums\UserStatus;
-use App\Models\Role as RoleModel;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
@@ -29,7 +28,7 @@ final class UpdateUserRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($this->route('user'))],
-            'role' => ['nullable', 'string', Rule::exists(RoleModel::class, 'name')->where('guard_name', 'web')->whereNot('name', Role::SuperAdmin->value)],
+            'role' => ['nullable', 'string', Rule::in(resolve(GetAssignableUserRoles::class)->handle($this->user()))],
             'status' => ['required', Rule::enum(UserStatus::class)],
         ];
     }
