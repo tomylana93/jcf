@@ -38,6 +38,10 @@ return [
     ],
 
     'permission' => [
+        'EditWebsiteContent' => 'Edit website content',
+        'PublishWebsiteContent' => 'Publish website content',
+        'ConfigureWebsite' => 'Configure website',
+        'ViewContactInbox' => 'View contact inbox',
         'ViewDocumentation' => 'View documentation',
         'ManageDocumentation' => 'Manage documentation',
         'ViewSystem' => 'View system health',

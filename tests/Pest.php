@@ -172,3 +172,19 @@ function fakeSafetyBackup(): void
         return 0;
     });
 }
+
+/** @param array<string, mixed> $overrides
+ * @return array<string, mixed>
+ */
+function websiteDraft(array $overrides = []): array
+{
+    return array_replace([
+        'title' => 'Company news',
+        'slug' => 'company-news',
+        'excerpt' => 'An approved summary',
+        'body_json' => ['type' => 'doc', 'content' => [['type' => 'paragraph', 'content' => [['type' => 'text', 'text' => '<script>example</script>']]]]],
+        'sections' => [],
+        'seo' => ['title' => 'News', 'description' => 'Company updates', 'robots' => 'index,follow'],
+        'cover' => null,
+    ], $overrides);
+}

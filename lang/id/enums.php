@@ -38,6 +38,10 @@ return [
     ],
 
     'permission' => [
+        'EditWebsiteContent' => 'Edit konten website',
+        'PublishWebsiteContent' => 'Publikasikan konten website',
+        'ConfigureWebsite' => 'Konfigurasi website',
+        'ViewContactInbox' => 'Lihat inbox kontak',
         'ViewDocumentation' => 'Lihat dokumentasi',
         'ManageDocumentation' => 'Kelola dokumentasi',
         'ViewSystem' => 'Lihat kesehatan sistem',
