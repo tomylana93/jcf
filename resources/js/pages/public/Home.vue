@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head, usePage } from '@inertiajs/vue3';
 
+import PublicPageContent from '@/components/public/PublicPageContent.vue';
 import { Button } from '@/components/ui/button';
 import { useTranslations } from '@/composables/useTranslations';
 import type { PublicHomeProps } from '@/types';
@@ -65,7 +66,12 @@ const { t } = useTranslations();
                 :content="page.props.general.site_description"
             />
         </Head>
+        <PublicPageContent
+            v-if="website"
+            :website="website"
+        />
         <div
+            v-else
             id="public-introduction"
             class="flex max-w-3xl flex-col gap-6"
         >
@@ -82,6 +88,7 @@ const { t } = useTranslations();
             </p>
         </div>
         <Button
+            v-if="!website"
             as="a"
             href="#public-introduction"
             size="lg"

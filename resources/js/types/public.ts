@@ -57,6 +57,9 @@ export type PublicPage = {
     title: string;
     seo: PublicSeo;
     sections: PublicSection[];
+    body?: string;
+    cover?: PublicImage | null;
+    article?: { author: string; publishedLabel: string; publishedAt: string };
 };
 
 export type PublicPresetPreferences = {
@@ -69,6 +72,31 @@ export type PublicWebsite = {
     preferences: Record<PublicPreset, PublicPresetPreferences>;
     navigation: PublicNavigationItem[];
     page: PublicPage;
+    breadcrumbs?: PublicNavigationItem[];
+    articles?: PublicArticle[];
+    pagination?: PublicNavigationItem[];
+    contact?: PublicContact;
+    footer?: { text: string; links: PublicNavigationItem[] };
+};
+
+export type PublicArticle = {
+    id: string;
+    title: string;
+    excerpt: string;
+    href: string;
+    cover: PublicImage | null;
+    featured: boolean;
+    publishedAt: string;
+    publishedLabel: string;
+};
+
+export type PublicContact = {
+    email: string | null;
+    phone: string | null;
+    address: string;
+    hours: string;
+    location_url: string | null;
+    social_links: { label: string; href: string }[];
 };
 
 export type PublicContext = {
@@ -78,4 +106,5 @@ export type PublicContext = {
 
 export type PublicHomeProps = {
     canonicalUrl: string;
+    website?: PublicWebsite;
 };
