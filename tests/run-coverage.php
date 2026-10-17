@@ -6,16 +6,12 @@ use Symfony\Component\Process\Process;
 
 require __DIR__.'/../vendor/autoload.php';
 
-$phpArguments = ['-d', 'memory_limit=512M'];
-if (! extension_loaded('xdebug')) {
-    $phpArguments = [...$phpArguments, '-d', 'zend_extension=xdebug'];
-}
+$phpArguments = extension_loaded('xdebug') ? [] : ['-d', 'zend_extension=xdebug'];
 $process = new Process([
     PHP_BINARY,
     ...$phpArguments,
     __DIR__.'/../vendor/bin/pest',
     '--parallel',
-    '--processes=2',
     '--exclude-testsuite=Browser',
     '--passthru-php='.implode(' ', $phpArguments),
     '--coverage',

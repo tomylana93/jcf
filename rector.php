@@ -8,7 +8,6 @@ use Rector\Php85\Rector\Property\AddOverrideAttributeToOverriddenPropertiesRecto
 use RectorLaravel\Set\LaravelSetList;
 
 return RectorConfig::configure()
-    ->withoutParallel()
     ->withPaths([
         __DIR__.'/app',
         __DIR__.'/bootstrap/app.php',

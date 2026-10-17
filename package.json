@@ -6,11 +6,11 @@
         "build": "vp build",
         "build:ssr": "vp build && vp build --ssr",
         "dev": "vp dev",
-        "check": "vp fmt --check --threads=2 && vp lint --threads=2",
-        "check:fix": "vp fmt --threads=2 && vp lint --fix --threads=2",
-        "format": "vp lint resources/js --fix --threads=2 && vp fmt resources/js resources/css --threads=2",
-        "format:check": "vp fmt resources/js resources/css --threads=2 --check",
-        "types:check": "node --max-old-space-size=1536 -e \"require('vue-tsc').run(require.resolve('@typescript/typescript6/lib/tsc'))\" -- --noEmit"
+        "check": "vp check",
+        "check:fix": "vp check --fix",
+        "format": "vp lint resources/js --fix && vp fmt resources/js resources/css",
+        "format:check": "vp fmt resources/js resources/css --check",
+        "types:check": "node -e \"require('vue-tsc').run(require.resolve('@typescript/typescript6/lib/tsc'))\" -- --noEmit"
     },
     "dependencies": {
         "@inertiajs/vite": "^3.8.0",
