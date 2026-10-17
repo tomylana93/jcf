@@ -31,7 +31,10 @@ final class EnsureAccountIsActive
 
     private function rejectDisabledAccount(Request $request): ?RedirectResponse
     {
-        if ($request->user()?->status !== UserStatus::Disabled) {
+        $user = $request->user();
+        $disabled = $user?->status === UserStatus::Disabled;
+        $revoked = $user !== null && $request->session()->get('auth.session_token') !== $user->session_token;
+        if (! $disabled && ! $revoked) {
             return null;
         }
 
@@ -39,6 +42,6 @@ final class EnsureAccountIsActive
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return to_route('login')->withErrors(['email' => __('auth.disabled')]);
+        return to_route('login')->withErrors(['email' => __($disabled ? 'auth.disabled' : 'auth.failed')]);
     }
 }

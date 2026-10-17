@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Actions\Account\DisableAccount;
+use App\Actions\MasterData\User\UpdateUser;
+use App\Actions\MasterData\User\UpdateUserStatus;
 use App\Enums\UserStatus;
 use App\Models\User;
 use Illuminate\Auth\Events\Login;
@@ -17,6 +20,32 @@ use function Pest\Laravel\get;
 use function Pest\Laravel\post;
 
 describe('Disabled accounts', function (): void {
+    it('permanently rejects old sessions after disable and reactivate but allows a fresh login', function (string $path): void {
+        $user = User::factory()->create();
+        post(route('login.store'), ['email' => $user->email, 'password' => 'password', 'remember' => true])
+            ->assertRedirect(route('dashboard', absolute: false));
+        $rememberToken = $user->fresh()->getRememberToken();
+
+        match ($path) {
+            'status' => resolve(UpdateUserStatus::class)->handle($user, UserStatus::Disabled),
+            'update' => resolve(UpdateUser::class)->handle($user, [
+                'name' => $user->name, 'email' => $user->email, 'status' => 'disabled',
+            ]),
+            'self' => resolve(DisableAccount::class)->handle($user),
+        };
+        $user->refresh();
+        expect($user->getRememberToken())->not->toBe($rememberToken);
+        $user->status = UserStatus::Active;
+        $user->save();
+        Auth::forgetGuards();
+
+        get(route('dashboard'))->assertRedirect(route('login'));
+        assertGuest();
+        post(route('login.store'), ['email' => $user->email, 'password' => 'password'])->assertRedirect();
+        Auth::forgetGuards();
+        get(route('dashboard'))->assertOk();
+    })->with(['status', 'update', 'self']);
+
     it('does not disclose account status for an incorrect password', function (): void {
         $user = User::factory()->disabled()->create();
 

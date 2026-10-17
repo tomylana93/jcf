@@ -11,9 +11,11 @@ use App\Models\User;
 use App\Settings\AuthSettings;
 use App\Settings\SettingsMailTransport;
 use Carbon\CarbonImmutable;
+use Illuminate\Auth\Events\Login;
 use Illuminate\Mail\MailManager;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\ServiceProvider;
@@ -35,6 +37,12 @@ final class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Event::listen(Login::class, function (Login $event): void {
+            if ($event->guard === 'web' && $event->user instanceof User && request()->hasSession()) {
+                request()->session()->put('auth.session_token', $event->user->session_token);
+            }
+        });
+
         Mail::extend('settings', fn (): SettingsMailTransport => new SettingsMailTransport($this->app->make(MailManager::class)));
 
         $this->configureDefaults();

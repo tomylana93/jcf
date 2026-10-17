@@ -33,7 +33,7 @@ final class UserController extends Controller
 
         return Inertia::render('master-data/users/Index', [
             'users' => $table->paginate($request)->through(fn (User $user): array => new UserResource($user)->resolve($request)),
-            ...$getUserOptions->handle(),
+            ...$getUserOptions->handle($request->user()),
         ]);
     }
 
