@@ -1,12 +1,20 @@
 <script setup lang="ts">
+import { usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
+
+import type { PublicContext } from '@/types';
+
+const page = usePage<{ publicContext: PublicContext }>();
+
 const credit = { owner: 'tomylana93', since: 2026 };
 
-const currentYear = new Date().getFullYear();
+const currentYear = computed(() => page.props.publicContext.year);
 
-const years =
-    currentYear > credit.since
-        ? `${credit.since}–${currentYear}`
-        : `${credit.since}`;
+const years = computed(() =>
+    currentYear.value > credit.since
+        ? `${credit.since}–${currentYear.value}`
+        : `${credit.since}`,
+);
 </script>
 
 <template>

@@ -19,6 +19,7 @@ return [
     ],
 
     'link' => [
+        'explore' => 'Jelajahi konten',
         'home' => 'Beranda',
         'system' => 'Kesehatan sistem',
         'audit' => 'Audit log',

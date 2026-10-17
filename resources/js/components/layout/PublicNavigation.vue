@@ -5,12 +5,11 @@ import AppLogo from '@/components/shared/AppLogo.vue';
 import { Button } from '@/components/ui/button';
 import { useTranslations } from '@/composables/useTranslations';
 import { dashboard, home } from '@/routes';
+import type { PublicContext } from '@/types';
 
-const page = usePage();
+const page = usePage<{ publicContext: PublicContext }>();
 
 const { t } = useTranslations();
-
-const siteName = page.props.general.site_name;
 </script>
 
 <template>
@@ -20,7 +19,7 @@ const siteName = page.props.general.site_name;
         >
             <Link
                 :href="home()"
-                :aria-label="siteName"
+                :aria-label="page.props.general.site_name"
                 class="max-w-full min-w-0 rounded-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
             >
                 <AppLogo />
@@ -37,6 +36,7 @@ const siteName = page.props.general.site_name;
                     {{ t('navigation.link.home') }}
                 </Link>
                 <Button
+                    v-if="page.props.publicContext.canAccessDashboard"
                     :as="Link"
                     :href="dashboard()"
                     size="sm"

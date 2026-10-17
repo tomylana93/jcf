@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { Head, Link, usePage } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 
 import { Button } from '@/components/ui/button';
 import { useTranslations } from '@/composables/useTranslations';
-import { dashboard } from '@/routes';
+import type { PublicHomeProps } from '@/types';
 
-defineProps<{ canonicalUrl: string }>();
+defineProps<PublicHomeProps>();
 
 const page = usePage();
 const { t } = useTranslations();
@@ -65,7 +65,10 @@ const { t } = useTranslations();
                 :content="page.props.general.site_description"
             />
         </Head>
-        <div class="flex max-w-3xl flex-col gap-6">
+        <div
+            id="public-introduction"
+            class="flex max-w-3xl flex-col gap-6"
+        >
             <h1
                 class="text-4xl leading-tight font-semibold tracking-tight wrap-anywhere sm:text-5xl lg:text-6xl"
             >
@@ -79,11 +82,11 @@ const { t } = useTranslations();
             </p>
         </div>
         <Button
-            :as="Link"
-            :href="dashboard()"
+            as="a"
+            href="#public-introduction"
             size="lg"
         >
-            {{ t('navigation.link.dashboard') }}
+            {{ t('navigation.link.explore') }}
         </Button>
     </section>
 </template>

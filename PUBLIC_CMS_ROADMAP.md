@@ -1,6 +1,6 @@
 # Public CMS roadmap
 
-Status: planned. This document does not indicate implementation completion.
+Status: Scope 01 complete locally; Scopes 02–08 remain planned. No deployment is implied.
 
 ## Objective and agreed scope
 
@@ -22,11 +22,11 @@ Reuse the existing Laravel/Inertia Vue application, public layout/navigation/foo
 
 All presets use the same canonical content and routes. Switching presets changes presentation and composition without deleting content, changing URLs, or resetting SEO. Store preset-specific presentation preferences separately and preserve them when switching away and back.
 
-| Preset | Intent | Default home composition |
-| --- | --- | --- |
-| Corporate | Formal company profile | Hero, introduction, services, strengths, recent articles, contact CTA |
+| Preset    | Intent                                | Default home composition                                                          |
+| --------- | ------------------------------------- | --------------------------------------------------------------------------------- |
+| Corporate | Formal company profile                | Hero, introduction, services, strengths, recent articles, contact CTA             |
 | Editorial | Organization stories and publications | Editorial hero, introduction, featured articles, activities/services, contact CTA |
-| Minimal | Concise profile and direct contact | Simple hero, introduction, services, recent articles, contact CTA |
+| Minimal   | Concise profile and direct contact    | Simple hero, introduction, services, recent articles, contact CTA                 |
 
 Each preset covers all public page types, desktop/mobile navigation, empty states, and long content. Use validated, structured section editing with supported ordering and visibility controls. Do not build an arbitrary HTML/CSS page builder. Hide empty optional sections. Do not publish fabricated statistics, clients, testimonials, or other organizational claims.
 
@@ -45,7 +45,7 @@ Content editing follows draft → authenticated preview → explicit publish. Ed
 
 ## Scope 01 — public access and shared contracts
 
-Status: pending. Dependencies: none.
+Status: complete locally (2026-10-17). Dependencies: none.
 
 1. Inspect existing public routes, auth props, feature switch, metadata, SSR entry/configuration, tests, branding, and shared components.
 2. Define typed public page, SEO, section, preset, and navigation contracts using existing project conventions.
@@ -173,20 +173,29 @@ Suggested commit when fixes/tests change: `test: verify public cms acceptance fl
 
 If this scope only records evidence, use a documentation commit instead of an empty test commit.
 
+## Scope 01 implementation notes
+
+- Public Dashboard navigation now follows authenticated access and the configurable email verification requirement. Dashboard has no separate permission in the current route contract. Home's primary CTA targets existing public content instead of Dashboard. Root redirects and intended destinations are preserved.
+- `resources/js/types/public.ts` defines shared page, SEO, structured section, navigation, image, preset, and per-preset preference contracts for Corporate, Editorial, and Minimal. Storage, input validation, publishing, and full preset rendering remain in their later scopes.
+- `EnsurePublicPagesEnabled` is the non-root content boundary: disabled public content returns 404 without consuming an intended destination. Scope 02 and later must attach this middleware to new public content routes; Home retains its special redirect behavior. About, Contact, and articles remain unavailable until implemented. Settings remain permission-protected and accessible when public pages are disabled.
+- SSR inspection covered the automatic Inertia Vite entry, per-request translation initialization, public layout/navigation/logo/footer, and browser timezone/theme/toast setup. Theme and toast initialization now run only in the client `withApp` branch; footer year comes from the server instead of render-time machine dates. The production-style client and SSR builds pass. This is not the complete runtime, hydration, metadata, or three-preset SSR matrix required by Scope 07.
+- Additional local commits were needed after the requested RAM investigation: `9479e41` introduced validation resource limits and restricted Serena to PHP/Vue; `abfd462` moved the resource limits out of the repo again. Only the PHP/Vue Serena configuration remains in the final repository state. Local PHP 8.5 service limits are CPU quota 200%, CPUs 0–1, MemoryHigh 2 GiB, MemoryMax 3 GiB, and MemorySwapMax 512 MiB. No global Node/editor/desktop limits were applied after narrowing the investigation to PHP. Existing Serena processes still require an MCP restart to reload their reduced language-server list.
+- A monitored coverage run with the initial repo limits passed 583 tests with 4 skips and 100% coverage; sampled PHP test RSS peaked at 410 MiB with 2 workers. Those limits were subsequently removed from the repo. The final environment-only gate evidence is recorded below.
+
 ## Evidence register
 
 Update with each scope's local commit. Record commands/results, SSR matrix evidence, manual review results, and any unresolved gate. Do not mark work complete based only on the presence of a test or configuration flag.
 
-| Scope | State | Validation evidence | Remaining gate |
-| --- | --- | --- | --- |
-| 01 | Pending | — | Implementation and focused tests |
-| 02 | Pending | — | Storage, authorization, publishing tests |
-| 03 | Pending | — | Three-preset rendering and responsive review |
-| 04 | Pending | — | Admin editing, preview, preset-switch tests |
-| 05 | Pending | — | Publication, slug, pagination, SSR tests |
-| 06 | Pending | — | Form/inbox security and failure-mode tests |
-| 07 | Pending | — | SEO and production-style SSR matrix |
-| 08 | Pending | — | Integrated review and complete local gate |
+| Scope | State            | Validation evidence                                                                                                                                                                                                                                                                                                                                                                                       | Remaining gate                                                                                                                          |
+| ----- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| 01    | Complete locally | Focused feature tests: 52 passed; focused browser tests: 5 passed. Production-style `lerd composer build:ssr`: exit 0. Final environment-only `lerd composer test`: exit 0; backend 583 passed / 4 skipped, coverage and type coverage 100%; browser 44 passed / 3 warnings (no details emitted). Sampled PHP container peak 2047 MiB; minimum host available 3617 MiB; cgroup max/oom/oom_kill events 0. | New content routes must use EnsurePublicPagesEnabled; full runtime/preset SSR matrix belongs to 07; manual accessibility belongs to 08. |
+| 02    | Pending          | —                                                                                                                                                                                                                                                                                                                                                                                                         | Storage, authorization, publishing tests                                                                                                |
+| 03    | Pending          | —                                                                                                                                                                                                                                                                                                                                                                                                         | Three-preset rendering and responsive review                                                                                            |
+| 04    | Pending          | —                                                                                                                                                                                                                                                                                                                                                                                                         | Admin editing, preview, preset-switch tests                                                                                             |
+| 05    | Pending          | —                                                                                                                                                                                                                                                                                                                                                                                                         | Publication, slug, pagination, SSR tests                                                                                                |
+| 06    | Pending          | —                                                                                                                                                                                                                                                                                                                                                                                                         | Form/inbox security and failure-mode tests                                                                                              |
+| 07    | Pending          | —                                                                                                                                                                                                                                                                                                                                                                                                         | SEO and production-style SSR matrix                                                                                                     |
+| 08    | Pending          | —                                                                                                                                                                                                                                                                                                                                                                                                         | Integrated review and complete local gate                                                                                               |
 
 ## Explicit minimum-scope boundaries
 

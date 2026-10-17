@@ -19,6 +19,7 @@ return [
     ],
 
     'link' => [
+        'explore' => 'Explore content',
         'home' => 'Home',
         'system' => 'System health',
         'audit' => 'Audit log',

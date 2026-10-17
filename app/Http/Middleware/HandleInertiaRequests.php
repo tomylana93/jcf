@@ -12,6 +12,7 @@ use App\Actions\Settings\GetGeneralSettings;
 use App\Actions\Settings\GetLayoutSettings;
 use App\Enums\Locale;
 use App\Enums\Role;
+use App\Settings\AuthSettings;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -59,6 +60,11 @@ final class HandleInertiaRequests extends Middleware
                 'user' => fn () => $request->user()?->append('avatar'),
                 'super_admin' => fn (): bool => $request->user()?->hasRole(Role::SuperAdmin) ?? false,
                 'permissions' => fn (): array => resolve(GetUserPermissions::class)->handle($request->user()),
+            ],
+            'publicContext' => [
+                'canAccessDashboard' => $request->user() !== null
+                    && (! resolve(AuthSettings::class)->email_verification_required || $request->user()->hasVerifiedEmail()),
+                'year' => now()->year,
             ],
             'notificationSummary' => fn (): array => resolve(GetNotificationSummary::class)->handle($request->user()),
             'timezone' => fn (): array => resolve(ResolveTimezone::class)->handle($request->user(), $request->cookie('timezone')),
