@@ -72,7 +72,10 @@ function expandSidebar(): void {
                     @click="setOpenMobile(false)"
                 />
             </SidebarMenuButton>
-            <CollapsibleTrigger v-if="item.children?.length" as-child>
+            <CollapsibleTrigger
+                v-if="item.children?.length"
+                as-child
+            >
                 <SidebarMenuAction
                     :aria-label="
                         t('navigation.label.toggle_submenu', {

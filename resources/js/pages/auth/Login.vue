@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useForm, Head, Link, setLayoutProps } from '@inertiajs/vue3';
+import { Head, Link, setLayoutProps, useForm } from '@inertiajs/vue3';
 import { Mail } from '@lucide/vue';
 import { watchEffect } from 'vue';
 
@@ -68,12 +68,16 @@ const submit = () => {
             :separator="t('common.helper.or')"
         />
 
-        <form novalidate @submit.prevent="submit" class="flex flex-col gap-6">
+        <form
+            novalidate
+            @submit.prevent="submit"
+            class="flex flex-col gap-6"
+        >
             <FieldGroup class="gap-6">
                 <Field :data-invalid="!!form.errors.email">
-                    <FieldLabel for="email">{{
-                        t('user.label.email')
-                    }}</FieldLabel>
+                    <FieldLabel for="email">
+                        {{ t('user.label.email') }}
+                    </FieldLabel>
                     <InputGroup>
                         <InputGroupInput
                             id="email"
@@ -105,9 +109,9 @@ const submit = () => {
                 </Field>
 
                 <Field :data-invalid="!!form.errors.password">
-                    <FieldLabel for="password">{{
-                        t('user.label.password')
-                    }}</FieldLabel>
+                    <FieldLabel for="password">
+                        {{ t('user.label.password') }}
+                    </FieldLabel>
                     <PasswordInput
                         id="password"
                         name="password"

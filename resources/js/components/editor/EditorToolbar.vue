@@ -9,8 +9,11 @@ import { useTranslations } from '@/composables/useTranslations';
 import EditorBlockControls from './EditorBlockControls.vue';
 import EditorFormattingControls from './EditorFormattingControls.vue';
 import EditorTableControls from './EditorTableControls.vue';
+
 defineProps<{ editor: Editor }>();
+
 defineEmits<{ link: [] }>();
+
 const { t } = useTranslations();
 </script>
 <template>
@@ -19,12 +22,13 @@ const { t } = useTranslations();
         :aria-label="t('editor.label.toolbar')"
         class="flex flex-wrap items-center gap-2 p-2"
     >
-        <EditorFormattingControls :editor="editor" /><Separator
+        <EditorFormattingControls :editor="editor" />
+        <Separator
             orientation="vertical"
             class="h-6"
-        /><EditorBlockControls :editor="editor" /><EditorTableControls
-            :editor="editor"
         />
+        <EditorBlockControls :editor="editor" />
+        <EditorTableControls :editor="editor" />
         <Button
             type="button"
             variant="ghost"
@@ -35,7 +39,8 @@ const { t } = useTranslations();
             :title="t('editor.button.link')"
             @mousedown.prevent
             @click="$emit('link')"
-            ><Link
-        /></Button>
+        >
+            <Link />
+        </Button>
     </div>
 </template>

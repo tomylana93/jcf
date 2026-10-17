@@ -12,9 +12,9 @@ import {
 import { computed, watch } from 'vue';
 
 import {
+    sendInvitation,
     store,
     update,
-    sendInvitation,
 } from '@/actions/App/Http/Controllers/MasterData/UserController';
 import { Button } from '@/components/ui/button';
 import {
@@ -54,11 +54,14 @@ const props = defineProps<{
     roles: SelectOption[];
     statuses: SelectOption[];
 }>();
+
 const emit = defineEmits<{
     'update:open': [open: boolean];
 }>();
+
 const { t } = useTranslations();
 const invitationForm = useForm<{ invitation: string }>({ invitation: '' });
+
 function resendInvitation(): void {
     if (props.user) {
         invitationForm.submit(sendInvitation(props.user.id), {
@@ -66,7 +69,9 @@ function resendInvitation(): void {
         });
     }
 }
+
 const editing = computed(() => props.user !== null);
+
 const form = useForm<UserForm>({
     send_invitation: false,
     password: '',
@@ -107,7 +112,10 @@ function submit(): void {
 }
 </script>
 <template>
-    <Sheet :open="open" @update:open="emit('update:open', $event)">
+    <Sheet
+        :open="open"
+        @update:open="emit('update:open', $event)"
+    >
         <SheetContent class="overflow-y-auto sm:max-w-lg">
             <div
                 v-if="user?.invitation_pending && user.status === 'active'"
@@ -121,8 +129,9 @@ function submit(): void {
                     variant="outline"
                     :disabled="invitationForm.processing"
                     @click="resendInvitation"
-                    >{{ t('user.invitation.resend') }}</Button
                 >
+                    {{ t('user.invitation.resend') }}
+                </Button>
                 <FieldError :errors="[invitationForm.errors.invitation]" />
             </div>
             <form
@@ -131,20 +140,22 @@ function submit(): void {
                 @submit.prevent="submit"
             >
                 <SheetHeader>
-                    <SheetTitle>{{
-                        editing
-                            ? t('user.card.edit_title')
-                            : t('user.card.create_title')
-                    }}</SheetTitle>
-                    <SheetDescription>{{
-                        t('user.card.description')
-                    }}</SheetDescription>
+                    <SheetTitle>
+                        {{
+                            editing
+                                ? t('user.card.edit_title')
+                                : t('user.card.create_title')
+                        }}
+                    </SheetTitle>
+                    <SheetDescription>
+                        {{ t('user.card.description') }}
+                    </SheetDescription>
                 </SheetHeader>
                 <FieldGroup class="flex-1 px-4 py-6">
                     <Field :data-invalid="!!form.errors.name">
-                        <FieldLabel for="user-name">{{
-                            t('user.label.name')
-                        }}</FieldLabel>
+                        <FieldLabel for="user-name">
+                            {{ t('user.label.name') }}
+                        </FieldLabel>
                         <InputGroup>
                             <InputGroupInput
                                 id="user-name"
@@ -169,9 +180,9 @@ function submit(): void {
                         />
                     </Field>
                     <Field :data-invalid="!!form.errors.email">
-                        <FieldLabel for="user-email">{{
-                            t('user.label.email')
-                        }}</FieldLabel>
+                        <FieldLabel for="user-email">
+                            {{ t('user.label.email') }}
+                        </FieldLabel>
                         <InputGroup>
                             <InputGroupInput
                                 id="user-email"
@@ -197,9 +208,9 @@ function submit(): void {
                         />
                     </Field>
                     <Field :data-invalid="!!form.errors.role">
-                        <FieldLabel for="user-role">{{
-                            t('user.label.role')
-                        }}</FieldLabel>
+                        <FieldLabel for="user-role">
+                            {{ t('user.label.role') }}
+                        </FieldLabel>
                         <Select
                             :model-value="
                                 form.role
@@ -240,15 +251,16 @@ function submit(): void {
                             </InputGroup>
                             <SelectContent>
                                 <SelectGroup>
-                                    <SelectItem value="__unassigned__">{{
-                                        t('user.label.no_role')
-                                    }}</SelectItem>
+                                    <SelectItem value="__unassigned__">
+                                        {{ t('user.label.no_role') }}
+                                    </SelectItem>
                                     <SelectItem
                                         v-for="role in roles"
                                         :key="role.value"
                                         :value="`role:${role.value}`"
-                                        >{{ role.label }}</SelectItem
                                     >
+                                        {{ role.label }}
+                                    </SelectItem>
                                 </SelectGroup>
                             </SelectContent>
                         </Select>
@@ -257,10 +269,13 @@ function submit(): void {
                             :errors="[form.errors.role]"
                         />
                     </Field>
-                    <Field v-if="editing" :data-invalid="!!form.errors.status">
-                        <FieldLabel for="user-status">{{
-                            t('user.label.status')
-                        }}</FieldLabel>
+                    <Field
+                        v-if="editing"
+                        :data-invalid="!!form.errors.status"
+                    >
+                        <FieldLabel for="user-status">
+                            {{ t('user.label.status') }}
+                        </FieldLabel>
                         <Select
                             v-model="form.status"
                             @update:model-value="form.validate('status')"
@@ -293,8 +308,9 @@ function submit(): void {
                                         v-for="status in statuses"
                                         :key="status.value"
                                         :value="status.value"
-                                        >{{ status.label }}</SelectItem
                                     >
+                                        {{ status.label }}
+                                    </SelectItem>
                                 </SelectGroup>
                             </SelectContent>
                         </Select>
@@ -304,31 +320,35 @@ function submit(): void {
                         />
                     </Field>
                     <template v-if="!editing">
-                        <Field
-                            ><FieldLabel for="send-invitation">{{
-                                t('user.invitation.action')
-                            }}</FieldLabel
-                            ><Switch
+                        <Field>
+                            <FieldLabel for="send-invitation">
+                                {{ t('user.invitation.action') }}
+                            </FieldLabel>
+                            <Switch
                                 id="send-invitation"
-                                v-model="form.send_invitation" /><FieldError
+                                v-model="form.send_invitation"
+                            />
+                            <FieldError
                                 :errors="[form.errors.send_invitation]"
-                        /></Field>
+                            />
+                        </Field>
                         <Field
                             v-if="!form.send_invitation"
                             :data-invalid="!!form.errors.password"
                         >
-                            <FieldLabel for="user-password">{{
-                                t('user.label.password')
-                            }}</FieldLabel>
-                            <InputGroup
-                                ><InputGroupInput
+                            <FieldLabel for="user-password">
+                                {{ t('user.label.password') }}
+                            </FieldLabel>
+                            <InputGroup>
+                                <InputGroupInput
                                     id="user-password"
                                     v-model="form.password"
                                     type="password"
                                     autocomplete="new-password"
                                     :aria-invalid="!!form.errors.password"
                                     aria-describedby="user-password-error"
-                            /></InputGroup>
+                                />
+                            </InputGroup>
                             <FieldError
                                 id="user-password-error"
                                 :errors="[form.errors.password]"
@@ -338,11 +358,11 @@ function submit(): void {
                             v-if="!form.send_invitation"
                             :data-invalid="!!form.errors.password_confirmation"
                         >
-                            <FieldLabel for="user-password-confirmation">{{
-                                t('user.label.password_confirmation')
-                            }}</FieldLabel>
-                            <InputGroup
-                                ><InputGroupInput
+                            <FieldLabel for="user-password-confirmation">
+                                {{ t('user.label.password_confirmation') }}
+                            </FieldLabel>
+                            <InputGroup>
+                                <InputGroupInput
                                     id="user-password-confirmation"
                                     v-model="form.password_confirmation"
                                     type="password"
@@ -351,7 +371,8 @@ function submit(): void {
                                         !!form.errors.password_confirmation
                                     "
                                     aria-describedby="user-password-confirmation-error"
-                            /></InputGroup>
+                                />
+                            </InputGroup>
                             <FieldError
                                 id="user-password-confirmation-error"
                                 :errors="[form.errors.password_confirmation]"
@@ -368,9 +389,18 @@ function submit(): void {
                         <X data-icon="inline-start" />
                         {{ t('common.button.cancel') }}
                     </Button>
-                    <Button type="submit" :disabled="form.processing">
-                        <Save v-if="editing" data-icon="inline-start" />
-                        <Plus v-else data-icon="inline-start" />
+                    <Button
+                        type="submit"
+                        :disabled="form.processing"
+                    >
+                        <Save
+                            v-if="editing"
+                            data-icon="inline-start"
+                        />
+                        <Plus
+                            v-else
+                            data-icon="inline-start"
+                        />
                         {{
                             editing
                                 ? t('common.button.save')

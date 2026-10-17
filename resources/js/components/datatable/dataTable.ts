@@ -3,8 +3,8 @@ import {
     columnVisibilityFeature,
     globalFilteringFeature,
     rowPaginationFeature,
-    rowSortingFeature,
     rowSelectionFeature,
+    rowSortingFeature,
     tableFeatures,
 } from '@tanstack/vue-table';
 import type { ColumnDef, RowData } from '@tanstack/vue-table';

@@ -5,6 +5,7 @@ import { useBrowserTimezone } from '@/composables/useBrowserTimezone';
 import { useTranslations } from '@/composables/useTranslations';
 
 const { t } = useTranslations();
+
 useBrowserTimezone();
 </script>
 

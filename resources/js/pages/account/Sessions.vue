@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, useForm, setLayoutProps } from '@inertiajs/vue3';
+import { Head, setLayoutProps, useForm } from '@inertiajs/vue3';
 import { watchEffect } from 'vue';
 
 import { destroy } from '@/actions/App/Http/Controllers/Account/SessionController';
@@ -12,15 +12,19 @@ import { useDateTime } from '@/composables/useDateTime';
 import { useTranslations } from '@/composables/useTranslations';
 import { index } from '@/routes/sessions';
 import type { AccountSession, ConfirmPasswordForm } from '@/types';
+
 defineProps<{ sessions: AccountSession[]; canListSessions: boolean }>();
+
 const { t } = useTranslations();
 const { formatDateTime } = useDateTime();
 const form = useForm<ConfirmPasswordForm>({ password: '' });
+
 watchEffect(() =>
     setLayoutProps({
         breadcrumbs: [{ title: t('account.sessions.title'), href: index() }],
     }),
 );
+
 function submit() {
     form.submit(destroy(), {
         preserveScroll: true,
@@ -36,7 +40,10 @@ function submit() {
             :title="t('account.sessions.title')"
             :description="t('account.sessions.card.description')"
         />
-        <p v-if="!canListSessions" class="text-sm text-muted-foreground">
+        <p
+            v-if="!canListSessions"
+            class="text-sm text-muted-foreground"
+        >
             {{ t('account.sessions.helper.unsupported') }}
         </p>
         <p
@@ -52,9 +59,12 @@ function submit() {
                 class="flex flex-col gap-2 rounded-lg border p-4"
             >
                 <p class="text-sm wrap-anywhere">{{ session.device }}</p>
-                <Badge v-if="session.current" variant="secondary">{{
-                    t('account.sessions.label.current')
-                }}</Badge>
+                <Badge
+                    v-if="session.current"
+                    variant="secondary"
+                >
+                    {{ t('account.sessions.label.current') }}
+                </Badge>
                 <p class="text-sm text-muted-foreground">
                     {{
                         session.ip_address ??
@@ -65,7 +75,11 @@ function submit() {
                 </p>
             </li>
         </ul>
-        <form novalidate @submit.prevent="submit" class="flex flex-col gap-3">
+        <form
+            novalidate
+            @submit.prevent="submit"
+            class="flex flex-col gap-3"
+        >
             <p class="text-sm text-muted-foreground">
                 {{ t('account.sessions.helper.revoke') }}
             </p>
@@ -82,9 +96,9 @@ function submit() {
                 id="session-password-error"
                 :errors="[form.errors.password]"
             />
-            <Button :disabled="form.processing">{{
-                t('account.sessions.button.revoke')
-            }}</Button>
+            <Button :disabled="form.processing">
+                {{ t('account.sessions.button.revoke') }}
+            </Button>
         </form>
     </div>
 </template>

@@ -62,19 +62,25 @@ function selectAppearance(value: unknown) {
                     }}
                 </TooltipContent>
             </Tooltip>
-            <DropdownMenuContent :reference="trigger?.$el" align="end">
+            <DropdownMenuContent
+                :reference="trigger?.$el"
+                align="end"
+            >
                 <DropdownMenuRadioGroup
                     :model-value="appearance"
                     @update:model-value="selectAppearance"
                 >
                     <DropdownMenuRadioItem value="light">
-                        <Sun /> {{ t('appearance.label.light') }}
+                        <Sun />
+                        {{ t('appearance.label.light') }}
                     </DropdownMenuRadioItem>
                     <DropdownMenuRadioItem value="dark">
-                        <Moon /> {{ t('appearance.label.dark') }}
+                        <Moon />
+                        {{ t('appearance.label.dark') }}
                     </DropdownMenuRadioItem>
                     <DropdownMenuRadioItem value="system">
-                        <Monitor /> {{ t('appearance.label.system') }}
+                        <Monitor />
+                        {{ t('appearance.label.system') }}
                     </DropdownMenuRadioItem>
                 </DropdownMenuRadioGroup>
             </DropdownMenuContent>

@@ -19,8 +19,16 @@ const { t } = useTranslations();
                 name="description"
                 :content="page.props.general.site_description"
             />
-            <link head-key="canonical" rel="canonical" :href="canonicalUrl" />
-            <meta head-key="og:type" property="og:type" content="website" />
+            <link
+                head-key="canonical"
+                rel="canonical"
+                :href="canonicalUrl"
+            />
+            <meta
+                head-key="og:type"
+                property="og:type"
+                content="website"
+            />
             <meta
                 head-key="og:title"
                 property="og:title"
@@ -31,7 +39,11 @@ const { t } = useTranslations();
                 property="og:description"
                 :content="page.props.general.site_description"
             />
-            <meta head-key="og:url" property="og:url" :content="canonicalUrl" />
+            <meta
+                head-key="og:url"
+                property="og:url"
+                :content="canonicalUrl"
+            />
             <meta
                 head-key="og:site_name"
                 property="og:site_name"
@@ -66,7 +78,11 @@ const { t } = useTranslations();
                 {{ page.props.general.site_description }}
             </p>
         </div>
-        <Button :as="Link" :href="dashboard()" size="lg">
+        <Button
+            :as="Link"
+            :href="dashboard()"
+            size="lg"
+        >
             {{ t('navigation.link.dashboard') }}
         </Button>
     </section>

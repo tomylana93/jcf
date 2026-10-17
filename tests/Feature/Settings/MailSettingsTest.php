@@ -13,6 +13,7 @@ use App\Settings\MailSettingsTestMessage;
 use App\Settings\SettingsMailTransport;
 use Illuminate\Mail\MailManager;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Inertia\Testing\AssertableInertia as Assert;
 use Symfony\Component\Mailer\Transport\TransportInterface;
@@ -153,6 +154,9 @@ describe('Mail settings', function (): void {
             ->assertInvalid(['test_email']);
 
         Mail::shouldReceive('to')->once()->andThrow(new RuntimeException('Internal transport failure'));
+        Log::shouldReceive('error')->once()->with('Mail settings test delivery failed.', [
+            'exception_type' => RuntimeException::class,
+        ]);
 
         post(route('settings.mail.test'), ['test_email' => 'recipient@example.test'])
             ->assertInvalid(['test_email' => __('settings.mail.status.test_failed')]);
@@ -202,6 +206,32 @@ describe('Mail settings', function (): void {
 });
 
 describe('Mailpit and secret boundaries', function (): void {
+    it('disables TLS and authentication for local Mailpit delivery', function (): void {
+        $settings = resolve(MailSettings::class);
+        $settings->mailer = 'smtp';
+        $settings->smtp_host = 'lerd-mailpit';
+        $settings->smtp_port = 1025;
+        $settings->smtp_scheme = 'none';
+        $settings->smtp_username = '';
+        $settings->smtp_password = null;
+        $settings->save();
+
+        $email = (new Email)->to('recipient@example.test')->subject('Test')->text('Body');
+        $transport = Mockery::mock(TransportInterface::class);
+        $transport->shouldReceive('send')->once()->with($email, null)->andReturn(null);
+        $manager = Mockery::mock(MailManager::class);
+        $manager->shouldReceive('createSymfonyTransport')->once()->with(Mockery::on(fn (array $config): bool => $config['host'] === 'lerd-mailpit'
+            && $config['port'] === 1025
+            && $config['scheme'] === 'smtp'
+            && $config['auto_tls'] === false
+            && $config['require_tls'] === false
+            && $config['username'] === ''
+            && $config['password'] === null
+        ))->andReturn($transport);
+
+        new SettingsMailTransport($manager)->send($email);
+    });
+
     it('accepts local SMTP without authentication and never flashes submitted credentials', function (): void {
         $actor = User::factory()->create();
         assignRolePermissions($actor, Permission::ViewSettings, Permission::ManageSettings);

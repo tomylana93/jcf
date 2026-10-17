@@ -7,12 +7,14 @@ import { useBrowserTimezone } from '@/composables/useBrowserTimezone';
 import { useRealtimeNotifications } from '@/composables/useRealtimeNotifications';
 import AppHeaderLayout from '@/layouts/app/AppHeaderLayout.vue';
 import AppSidebarLayout from '@/layouts/app/AppSidebarLayout.vue';
-import { globalSearchKey, type BreadcrumbItem } from '@/types';
+import { type BreadcrumbItem, globalSearchKey } from '@/types';
 
 useBrowserTimezone();
+
 useRealtimeNotifications();
 
 const searchOpen = ref(false);
+
 provide(globalSearchKey, searchOpen);
 
 const { breadcrumbs = [] } = defineProps<{

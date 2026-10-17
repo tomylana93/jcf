@@ -7,6 +7,7 @@ import { useTranslations } from '@/composables/useTranslations';
 import { home } from '@/routes';
 
 const props = defineProps<{ status: number }>();
+
 const { t } = useTranslations();
 
 const error = computed(() => {
@@ -51,7 +52,10 @@ function retry(): void {
         class="flex min-h-svh items-center justify-center bg-background px-6 py-12 text-foreground"
     >
         <Head :title="error.title">
-            <meta name="robots" content="noindex, nofollow" />
+            <meta
+                name="robots"
+                content="noindex, nofollow"
+            />
         </Head>
 
         <div
@@ -60,8 +64,9 @@ function retry(): void {
             <div class="flex flex-col items-center gap-4">
                 <span
                     class="rounded-full border border-border px-4 py-1 text-sm font-medium text-muted-foreground"
-                    >{{ status }}</span
                 >
+                    {{ status }}
+                </span>
                 <h1 class="text-3xl font-semibold tracking-tight">
                     {{ error.title }}
                 </h1>
@@ -71,10 +76,17 @@ function retry(): void {
             </div>
 
             <div class="flex flex-wrap items-center justify-center gap-3">
-                <Button v-if="canRetry" variant="outline" @click="retry">
+                <Button
+                    v-if="canRetry"
+                    variant="outline"
+                    @click="retry"
+                >
                     {{ t('error_page.action.retry') }}
                 </Button>
-                <Button :as="Link" :href="home()">
+                <Button
+                    :as="Link"
+                    :href="home()"
+                >
                     {{ t('error_page.action.home') }}
                 </Button>
             </div>

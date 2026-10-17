@@ -6,10 +6,10 @@ import { computed } from 'vue';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
-    DropdownMenuTrigger,
     DropdownMenuContent,
     DropdownMenuGroup,
     DropdownMenuItem,
+    DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useTranslations } from '@/composables/useTranslations';
 
@@ -81,13 +81,13 @@ function generate(kind: 'xlsx' | 'pdf'): void {
             <DropdownMenuTrigger as-child>
                 <Button
                     variant="outline"
+                    size="default"
                     class="h-9"
                     :disabled="unavailable"
                     :title="t('table.export.helper.scope')"
                 >
-                    <Download data-icon="inline-start" />{{
-                        t('table.export.button.export')
-                    }}
+                    <Download data-icon="inline-start" />
+                    {{ t('table.export.button.export') }}
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -96,13 +96,15 @@ function generate(kind: 'xlsx' | 'pdf'): void {
                         :disabled="unavailable"
                         @select="generate('xlsx')"
                     >
-                        <FileSpreadsheet />{{ t('table.export.label.excel') }}
+                        <FileSpreadsheet />
+                        {{ t('table.export.label.excel') }}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                         :disabled="unavailable"
                         @select="generate('pdf')"
                     >
-                        <FileText />{{ t('table.export.label.pdf') }}
+                        <FileText />
+                        {{ t('table.export.label.pdf') }}
                     </DropdownMenuItem>
                 </DropdownMenuGroup>
             </DropdownMenuContent>

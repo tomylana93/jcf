@@ -31,7 +31,10 @@ const count = computed(
         :aria-label="t('notification.label.open', { count })"
         data-test="notification-bell"
     >
-        <Bell class="size-4" aria-hidden="true" />
+        <Bell
+            class="size-4"
+            aria-hidden="true"
+        />
         <span
             v-if="count > 0"
             class="absolute -top-1 -right-1 flex min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground"

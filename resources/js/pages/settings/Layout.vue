@@ -29,6 +29,7 @@ const props = defineProps<{
 const { t } = useTranslations();
 
 const page = usePage();
+
 const canManage = computed(() =>
     page.props.auth.permissions.includes('settings.manage'),
 );
@@ -59,11 +60,12 @@ const submit = () => {
 </script>
 
 <template>
+    <Head :title="t('settings.layout.title')" />
+
     <PageContainer
         :title="t('settings.layout.card.title')"
         :description="t('settings.layout.card.description')"
     >
-        <Head :title="t('settings.layout.title')" />
         <form
             novalidate
             class="flex w-full flex-col gap-6"
@@ -71,9 +73,9 @@ const submit = () => {
         >
             <FieldGroup>
                 <Field :data-invalid="!!form.errors.app_layout">
-                    <FieldLabel>{{
-                        t('settings.layout.label.app_layout')
-                    }}</FieldLabel>
+                    <FieldLabel>
+                        {{ t('settings.layout.label.app_layout') }}
+                    </FieldLabel>
                     <RadioGroup
                         v-model="form.app_layout"
                         :disabled="!canManage"
@@ -114,9 +116,9 @@ const submit = () => {
                     <FieldError :errors="[form.errors.app_layout]" />
                 </Field>
                 <Field :data-invalid="!!form.errors.auth_layout">
-                    <FieldLabel>{{
-                        t('settings.layout.label.auth_layout')
-                    }}</FieldLabel>
+                    <FieldLabel>
+                        {{ t('settings.layout.label.auth_layout') }}
+                    </FieldLabel>
                     <RadioGroup
                         v-model="form.auth_layout"
                         :disabled="!canManage"
@@ -167,7 +169,10 @@ const submit = () => {
             >
                 {{ t('common.status.validating') }}
             </p>
-            <div v-if="canManage" class="flex flex-col gap-3 sm:items-end">
+            <div
+                v-if="canManage"
+                class="flex flex-col gap-3 sm:items-end"
+            >
                 <Button
                     type="submit"
                     :disabled="form.processing"

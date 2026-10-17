@@ -33,19 +33,12 @@ const props = defineProps<{ settings: MailSettings }>();
 const { t } = useTranslations();
 
 const page = usePage();
+
 const canManage = computed(() =>
     page.props.auth.permissions.includes('settings.manage'),
 );
-const previewKey = ref(0);
 
-watchEffect(() => {
-    setLayoutProps({
-        breadcrumbs: [
-            { title: t('breadcrumb.settings'), href: index() },
-            { title: t('breadcrumb.mail'), href: edit() },
-        ],
-    });
-});
+const previewKey = ref(0);
 
 const form = useForm<UpdateMailSettingsForm>({
     mailer: props.settings.mailer,
@@ -59,6 +52,7 @@ const form = useForm<UpdateMailSettingsForm>({
     show_logo: props.settings.show_logo,
     footer_text: props.settings.footer_text,
 });
+
 const testForm = useForm<SendMailSettingsTestForm>({
     test_email: '',
 });
@@ -79,14 +73,24 @@ const sendTest = () => {
         preserveScroll: true,
     });
 };
+
+watchEffect(() => {
+    setLayoutProps({
+        breadcrumbs: [
+            { title: t('breadcrumb.settings'), href: index() },
+            { title: t('breadcrumb.mail'), href: edit() },
+        ],
+    });
+});
 </script>
 
 <template>
+    <Head :title="t('settings.mail.title')" />
+
     <PageContainer
         :title="t('settings.mail.card.title')"
         :description="t('settings.mail.card.description')"
     >
-        <Head :title="t('settings.mail.title')" />
         <div class="grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
             <form
                 novalidate
@@ -99,9 +103,9 @@ const sendTest = () => {
                     </h2>
                     <FieldGroup>
                         <Field :data-invalid="!!form.errors.mailer">
-                            <FieldLabel for="mailer">{{
-                                t('settings.mail.label.mailer')
-                            }}</FieldLabel>
+                            <FieldLabel for="mailer">
+                                {{ t('settings.mail.label.mailer') }}
+                            </FieldLabel>
                             <select
                                 id="mailer"
                                 v-model="form.mailer"
@@ -120,15 +124,15 @@ const sendTest = () => {
                                 </option>
                             </select>
                             <FieldError :errors="[form.errors.mailer]" />
-                            <FieldDescription v-if="form.mailer === 'log'">{{
-                                t('settings.mail.hint.log')
-                            }}</FieldDescription>
+                            <FieldDescription v-if="form.mailer === 'log'">
+                                {{ t('settings.mail.hint.log') }}
+                            </FieldDescription>
                         </Field>
                         <template v-if="form.mailer === 'smtp'">
                             <Field :data-invalid="!!form.errors.smtp_host">
-                                <FieldLabel for="smtp_host">{{
-                                    t('settings.mail.label.smtp_host')
-                                }}</FieldLabel>
+                                <FieldLabel for="smtp_host">
+                                    {{ t('settings.mail.label.smtp_host') }}
+                                </FieldLabel>
                                 <Input
                                     id="smtp_host"
                                     v-model="form.smtp_host"
@@ -137,11 +141,16 @@ const sendTest = () => {
                                     :aria-invalid="!!form.errors.smtp_host"
                                 />
                                 <FieldError :errors="[form.errors.smtp_host]" />
+                                <FieldDescription
+                                    v-if="form.smtp_scheme === 'none'"
+                                >
+                                    {{ t('settings.mail.hint.mailpit') }}
+                                </FieldDescription>
                             </Field>
                             <Field :data-invalid="!!form.errors.smtp_port">
-                                <FieldLabel for="smtp_port">{{
-                                    t('settings.mail.label.smtp_port')
-                                }}</FieldLabel>
+                                <FieldLabel for="smtp_port">
+                                    {{ t('settings.mail.label.smtp_port') }}
+                                </FieldLabel>
                                 <Input
                                     id="smtp_port"
                                     v-model.number="form.smtp_port"
@@ -153,9 +162,9 @@ const sendTest = () => {
                                 <FieldError :errors="[form.errors.smtp_port]" />
                             </Field>
                             <Field :data-invalid="!!form.errors.smtp_scheme">
-                                <FieldLabel for="smtp_scheme">{{
-                                    t('settings.mail.label.smtp_scheme')
-                                }}</FieldLabel>
+                                <FieldLabel for="smtp_scheme">
+                                    {{ t('settings.mail.label.smtp_scheme') }}
+                                </FieldLabel>
                                 <select
                                     id="smtp_scheme"
                                     v-model="form.smtp_scheme"
@@ -178,9 +187,9 @@ const sendTest = () => {
                                 />
                             </Field>
                             <Field :data-invalid="!!form.errors.smtp_username">
-                                <FieldLabel for="smtp_username">{{
-                                    t('settings.mail.label.smtp_username')
-                                }}</FieldLabel>
+                                <FieldLabel for="smtp_username">
+                                    {{ t('settings.mail.label.smtp_username') }}
+                                </FieldLabel>
                                 <Input
                                     id="smtp_username"
                                     v-model="form.smtp_username"
@@ -193,9 +202,9 @@ const sendTest = () => {
                                 />
                             </Field>
                             <Field :data-invalid="!!form.errors.smtp_password">
-                                <FieldLabel for="smtp_password">{{
-                                    t('settings.mail.label.smtp_password')
-                                }}</FieldLabel>
+                                <FieldLabel for="smtp_password">
+                                    {{ t('settings.mail.label.smtp_password') }}
+                                </FieldLabel>
                                 <Input
                                     id="smtp_password"
                                     type="password"
@@ -205,13 +214,17 @@ const sendTest = () => {
                                     :readonly="!canManage"
                                     :aria-invalid="!!form.errors.smtp_password"
                                 />
-                                <FieldDescription>{{
-                                    props.settings.has_smtp_password
-                                        ? t(
-                                              'settings.mail.status.password_saved',
-                                          )
-                                        : t('settings.mail.hint.smtp_password')
-                                }}</FieldDescription>
+                                <FieldDescription>
+                                    {{
+                                        props.settings.has_smtp_password
+                                            ? t(
+                                                  'settings.mail.status.password_saved',
+                                              )
+                                            : t(
+                                                  'settings.mail.hint.smtp_password',
+                                              )
+                                    }}
+                                </FieldDescription>
                                 <FieldError
                                     :errors="[form.errors.smtp_password]"
                                 />
@@ -226,9 +239,9 @@ const sendTest = () => {
                     </h2>
                     <FieldGroup>
                         <Field :data-invalid="!!form.errors.from_address">
-                            <FieldLabel for="from_address">{{
-                                t('settings.mail.label.from_address')
-                            }}</FieldLabel>
+                            <FieldLabel for="from_address">
+                                {{ t('settings.mail.label.from_address') }}
+                            </FieldLabel>
                             <Input
                                 id="from_address"
                                 v-model="form.from_address"
@@ -239,9 +252,9 @@ const sendTest = () => {
                             <FieldError :errors="[form.errors.from_address]" />
                         </Field>
                         <Field :data-invalid="!!form.errors.from_name">
-                            <FieldLabel for="from_name">{{
-                                t('settings.mail.label.from_name')
-                            }}</FieldLabel>
+                            <FieldLabel for="from_name">
+                                {{ t('settings.mail.label.from_name') }}
+                            </FieldLabel>
                             <Input
                                 id="from_name"
                                 v-model="form.from_name"
@@ -266,9 +279,9 @@ const sendTest = () => {
                             <div
                                 class="flex items-center justify-between gap-4"
                             >
-                                <FieldLabel for="show_logo">{{
-                                    t('settings.mail.label.show_logo')
-                                }}</FieldLabel>
+                                <FieldLabel for="show_logo">
+                                    {{ t('settings.mail.label.show_logo') }}
+                                </FieldLabel>
                                 <Switch
                                     id="show_logo"
                                     v-model="form.show_logo"
@@ -278,9 +291,9 @@ const sendTest = () => {
                             <FieldError :errors="[form.errors.show_logo]" />
                         </Field>
                         <Field :data-invalid="!!form.errors.footer_text">
-                            <FieldLabel for="footer_text">{{
-                                t('settings.mail.label.footer_text')
-                            }}</FieldLabel>
+                            <FieldLabel for="footer_text">
+                                {{ t('settings.mail.label.footer_text') }}
+                            </FieldLabel>
                             <Textarea
                                 id="footer_text"
                                 v-model="form.footer_text"
@@ -293,7 +306,10 @@ const sendTest = () => {
                     </FieldGroup>
                 </section>
 
-                <div v-if="canManage" class="flex justify-end">
+                <div
+                    v-if="canManage"
+                    class="flex justify-end"
+                >
                     <Button
                         type="submit"
                         :disabled="form.processing"
@@ -328,9 +344,9 @@ const sendTest = () => {
                     </h2>
                     <FieldGroup class="gap-4">
                         <Field :data-invalid="!!testForm.errors.test_email">
-                            <FieldLabel for="test_email">{{
-                                t('settings.mail.test.email')
-                            }}</FieldLabel>
+                            <FieldLabel for="test_email">
+                                {{ t('settings.mail.test.email') }}
+                            </FieldLabel>
                             <Input
                                 id="test_email"
                                 v-model="testForm.test_email"

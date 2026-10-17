@@ -7,6 +7,8 @@ return [
         'skip_content' => 'Skip to content',
         'open' => 'Open navigation menu',
         'main' => 'Main navigation',
+        'preferences' => 'Language and theme preferences',
+        'breadcrumb_ancestors' => 'Show parent pages',
         'account' => 'Open account menu',
         'close' => 'Close navigation menu',
         'toggle_submenu' => 'Toggle :title submenu',

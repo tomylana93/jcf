@@ -13,8 +13,11 @@ import { createColumns } from './columns';
 const props = defineProps<{
     users: TablePaginator<PermissionUser>;
 }>();
+
 const { t } = useTranslations();
+
 const columns = computed(() => createColumns(t));
+
 watchEffect(() =>
     setLayoutProps({
         breadcrumbs: [
@@ -28,11 +31,12 @@ watchEffect(() =>
 </script>
 
 <template>
+    <Head :title="t('permission.title')" />
+
     <PageContainer
         :title="t('permission.card.title')"
         :description="t('permission.card.description')"
     >
-        <Head :title="t('permission.title')" />
         <DataTable
             :url="index.url()"
             data-key="users"

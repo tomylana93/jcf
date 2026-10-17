@@ -6,21 +6,21 @@ import { Button } from '@/components/ui/button';
 import {
     Combobox,
     ComboboxAnchor,
-    ComboboxTrigger,
-    ComboboxList,
-    ComboboxInput,
     ComboboxEmpty,
     ComboboxGroup,
+    ComboboxInput,
     ComboboxItem,
     ComboboxItemIndicator,
+    ComboboxList,
+    ComboboxTrigger,
 } from '@/components/ui/combobox';
 import {
     Select,
-    SelectTrigger,
-    SelectValue,
     SelectContent,
     SelectGroup,
     SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from '@/components/ui/select';
 import { useTranslations } from '@/composables/useTranslations';
 import type { DataTableFilter } from '@/types';
@@ -39,6 +39,7 @@ const options = computed(() => [
 const selected = computed(() =>
     options.value.find((option) => option.value === props.modelValue),
 );
+
 function updateCombobox(value: unknown): void {
     const option = options.value.find((option) => option === value);
     emit('update:modelValue', option?.value ?? '');
@@ -59,12 +60,10 @@ function updateCombobox(value: unknown): void {
                     class="h-9 w-full min-w-0 justify-between @2xl/toolbar:w-48"
                     :aria-label="filter.label"
                 >
-                    <span class="truncate"
-                        >{{ filter.label }}:
-                        {{
-                            selected?.label ?? t('table.placeholder.all')
-                        }}</span
-                    >
+                    <span class="truncate">
+                        {{ filter.label }}:
+                        {{ selected?.label ?? t('table.placeholder.all') }}
+                    </span>
                     <ChevronsUpDown data-icon="inline-end" />
                 </Button>
             </ComboboxTrigger>
@@ -98,10 +97,10 @@ function updateCombobox(value: unknown): void {
             class="h-9 w-full min-w-0 @2xl/toolbar:w-48"
             :aria-label="filter.label"
         >
-            <SelectValue
-                >{{ filter.label }}:
-                {{ selected?.label ?? t('table.placeholder.all') }}</SelectValue
-            >
+            <SelectValue>
+                {{ filter.label }}:
+                {{ selected?.label ?? t('table.placeholder.all') }}
+            </SelectValue>
         </SelectTrigger>
         <SelectContent>
             <SelectGroup>
@@ -109,8 +108,9 @@ function updateCombobox(value: unknown): void {
                     v-for="option in options"
                     :key="option.value"
                     :value="option.value || '__all'"
-                    >{{ option.label }}</SelectItem
                 >
+                    {{ option.label }}
+                </SelectItem>
             </SelectGroup>
         </SelectContent>
     </Select>

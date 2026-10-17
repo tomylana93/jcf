@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useForm, Head, usePage, setLayoutProps } from '@inertiajs/vue3';
+import { Head, setLayoutProps, useForm, usePage } from '@inertiajs/vue3';
 import { Link } from '@inertiajs/vue3';
-import { Save, Mail, UserRound } from '@lucide/vue';
+import { Mail, Save, UserRound } from '@lucide/vue';
 import { computed, onMounted, ref, watchEffect } from 'vue';
 
 import ProfileController from '@/actions/App/Http/Controllers/Account/ProfileController';
@@ -11,8 +11,8 @@ import Heading from '@/components/shared/Heading.vue';
 import { Button } from '@/components/ui/button';
 import {
     Field,
-    FieldGroup,
     FieldError,
+    FieldGroup,
     FieldLabel,
 } from '@/components/ui/field';
 import {
@@ -46,8 +46,11 @@ watchEffect(() => {
 });
 
 const page = usePage();
+
 const user = computed(() => page.props.auth.user);
+
 const avatarBusy = ref(false);
+
 const form = useForm<UpdateProfileForm>({
     name: user.value.name,
     email: user.value.email,
@@ -55,6 +58,7 @@ const form = useForm<UpdateProfileForm>({
 });
 
 const deviceTimezone = ref('');
+
 onMounted(() => {
     deviceTimezone.value = Intl.DateTimeFormat().resolvedOptions().timeZone;
 });
@@ -147,9 +151,9 @@ const submit = () => {
                 </FieldGroup>
 
                 <Field :data-invalid="Boolean(form.errors.timezone)">
-                    <FieldLabel for="timezone">{{
-                        t('account.profile.label.timezone')
-                    }}</FieldLabel>
+                    <FieldLabel for="timezone">
+                        {{ t('account.profile.label.timezone') }}
+                    </FieldLabel>
                     <NativeSelect
                         id="timezone"
                         name="timezone"
@@ -160,9 +164,9 @@ const submit = () => {
                         "
                         :disabled="form.processing"
                     >
-                        <NativeSelectOption value="">{{
-                            t('account.profile.placeholder.timezone')
-                        }}</NativeSelectOption>
+                        <NativeSelectOption value="">
+                            {{ t('account.profile.placeholder.timezone') }}
+                        </NativeSelectOption>
                         <NativeSelectOption
                             v-for="timezone in timezoneOptions"
                             :key="timezone"
@@ -177,10 +181,9 @@ const submit = () => {
                         class="self-start"
                         :disabled="form.processing || !deviceTimezone"
                         @click="form.timezone = deviceTimezone"
-                        >{{
-                            t('account.profile.button.device_timezone')
-                        }}</Button
                     >
+                        {{ t('account.profile.button.device_timezone') }}
+                    </Button>
                     <FieldError
                         id="timezone-error"
                         :errors="[form.errors.timezone]"

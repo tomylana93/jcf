@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useForm, Head, Link, setLayoutProps } from '@inertiajs/vue3';
+import { Head, Link, setLayoutProps, useForm } from '@inertiajs/vue3';
 import { watchEffect } from 'vue';
 
 import { store as send } from '@/actions/Laravel/Fortify/Http/Controllers/EmailVerificationNotificationController';
@@ -40,7 +40,11 @@ const submit = () => {
             {{ t('auth.verify_email.status.sent') }}
         </div>
 
-        <form novalidate @submit.prevent="submit" class="flex flex-col gap-6">
+        <form
+            novalidate
+            @submit.prevent="submit"
+            class="flex flex-col gap-6"
+        >
             <Button
                 type="submit"
                 :disabled="form.processing"
@@ -52,7 +56,11 @@ const submit = () => {
 
             <Separator />
 
-            <Button :as="Link" :href="logout()" variant="ghost">
+            <Button
+                :as="Link"
+                :href="logout()"
+                variant="ghost"
+            >
                 {{ t('auth.button.logout') }}
             </Button>
         </form>

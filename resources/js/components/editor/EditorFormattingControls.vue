@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Bold, Italic, Underline, Strikethrough } from '@lucide/vue';
+import { Bold, Italic, Strikethrough, Underline } from '@lucide/vue';
 import type { Editor } from '@tiptap/vue-3';
 
 import {
@@ -14,7 +14,9 @@ import { Toggle } from '@/components/ui/toggle';
 import { useTranslations } from '@/composables/useTranslations';
 import { runEditorAction } from '@/lib/editor';
 import type { EditorAction, TranslationKey } from '@/types';
+
 defineProps<{ editor: Editor }>();
+
 const { t } = useTranslations();
 
 const controls: {
@@ -48,22 +50,26 @@ const controls: {
                               .run()
             "
         >
-            <SelectTrigger class="w-36" :aria-label="t('editor.label.block')"
-                ><SelectValue
-            /></SelectTrigger>
-            <SelectContent
-                ><SelectGroup
-                    ><SelectItem value="paragraph">{{
-                        t('editor.label.paragraph')
-                    }}</SelectItem
-                    ><SelectItem
+            <SelectTrigger
+                class="w-36"
+                :aria-label="t('editor.label.block')"
+            >
+                <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+                <SelectGroup>
+                    <SelectItem value="paragraph">
+                        {{ t('editor.label.paragraph') }}
+                    </SelectItem>
+                    <SelectItem
                         v-for="level in [2, 3, 4]"
                         :key="level"
                         :value="String(level)"
-                        >{{ t('editor.label.heading', { level }) }}</SelectItem
-                    ></SelectGroup
-                ></SelectContent
-            >
+                    >
+                        {{ t('editor.label.heading', { level }) }}
+                    </SelectItem>
+                </SelectGroup>
+            </SelectContent>
         </Select>
         <Toggle
             v-for="control in controls"
@@ -75,7 +81,8 @@ const controls: {
             :title="t(control.label)"
             @mousedown.prevent
             @click="runEditorAction(editor, control.action)"
-            ><component :is="control.icon"
-        /></Toggle>
+        >
+            <component :is="control.icon" />
+        </Toggle>
     </div>
 </template>

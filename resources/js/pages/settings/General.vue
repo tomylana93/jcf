@@ -29,9 +29,11 @@ const props = defineProps<{
 const { t } = useTranslations();
 
 const page = usePage();
+
 const canManage = computed(() =>
     page.props.auth.permissions.includes('settings.manage'),
 );
+
 watchEffect(() => {
     setLayoutProps({
         breadcrumbs: [
@@ -61,11 +63,12 @@ const submit = () => {
 </script>
 
 <template>
+    <Head :title="t('settings.general.title')" />
+
     <PageContainer
         :title="t('settings.general.card.title')"
         :description="t('settings.general.card.description')"
     >
-        <Head :title="t('settings.general.title')" />
         <form
             novalidate
             class="flex w-full flex-col gap-6"
@@ -103,9 +106,9 @@ const submit = () => {
                     />
                 </Field>
                 <Field :data-invalid="!!form.errors.site_name">
-                    <FieldLabel for="site_name">{{
-                        t('settings.general.label.site_name')
-                    }}</FieldLabel>
+                    <FieldLabel for="site_name">
+                        {{ t('settings.general.label.site_name') }}
+                    </FieldLabel>
                     <Input
                         id="site_name"
                         v-model="form.site_name"
@@ -121,9 +124,9 @@ const submit = () => {
                     />
                 </Field>
                 <Field :data-invalid="!!form.errors.site_description">
-                    <FieldLabel for="site_description">{{
-                        t('settings.general.label.site_description')
-                    }}</FieldLabel>
+                    <FieldLabel for="site_description">
+                        {{ t('settings.general.label.site_description') }}
+                    </FieldLabel>
                     <Textarea
                         id="site_description"
                         v-model="form.site_description"
@@ -139,9 +142,9 @@ const submit = () => {
                     />
                 </Field>
                 <Field :data-invalid="!!form.errors.support_email">
-                    <FieldLabel for="support_email">{{
-                        t('settings.general.label.support_email')
-                    }}</FieldLabel>
+                    <FieldLabel for="support_email">
+                        {{ t('settings.general.label.support_email') }}
+                    </FieldLabel>
                     <Input
                         id="support_email"
                         v-model="form.support_email"
@@ -164,7 +167,10 @@ const submit = () => {
             >
                 {{ t('common.status.validating') }}
             </p>
-            <div v-if="canManage" class="flex flex-col gap-3 sm:items-end">
+            <div
+                v-if="canManage"
+                class="flex flex-col gap-3 sm:items-end"
+            >
                 <Button
                     type="submit"
                     :disabled="form.processing"

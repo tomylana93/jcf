@@ -6,6 +6,7 @@ import { toUrl } from '@/lib/utils';
 import type { NavItem } from '@/types';
 
 defineProps<{ item: NavItem; active?: boolean }>();
+
 const { t } = useTranslations();
 </script>
 
@@ -20,10 +21,17 @@ const { t } = useTranslations();
         :rel="item.external ? 'noopener noreferrer' : undefined"
         :aria-current="active ? 'page' : undefined"
     >
-        <component :is="item.icon" v-if="item.icon" aria-hidden="true" />
+        <component
+            :is="item.icon"
+            v-if="item.icon"
+            aria-hidden="true"
+        />
         <span class="truncate">{{ item.title }}</span>
-        <span v-if="item.external" class="sr-only">{{
-            t('navigation.helper.opens_new_tab')
-        }}</span>
+        <span
+            v-if="item.external"
+            class="sr-only"
+        >
+            {{ t('navigation.helper.opens_new_tab') }}
+        </span>
     </component>
 </template>

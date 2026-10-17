@@ -10,9 +10,12 @@ import { useTranslations } from '@/composables/useTranslations';
 import { index, show } from '@/routes/documentation';
 import { edit } from '@/routes/documentation/manage';
 import type { ReadableDocumentation } from '@/types';
+
 const props = defineProps<{ document: ReadableDocumentation }>();
+
 const page = usePage();
 const { t } = useTranslations();
+
 watchEffect(() =>
     setLayoutProps({
         breadcrumbs: [
@@ -23,26 +26,34 @@ watchEffect(() =>
 );
 </script>
 <template>
+    <Head :title="document.title" />
+
     <PageContainer
         :title="document.title"
         :description="document.summary ?? undefined"
     >
-        <Head :title="document.title" />
         <div class="flex items-center gap-2">
             <Link
                 :href="index()"
                 :class="buttonVariants({ variant: 'outline' })"
-                >{{ t('documentation.button.back') }}</Link
-            ><Link
+            >
+                {{ t('documentation.button.back') }}
+            </Link>
+            <Link
                 v-if="
                     page.props.auth.permissions.includes('documentation.manage')
                 "
                 :href="edit(document.id)"
                 :class="buttonVariants()"
-                >{{ t('documentation.button.edit') }}</Link
-            ><Badge v-if="document.status === 'draft'" variant="secondary">{{
-                t('documentation.status.draft')
-            }}</Badge>
+            >
+                {{ t('documentation.button.edit') }}
+            </Link>
+            <Badge
+                v-if="document.status === 'draft'"
+                variant="secondary"
+            >
+                {{ t('documentation.status.draft') }}
+            </Badge>
         </div>
         <article class="w-full min-w-0">
             <RichTextContent :html="document.content_html" />

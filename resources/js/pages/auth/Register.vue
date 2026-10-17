@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useForm, Head, Link, setLayoutProps } from '@inertiajs/vue3';
+import { Head, Link, setLayoutProps, useForm } from '@inertiajs/vue3';
 import { Mail, UserRound } from '@lucide/vue';
 import { watchEffect } from 'vue';
 
@@ -48,7 +48,11 @@ const submit = () => {
     <div>
         <Head :title="t('auth.register.title')" />
 
-        <form novalidate @submit.prevent="submit" class="flex flex-col gap-6">
+        <form
+            novalidate
+            @submit.prevent="submit"
+            class="flex flex-col gap-6"
+        >
             <FieldGroup class="gap-6">
                 <Field :data-invalid="!!form.errors.name">
                     <InputGroup>
@@ -71,7 +75,10 @@ const submit = () => {
                         </InputGroupAddon>
                     </InputGroup>
 
-                    <FieldError id="name-error" :errors="[form.errors.name]" />
+                    <FieldError
+                        id="name-error"
+                        :errors="[form.errors.name]"
+                    />
                 </Field>
 
                 <Field :data-invalid="!!form.errors.email">
@@ -156,7 +163,11 @@ const submit = () => {
 
             <Separator />
 
-            <Button :as="Link" :href="login()" variant="secondary">
+            <Button
+                :as="Link"
+                :href="login()"
+                variant="secondary"
+            >
                 {{ t('auth.button.login') }}
             </Button>
         </form>

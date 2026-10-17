@@ -11,6 +11,7 @@ import type { NavItem } from '@/types';
 defineProps<{
     items: NavItem[];
 }>();
+
 const { isMobile } = useSidebar();
 </script>
 

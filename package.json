@@ -8,6 +8,8 @@
         "dev": "vp dev",
         "check": "vp check",
         "check:fix": "vp check --fix",
+        "format": "vp lint resources/js --fix && vp fmt resources/js resources/css",
+        "format:check": "vp fmt resources/js resources/css --check",
         "types:check": "node -e \"require('vue-tsc').run(require.resolve('@typescript/typescript6/lib/tsc'))\" -- --noEmit"
     },
     "dependencies": {

@@ -10,6 +10,7 @@ import { globalSearchKey } from '@/types';
 const open = inject(globalSearchKey);
 
 const { t } = useTranslations();
+
 function openSearch(): void {
     if (open) open.value = true;
 }

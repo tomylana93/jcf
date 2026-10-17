@@ -31,7 +31,10 @@ defineProps<Props>();
     <DropdownMenuGroup>
         <DropdownMenuLabel class="p-0 font-normal">
             <div class="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <UserInfo :user="user" :show-email="true" />
+                <UserInfo
+                    :user="user"
+                    :show-email="true"
+                />
             </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -44,7 +47,7 @@ defineProps<Props>();
                     cache-for="30s"
                     cache-tags="navigation"
                 >
-                    <Settings class="mr-2 h-4 w-4" />
+                    <Settings class="mr-2 size-4" />
                     {{ t('navigation.link.account') }}
                 </Link>
             </DropdownMenuItem>
@@ -58,7 +61,7 @@ defineProps<Props>();
                 as="button"
                 data-test="logout-button"
             >
-                <LogOut class="mr-2 h-4 w-4" />
+                <LogOut class="mr-2 size-4" />
                 {{ t('auth.button.logout') }}
             </Link>
         </DropdownMenuItem>

@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import { Head, setLayoutProps, useForm, usePoll } from '@inertiajs/vue3';
 import { Plus, Upload } from '@lucide/vue';
-import { computed, h, ref, watchEffect } from 'vue';
+import { computed, ref, watchEffect } from 'vue';
 
 import {
+    destroy,
+    restore,
     store,
     upload,
-    restore,
-    destroy,
 } from '@/actions/App/Http/Controllers/MasterData/BackupController';
 import { DataTable } from '@/components/datatable';
-import type { DataTableColumnDef } from '@/components/datatable';
 import PageContainer from '@/components/layout/PageContainer.vue';
+import StatusBadge from '@/components/shared/StatusBadge.vue';
 import {
     AlertDialog,
     AlertDialogCancel,
@@ -21,7 +21,6 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -38,28 +37,41 @@ import { useTranslations } from '@/composables/useTranslations';
 import { index as masterDataIndex } from '@/routes/master-data';
 import { index } from '@/routes/master-data/backups';
 import type {
+    BackupArchive,
     BackupPageProps,
     DataTableAction,
     RestoreBackupForm,
-    BackupArchive,
     UploadBackupForm,
 } from '@/types';
 
-import BackupActions from './BackupActions.vue';
+import { createColumns } from './columns';
+
 const props = defineProps<BackupPageProps>();
+
 const { t } = useTranslations();
 const { formatDateTime } = useDateTime();
 const createForm = useForm({});
 const uploadForm = useForm<UploadBackupForm>({ archive: null });
 const restoreForm = useForm<RestoreBackupForm>({ confirmation: true });
+
 const uploadOpen = ref(false);
 const selectedBackup = ref<BackupArchive | null>(null);
 const restoreOpen = ref(false);
 const deleteOpen = ref(false);
+
 const deleteForm = useForm({});
+
 const busy = computed(
     () => props.backupStatus === 'running' || props.restoreStatus === 'running',
 );
+
+const statusTones = {
+    idle: 'neutral',
+    running: 'info',
+    completed: 'success',
+    failed: 'danger',
+} as const;
+
 const actions = computed<DataTableAction[]>(() => [
     {
         label: t('backup.button.backup'),
@@ -80,55 +92,30 @@ const actions = computed<DataTableAction[]>(() => [
         },
     },
 ]);
-const columns = computed<DataTableColumnDef<BackupArchive>[]>(() => [
-    {
-        accessorKey: 'filename',
-        header: t('backup.label.filename'),
-        cell: ({ row }) =>
-            h('span', { class: 'wrap-anywhere' }, row.original.filename),
-    },
-    {
-        accessorKey: 'size',
-        header: t('backup.label.size'),
-        cell: ({ row }) => `${(row.original.size / 1048576).toFixed(2)} MB`,
-    },
-    {
-        accessorKey: 'created_at',
-        header: t('backup.label.created_at'),
-        cell: ({ row }) => formatDateTime(row.original.created_at),
-    },
-    {
-        id: 'actions',
-        header: t('table.label.actions'),
-        enableSorting: false,
-        enableHiding: false,
-        cell: ({ row }) =>
-            h(BackupActions, {
-                backup: row.original,
-                disabled: !props.backupConfigured || busy.value,
-                deleteDisabled: busy.value || deleteForm.processing,
-                onDelete: () => {
-                    selectedBackup.value = row.original;
-                    deleteForm.clearErrors();
-                    deleteOpen.value = true;
-                },
-                onRestore: () => {
-                    selectedBackup.value = row.original;
-                    restoreForm.clearErrors();
-                    restoreOpen.value = true;
-                },
-            }),
-    },
-]);
-watchEffect(() =>
-    setLayoutProps({
-        breadcrumbs: [
-            { title: t('breadcrumb.master_data'), href: masterDataIndex() },
-            { title: t('backup.title'), href: index() },
-        ],
-    }),
+
+const columns = computed(() =>
+    createColumns(
+        t,
+        formatDateTime,
+        !props.backupConfigured || busy.value,
+        busy.value || deleteForm.processing,
+        showDelete,
+        showRestore,
+    ),
 );
-usePoll(15000, { only: ['backups', 'backupStatus', 'restoreStatus'] });
+
+function showDelete(backup: BackupArchive): void {
+    selectedBackup.value = backup;
+    deleteForm.clearErrors();
+    deleteOpen.value = true;
+}
+
+function showRestore(backup: BackupArchive): void {
+    selectedBackup.value = backup;
+    restoreForm.clearErrors();
+    restoreOpen.value = true;
+}
+
 function submitUpload(): void {
     uploadForm.submit(upload(), {
         preserveScroll: true,
@@ -138,6 +125,7 @@ function submitUpload(): void {
         },
     });
 }
+
 function submitRestore(): void {
     if (selectedBackup.value) {
         restoreForm.submit(restore(selectedBackup.value.filename), {
@@ -148,6 +136,7 @@ function submitRestore(): void {
         });
     }
 }
+
 function submitDelete(): void {
     if (selectedBackup.value) {
         deleteForm.submit(destroy(selectedBackup.value.filename), {
@@ -158,30 +147,48 @@ function submitDelete(): void {
         });
     }
 }
+
 function selectArchive(event: Event): void {
     uploadForm.archive = (event.target as HTMLInputElement).files?.[0] ?? null;
 }
+watchEffect(() =>
+    setLayoutProps({
+        breadcrumbs: [
+            { title: t('breadcrumb.master_data'), href: masterDataIndex() },
+            { title: t('backup.title'), href: index() },
+        ],
+    }),
+);
+
+usePoll(15000, { only: ['backups', 'backupStatus', 'restoreStatus'] });
 </script>
 <template>
+    <Head :title="t('backup.title')" />
+
     <PageContainer
         :title="t('backup.title')"
         :description="t('backup.card.description')"
     >
-        <Head :title="t('backup.title')" />
         <div class="flex flex-wrap items-center gap-3">
-            <Badge variant="secondary"
-                >{{ t('backup.label.backup') }}:
-                {{ t(`backup.badge.${backupStatus}`) }}</Badge
-            >
-            <Badge variant="secondary"
-                >{{ t('backup.label.restore') }}:
-                {{ t(`backup.badge.${restoreStatus}`) }}</Badge
-            >
+            <StatusBadge
+                :tone="statusTones[backupStatus]"
+                :label="`${t('backup.label.backup')}: ${t(`backup.badge.${backupStatus}`)}`"
+            />
+            <StatusBadge
+                :tone="statusTones[restoreStatus]"
+                :label="`${t('backup.label.restore')}: ${t(`backup.badge.${restoreStatus}`)}`"
+            />
         </div>
-        <p v-if="!backupConfigured" class="text-sm text-muted-foreground">
+        <p
+            v-if="!backupConfigured"
+            class="text-sm text-muted-foreground"
+        >
             {{ t('backup.helper.setup') }}
         </p>
-        <p v-if="restoreStatus === 'failed'" class="text-sm text-destructive">
+        <p
+            v-if="restoreStatus === 'failed'"
+            class="text-sm text-destructive"
+        >
             {{ t('backup.error.restore_failed') }}
         </p>
         <FieldError :errors="Object.values(createForm.errors)" />
@@ -197,93 +204,114 @@ function selectArchive(event: Event): void {
         />
         <Dialog v-model:open="uploadOpen">
             <DialogContent>
-                <DialogHeader
-                    ><DialogTitle>{{ t('backup.button.upload') }}</DialogTitle
-                    ><DialogDescription>{{
-                        t('backup.helper.upload')
-                    }}</DialogDescription></DialogHeader
-                >
+                <DialogHeader>
+                    <DialogTitle>
+                        {{ t('backup.button.upload') }}
+                    </DialogTitle>
+                    <DialogDescription>
+                        {{ t('backup.helper.upload') }}
+                    </DialogDescription>
+                </DialogHeader>
                 <form
                     novalidate
                     class="flex flex-1 flex-col gap-4 p-4"
                     @submit.prevent="submitUpload"
                 >
-                    <Field
-                        ><FieldLabel for="backup-archive">{{
-                            t('backup.label.archive')
-                        }}</FieldLabel
-                        ><Input
+                    <Field>
+                        <FieldLabel for="backup-archive">
+                            {{ t('backup.label.archive') }}
+                        </FieldLabel>
+                        <Input
                             id="backup-archive"
                             type="file"
                             accept=".zip"
-                            @change="selectArchive" /><FieldError
+                            @change="selectArchive"
+                        />
+                        <FieldError
                             :errors="Object.values(uploadForm.errors)"
-                    /></Field>
-                    <p v-if="uploadForm.progress" class="text-sm">
+                        />
+                    </Field>
+                    <p
+                        v-if="uploadForm.progress"
+                        class="text-sm"
+                    >
                         {{ uploadForm.progress.percentage }}%
                     </p>
-                    <DialogFooter
-                        ><Button
+                    <DialogFooter>
+                        <Button
                             type="submit"
                             :disabled="uploadForm.processing"
-                            >{{ t('backup.button.upload') }}</Button
-                        ></DialogFooter
-                    >
+                        >
+                            {{ t('backup.button.upload') }}
+                        </Button>
+                    </DialogFooter>
                 </form>
             </DialogContent>
         </Dialog>
         <AlertDialog v-model:open="restoreOpen">
             <AlertDialogContent>
-                <AlertDialogHeader
-                    ><AlertDialogTitle>{{
-                        t('backup.dialog.restore')
-                    }}</AlertDialogTitle
-                    ><AlertDialogDescription>{{
-                        t('backup.helper.restore', {
-                            filename: selectedBackup?.filename ?? '',
-                        })
-                    }}</AlertDialogDescription></AlertDialogHeader
+                <AlertDialogHeader>
+                    <AlertDialogTitle>
+                        {{ t('backup.dialog.restore') }}
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                        {{
+                            t('backup.helper.restore', {
+                                filename: selectedBackup?.filename ?? '',
+                            })
+                        }}
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <form
+                    novalidate
+                    @submit.prevent="submitRestore"
                 >
-                <form novalidate @submit.prevent="submitRestore">
                     <FieldError :errors="Object.values(restoreForm.errors)" />
-                    <AlertDialogFooter
-                        ><AlertDialogCancel>{{
-                            t('common.button.cancel')
-                        }}</AlertDialogCancel
-                        ><Button
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>
+                            {{ t('common.button.cancel') }}
+                        </AlertDialogCancel>
+                        <Button
                             type="submit"
                             variant="destructive"
                             :disabled="restoreForm.processing"
-                            >{{ t('backup.button.restore') }}</Button
-                        ></AlertDialogFooter
-                    >
+                        >
+                            {{ t('backup.button.restore') }}
+                        </Button>
+                    </AlertDialogFooter>
                 </form>
             </AlertDialogContent>
         </AlertDialog>
         <AlertDialog v-model:open="deleteOpen">
             <AlertDialogContent>
                 <AlertDialogHeader>
-                    <AlertDialogTitle>{{
-                        t('backup.dialog.delete')
-                    }}</AlertDialogTitle>
-                    <AlertDialogDescription>{{
-                        t('backup.helper.delete', {
-                            filename: selectedBackup?.filename ?? '',
-                        })
-                    }}</AlertDialogDescription>
+                    <AlertDialogTitle>
+                        {{ t('backup.dialog.delete') }}
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                        {{
+                            t('backup.helper.delete', {
+                                filename: selectedBackup?.filename ?? '',
+                            })
+                        }}
+                    </AlertDialogDescription>
                 </AlertDialogHeader>
-                <form novalidate @submit.prevent="submitDelete">
+                <form
+                    novalidate
+                    @submit.prevent="submitDelete"
+                >
                     <FieldError :errors="Object.values(deleteForm.errors)" />
                     <AlertDialogFooter>
-                        <AlertDialogCancel :disabled="deleteForm.processing">{{
-                            t('common.button.cancel')
-                        }}</AlertDialogCancel>
+                        <AlertDialogCancel :disabled="deleteForm.processing">
+                            {{ t('common.button.cancel') }}
+                        </AlertDialogCancel>
                         <Button
                             type="submit"
                             variant="destructive"
                             :disabled="deleteForm.processing"
-                            >{{ t('common.button.delete') }}</Button
                         >
+                            {{ t('common.button.delete') }}
+                        </Button>
                     </AlertDialogFooter>
                 </form>
             </AlertDialogContent>

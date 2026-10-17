@@ -58,17 +58,20 @@ const submit = () => {
                     <Button
                         variant="destructive"
                         data-test="delete-user-button"
-                        >{{
-                            t('account.disable_account.button.disable')
-                        }}</Button
                     >
+                        {{ t('account.disable_account.button.disable') }}
+                    </Button>
                 </DialogTrigger>
                 <DialogContent>
-                    <form novalidate @submit.prevent="submit" class="space-y-6">
+                    <form
+                        novalidate
+                        @submit.prevent="submit"
+                        class="space-y-6"
+                    >
                         <DialogHeader class="space-y-3">
-                            <DialogTitle>{{
-                                t('account.disable_account.dialog.title')
-                            }}</DialogTitle>
+                            <DialogTitle>
+                                {{ t('account.disable_account.dialog.title') }}
+                            </DialogTitle>
                             <DialogDescription>
                                 {{
                                     t(
@@ -79,9 +82,9 @@ const submit = () => {
                         </DialogHeader>
 
                         <div class="grid gap-2">
-                            <Label for="password">{{
-                                t('user.label.password')
-                            }}</Label>
+                            <Label for="password">
+                                {{ t('user.label.password') }}
+                            </Label>
                             <PasswordInput
                                 id="password"
                                 name="password"

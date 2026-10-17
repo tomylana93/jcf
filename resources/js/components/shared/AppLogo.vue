@@ -5,7 +5,9 @@ import { computed } from 'vue';
 import AppLogoIcon from '@/components/shared/AppLogoIcon.vue';
 
 const page = usePage();
+
 const name = computed(() => page.props.general.site_name);
+
 const showImageOnly = computed(
     () => page.props.brand.logo_type === 'logo_only',
 );
@@ -42,8 +44,9 @@ const showImageOnly = computed(
             <AppLogoIcon class="size-8 shrink-0" />
             <span
                 class="truncate text-sm font-semibold group-data-[collapsible=icon]:hidden"
-                >{{ name }}</span
             >
+                {{ name }}
+            </span>
         </template>
     </div>
 </template>

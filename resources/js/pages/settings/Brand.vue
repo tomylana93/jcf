@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, setLayoutProps, useForm, usePage } from '@inertiajs/vue3';
-import { Save, ImageIcon, Palette, Trash2, Undo2 } from '@lucide/vue';
+import { ImageIcon, Palette, Save, Trash2, Undo2 } from '@lucide/vue';
 import { computed, onBeforeUnmount, reactive, watchEffect } from 'vue';
 
 import { update } from '@/actions/App/Http/Controllers/Settings/BrandSettingsController';
@@ -47,16 +47,20 @@ const { t } = useTranslations();
 const { resolvedAppearance } = useAppearance();
 
 const page = usePage();
+
 const canManage = computed(() =>
     page.props.auth.permissions.includes('settings.manage'),
 );
+
 type ImageField = 'logo' | 'logo_text' | 'favicon' | 'auth_background';
+
 const previews = reactive<Record<ImageField, string | null>>({
     logo: null,
     logo_text: null,
     favicon: null,
     auth_background: null,
 });
+
 const resetKeys = reactive<Record<ImageField, number>>({
     logo: 0,
     logo_text: 0,
@@ -181,20 +185,21 @@ function submit() {
 </script>
 
 <template>
+    <Head :title="t('settings.brand.title')" />
+
     <PageContainer
         :title="t('settings.brand.card.title')"
         :description="t('settings.brand.card.description')"
     >
-        <Head :title="t('settings.brand.title')" />
         <form
             novalidate
             class="flex w-full flex-col gap-6"
             @submit.prevent="submit"
         >
             <Field :data-invalid="!!form.errors.logo_type">
-                <FieldLabel>{{
-                    t('settings.brand.label.logo_type')
-                }}</FieldLabel>
+                <FieldLabel>
+                    {{ t('settings.brand.label.logo_type') }}
+                </FieldLabel>
                 <RadioGroup
                     v-model="form.logo_type"
                     :disabled="!canManage || form.processing"
@@ -212,9 +217,9 @@ function submit() {
                         <span>{{ option.label }}</span>
                     </label>
                 </RadioGroup>
-                <FieldError v-if="form.errors.logo_type">{{
-                    form.errors.logo_type
-                }}</FieldError>
+                <FieldError v-if="form.errors.logo_type">
+                    {{ form.errors.logo_type }}
+                </FieldError>
             </Field>
             <div class="grid gap-6 lg:grid-cols-2">
                 <Card>
@@ -223,12 +228,12 @@ function submit() {
                             class="size-5 text-muted-foreground"
                             aria-hidden="true"
                         />
-                        <CardTitle>{{
-                            t('settings.brand.label.logo')
-                        }}</CardTitle>
-                        <CardDescription>{{
-                            t('settings.brand.helper.logo')
-                        }}</CardDescription>
+                        <CardTitle>
+                            {{ t('settings.brand.label.logo') }}
+                        </CardTitle>
+                        <CardDescription>
+                            {{ t('settings.brand.helper.logo') }}
+                        </CardDescription>
                     </CardHeader>
                     <CardContent>
                         <FieldGroup>
@@ -252,15 +257,16 @@ function submit() {
                                 <FieldError
                                     v-if="form.errors.logo"
                                     id="logo-error"
-                                    >{{ form.errors.logo }}</FieldError
                                 >
+                                    {{ form.errors.logo }}
+                                </FieldError>
                             </Field>
                         </FieldGroup>
                     </CardContent>
                     <CardFooter class="justify-between gap-2 border-t">
-                        <Badge variant="secondary">{{
-                            imageStatus('logo')
-                        }}</Badge>
+                        <Badge variant="secondary">
+                            {{ imageStatus('logo') }}
+                        </Badge>
                         <Button
                             v-if="canManage && settings.logo_url"
                             type="button"
@@ -273,7 +279,10 @@ function submit() {
                                 v-if="form.remove_logo"
                                 data-icon="inline-start"
                             />
-                            <Trash2 v-else data-icon="inline-start" />
+                            <Trash2
+                                v-else
+                                data-icon="inline-start"
+                            />
                             {{
                                 t(
                                     form.remove_logo
@@ -291,12 +300,12 @@ function submit() {
                             class="size-5 text-muted-foreground"
                             aria-hidden="true"
                         />
-                        <CardTitle>{{
-                            t('settings.brand.label.logo_text')
-                        }}</CardTitle>
-                        <CardDescription>{{
-                            t('settings.brand.helper.logo_text')
-                        }}</CardDescription>
+                        <CardTitle>
+                            {{ t('settings.brand.label.logo_text') }}
+                        </CardTitle>
+                        <CardDescription>
+                            {{ t('settings.brand.helper.logo_text') }}
+                        </CardDescription>
                     </CardHeader>
                     <CardContent>
                         <FieldGroup>
@@ -322,15 +331,16 @@ function submit() {
                                 <FieldError
                                     v-if="form.errors.logo_text"
                                     id="logo_text-error"
-                                    >{{ form.errors.logo_text }}</FieldError
                                 >
+                                    {{ form.errors.logo_text }}
+                                </FieldError>
                             </Field>
                         </FieldGroup>
                     </CardContent>
                     <CardFooter class="justify-between gap-2 border-t">
-                        <Badge variant="secondary">{{
-                            imageStatus('logo_text')
-                        }}</Badge>
+                        <Badge variant="secondary">
+                            {{ imageStatus('logo_text') }}
+                        </Badge>
                         <Button
                             v-if="canManage && settings.logo_text_url"
                             type="button"
@@ -343,7 +353,10 @@ function submit() {
                                 v-if="form.remove_logo_text"
                                 data-icon="inline-start"
                             />
-                            <Trash2 v-else data-icon="inline-start" />
+                            <Trash2
+                                v-else
+                                data-icon="inline-start"
+                            />
                             {{
                                 t(
                                     form.remove_logo_text
@@ -361,9 +374,9 @@ function submit() {
                             class="size-5 text-muted-foreground"
                             aria-hidden="true"
                         />
-                        <CardTitle>{{
-                            t('settings.brand.label.favicon')
-                        }}</CardTitle>
+                        <CardTitle>
+                            {{ t('settings.brand.label.favicon') }}
+                        </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <FieldGroup>
@@ -389,15 +402,16 @@ function submit() {
                                 <FieldError
                                     v-if="form.errors.favicon"
                                     id="favicon-error"
-                                    >{{ form.errors.favicon }}</FieldError
                                 >
+                                    {{ form.errors.favicon }}
+                                </FieldError>
                             </Field>
                         </FieldGroup>
                     </CardContent>
                     <CardFooter class="justify-between gap-2 border-t">
-                        <Badge variant="secondary">{{
-                            imageStatus('favicon')
-                        }}</Badge>
+                        <Badge variant="secondary">
+                            {{ imageStatus('favicon') }}
+                        </Badge>
                         <Button
                             v-if="canManage && settings.favicon_url"
                             type="button"
@@ -410,7 +424,10 @@ function submit() {
                                 v-if="form.remove_favicon"
                                 data-icon="inline-start"
                             />
-                            <Trash2 v-else data-icon="inline-start" />
+                            <Trash2
+                                v-else
+                                data-icon="inline-start"
+                            />
                             {{
                                 t(
                                     form.remove_favicon
@@ -429,12 +446,12 @@ function submit() {
                         class="size-5 text-muted-foreground"
                         aria-hidden="true"
                     />
-                    <CardTitle>{{
-                        t('settings.brand.label.auth_background')
-                    }}</CardTitle>
-                    <CardDescription>{{
-                        t('settings.brand.helper.auth_background')
-                    }}</CardDescription>
+                    <CardTitle>
+                        {{ t('settings.brand.label.auth_background') }}
+                    </CardTitle>
+                    <CardDescription>
+                        {{ t('settings.brand.helper.auth_background') }}
+                    </CardDescription>
                 </CardHeader>
                 <CardContent>
                     <FieldGroup>
@@ -466,15 +483,16 @@ function submit() {
                             <FieldError
                                 v-if="form.errors.auth_background"
                                 id="background-error"
-                                >{{ form.errors.auth_background }}</FieldError
                             >
+                                {{ form.errors.auth_background }}
+                            </FieldError>
                         </Field>
                     </FieldGroup>
                 </CardContent>
                 <CardFooter class="justify-between gap-2 border-t">
-                    <Badge variant="secondary">{{
-                        imageStatus('auth_background')
-                    }}</Badge>
+                    <Badge variant="secondary">
+                        {{ imageStatus('auth_background') }}
+                    </Badge>
                     <Button
                         v-if="canManage && settings.auth_background_url"
                         type="button"
@@ -487,7 +505,10 @@ function submit() {
                             v-if="form.remove_auth_background"
                             data-icon="inline-start"
                         />
-                        <Trash2 v-else data-icon="inline-start" />
+                        <Trash2
+                            v-else
+                            data-icon="inline-start"
+                        />
                         {{
                             t(
                                 form.remove_auth_background
@@ -505,10 +526,12 @@ function submit() {
                         class="size-5 text-muted-foreground"
                         aria-hidden="true"
                     />
-                    <CardTitle>{{ t('settings.brand.label.color') }}</CardTitle>
-                    <CardDescription>{{
-                        t('settings.brand.helper.color')
-                    }}</CardDescription>
+                    <CardTitle>
+                        {{ t('settings.brand.label.color') }}
+                    </CardTitle>
+                    <CardDescription>
+                        {{ t('settings.brand.helper.color') }}
+                    </CardDescription>
                 </CardHeader>
                 <CardContent>
                     <FieldGroup>
@@ -516,10 +539,9 @@ function submit() {
                             <FieldLabel
                                 id="brand-color-label"
                                 class="sr-only"
-                                >{{
-                                    t('settings.brand.label.color')
-                                }}</FieldLabel
                             >
+                                {{ t('settings.brand.label.color') }}
+                            </FieldLabel>
                             <ToggleGroup
                                 v-model="form.color"
                                 type="single"
@@ -555,7 +577,10 @@ function submit() {
                 </CardContent>
             </Card>
 
-            <div v-if="canManage" class="flex flex-col gap-3 sm:items-end">
+            <div
+                v-if="canManage"
+                class="flex flex-col gap-3 sm:items-end"
+            >
                 <Progress
                     v-if="form.progress"
                     :model-value="form.progress.percentage"
@@ -567,8 +592,14 @@ function submit() {
                     :disabled="form.processing"
                     data-test="save-brand-settings"
                 >
-                    <Spinner v-if="form.processing" data-icon="inline-start" />
-                    <Save v-else data-icon="inline-start" />
+                    <Spinner
+                        v-if="form.processing"
+                        data-icon="inline-start"
+                    />
+                    <Save
+                        v-else
+                        data-icon="inline-start"
+                    />
                     {{ t('common.button.save') }}
                 </Button>
             </div>

@@ -28,6 +28,7 @@ const { hasSetupData, clearTwoFactorAuthData } = useTwoFactorAuth();
 const showSetupModal = ref<boolean>(false);
 
 onUnmounted(() => clearTwoFactorAuthData());
+
 const enableForm = useForm({});
 
 const disableForm = useForm({});
@@ -42,7 +43,10 @@ const enableTwoFactor = () => {
 </script>
 
 <template>
-    <div v-if="canManageTwoFactor" class="space-y-6">
+    <div
+        v-if="canManageTwoFactor"
+        class="space-y-6"
+    >
         <Heading
             variant="small"
             :title="t('account.two_factor.card.title')"
@@ -58,18 +62,31 @@ const enableTwoFactor = () => {
             </p>
 
             <div>
-                <Button v-if="hasSetupData" @click="showSetupModal = true">
-                    <ShieldCheck />{{ t('account.two_factor.button.setup') }}
+                <Button
+                    v-if="hasSetupData"
+                    @click="showSetupModal = true"
+                >
+                    <ShieldCheck />
+                    {{ t('account.two_factor.button.setup') }}
                 </Button>
-                <form v-else @submit.prevent="enableTwoFactor">
-                    <Button type="submit" :disabled="enableForm.processing">
+                <form
+                    v-else
+                    @submit.prevent="enableTwoFactor"
+                >
+                    <Button
+                        type="submit"
+                        :disabled="enableForm.processing"
+                    >
                         {{ t('account.two_factor.button.enable') }}
                     </Button>
                 </form>
             </div>
         </div>
 
-        <div v-else class="flex flex-col items-start justify-start space-y-4">
+        <div
+            v-else
+            class="flex flex-col items-start justify-start space-y-4"
+        >
             <p class="text-sm text-muted-foreground">
                 {{ t('account.two_factor.helper.enabled') }}
             </p>

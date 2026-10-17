@@ -39,9 +39,9 @@ const visibleGroups = computed(() =>
             class="px-2"
             :class="{ 'py-0': isMobile }"
         >
-            <SidebarGroupLabel v-if="group.title">{{
-                group.title
-            }}</SidebarGroupLabel>
+            <SidebarGroupLabel v-if="group.title">
+                {{ group.title }}
+            </SidebarGroupLabel>
             <SidebarMenu :class="{ 'gap-0': isMobile }">
                 <AppSidebarMenuItem
                     v-for="item in group.items"

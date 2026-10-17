@@ -4,8 +4,8 @@ import { Bell, CheckCheck } from '@lucide/vue';
 import { watchEffect } from 'vue';
 
 import {
-    update,
     readAll,
+    update,
 } from '@/actions/App/Http/Controllers/Notification/NotificationController';
 import PageContainer from '@/components/layout/PageContainer.vue';
 import { Badge } from '@/components/ui/badge';
@@ -20,6 +20,7 @@ const props = defineProps<{
     notifications: TablePaginator<NotificationRow>;
     status: string;
 }>();
+
 const { t } = useTranslations();
 const { formatDateTime } = useDateTime();
 const form = useForm({});
@@ -41,11 +42,12 @@ function markAllRead(): void {
 </script>
 
 <template>
+    <Head :title="t('notification.title')" />
+
     <PageContainer
         :title="t('notification.card.title')"
         :description="t('notification.card.description')"
     >
-        <Head :title="t('notification.title')" />
         <div class="flex flex-wrap items-center justify-between gap-3">
             <nav
                 class="flex gap-2"
@@ -66,13 +68,19 @@ function markAllRead(): void {
                     {{ t(`notification.status.${filter}`) }}
                 </Link>
             </nav>
-            <form novalidate @submit.prevent="markAllRead">
+            <form
+                novalidate
+                @submit.prevent="markAllRead"
+            >
                 <Button
                     variant="outline"
                     :disabled="allForm.processing"
                     data-test="read-all-notifications"
                 >
-                    <CheckCheck class="size-4" aria-hidden="true" />
+                    <CheckCheck
+                        class="size-4"
+                        aria-hidden="true"
+                    />
                     {{ t('notification.button.read_all') }}
                 </Button>
             </form>
@@ -95,7 +103,9 @@ function markAllRead(): void {
                     <div class="min-w-0 space-y-2">
                         <p
                             class="text-sm wrap-break-word"
-                            :class="{ 'font-semibold': !notification.read_at }"
+                            :class="{
+                                'font-semibold': !notification.read_at,
+                            }"
                         >
                             {{ notification.message }}
                         </p>
@@ -103,15 +113,15 @@ function markAllRead(): void {
                             <time
                                 :datetime="notification.created_at"
                                 class="text-xs text-muted-foreground"
-                                >{{
-                                    formatDateTime(notification.created_at)
-                                }}</time
                             >
+                                {{ formatDateTime(notification.created_at) }}
+                            </time>
                             <Badge
                                 v-if="!notification.read_at"
                                 variant="secondary"
-                                >{{ t('notification.status.unread') }}</Badge
                             >
+                                {{ t('notification.status.unread') }}
+                            </Badge>
                         </div>
                         <Link
                             v-if="
@@ -123,8 +133,9 @@ function markAllRead(): void {
                             "
                             :href="profileEdit()"
                             class="text-xs text-primary underline underline-offset-4"
-                            >{{ t('notification.button.view_account') }}</Link
                         >
+                            {{ t('notification.button.view_account') }}
+                        </Link>
                     </div>
                 </div>
                 <form
@@ -137,8 +148,9 @@ function markAllRead(): void {
                         size="sm"
                         :disabled="form.processing"
                         :data-test="`read-notification-${notification.id}`"
-                        >{{ t('notification.button.read') }}</Button
                     >
+                        {{ t('notification.button.read') }}
+                    </Button>
                 </form>
             </li>
         </ul>
@@ -146,7 +158,10 @@ function markAllRead(): void {
             v-else
             class="flex flex-col items-center gap-2 rounded-xl border border-dashed py-16 text-center"
         >
-            <Bell class="size-8 text-muted-foreground" aria-hidden="true" />
+            <Bell
+                class="size-8 text-muted-foreground"
+                aria-hidden="true"
+            />
             <p class="font-medium">{{ t('notification.helper.empty') }}</p>
             <p class="text-sm text-muted-foreground">
                 {{ t('notification.helper.empty_description') }}
@@ -160,12 +175,16 @@ function markAllRead(): void {
                 v-if="notifications.current_page > 1"
                 :href="
                     index({
-                        query: { status, page: notifications.current_page - 1 },
+                        query: {
+                            status,
+                            page: notifications.current_page - 1,
+                        },
                     })
                 "
                 :class="buttonVariants({ variant: 'outline', size: 'sm' })"
-                >{{ t('table.pagination.button.previous') }}</Link
             >
+                {{ t('table.pagination.button.previous') }}
+            </Link>
             <span v-else />
             <p class="text-sm text-muted-foreground">
                 {{
@@ -187,12 +206,16 @@ function markAllRead(): void {
                 "
                 :href="
                     index({
-                        query: { status, page: notifications.current_page + 1 },
+                        query: {
+                            status,
+                            page: notifications.current_page + 1,
+                        },
                     })
                 "
                 :class="buttonVariants({ variant: 'outline', size: 'sm' })"
-                >{{ t('table.pagination.button.next') }}</Link
             >
+                {{ t('table.pagination.button.next') }}
+            </Link>
             <span v-else />
         </nav>
     </PageContainer>

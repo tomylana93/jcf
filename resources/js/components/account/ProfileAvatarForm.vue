@@ -73,6 +73,7 @@ const uploadStatus = computed(() =>
           )
         : undefined,
 );
+
 watch(busy, (value) => emit('busy', value));
 
 function uploadFile(file: File) {
@@ -161,7 +162,10 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <section class="flex flex-col gap-6" aria-labelledby="avatar-heading">
+    <section
+        class="flex flex-col gap-6"
+        aria-labelledby="avatar-heading"
+    >
         <Heading
             id="avatar-heading"
             variant="small"
@@ -191,9 +195,12 @@ onBeforeUnmount(() => {
                         @selected="uploadFile"
                         @removed="removeSelection"
                     />
-                    <FieldError v-if="error" id="avatar-error">{{
-                        error
-                    }}</FieldError>
+                    <FieldError
+                        v-if="error"
+                        id="avatar-error"
+                    >
+                        {{ error }}
+                    </FieldError>
                 </Field>
             </FieldGroup>
             <div
@@ -238,7 +245,10 @@ onBeforeUnmount(() => {
                         v-if="saveForm.processing"
                         data-icon="inline-start"
                     />
-                    <Save v-else data-icon="inline-start" />
+                    <Save
+                        v-else
+                        data-icon="inline-start"
+                    />
                     {{ t('account.avatar.button.save') }}
                 </Button>
                 <Button
@@ -264,16 +274,18 @@ onBeforeUnmount(() => {
                     :disabled="disabled || busy"
                     data-test="discard-avatar"
                     @click="discardPhoto"
-                    >{{ t('account.avatar.button.discard') }}</Button
                 >
+                    {{ t('account.avatar.button.discard') }}
+                </Button>
                 <Button
                     v-if="uploadForm.errors.avatar && lastFile"
                     type="button"
                     variant="outline"
                     :disabled="disabled || busy"
                     @click="uploadFile(lastFile)"
-                    >{{ t('account.avatar.button.retry') }}</Button
                 >
+                    {{ t('account.avatar.button.retry') }}
+                </Button>
             </div>
         </form>
     </section>
