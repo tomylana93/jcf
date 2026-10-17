@@ -30,6 +30,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 require __DIR__.'/settings.php';
 
+require __DIR__.'/website.php';
+
 require __DIR__.'/account.php';
 
 require __DIR__.'/master-data.php';

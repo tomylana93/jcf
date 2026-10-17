@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Actions\Website;
 
 use App\Actions\Audit\RecordAuditLog;
+use App\Enums\WebsitePage;
 use App\Models\User;
 use App\Models\WebsiteContent;
 use App\Models\WebsiteSlug;
@@ -23,7 +24,7 @@ final readonly class SaveWebsiteDraft
     public function handle(User $actor, array $data, ?WebsiteContent $content = null, ?int $expectedVersion = null, ?string $pageKey = null): WebsiteContent
     {
         Gate::forUser($actor)->authorize($content === null ? 'create' : 'update', $content ?? WebsiteContent::class);
-        Validator::make(['page_key' => $pageKey], ['page_key' => ['nullable', Rule::in(['home', 'about', 'contact', 'article-index'])]])->validate();
+        Validator::make(['page_key' => $pageKey], ['page_key' => ['nullable', Rule::enum(WebsitePage::class)]])->validate();
         try {
             return DB::transaction(function () use ($actor, $data, $content, $expectedVersion, $pageKey): WebsiteContent {
                 $record = $content === null ? new WebsiteContent(['page_key' => $pageKey, 'author_id' => $actor->id]) : WebsiteContent::query()->lockForUpdate()->findOrFail($content->id);

@@ -77,6 +77,8 @@ export type PublicWebsite = {
     pagination?: PublicNavigationItem[];
     contact?: PublicContact;
     footer?: { text: string; links: PublicNavigationItem[] };
+    /** Present on authenticated previews only. */
+    preview?: { mode: 'draft' | 'published' | 'empty' };
 };
 
 export type PublicArticle = {
