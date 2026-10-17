@@ -7,13 +7,17 @@ import AppLogo from '@/components/shared/AppLogo.vue';
 import { home } from '@/routes';
 
 const page = usePage();
+
 const customBackground = computed(() => page.props.brand.auth_background_url);
+
 const backgroundFailed = ref(false);
+
 const backgroundSource = computed(() =>
     !backgroundFailed.value && customBackground.value
         ? customBackground.value
         : '/images/auth-background.webp',
 );
+
 watch(customBackground, () => {
     backgroundFailed.value = false;
 });

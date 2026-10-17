@@ -16,8 +16,8 @@ import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
     DropdownMenuContent,
-    DropdownMenuItem,
     DropdownMenuGroup,
+    DropdownMenuItem,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
@@ -110,8 +110,14 @@ function confirmAction(): void {
                         :variant="active ? 'destructive' : 'default'"
                         @select="requestConfirmation('status')"
                     >
-                        <Ban v-if="active" aria-hidden="true" />
-                        <CircleCheck v-else aria-hidden="true" />
+                        <Ban
+                            v-if="active"
+                            aria-hidden="true"
+                        />
+                        <CircleCheck
+                            v-else
+                            aria-hidden="true"
+                        />
                         {{
                             t(
                                 active
@@ -133,24 +139,27 @@ function confirmAction(): void {
         </DropdownMenu>
         <AlertDialogContent>
             <AlertDialogHeader>
-                <AlertDialogTitle>{{
-                    t('table.helper.confirmation_title', {
-                        action: actionLabel,
-                    })
-                }}</AlertDialogTitle>
-                <AlertDialogDescription>{{
-                    description
-                }}</AlertDialogDescription>
+                <AlertDialogTitle>
+                    {{
+                        t('table.helper.confirmation_title', {
+                            action: actionLabel,
+                        })
+                    }}
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                    {{ description }}
+                </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-                <AlertDialogCancel data-test="cancel-row-action">{{
-                    t('common.button.cancel')
-                }}</AlertDialogCancel>
+                <AlertDialogCancel data-test="cancel-row-action">
+                    {{ t('common.button.cancel') }}
+                </AlertDialogCancel>
                 <AlertDialogAction
                     data-test="confirm-row-action"
                     @click="confirmAction"
-                    >{{ actionLabel }}</AlertDialogAction
                 >
+                    {{ actionLabel }}
+                </AlertDialogAction>
             </AlertDialogFooter>
         </AlertDialogContent>
     </AlertDialog>

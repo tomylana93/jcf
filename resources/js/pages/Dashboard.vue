@@ -14,12 +14,12 @@ watchEffect(() =>
 </script>
 
 <template>
+    <Head title="Dashboard" />
+
     <PageContainer
         title="Dashboard"
         description="Welcome back! Here's an overview of your workspace."
     >
-        <Head title="Dashboard" />
-
         <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto">
             <div class="grid auto-rows-min gap-4 md:grid-cols-3">
                 <div

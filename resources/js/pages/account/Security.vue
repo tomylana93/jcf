@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useForm, Head, setLayoutProps } from '@inertiajs/vue3';
+import { Head, setLayoutProps, useForm } from '@inertiajs/vue3';
 import { Save } from '@lucide/vue';
 import { watchEffect } from 'vue';
 

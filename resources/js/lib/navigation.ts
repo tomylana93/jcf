@@ -1,12 +1,12 @@
 import {
+    Activity,
     BookOpen,
     FilePenLine,
     LayoutGrid,
-    Settings,
-    Users,
     ScrollText,
-    Activity,
+    Settings,
     ShieldCheck,
+    Users,
 } from '@lucide/vue';
 
 import { dashboard } from '@/routes';

@@ -26,9 +26,11 @@ import { show } from '@/routes/documentation';
 import { index } from '@/routes/master-data/users';
 
 const open = defineModel<boolean>('open', { required: true });
+
 const page = usePage();
 const { t } = useTranslations();
 const { query, results, loading, failed, load, reset } = useGlobalSearch();
+
 const pages = computed(() =>
     createEditorLinkOptions(t, page.props.auth.permissions)
         .filter((item) =>
@@ -38,6 +40,7 @@ const pages = computed(() =>
         )
         .slice(0, 5),
 );
+
 const empty = computed(
     () =>
         !pages.value.length &&
@@ -49,6 +52,7 @@ function navigate(url: string): void {
     open.value = false;
     router.visit(url);
 }
+
 function shortcut(event: KeyboardEvent): void {
     if (
         !event.isComposing &&
@@ -60,10 +64,12 @@ function shortcut(event: KeyboardEvent): void {
         open.value = !open.value;
     }
 }
+
 watch(open, () => {
     reset();
     query.value = '';
 });
+
 watch(
     () => [
         page.url,
@@ -76,7 +82,9 @@ watch(
         query.value = '';
     },
 );
+
 onMounted(() => window.addEventListener('keydown', shortcut));
+
 onUnmounted(() => window.removeEventListener('keydown', shortcut));
 </script>
 
@@ -85,9 +93,9 @@ onUnmounted(() => window.removeEventListener('keydown', shortcut));
         <DialogContent class="overflow-hidden p-0">
             <DialogHeader class="sr-only">
                 <DialogTitle>{{ t('search.title') }}</DialogTitle>
-                <DialogDescription>{{
-                    t('search.placeholder.query')
-                }}</DialogDescription>
+                <DialogDescription>
+                    {{ t('search.placeholder.query') }}
+                </DialogDescription>
             </DialogHeader>
             <Command>
                 <div class="flex items-center gap-2 border-b px-3 pr-12">
@@ -111,8 +119,9 @@ onUnmounted(() => window.removeEventListener('keydown', shortcut));
                             :key="item.href"
                             :value="item.href"
                             @select="navigate(item.href)"
-                            >{{ item.label }}</CommandItem
                         >
+                            {{ item.label }}
+                        </CommandItem>
                     </CommandGroup>
                     <CommandGroup
                         v-if="results.documents.length"
@@ -165,7 +174,8 @@ onUnmounted(() => window.removeEventListener('keydown', shortcut));
                         role="status"
                         class="flex items-center justify-center gap-2 p-4 text-sm text-muted-foreground"
                     >
-                        <Spinner />{{ t('search.status.loading') }}
+                        <Spinner />
+                        {{ t('search.status.loading') }}
                     </div>
                     <div
                         v-else-if="failed"
@@ -173,9 +183,12 @@ onUnmounted(() => window.removeEventListener('keydown', shortcut));
                         class="p-4 text-center text-sm"
                     >
                         <p>{{ t('search.error.failed') }}</p>
-                        <Button variant="ghost" @click="load">{{
-                            t('search.button.retry')
-                        }}</Button>
+                        <Button
+                            variant="ghost"
+                            @click="load"
+                        >
+                            {{ t('search.button.retry') }}
+                        </Button>
                     </div>
                     <p
                         v-else-if="empty"

@@ -66,8 +66,14 @@ defineExpose({
                             "
                             @click="showPassword = !showPassword"
                         >
-                            <EyeOff v-if="showPassword" aria-hidden="true" />
-                            <Eye v-else aria-hidden="true" />
+                            <EyeOff
+                                v-if="showPassword"
+                                aria-hidden="true"
+                            />
+                            <Eye
+                                v-else
+                                aria-hidden="true"
+                            />
                         </InputGroupButton>
                     </TooltipTrigger>
 

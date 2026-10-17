@@ -48,9 +48,11 @@ const displayTo = computed(() =>
         ? 0
         : Math.min(displayFrom.value + props.visibleRows - 1, props.rowCount),
 );
+
 function page(index: number): void {
     emit('update:pagination', { ...props.pagination, pageIndex: index });
 }
+
 function size(value: unknown): void {
     emit('update:pagination', { pageIndex: 0, pageSize: Number(value) });
 }
@@ -70,36 +72,39 @@ function size(value: unknown): void {
                     })
                 }}
             </p>
-            <p v-if="selectedCount" aria-live="polite">
+            <p
+                v-if="selectedCount"
+                aria-live="polite"
+            >
                 {{ t('table.helper.selected_count', { count: selectedCount }) }}
             </p>
         </div>
         <div
             class="flex items-center justify-between gap-2 @2xl/datatable:justify-end"
         >
-            <span class="text-sm whitespace-nowrap text-muted-foreground">{{
-                t('table.pagination.label.rows_per_page')
-            }}</span>
+            <span class="text-sm whitespace-nowrap text-muted-foreground">
+                {{ t('table.pagination.label.rows_per_page') }}
+            </span>
             <Select
                 :model-value="String(pagination.pageSize)"
                 @update:model-value="size"
             >
-                <SelectTrigger class="w-20"
-                    ><SelectValue
-                        :placeholder="
-                            t('table.pagination.label.rows_per_page')
-                        "
-                /></SelectTrigger>
-                <SelectContent side="top"
-                    ><SelectGroup
-                        ><SelectItem
+                <SelectTrigger class="w-20">
+                    <SelectValue
+                        :placeholder="t('table.pagination.label.rows_per_page')"
+                    />
+                </SelectTrigger>
+                <SelectContent side="top">
+                    <SelectGroup>
+                        <SelectItem
                             v-for="option in pageSizeOptions"
                             :key="option"
                             :value="String(option)"
-                            >{{ option }}</SelectItem
-                        ></SelectGroup
-                    ></SelectContent
-                >
+                        >
+                            {{ option }}
+                        </SelectItem>
+                    </SelectGroup>
+                </SelectContent>
             </Select>
         </div>
         <div
@@ -120,32 +125,36 @@ function size(value: unknown): void {
                     :disabled="currentPage <= 1"
                     :aria-label="t('table.pagination.button.first')"
                     @click="page(0)"
-                    ><ChevronsLeft
-                /></Button>
+                >
+                    <ChevronsLeft />
+                </Button>
                 <Button
                     variant="outline"
                     size="icon-sm"
                     :disabled="currentPage <= 1"
                     :aria-label="t('table.pagination.button.previous')"
                     @click="page(pagination.pageIndex - 1)"
-                    ><ChevronLeft
-                /></Button>
+                >
+                    <ChevronLeft />
+                </Button>
                 <Button
                     variant="outline"
                     size="icon-sm"
                     :disabled="currentPage >= pageCount"
                     :aria-label="t('table.pagination.button.next')"
                     @click="page(pagination.pageIndex + 1)"
-                    ><ChevronRight
-                /></Button>
+                >
+                    <ChevronRight />
+                </Button>
                 <Button
                     variant="outline"
                     size="icon-sm"
                     :disabled="currentPage >= pageCount"
                     :aria-label="t('table.pagination.button.last')"
                     @click="page(pageCount - 1)"
-                    ><ChevronsRight
-                /></Button>
+                >
+                    <ChevronsRight />
+                </Button>
             </div>
         </div>
     </div>

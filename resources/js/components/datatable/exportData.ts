@@ -2,7 +2,7 @@ import type { RowData, Table } from '@tanstack/vue-table';
 
 import type { DataTableExportData, DataTableExportValue } from '@/types';
 
-import type { dataTableFeatures, DataTableColumnDef } from './dataTable';
+import type { DataTableColumnDef, dataTableFeatures } from './dataTable';
 
 export function createExportMapper<TData extends RowData>(
     table: Table<typeof dataTableFeatures, TData>,

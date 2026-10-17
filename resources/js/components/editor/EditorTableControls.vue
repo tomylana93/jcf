@@ -5,18 +5,20 @@ import type { Editor } from '@tiptap/vue-3';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
-    DropdownMenuTrigger,
     DropdownMenuContent,
     DropdownMenuGroup,
     DropdownMenuItem,
+    DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useTranslations } from '@/composables/useTranslations';
 import {
-    editorTableActions,
     canRunEditorTableAction,
+    editorTableActions,
     runEditorAction,
 } from '@/lib/editor';
+
 defineProps<{ editor: Editor }>();
+
 const { t } = useTranslations();
 </script>
 
@@ -32,8 +34,9 @@ const { t } = useTranslations();
                 :title="t('editor.label.table')"
                 data-test="editor-table-menu"
                 @mousedown.prevent
-                ><Table2
-            /></Button>
+            >
+                <Table2 />
+            </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
             <DropdownMenuGroup>
@@ -43,8 +46,9 @@ const { t } = useTranslations();
                     :disabled="!canRunEditorTableAction(editor, item.action)"
                     :data-test="`editor-table-${item.action}`"
                     @select="runEditorAction(editor, item.action)"
-                    >{{ t(item.label) }}</DropdownMenuItem
                 >
+                    {{ t(item.label) }}
+                </DropdownMenuItem>
             </DropdownMenuGroup>
         </DropdownMenuContent>
     </DropdownMenu>

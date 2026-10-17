@@ -24,7 +24,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { useAppearance } from '@/composables/useAppearance';
 import { useTranslations } from '@/composables/useTranslations';
 import { useTwoFactorAuth } from '@/composables/useTwoFactorAuth';
-import type { TwoFactorConfigContent, TwoFactorCodeForm } from '@/types';
+import type { TwoFactorCodeForm, TwoFactorConfigContent } from '@/types';
 
 const { t } = useTranslations();
 
@@ -125,7 +125,10 @@ const submit = () => {
 </script>
 
 <template>
-    <Dialog :open="isOpen" @update:open="isOpen = $event">
+    <Dialog
+        :open="isOpen"
+        @update:open="isOpen = $event"
+    >
         <DialogContent class="sm:max-w-md">
             <DialogHeader class="flex items-center justify-center">
                 <div
@@ -167,7 +170,10 @@ const submit = () => {
                 class="relative flex w-auto flex-col items-center justify-center space-y-5"
             >
                 <template v-if="!showVerificationStep">
-                    <AlertError v-if="errors?.length" :errors="errors" />
+                    <AlertError
+                        v-if="errors?.length"
+                        :errors="errors"
+                    />
                     <template v-else>
                         <div
                             class="relative mx-auto flex max-w-md items-center overflow-hidden"
@@ -200,7 +206,10 @@ const submit = () => {
                         </div>
 
                         <div class="flex w-full items-center space-x-5">
-                            <Button class="w-full" @click="handleModalNextStep">
+                            <Button
+                                class="w-full"
+                                @click="handleModalNextStep"
+                            >
                                 {{ modalConfig.buttonText }}
                             </Button>
                         </div>
@@ -211,9 +220,9 @@ const submit = () => {
                             <div
                                 class="absolute inset-0 top-1/2 h-px w-full bg-border"
                             />
-                            <span class="relative bg-card px-2 py-1">{{
-                                t('common.helper.or')
-                            }}</span>
+                            <span class="relative bg-card px-2 py-1">
+                                {{ t('common.helper.or') }}
+                            </span>
                         </div>
 
                         <div
@@ -224,7 +233,7 @@ const submit = () => {
                             >
                                 <div
                                     v-if="!manualSetupKey"
-                                    class="flex h-full w-full items-center justify-center bg-muted p-3"
+                                    class="flex size-full items-center justify-center bg-muted p-3"
                                 >
                                     <Spinner />
                                 </div>
@@ -233,7 +242,7 @@ const submit = () => {
                                         type="text"
                                         readonly
                                         :value="manualSetupKey"
-                                        class="h-full w-full bg-background p-3 text-foreground"
+                                        class="size-full bg-background p-3 text-foreground"
                                     />
                                     <button
                                         @click="copy(manualSetupKey || '')"
@@ -243,7 +252,10 @@ const submit = () => {
                                             v-if="copied"
                                             class="w-4 text-green-500"
                                         />
-                                        <Copy v-else class="w-4" />
+                                        <Copy
+                                            v-else
+                                            class="w-4"
+                                        />
                                     </button>
                                 </template>
                             </div>

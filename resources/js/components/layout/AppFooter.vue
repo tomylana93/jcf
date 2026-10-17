@@ -2,6 +2,7 @@
 const credit = { owner: 'tomylana93', since: 2026 };
 
 const currentYear = new Date().getFullYear();
+
 const years =
     currentYear > credit.since
         ? `${credit.since}–${currentYear}`
@@ -18,7 +19,8 @@ const years =
             class="rounded-sm underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
             target="_blank"
             rel="noopener noreferrer"
-            >{{ credit.owner }}</a
         >
+            {{ credit.owner }}
+        </a>
     </footer>
 </template>

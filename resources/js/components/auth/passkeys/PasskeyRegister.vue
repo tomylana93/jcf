@@ -74,11 +74,18 @@ const handleCancel = () => {
 </script>
 
 <template>
-    <div v-if="!isSupported" class="text-sm text-muted-foreground">
+    <div
+        v-if="!isSupported"
+        class="text-sm text-muted-foreground"
+    >
         {{ t('account.passkey.helper.unsupported') }}
     </div>
 
-    <Button v-else-if="!showForm" variant="outline" @click="showForm = true">
+    <Button
+        v-else-if="!showForm"
+        variant="outline"
+        @click="showForm = true"
+    >
         {{ t('account.passkey.button.add') }}
     </Button>
 
@@ -88,9 +95,9 @@ const handleCancel = () => {
         class="space-y-4 rounded-lg border border-border bg-muted/50 p-4"
     >
         <div class="grid gap-2">
-            <Label for="passkey-name">{{
-                t('account.passkey.label.name')
-            }}</Label>
+            <Label for="passkey-name">
+                {{ t('account.passkey.label.name') }}
+            </Label>
             <Input
                 id="passkey-name"
                 type="text"
@@ -104,17 +111,27 @@ const handleCancel = () => {
             </p>
         </div>
 
-        <InputError v-if="error" :message="error" />
+        <InputError
+            v-if="error"
+            :message="error"
+        />
 
         <div class="flex gap-2">
-            <Button type="submit" :disabled="isLoading || !form.name.trim()">
+            <Button
+                type="submit"
+                :disabled="isLoading || !form.name.trim()"
+            >
                 {{
                     isLoading
                         ? t('account.passkey.status.registering')
                         : t('account.passkey.button.register')
                 }}
             </Button>
-            <Button type="button" variant="ghost" @click="handleCancel">
+            <Button
+                type="button"
+                variant="ghost"
+                @click="handleCancel"
+            >
                 {{ t('common.button.cancel') }}
             </Button>
         </div>

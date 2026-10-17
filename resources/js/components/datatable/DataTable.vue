@@ -3,12 +3,12 @@ import { router, usePage } from '@inertiajs/vue3';
 import { ArrowDown, ArrowUp, ArrowUpDown, Search } from '@lucide/vue';
 import { FlexRender, useTable } from '@tanstack/vue-table';
 import type {
+    ColumnVisibilityState,
     PaginationState,
     RowData,
     RowSelectionState,
     SortingState,
     Updater,
-    ColumnVisibilityState,
 } from '@tanstack/vue-table';
 import { useDebounceFn } from '@vueuse/core';
 import { computed, onBeforeUnmount, ref, toRef, watch } from 'vue';
@@ -39,7 +39,7 @@ import {
 import { useTranslations } from '@/composables/useTranslations';
 import type { DataTableAction, DataTableFilter } from '@/types';
 
-import { dataTableFeatures, type DataTableColumnDef } from './dataTable';
+import { type DataTableColumnDef, dataTableFeatures } from './dataTable';
 import DataTableExport from './DataTableExport.vue';
 import DataTablePagination from './DataTablePagination.vue';
 import DataTableToolbar from './DataTableToolbar.vue';
@@ -105,6 +105,7 @@ const sorting = ref<SortingState>([
 const rowSelection = ref<RowSelectionState>({});
 
 const columnVisibility = ref<ColumnVisibilityState>({});
+
 watch(
     () => props.rows,
     () => {
@@ -112,6 +113,7 @@ watch(
     },
     { flush: 'sync' },
 );
+
 const globalFilter = ref(currentUrl.searchParams.get('filter[search]') ?? '');
 
 const columnDefinitions = toRef(props, 'columns');
@@ -140,6 +142,7 @@ const stopBefore = router.on('before', (event) => {
 const stopFinish = router.on('finish', () => {
     active = new URL(page.url, 'http://localhost').pathname === tablePath;
 });
+
 onBeforeUnmount(() => {
     active = false;
     stopBefore();
@@ -371,7 +374,10 @@ const search = computed({
                                         data-icon="inline-end"
                                     />
                                 </Button>
-                                <FlexRender v-else :header="header" />
+                                <FlexRender
+                                    v-else
+                                    :header="header"
+                                />
                             </TableHead>
                         </TableRow>
                     </TableHeader>
@@ -411,9 +417,9 @@ const search = computed({
                                         <EmptyMedia variant="icon">
                                             <Search />
                                         </EmptyMedia>
-                                        <EmptyTitle>{{
-                                            t('table.helper.empty')
-                                        }}</EmptyTitle>
+                                        <EmptyTitle>
+                                            {{ t('table.helper.empty') }}
+                                        </EmptyTitle>
                                         <EmptyDescription>
                                             {{
                                                 t(

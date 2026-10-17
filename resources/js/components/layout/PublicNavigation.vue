@@ -36,7 +36,11 @@ const siteName = page.props.general.site_name;
                 >
                     {{ t('navigation.link.home') }}
                 </Link>
-                <Button :as="Link" :href="dashboard()" size="sm">
+                <Button
+                    :as="Link"
+                    :href="dashboard()"
+                    size="sm"
+                >
                     {{ t('navigation.link.dashboard') }}
                 </Button>
             </nav>

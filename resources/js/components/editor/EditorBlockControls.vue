@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import {
+    Code,
+    Eraser,
     List,
     ListOrdered,
-    Quote,
-    Code,
     Minus,
-    Undo2,
+    Quote,
     Redo2,
-    Eraser,
+    Undo2,
 } from '@lucide/vue';
 import type { Editor } from '@tiptap/vue-3';
 
@@ -15,7 +15,9 @@ import { Button } from '@/components/ui/button';
 import { useTranslations } from '@/composables/useTranslations';
 import { runEditorAction } from '@/lib/editor';
 import type { EditorAction, TranslationKey } from '@/types';
+
 defineProps<{ editor: Editor }>();
+
 const { t } = useTranslations();
 
 const controls: {
@@ -54,7 +56,8 @@ const controls: {
             :title="t(control.label)"
             @mousedown.prevent
             @click="runEditorAction(editor, control.action)"
-            ><component :is="control.icon"
-        /></Button>
+        >
+            <component :is="control.icon" />
+        </Button>
     </div>
 </template>

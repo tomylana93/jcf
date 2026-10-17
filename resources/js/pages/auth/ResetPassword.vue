@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useForm, Head, setLayoutProps } from '@inertiajs/vue3';
+import { Head, setLayoutProps, useForm } from '@inertiajs/vue3';
 import { Mail } from '@lucide/vue';
 import { watchEffect } from 'vue';
 
@@ -48,7 +48,10 @@ const submit = () => {
     <div>
         <Head :title="t('auth.reset_password.title')" />
 
-        <form novalidate @submit.prevent="submit">
+        <form
+            novalidate
+            @submit.prevent="submit"
+        >
             <FieldGroup class="gap-6">
                 <Field :data-invalid="!!form.errors.email">
                     <InputGroup>

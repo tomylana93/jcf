@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ImageIcon } from '@lucide/vue';
-import Uppy, { type UppyFile, type Meta } from '@uppy/core';
+import Uppy, { type Meta, type UppyFile } from '@uppy/core';
 import ImageEditor from '@uppy/image-editor';
 import English from '@uppy/locales/lib/en_US';
 import Indonesian from '@uppy/locales/lib/id_ID';
@@ -103,6 +103,7 @@ onMounted(() => {
 });
 
 watch(uppyLocale, (value) => uppy.value?.setOptions({ locale: value }));
+
 watch(
     () => props.resetKey,
     () => {
@@ -111,6 +112,7 @@ watch(
         resetting = false;
     },
 );
+
 onBeforeUnmount(() => {
     resetting = true;
     uppy.value?.destroy();
@@ -126,8 +128,16 @@ onBeforeUnmount(() => {
             )
         "
     >
-        <Avatar v-if="kind === 'avatar'" :key="src" class="size-20">
-            <AvatarImage v-if="src" :src="src" :alt="name" />
+        <Avatar
+            v-if="kind === 'avatar'"
+            :key="src"
+            class="size-20"
+        >
+            <AvatarImage
+                v-if="src"
+                :src="src"
+                :alt="name"
+            />
             <AvatarFallback>{{ getInitials(name) }}</AvatarFallback>
         </Avatar>
         <div
@@ -166,13 +176,17 @@ onBeforeUnmount(() => {
                 :aria-describedby="invalid ? `${kind}-error` : undefined"
                 :data-test="`choose-${kind}`"
                 @click="open = true"
-                >{{ chooseLabel ?? t('account.avatar.button.choose') }}</Button
             >
-            <DialogContent class="sm:max-w-2xl" :aria-describedby="undefined">
+                {{ chooseLabel ?? t('account.avatar.button.choose') }}
+            </Button>
+            <DialogContent
+                class="sm:max-w-2xl"
+                :aria-describedby="undefined"
+            >
                 <DialogHeader>
-                    <DialogTitle>{{
-                        title ?? t('account.avatar.title')
-                    }}</DialogTitle>
+                    <DialogTitle>
+                        {{ title ?? t('account.avatar.title') }}
+                    </DialogTitle>
                 </DialogHeader>
                 <Dashboard
                     v-if="uppy"
@@ -186,7 +200,11 @@ onBeforeUnmount(() => {
                         disabled,
                     }"
                 />
-                <div v-if="status" class="flex flex-col gap-2" role="status">
+                <div
+                    v-if="status"
+                    class="flex flex-col gap-2"
+                    role="status"
+                >
                     <Progress
                         v-if="progress !== undefined"
                         :model-value="progress"
@@ -196,9 +214,12 @@ onBeforeUnmount(() => {
                 </div>
                 <FieldError v-if="error">{{ error }}</FieldError>
                 <DialogFooter>
-                    <Button type="button" @click="open = false">{{
-                        doneLabel ?? t('common.button.done')
-                    }}</Button>
+                    <Button
+                        type="button"
+                        @click="open = false"
+                    >
+                        {{ doneLabel ?? t('common.button.done') }}
+                    </Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

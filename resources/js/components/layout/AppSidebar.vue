@@ -11,12 +11,12 @@ import { Button } from '@/components/ui/button';
 import {
     Sidebar,
     SidebarContent,
-    useSidebar,
     SidebarFooter,
     SidebarHeader,
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    useSidebar,
 } from '@/components/ui/sidebar';
 import { useTranslations } from '@/composables/useTranslations';
 import {
@@ -51,6 +51,7 @@ const footerItems = computed(() =>
 );
 
 defineProps<{ mobileOnly?: boolean }>();
+
 const { isMobile, setOpenMobile } = useSidebar();
 
 const page = usePage();
@@ -59,11 +60,16 @@ watch(
     () => page.url,
     () => setOpenMobile(false),
 );
+
 watch(isMobile, () => setOpenMobile(false));
 </script>
 
 <template>
-    <Sidebar v-if="!mobileOnly || isMobile" collapsible="icon" variant="inset">
+    <Sidebar
+        v-if="!mobileOnly || isMobile"
+        collapsible="icon"
+        variant="inset"
+    >
         <SidebarHeader>
             <Button
                 v-if="isMobile"
@@ -77,8 +83,14 @@ watch(isMobile, () => setOpenMobile(false));
             </Button>
             <SidebarMenu>
                 <SidebarMenuItem>
-                    <SidebarMenuButton size="lg" as-child>
-                        <Link :href="dashboard()" @click="setOpenMobile(false)">
+                    <SidebarMenuButton
+                        size="lg"
+                        as-child
+                    >
+                        <Link
+                            :href="dashboard()"
+                            @click="setOpenMobile(false)"
+                        >
                             <AppLogo />
                         </Link>
                     </SidebarMenuButton>
@@ -91,7 +103,10 @@ watch(isMobile, () => setOpenMobile(false));
         </SidebarContent>
 
         <SidebarFooter>
-            <NavFooter v-if="footerItems.length > 0" :items="footerItems" />
+            <NavFooter
+                v-if="footerItems.length > 0"
+                :items="footerItems"
+            />
             <NavUser />
         </SidebarFooter>
     </Sidebar>

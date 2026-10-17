@@ -17,5 +17,10 @@ const customClass = computed(() => getBadgeColorClasses(props.color));
 </script>
 
 <template>
-    <Badge variant="secondary" :class="customClass">{{ label }}</Badge>
+    <Badge
+        variant="secondary"
+        :class="customClass"
+    >
+        {{ label }}
+    </Badge>
 </template>

@@ -16,7 +16,10 @@ defineProps<Props>();
 </script>
 
 <template>
-    <span :class="className" v-bind="$attrs">
+    <span
+        :class="className"
+        v-bind="$attrs"
+    >
         <img
             v-if="page.props.brand.logo_text_url"
             :src="page.props.brand.logo_text_url"

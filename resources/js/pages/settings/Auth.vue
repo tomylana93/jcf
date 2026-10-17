@@ -26,6 +26,7 @@ const props = defineProps<{ settings: AuthSettings }>();
 const { t } = useTranslations();
 
 const page = usePage();
+
 const canManage = computed(() =>
     page.props.auth.permissions.includes('settings.manage'),
 );
@@ -51,11 +52,12 @@ const submit = () => {
 </script>
 
 <template>
+    <Head :title="t('settings.auth.title')" />
+
     <PageContainer
         :title="t('settings.auth.card.title')"
         :description="t('settings.auth.card.description')"
     >
-        <Head :title="t('settings.auth.title')" />
         <form
             novalidate
             class="flex w-full flex-col gap-6"
@@ -133,9 +135,9 @@ const submit = () => {
                     :key="name"
                     :data-invalid="!!form.errors[name]"
                 >
-                    <FieldLabel :for="name">{{
-                        t(`settings.auth.label.${name}`)
-                    }}</FieldLabel>
+                    <FieldLabel :for="name">
+                        {{ t(`settings.auth.label.${name}`) }}
+                    </FieldLabel>
                     <Input
                         :id="name"
                         v-model.number="form[name]"
@@ -152,7 +154,10 @@ const submit = () => {
                 </Field>
             </FieldGroup>
 
-            <div v-if="canManage" class="flex flex-col gap-3 sm:items-end">
+            <div
+                v-if="canManage"
+                class="flex flex-col gap-3 sm:items-end"
+            >
                 <Button
                     type="submit"
                     :disabled="form.processing"

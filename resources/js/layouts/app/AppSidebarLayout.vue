@@ -13,6 +13,7 @@ type Props = {
 };
 
 const mounted = ref(false);
+
 onMounted(() => {
     mounted.value = true;
 });
@@ -25,7 +26,10 @@ withDefaults(defineProps<Props>(), {
 <template>
     <AppShell variant="sidebar">
         <AppSidebar v-if="mounted" />
-        <AppContent variant="sidebar" class="min-w-0 overflow-x-clip">
+        <AppContent
+            variant="sidebar"
+            class="min-w-0 overflow-x-clip"
+        >
             <AppSidebarHeader :breadcrumbs="breadcrumbs" />
             <slot />
             <AppFooter />

@@ -6,13 +6,13 @@ import { Button } from '@/components/ui/button';
 import {
     Combobox,
     ComboboxAnchor,
-    ComboboxTrigger,
-    ComboboxList,
-    ComboboxInput,
     ComboboxEmpty,
     ComboboxGroup,
+    ComboboxInput,
     ComboboxItem,
     ComboboxItemIndicator,
+    ComboboxList,
+    ComboboxTrigger,
 } from '@/components/ui/combobox';
 import { useTranslations } from '@/composables/useTranslations';
 import type { EditorLinkOption } from '@/types';
@@ -32,7 +32,10 @@ const selected = computed(() =>
 </script>
 
 <template>
-    <Combobox :model-value="selected" by="href">
+    <Combobox
+        :model-value="selected"
+        by="href"
+    >
         <ComboboxAnchor as-child>
             <ComboboxTrigger as-child>
                 <Button
@@ -42,15 +45,20 @@ const selected = computed(() =>
                     class="w-full justify-between"
                     data-test="editor-application-link"
                 >
-                    <span class="truncate">{{
-                        selected?.label ??
-                        t('editor.placeholder.application_page')
-                    }}</span>
+                    <span class="truncate">
+                        {{
+                            selected?.label ??
+                            t('editor.placeholder.application_page')
+                        }}
+                    </span>
                     <ChevronsUpDown data-icon="inline-end" />
                 </Button>
             </ComboboxTrigger>
         </ComboboxAnchor>
-        <ComboboxList align="start" class="w-(--reka-combobox-trigger-width)">
+        <ComboboxList
+            align="start"
+            class="w-(--reka-combobox-trigger-width)"
+        >
             <ComboboxInput
                 :placeholder="t('editor.placeholder.search_pages')"
                 :aria-label="t('editor.label.search_pages')"

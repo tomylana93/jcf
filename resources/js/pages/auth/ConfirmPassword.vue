@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useForm, Head, setLayoutProps } from '@inertiajs/vue3';
+import { Head, setLayoutProps, useForm } from '@inertiajs/vue3';
 import { watchEffect } from 'vue';
 
 import { store } from '@/actions/Laravel/Fortify/Http/Controllers/ConfirmablePasswordController';
@@ -48,7 +48,10 @@ const submit = () => {
             :separator="t('common.helper.or')"
         />
 
-        <form novalidate @submit.prevent="submit">
+        <form
+            novalidate
+            @submit.prevent="submit"
+        >
             <FieldGroup class="gap-6">
                 <Field :data-invalid="!!form.errors.password">
                     <PasswordInput

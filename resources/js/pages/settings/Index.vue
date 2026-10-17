@@ -21,6 +21,7 @@ import { edit as editMail } from '@/routes/settings/mail';
 import type { NavigationCard } from '@/types';
 
 const { t } = useTranslations();
+
 watchEffect(() => {
     setLayoutProps({
         breadcrumbs: [{ title: t('breadcrumb.settings'), href: index() }],
@@ -72,11 +73,12 @@ const cards: NavigationCard[] = [
 </script>
 
 <template>
+    <Head :title="t('settings.title')" />
+
     <PageContainer
         :title="t('settings.card.title')"
         :description="t('settings.card.description')"
     >
-        <Head :title="t('settings.title')" />
         <NavigationCardGrid :cards="cards" />
     </PageContainer>
 </template>

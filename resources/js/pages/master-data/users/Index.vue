@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, useForm, setLayoutProps, usePage } from '@inertiajs/vue3';
+import { Head, setLayoutProps, useForm, usePage } from '@inertiajs/vue3';
 import { Plus } from '@lucide/vue';
 import { computed, ref, watchEffect } from 'vue';
 
@@ -9,14 +9,14 @@ import PageContainer from '@/components/layout/PageContainer.vue';
 import { useDateTime } from '@/composables/useDateTime';
 import { useTranslations } from '@/composables/useTranslations';
 import { index as masterDataIndex } from '@/routes/master-data';
-import { index, exportMethod } from '@/routes/master-data/users';
+import { exportMethod, index } from '@/routes/master-data/users';
 import type {
     DataTableAction,
     DataTableFilter,
     SelectOption,
     TablePaginator,
-    UserRow,
     UpdateUserStatusForm,
+    UserRow,
 } from '@/types';
 
 import { createColumns } from './columns';
@@ -27,15 +27,19 @@ const props = defineProps<{
     roles: SelectOption[];
     statuses: SelectOption[];
 }>();
+
 const page = usePage();
 const { t, locale } = useTranslations();
 const { timezone } = useDateTime();
+
 const canManage = computed(() =>
     page.props.auth.permissions.includes('users.manage'),
 );
+
 const selectedUser = ref<UserRow | null>(null);
 const formOpen = ref(false);
 const selectedUsers = ref<UserRow[]>([]);
+
 const filters = computed<DataTableFilter[]>(() => [
     {
         key: 'role',
@@ -50,6 +54,7 @@ const filters = computed<DataTableFilter[]>(() => [
         options: props.statuses,
     },
 ]);
+
 const actions = computed<DataTableAction[]>(() =>
     canManage.value
         ? [
@@ -61,10 +66,12 @@ const actions = computed<DataTableAction[]>(() =>
           ]
         : [],
 );
+
 function create(): void {
     selectedUser.value = null;
     formOpen.value = true;
 }
+
 const columns = computed(() =>
     createColumns(
         t,
@@ -76,6 +83,7 @@ const columns = computed(() =>
         changeStatus,
     ),
 );
+
 watchEffect(() => {
     setLayoutProps({
         breadcrumbs: [
@@ -95,9 +103,11 @@ function edit(user: UserRow): void {
     selectedUser.value = user;
     formOpen.value = true;
 }
+
 const statusForm = useForm<UpdateUserStatusForm>({
     status: 'active',
 });
+
 function changeStatus(user: UserRow): void {
     const status = user.status === 'active' ? 'disabled' : 'active';
     if (statusForm.processing) {
@@ -112,6 +122,7 @@ function changeStatus(user: UserRow): void {
 
 <template>
     <Head :title="t('user.title')" />
+
     <PageContainer
         :title="t('user.card.title')"
         :description="t('user.card.description')"

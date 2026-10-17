@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useForm, Head, setLayoutProps } from '@inertiajs/vue3';
+import { Head, setLayoutProps, useForm } from '@inertiajs/vue3';
 import { KeyRound } from '@lucide/vue';
 import {
     computed,
@@ -24,18 +24,21 @@ import {
 } from '@/components/ui/input-otp';
 import { useTranslations } from '@/composables/useTranslations';
 import type {
-    TwoFactorConfigContent,
     TwoFactorCodeForm,
+    TwoFactorConfigContent,
     TwoFactorRecoveryForm,
 } from '@/types';
 
 const { t } = useTranslations();
 
 const showRecoveryInput = ref<boolean>(false);
+
 const codeInputContainer = useTemplateRef('codeInputContainer');
+
 const codeForm = useForm<TwoFactorCodeForm>({
     code: '',
 });
+
 const recoveryForm = useForm<TwoFactorRecoveryForm>({
     recovery_code: '',
 });
@@ -92,7 +95,10 @@ const toggleRecoveryMode = (): void => {
 
         <div class="flex flex-col gap-6">
             <template v-if="!showRecoveryInput">
-                <form @submit.prevent="submitCode" class="flex flex-col gap-4">
+                <form
+                    @submit.prevent="submitCode"
+                    class="flex flex-col gap-4"
+                >
                     <FieldGroup class="gap-4">
                         <Field
                             :data-invalid="!!codeForm.errors.code"
@@ -144,7 +150,7 @@ const toggleRecoveryMode = (): void => {
                     </FieldGroup>
 
                     <div class="text-center text-sm text-muted-foreground">
-                        <span>{{ t('common.helper.or') }} </span>
+                        <span>{{ t('common.helper.or') }}</span>
                         <button
                             type="button"
                             class="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
@@ -213,7 +219,7 @@ const toggleRecoveryMode = (): void => {
                     </FieldGroup>
 
                     <div class="text-center text-sm text-muted-foreground">
-                        <span>{{ t('common.helper.or') }} </span>
+                        <span>{{ t('common.helper.or') }}</span>
                         <button
                             type="button"
                             class="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"

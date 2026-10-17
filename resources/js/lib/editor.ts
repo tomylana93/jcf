@@ -3,10 +3,10 @@ import StarterKit from '@tiptap/starter-kit';
 import type { Editor } from '@tiptap/vue-3';
 
 import type {
-    EditorTableAction,
-    TranslationKey,
     EditorAction,
     EditorDocument,
+    EditorTableAction,
+    TranslationKey,
 } from '@/types';
 
 export const emptyEditorDocument = (): EditorDocument => ({

@@ -1,19 +1,22 @@
 <script setup lang="ts">
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useTranslations } from '@/composables/useTranslations';
+
 defineProps<{
     modelValue: string;
     normalized: string | null;
     disabled?: boolean;
 }>();
+
 defineEmits<{
     'update:modelValue': [value: string];
     apply: [];
     confirm: [];
     cancel: [];
 }>();
+
 const { t } = useTranslations();
 </script>
 <template>
@@ -29,10 +32,10 @@ const { t } = useTranslations();
             spellcheck="false"
             @update:model-value="$emit('update:modelValue', String($event))"
         />
-        <Alert v-if="normalized !== null"
-            ><AlertTitle>{{ t('editor.label.normalized') }}</AlertTitle
-            ><AlertDescription class="flex flex-col gap-3"
-                ><p>{{ t('editor.helper.normalized') }}</p>
+        <Alert v-if="normalized !== null">
+            <AlertTitle>{{ t('editor.label.normalized') }}</AlertTitle>
+            <AlertDescription class="flex flex-col gap-3">
+                <p>{{ t('editor.helper.normalized') }}</p>
                 <pre
                     class="max-h-60 overflow-auto font-mono text-xs whitespace-pre-wrap"
                     >{{ normalized }}</pre>
@@ -41,23 +44,27 @@ const { t } = useTranslations();
                     variant="outline"
                     :disabled="disabled"
                     @click="$emit('confirm')"
-                    >{{ t('editor.button.confirm_html') }}</Button
-                ></AlertDescription
-            ></Alert
-        >
+                >
+                    {{ t('editor.button.confirm_html') }}
+                </Button>
+            </AlertDescription>
+        </Alert>
         <div class="flex gap-2">
             <Button
                 type="button"
                 :disabled="disabled"
                 @click="$emit('apply')"
-                >{{ t('editor.button.apply') }}</Button
-            ><Button
+            >
+                {{ t('editor.button.apply') }}
+            </Button>
+            <Button
                 type="button"
                 variant="outline"
                 :disabled="disabled"
                 @click="$emit('cancel')"
-                >{{ t('common.button.cancel') }}</Button
             >
+                {{ t('common.button.cancel') }}
+            </Button>
         </div>
     </div>
 </template>

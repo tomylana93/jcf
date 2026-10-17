@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useForm, Head, Link, setLayoutProps } from '@inertiajs/vue3';
+import { Head, Link, setLayoutProps, useForm } from '@inertiajs/vue3';
 import { Mail } from '@lucide/vue';
 import { watchEffect } from 'vue';
 
@@ -98,7 +98,11 @@ const submit = () => {
 
             <Separator />
 
-            <Button :as="Link" :href="login()" variant="secondary">
+            <Button
+                :as="Link"
+                :href="login()"
+                variant="secondary"
+            >
                 {{ t('auth.button.login') }}
             </Button>
         </div>
