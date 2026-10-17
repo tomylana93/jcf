@@ -8,6 +8,7 @@ import UserMenuContent from '@/components/layout/UserMenuContent.vue';
 import AppearanceSwitch from '@/components/shared/AppearanceSwitch.vue';
 import AppLogo from '@/components/shared/AppLogo.vue';
 import GlobalSearchTrigger from '@/components/shared/GlobalSearchTrigger.vue';
+import HeaderPreferences from '@/components/shared/HeaderPreferences.vue';
 import LocaleSelector from '@/components/shared/LocaleSelector.vue';
 import NotificationBell from '@/components/shared/NotificationBell.vue';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -89,14 +90,16 @@ function isGroupActive(group: NavGroup): boolean {
 <template>
     <div>
         <div class="border-b border-sidebar-border/80">
-            <div class="mx-auto flex min-h-16 min-w-0 items-center gap-2 px-4">
+            <div
+                class="mx-auto flex h-16 min-w-0 items-center gap-1 px-4 sm:gap-2"
+            >
                 <SidebarTrigger
                     v-if="isMobile"
                     :aria-label="t('navigation.label.open')"
                 />
                 <Link
                     :href="dashboard()"
-                    class="flex shrink-0 items-center gap-2"
+                    class="hidden shrink-0 items-center gap-2 md:flex"
                 >
                     <AppLogo />
                 </Link>
@@ -105,7 +108,10 @@ function isGroupActive(group: NavGroup): boolean {
                     :aria-label="t('navigation.label.main')"
                     class="min-w-0 flex-1 py-2"
                 >
-                    <NavigationMenu class="mx-4" :viewport="false">
+                    <NavigationMenu
+                        class="mx-4"
+                        :viewport="false"
+                    >
                         <NavigationMenuList class="flex-wrap gap-2">
                             <NavigationMenuItem
                                 v-for="item in mainItems"
@@ -163,7 +169,7 @@ function isGroupActive(group: NavGroup): boolean {
                         </NavigationMenuList>
                     </NavigationMenu>
                 </nav>
-                <div class="ml-auto flex shrink-0 items-center gap-2">
+                <div class="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
                     <template v-if="!isMobile">
                         <Button
                             v-for="item in footerItems"
@@ -181,9 +187,10 @@ function isGroupActive(group: NavGroup): boolean {
                         </Button>
                     </template>
                     <GlobalSearchTrigger />
-                    <LocaleSelector />
+                    <div class="hidden sm:block"><LocaleSelector /></div>
                     <NotificationBell />
-                    <AppearanceSwitch />
+                    <div class="hidden sm:block"><AppearanceSwitch /></div>
+                    <div class="sm:hidden"><HeaderPreferences /></div>
                     <DropdownMenu>
                         <DropdownMenuTrigger :as-child="true">
                             <Button
@@ -208,7 +215,10 @@ function isGroupActive(group: NavGroup): boolean {
                                 </Avatar>
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" class="w-56">
+                        <DropdownMenuContent
+                            align="end"
+                            class="w-56"
+                        >
                             <UserMenuContent :user="auth.user" />
                         </DropdownMenuContent>
                     </DropdownMenu>
@@ -217,10 +227,10 @@ function isGroupActive(group: NavGroup): boolean {
         </div>
         <div
             v-if="props.breadcrumbs.length > 0"
-            class="flex w-full border-b border-sidebar-border/70"
+            class="flex w-full min-w-0 border-b border-sidebar-border/70"
         >
             <div
-                class="mx-auto flex h-12 w-full items-center justify-start px-4 text-neutral-500"
+                class="mx-auto flex h-12 w-full min-w-0 items-center justify-start px-4"
             >
                 <Breadcrumbs :breadcrumbs="breadcrumbs" />
             </div>

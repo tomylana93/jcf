@@ -51,7 +51,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-    <div class="@container/toolbar min-w-0">
+    <div class="datatable-toolbar @container/toolbar min-w-0">
         <div
             class="flex min-w-0 flex-col gap-3 @5xl/toolbar:flex-row @5xl/toolbar:items-center"
         >
@@ -63,6 +63,7 @@ const emit = defineEmits<{
                 >
                     <InputGroupAddon><Search /></InputGroupAddon>
                     <InputGroupInput
+                        class="h-full min-h-0"
                         :model-value="search"
                         :placeholder="searchPlaceholder"
                         :aria-label="t('table.label.search')"
@@ -90,7 +91,11 @@ const emit = defineEmits<{
             >
                 <DropdownMenu v-if="hideableColumns.length">
                     <DropdownMenuTrigger as-child>
-                        <Button variant="outline" class="h-9">
+                        <Button
+                            variant="outline"
+                            size="default"
+                            class="h-9"
+                        >
                             <Columns3 data-icon="inline-start" />
                             {{ t('table.button.columns') }}
                         </Button>
@@ -119,7 +124,7 @@ const emit = defineEmits<{
                 <DataTableToolbarActions
                     v-if="actions.length"
                     :actions="actions"
-                    class="ml-auto @5xl/toolbar:flex-nowrap"
+                    class="@sm/toolbar:ml-auto @5xl/toolbar:flex-nowrap"
                 />
             </div>
         </div>

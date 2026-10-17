@@ -7,6 +7,8 @@ return [
         'skip_content' => 'Lewati ke konten',
         'open' => 'Buka menu navigasi',
         'main' => 'Navigasi utama',
+        'preferences' => 'Preferensi bahasa dan tema',
+        'breadcrumb_ancestors' => 'Tampilkan halaman induk',
         'account' => 'Buka menu akun',
         'close' => 'Tutup menu navigasi',
         'toggle_submenu' => 'Alihkan submenu :title',

@@ -8,12 +8,19 @@ defineProps<{ actions: DataTableAction[] }>();
 </script>
 
 <template>
-    <div class="flex flex-wrap items-center gap-2">
-        <template v-for="action in actions" :key="action.label">
+    <div
+        data-slot="datatable-toolbar-actions"
+        class="flex w-full flex-col gap-2 @sm/toolbar:w-auto @sm/toolbar:flex-row @sm/toolbar:flex-wrap @sm/toolbar:items-center"
+    >
+        <template
+            v-for="action in actions"
+            :key="action.label"
+        >
             <Button
                 v-if="action.href && !action.disabled"
                 :variant="action.variant"
-                class="h-9"
+                size="default"
+                class="h-9 w-full @sm/toolbar:w-auto"
                 as-child
             >
                 <Link :href="action.href">
@@ -28,7 +35,8 @@ defineProps<{ actions: DataTableAction[] }>();
             <Button
                 v-else
                 :variant="action.variant"
-                class="h-9"
+                size="default"
+                class="h-9 w-full @sm/toolbar:w-auto"
                 :disabled="action.disabled"
                 @click="action.onClick?.()"
             >

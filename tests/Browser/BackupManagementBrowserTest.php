@@ -23,6 +23,18 @@ describe('Backup dialogs', function (): void {
         actingAsWithConfirmedPassword($user);
 
         $browser = visit(route('master-data.backups.index'))
+            ->resize(320, 844)
+            ->assertScript('document.documentElement.scrollWidth <= window.innerWidth', true)
+            ->assertScript(<<<'JS'
+                (() => {
+                    const group = document.querySelector('[data-slot="datatable-toolbar-actions"]');
+                    const buttons = [...group.querySelectorAll('button')].map(button => button.getBoundingClientRect());
+                    return buttons.length === 2 && buttons.every(button => Math.abs(button.width - group.getBoundingClientRect().width) < 1)
+                        && buttons[1].top >= buttons[0].bottom;
+                })()
+                JS, true)
+            ->screenshot(filename: 'backup-toolbar-mobile')
+            ->resize(1440, 900)
             ->click(__('backup.button.upload'))
             ->assertVisible('[role="dialog"] #backup-archive')
             ->click('[role="dialog"] button[type="submit"]')
