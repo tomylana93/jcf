@@ -201,7 +201,7 @@ describe('Website admin area', function (): void {
         $actor = actingAsUserWithPermissions(Permission::EditWebsiteContent, Permission::PublishWebsiteContent);
         $record = savedHomeDraft($actor);
 
-        actingAs($actor)->post('/website/content/home/publish')
+        actingAs($actor)->post('/website/content/home/publish', ['version' => 1])
             ->assertRedirect(route('website.page.edit', ['page' => 'home'], absolute: false));
         expect(resolve(GetPublicWebsiteContent::class)->handle('home')['content']['title'])->toBe('Home draft');
 
@@ -209,7 +209,7 @@ describe('Website admin area', function (): void {
 
         expect(resolve(GetPublicWebsiteContent::class)->handle('home')['content']['title'])->toBe('Home draft');
 
-        actingAs($actor)->post('/website/content/home/publish')->assertRedirect();
+        actingAs($actor)->post('/website/content/home/publish', ['version' => 2])->assertRedirect();
         expect(resolve(GetPublicWebsiteContent::class)->handle('home')['content']['title'])->toBe('Private revision');
 
         actingAs($actor)->post('/website/content/home/unpublish')->assertRedirect();

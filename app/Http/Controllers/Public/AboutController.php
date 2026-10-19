@@ -13,6 +13,9 @@ final class AboutController extends Controller
 {
     public function __invoke(BuildPublicAboutPage $page): Response
     {
-        return Inertia::render('public/Articles', ['website' => $page->handle()]);
+        $website = $page->handle();
+        abort_if($website === null, 404);
+
+        return Inertia::render('public/Articles', ['website' => $website]);
     }
 }

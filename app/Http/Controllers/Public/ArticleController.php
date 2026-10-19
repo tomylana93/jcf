@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Public;
 
+use App\Actions\Website\BuildPublicArticleIndex;
 use App\Actions\Website\BuildPublicArticlePage;
 use App\Actions\Website\GetPublicWebsiteContent;
 use App\Http\Controllers\Controller;
@@ -14,11 +15,14 @@ use Inertia\Response;
 
 final class ArticleController extends Controller
 {
-    public function index(Request $request, BuildPublicArticlePage $page): Response
+    public function index(Request $request, BuildPublicArticleIndex $page): Response
     {
         $request->validate(['page' => ['sometimes', 'integer', 'min:1', 'max:100000']]);
 
-        return Inertia::render('public/Articles', ['website' => $page->index($request->integer('page', 1))]);
+        $website = $page->handle($request->integer('page', 1));
+        abort_if($website === null, 404);
+
+        return Inertia::render('public/Articles', ['website' => $website]);
     }
 
     public function show(string $slug, GetPublicWebsiteContent $content, BuildPublicArticlePage $page): Response|RedirectResponse
@@ -29,6 +33,9 @@ final class ArticleController extends Controller
             return to_route('articles.show', ['slug' => $result['redirect_slug']], 301);
         }
 
-        return Inertia::render('public/Articles', ['website' => $page->show($result['content'])]);
+        $website = $page->handle($result['content']);
+        abort_if($website === null, 404);
+
+        return Inertia::render('public/Articles', ['website' => $website]);
     }
 }

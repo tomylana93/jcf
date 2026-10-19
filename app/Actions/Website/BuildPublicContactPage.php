@@ -8,11 +8,13 @@ final readonly class BuildPublicContactPage
 {
     public function __construct(private BuildPublicHome $home, private GetPublicWebsiteContent $content, private GetPublicWebsiteSettings $settings, private GetPublicArticles $articles, private ResolvePublicSeo $seo) {}
 
-    /** @return array<string, mixed> */
-    public function handle(): array
+    /** @return array<string, mixed>|null */
+    public function handle(): ?array
     {
         $website = $this->home->handle();
-        abort_if($website === null, 404);
+        if ($website === null) {
+            return null;
+        }
         $settings = $this->settings->handle();
         $content = $this->content->handle('contact')['content'] ?? null;
         $title = $content['title'] ?? __('contact.title.public');

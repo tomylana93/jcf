@@ -8,13 +8,14 @@ final readonly class BuildPublicAboutPage
 {
     public function __construct(private BuildPublicHome $home, private GetPublicWebsiteContent $content, private GetPublicArticles $articles, private ResolvePublicSeo $seo) {}
 
-    /** @return array<string, mixed> */
-    public function handle(): array
+    /** @return array<string, mixed>|null */
+    public function handle(): ?array
     {
         $content = $this->content->handle('about')['content'] ?? null;
-        abort_if($content === null, 404);
-        $website = $this->home->handle();
-        abort_if($website === null, 404);
+        $website = $content === null ? null : $this->home->handle();
+        if ($content === null || $website === null) {
+            return null;
+        }
         $sections = $content['sections'] ?? [];
         foreach ($sections as &$section) {
             if (isset($section['image'])) {

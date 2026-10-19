@@ -106,6 +106,21 @@ describe('Public website acceptance', function (): void {
             ->assertNoJavaScriptErrors();
     });
 
+    it('shows a stale publication error when another editor saves after review', function () use ($enablePublicPages, $publishPage): void {
+        $enablePublicPages();
+        $actor = actingAsUserWithPermissions(Permission::EditWebsiteContent, Permission::PublishWebsiteContent);
+        $record = $publishPage($actor, 'home', 'Reviewed title');
+        $editor = visit('/website/content/home')->assertValue('#website_page_title', 'Reviewed title');
+        resolve(SaveWebsiteDraft::class)->handle($actor, Arr::except(websiteDraft(['title' => 'Unreviewed title']), ['slug']), $record, 1);
+
+        $editor->click('@request_publish_website')
+            ->click('@confirm_publish_website')
+            ->assertSee(__('website.error.stale_draft'))
+            ->assertNoJavaScriptErrors();
+
+        expect($record->fresh()->published['title'])->toBe('Reviewed title');
+    });
+
     it('applies preset switches from the admin area without changing published content', function () use ($enablePublicPages, $publishPage): void {
         $enablePublicPages();
         $actor = actingAsUserWithPermissions(Permission::EditWebsiteContent, Permission::PublishWebsiteContent, Permission::ConfigureWebsite);

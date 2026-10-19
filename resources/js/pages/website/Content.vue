@@ -91,10 +91,6 @@ const linkOptions = computed<EditorLinkOption[]>(() =>
     createEditorLinkOptions(t, page.props.auth.permissions),
 );
 
-const contentError = computed(
-    () => (form.errors as Record<string, string | undefined>).content_json,
-);
-
 function formValues(editor: WebsitePageEditor): UpdateWebsitePageForm {
     return {
         title: editor.content?.title ?? '',
@@ -126,13 +122,15 @@ const publishOpen = ref(false);
 
 const unpublishOpen = ref(false);
 
-const actionForm = useForm({});
+const actionForm = useForm({ version: props.editor.content?.version ?? 0 });
 
 const saving = ref(false);
 
 const dirty = computed(() => form.isDirty);
 
-const staleVersion = computed(() => form.errors.version);
+const staleVersion = computed(
+    () => form.errors.version ?? actionForm.errors.version,
+);
 
 const statusLabel = computed(() => {
     if (props.editor.status?.published) {
@@ -199,6 +197,9 @@ function submit(): void {
 }
 
 function publishDraft(): void {
+    actionForm.transform(() => ({
+        version: props.editor.content?.version ?? 0,
+    }));
     actionForm.submit(publish({ page: props.editor.page.page }), {
         preserveScroll: true,
     });
@@ -608,7 +609,7 @@ watchEffect(() =>
                         ref="bodyEditor"
                         :model-value="form.body_json"
                         :disabled="!canEdit"
-                        :error="form.errors.body_json ?? contentError"
+                        :error="form.errors.body_json"
                         :link-options="linkOptions"
                         @update:model-value="form.body_json = $event"
                     />

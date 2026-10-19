@@ -34,7 +34,7 @@ return [
         'back' => 'Kembali ke inbox',
     ],
     'status' => [
-        'sent' => 'Pesan diterima. Terima kasih atas pertanyaannya.',
+        'sent' => 'Pesan diterima.',
         'handled' => 'Ditangani',
         'unhandled' => 'Belum ditangani',
     ],

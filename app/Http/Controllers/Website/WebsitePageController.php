@@ -45,10 +45,11 @@ final class WebsitePageController extends Controller
 
     public function publish(Request $request, WebsitePage $page, PublishWebsiteContent $publish): RedirectResponse
     {
+        $data = $request->validate(['version' => ['required', 'integer', 'min:1']]);
         /** @var User $user */
         $user = $request->user();
         $record = WebsiteContent::query()->where('page_key', $page->value)->firstOrFail();
-        $publish->handle($user, $record, $record->draft_version);
+        $publish->handle($user, $record, (int) $data['version']);
         Inertia::flash('toast', ['type' => 'success', 'message' => __('website.status.published_toast')]);
 
         return to_route('website.page.edit', ['page' => $page->value]);

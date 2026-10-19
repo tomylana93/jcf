@@ -34,7 +34,7 @@ return [
         'back' => 'Back to inbox',
     ],
     'status' => [
-        'sent' => 'Message received. Thank you for the enquiry.',
+        'sent' => 'Message received.',
         'handled' => 'Handled',
         'unhandled' => 'Unhandled',
     ],

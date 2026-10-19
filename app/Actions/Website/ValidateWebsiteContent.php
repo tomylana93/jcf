@@ -9,6 +9,7 @@ use App\Models\WebsiteContent;
 use Closure;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 final readonly class ValidateWebsiteContent
 {
@@ -40,7 +41,7 @@ final readonly class ValidateWebsiteContent
                 $validated['sections'][$index]['image'] = $this->image($section['image']);
             }
             if ($section['type'] === 'introduction') {
-                $validated['sections'][$index]['body'] = $this->renderContent->handle($section['body_json'])['html'];
+                $validated['sections'][$index]['body'] = $this->render($section['body_json'], 'sections.'.$index.'.body_json')['html'];
             }
         }
         if ($validated['cover'] !== null) {
@@ -49,7 +50,7 @@ final readonly class ValidateWebsiteContent
         if (isset($validated['seo']['image'])) {
             $validated['seo']['image'] = $this->image($validated['seo']['image']);
         }
-        $rendered = $this->renderContent->handle($validated['body_json']);
+        $rendered = $this->render($validated['body_json'], 'body_json');
 
         return [...$validated, 'body_html' => $rendered['html'], 'body_text' => $rendered['text']];
     }
@@ -61,6 +62,19 @@ final readonly class ValidateWebsiteContent
                 $fail(__('validation.url', ['attribute' => $attribute]));
             }
         };
+    }
+
+    /**
+     * @param  array<string, mixed>  $document
+     * @return array{html: string, text: string}
+     */
+    private function render(array $document, string $field): array
+    {
+        try {
+            return $this->renderContent->handle($document);
+        } catch (ValidationException $exception) {
+            throw ValidationException::withMessages([$field => $exception->errors()['content_json']]);
+        }
     }
 
     /**

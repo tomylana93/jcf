@@ -16,7 +16,10 @@ final class ContactController extends Controller
 {
     public function index(BuildPublicContactPage $page): Response
     {
-        return Inertia::render('public/Contact', ['website' => $page->handle()]);
+        $website = $page->handle();
+        abort_if($website === null, 404);
+
+        return Inertia::render('public/Contact', ['website' => $website]);
     }
 
     public function store(StoreContactMessageRequest $request, StoreContactMessage $store): JsonResponse

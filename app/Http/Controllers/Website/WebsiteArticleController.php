@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Website;
 
-use App\Actions\Website\BuildPublicArticlePage;
+use App\Actions\Website\BuildWebsiteArticlePreview;
 use App\Actions\Website\GetWebsiteArticleEditor;
 use App\Actions\Website\PublishWebsiteContent;
 use App\Actions\Website\SaveWebsiteDraft;
@@ -96,12 +96,12 @@ final class WebsiteArticleController extends Controller
         return back();
     }
 
-    public function preview(Request $request, WebsiteContent $article, BuildPublicArticlePage $page): \Symfony\Component\HttpFoundation\Response
+    public function preview(Request $request, WebsiteContent $article, BuildWebsiteArticlePreview $page): \Symfony\Component\HttpFoundation\Response
     {
         abort_unless($article->page_key === null, 404);
         abort_unless(auth()->user()?->can(Permission::EditWebsiteContent) || auth()->user()?->can(Permission::PublishWebsiteContent), 403);
 
-        $response = Inertia::render('public/Preview', ['website' => $page->preview($article)])->toResponse($request);
+        $response = Inertia::render('public/Preview', ['website' => $page->handle($article)])->toResponse($request);
         $response->headers->set('Cache-Control', 'private, no-store');
         $response->headers->set('X-Robots-Tag', 'noindex, nofollow');
 

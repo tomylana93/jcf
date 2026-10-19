@@ -18,6 +18,8 @@ final readonly class BuildWebsitePreview
         private GeneralSettings $general,
         private ValidateWebsiteContent $validateContent,
         private ResolvePublicSeo $seo,
+        private GetPublicArticles $articles,
+        private BuildWebsiteNavigation $navigation,
     ) {}
 
     /**
@@ -40,8 +42,15 @@ final readonly class BuildWebsitePreview
         return [
             'preset' => $preset->value,
             'preferences' => $this->settings->preferences,
-            'navigation' => [['label' => __('navigation.link.home'), 'href' => route('home', absolute: false), 'active' => true]],
-            'footer' => ['text' => $this->settings->footer['text'], 'links' => []],
+            'navigation' => $this->navigation->handle($this->settings->navigation, match ($page) {
+                WebsitePage::Home => route('home', absolute: false),
+                WebsitePage::About => route('about', absolute: false),
+                WebsitePage::Contact => route('contact.index', absolute: false),
+                WebsitePage::ArticleIndex => route('articles.index', absolute: false),
+            }),
+            'footer' => $this->settings->footer,
+            'articles' => $this->articles->recent(),
+            'featuredArticles' => $this->articles->recent(true),
             'preview' => ['mode' => $mode],
             'page' => [
                 'kind' => $page->value,
