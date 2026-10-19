@@ -5,9 +5,11 @@ declare(strict_types=1);
 use App\Http\Controllers\Audit\AuditLogController;
 use App\Http\Controllers\Notification\NotificationController;
 use App\Http\Controllers\Permission\UserPermissionController;
+use App\Http\Controllers\Public\AboutController;
 use App\Http\Controllers\Public\ArticleController;
 use App\Http\Controllers\Public\ContactController;
 use App\Http\Controllers\Public\HomeController;
+use App\Http\Controllers\Public\IndexingController;
 use App\Http\Controllers\Public\WebsiteImageController;
 use App\Http\Controllers\Search\GlobalSearchController;
 use App\Http\Controllers\System\SystemController;
@@ -15,6 +17,9 @@ use App\Http\Middleware\EnsurePublicPagesEnabled;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
+Route::get('about', AboutController::class)->middleware(EnsurePublicPagesEnabled::class)->name('about');
+Route::get('sitemap.xml', [IndexingController::class, 'sitemap'])->name('sitemap');
+Route::get('robots.txt', [IndexingController::class, 'robots'])->name('robots');
 Route::get('website/images/{image}', WebsiteImageController::class)->whereNumber('image')->middleware(EnsurePublicPagesEnabled::class)->name('website.image');
 
 Route::middleware(EnsurePublicPagesEnabled::class)->prefix('articles')->name('articles.')->group(function (): void {

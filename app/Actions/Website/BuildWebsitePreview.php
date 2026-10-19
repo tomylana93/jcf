@@ -17,6 +17,7 @@ final readonly class BuildWebsitePreview
         private WebsiteSettings $settings,
         private GeneralSettings $general,
         private ValidateWebsiteContent $validateContent,
+        private ResolvePublicSeo $seo,
     ) {}
 
     /**
@@ -48,14 +49,7 @@ final readonly class BuildWebsitePreview
                 'sections' => $this->sections($page, $content),
                 'body' => $content['body_html'] ?? '',
                 'cover' => $this->image($content['cover'] ?? null),
-                'seo' => [
-                    'title' => $content['seo']['title'] ?? $this->title($page, $content),
-                    'description' => $content['seo']['description'] ?? ($page->value === 'home' ? $this->general->site_description : $this->settings->seo['description']),
-                    'canonicalUrl' => mb_rtrim((string) config('app.url'), '/').'/',
-                    'robots' => $content['seo']['robots'] ?? $this->settings->seo['robots'],
-                    'locale' => app()->getLocale(),
-                    'image' => $this->image($content['seo']['image'] ?? null),
-                ],
+                'seo' => $this->seo->handle($content ?? [], $page->value, $this->title($page, $content), true),
             ],
         ];
     }

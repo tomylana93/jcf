@@ -18,6 +18,9 @@ export type PublicSeo = {
     robots: 'index,follow' | 'noindex,nofollow';
     locale: string;
     image: PublicImage | null;
+    siteName?: string;
+    type?: 'website' | 'article';
+    structuredData?: string;
 };
 
 export type PublicNavigationItem = {

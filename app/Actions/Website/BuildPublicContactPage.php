@@ -6,7 +6,7 @@ namespace App\Actions\Website;
 
 final readonly class BuildPublicContactPage
 {
-    public function __construct(private BuildPublicHome $home, private GetPublicWebsiteContent $content, private GetPublicWebsiteSettings $settings, private GetPublicArticles $articles) {}
+    public function __construct(private BuildPublicHome $home, private GetPublicWebsiteContent $content, private GetPublicWebsiteSettings $settings, private GetPublicArticles $articles, private ResolvePublicSeo $seo) {}
 
     /** @return array<string, mixed> */
     public function handle(): array
@@ -26,12 +26,7 @@ final readonly class BuildPublicContactPage
         $website['page'] = [
             'kind' => 'contact', 'title' => $title, 'sections' => $sections, 'body' => $content['body_html'] ?? '',
             'cover' => $this->articles->image($content['cover'] ?? null),
-            'seo' => [
-                'title' => $content['seo']['title'] ?? $title,
-                'description' => $content['seo']['description'] ?? $settings['seo']['description'],
-                'canonicalUrl' => route('contact.index'), 'robots' => $content['seo']['robots'] ?? $settings['seo']['robots'],
-                'locale' => app()->getLocale(), 'image' => $this->articles->image($content['seo']['image'] ?? null),
-            ],
+            'seo' => $this->seo->handle($content ?? [], 'contact', $title),
         ];
         $website['contact'] = $settings['contact'];
         foreach ($website['navigation'] as &$item) {

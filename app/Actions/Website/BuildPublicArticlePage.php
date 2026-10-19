@@ -6,14 +6,13 @@ namespace App\Actions\Website;
 
 use App\Models\User;
 use App\Models\WebsiteContent;
-use App\Settings\GeneralSettings;
 use App\Settings\WebsiteSettings;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Date;
 
 final readonly class BuildPublicArticlePage
 {
-    public function __construct(private BuildPublicHome $home, private GetPublicArticles $articles, private GetPublicWebsiteContent $content, private ValidateWebsiteContent $validate, private WebsiteSettings $settings, private GeneralSettings $general) {}
+    public function __construct(private BuildPublicHome $home, private GetPublicArticles $articles, private GetPublicWebsiteContent $content, private ValidateWebsiteContent $validate, private WebsiteSettings $settings, private ResolvePublicSeo $seo) {}
 
     /** @return array<string, mixed> */
     public function index(int $number): array
@@ -28,9 +27,7 @@ final readonly class BuildPublicArticlePage
         $website['articles'] = $paginator->getCollection()->map($this->articles->card(...))->all();
         $pages = array_unique([1, max(1, $paginator->currentPage() - 1), $paginator->currentPage(), min($paginator->lastPage(), $paginator->currentPage() + 1), $paginator->lastPage()]);
         $website['pagination'] = array_map(static fn (int $n): array => ['label' => (string) $n, 'href' => route('articles.index', ['page' => $n], absolute: false), 'active' => $n === $paginator->currentPage()], $pages);
-        if ($number > 1) {
-            $website['page']['seo']['canonicalUrl'] = route('articles.index', ['page' => $number]);
-        }
+        $website['page']['seo'] = $this->seo->handle($content, 'article-index', $content['title'], page: $number);
         $website['breadcrumbs'] = $this->breadcrumbs();
 
         return $website;
@@ -70,13 +67,7 @@ final readonly class BuildPublicArticlePage
     {
         $this->settings->refresh();
         $title = $content['title'];
-        $page = ['kind' => $kind, 'title' => $title, 'sections' => [], 'body' => $content['body_html'] ?? '', 'cover' => $this->articles->image($content['cover'] ?? null, $preview), 'seo' => [
-            'title' => ($content['seo']['title'] ?? '') ?: $title,
-            'description' => ($content['seo']['description'] ?? '') ?: (($content['excerpt'] ?? '') ?: ($this->settings->seo['description'] ?: $this->general->site_description)),
-            'robots' => $preview ? 'noindex,nofollow' : ($content['seo']['robots'] ?? $this->settings->seo['robots']),
-            'canonicalUrl' => $kind === 'article' ? route('articles.show', ['slug' => $content['slug']]) : route('articles.index'),
-            'locale' => app()->getLocale(), 'image' => $this->articles->image($content['seo']['image'] ?? null, $preview),
-        ]];
+        $page = ['kind' => $kind, 'title' => $title, 'sections' => [], 'body' => $content['body_html'] ?? '', 'cover' => $this->articles->image($content['cover'] ?? null, $preview), 'seo' => $this->seo->handle($content, $kind, $title, $preview)];
         if ($kind === 'article-index') {
             $page['sections'] = $content['sections'] ?? [];
             foreach ($page['sections'] as &$section) {

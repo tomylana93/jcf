@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
 import PublicPageContent from '@/components/public/PublicPageContent.vue';
+import PublicSeo from '@/components/public/PublicSeo.vue';
 import { useTranslations } from '@/composables/useTranslations';
 import type { PublicWebsite } from '@/types';
 
@@ -35,13 +35,7 @@ const bannerTone = computed(() =>
 
 <template>
     <section class="flex flex-col gap-8">
-        <Head :title="`Preview: ${props.website.page.title}`">
-            <meta
-                head-key="robots"
-                name="robots"
-                content="noindex, nofollow"
-            />
-        </Head>
+        <PublicSeo :seo="website.page.seo" />
         <div
             role="status"
             aria-live="polite"

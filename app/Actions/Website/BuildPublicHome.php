@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Actions\Website;
 
+use App\Enums\WebsitePage;
 use App\Settings\GeneralSettings;
 
 final readonly class BuildPublicHome
 {
-    public function __construct(private GetPublicWebsiteContent $content, private GetPublicWebsiteSettings $settings, private GeneralSettings $general, private GetPublicArticles $articles) {}
+    public function __construct(private GetPublicWebsiteContent $content, private GetPublicWebsiteSettings $settings, private GeneralSettings $general, private GetPublicArticles $articles, private ResolvePublicSeo $seo) {}
 
     /** @return array<string, mixed>|null */
     public function handle(): ?array
@@ -30,10 +31,15 @@ final readonly class BuildPublicHome
             $sections = [['id' => 'public-introduction', 'type' => 'hero', 'visible' => true, 'title' => $title, 'description' => $this->general->site_description, 'image' => null, 'cta' => ['label' => __('navigation.link.explore'), 'href' => '#public-introduction', 'active' => false]]];
         }
 
+        $navigation = [['label' => __('navigation.link.home'), 'href' => route('home', absolute: false), 'active' => true], ['label' => __('article.title.index'), 'href' => route('articles.index', absolute: false), 'active' => false], ['label' => __('contact.title.public'), 'href' => route('contact.index', absolute: false), 'active' => false]];
+        if ($this->content->handle('about') !== null) {
+            $navigation[] = ['label' => WebsitePage::About->label(), 'href' => route('about', absolute: false), 'active' => false];
+        }
+
         return [
             'preset' => $settings['preset'],
             'preferences' => $settings['preferences'],
-            'navigation' => [['label' => __('navigation.link.home'), 'href' => route('home', absolute: false), 'active' => true], ['label' => __('article.title.index'), 'href' => route('articles.index', absolute: false), 'active' => false], ['label' => __('contact.title.public'), 'href' => route('contact.index', absolute: false), 'active' => false]],
+            'navigation' => $navigation,
             'articles' => $this->articles->recent(),
             'featuredArticles' => $this->articles->recent(true),
             'footer' => ['text' => $settings['footer']['text'], 'links' => []],
@@ -41,14 +47,7 @@ final readonly class BuildPublicHome
                 'kind' => 'home', 'title' => $title, 'sections' => $sections,
                 'body' => $content['body_html'] ?? '',
                 'cover' => $this->image($content['cover'] ?? null),
-                'seo' => [
-                    'title' => $content['seo']['title'] ?? $title,
-                    'description' => $content['seo']['description'] ?? $this->general->site_description,
-                    'canonicalUrl' => mb_rtrim((string) config('app.url'), '/').'/',
-                    'robots' => $content['seo']['robots'] ?? $settings['seo']['robots'],
-                    'locale' => app()->getLocale(),
-                    'image' => $this->image($content['seo']['image'] ?? null),
-                ],
+                'seo' => $this->seo->handle($content ?? [], 'home', $title),
             ],
         ];
     }

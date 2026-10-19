@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
 import PublicContactForm from '@/components/public/PublicContactForm.vue';
 import PublicContactInfo from '@/components/public/PublicContactInfo.vue';
 import PublicPageContent from '@/components/public/PublicPageContent.vue';
+import PublicSeo from '@/components/public/PublicSeo.vue';
 import type { PublicWebsite } from '@/types';
 
 const props = defineProps<{ website: PublicWebsite }>();
@@ -25,23 +25,7 @@ const hasContact = computed(() => {
 </script>
 <template>
     <section class="flex min-w-0 flex-col gap-12">
-        <Head :title="website.page.seo.title">
-            <meta
-                head-key="description"
-                name="description"
-                :content="website.page.seo.description"
-            />
-            <meta
-                head-key="robots"
-                name="robots"
-                :content="website.page.seo.robots"
-            />
-            <link
-                head-key="canonical"
-                rel="canonical"
-                :href="website.page.seo.canonicalUrl"
-            />
-        </Head>
+        <PublicSeo :seo="website.page.seo" />
         <PublicPageContent
             :website="website"
             hide-contact-info

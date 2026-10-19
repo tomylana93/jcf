@@ -60,14 +60,14 @@ describe('Article browser flows', function (): void {
         for await (const chunk of process.stdin) chunks.push(chunk);
         const { default: render } = await import('./bootstrap/ssr/app.js');
         const result = await render(JSON.parse(Buffer.concat(chunks).toString()));
-        console.log('ARTICLE_SSR_RESULT:' + JSON.stringify(result));
+        await new Promise(resolve => process.stdout.write('ARTICLE_SSR_RESULT:' + JSON.stringify(result) + 'ARTICLE_SSR_END', resolve));
         process.exit(0);
         JS_WRAP;
         $result = Process::path(base_path())->input(json_encode($payload, JSON_THROW_ON_ERROR))->run(['node', '--input-type=module', '-e', $script]);
         expect($result->exitCode())->toBe(0, $result->errorOutput());
         $output = explode('ARTICLE_SSR_RESULT:', $result->output(), 2);
         expect($output)->toHaveCount(2);
-        $rendered = json_decode(mb_trim($output[1]), true, flags: JSON_THROW_ON_ERROR);
+        $rendered = json_decode(explode('ARTICLE_SSR_END', $output[1], 2)[0], true, flags: JSON_THROW_ON_ERROR);
         expect($rendered['body'])->toContain('<h1', 'Public reading example', 'A clear reading structure', 'Demonstration cover fixture', '<ul')
             ->and(implode('', $rendered['head']))->toContain('rel="canonical"', 'name="description"');
         $page = visit('/articles')->assertSee('Public reading example')
