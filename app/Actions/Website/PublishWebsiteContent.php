@@ -29,13 +29,13 @@ final readonly class PublishWebsiteContent
             if ($record->draft_version !== $expectedVersion) {
                 throw ValidationException::withMessages(['version' => __('website.error.stale_draft')]);
             }
-            $draft = Arr::only($record->draft, ['title', 'slug', 'excerpt', 'body_json', 'sections', 'seo', 'cover']);
+            $draft = Arr::only($record->draft, ['title', 'slug', 'excerpt', 'body_json', 'sections', 'seo', 'cover', 'featured']);
             foreach ($draft['sections'] as &$section) {
                 unset($section['body']);
             }
             unset($section);
             $validated = $this->validateContent->handle($draft, $record, $record->page_key === null);
-            $snapshot = Arr::only($validated, ['title', 'slug', 'excerpt', 'body_html', 'body_text', 'sections', 'seo', 'cover']);
+            $snapshot = Arr::only($validated, ['title', 'slug', 'excerpt', 'body_html', 'body_text', 'sections', 'seo', 'cover', 'featured']);
             foreach ($snapshot['sections'] as &$section) {
                 unset($section['body_json']);
             }

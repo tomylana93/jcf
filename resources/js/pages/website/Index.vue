@@ -18,6 +18,7 @@ import {
 import WebsitePresetPicker from '@/components/website/WebsitePresetPicker.vue';
 import { useTranslations } from '@/composables/useTranslations';
 import { preview, index as websiteIndex } from '@/routes/website';
+import { index as articlesIndex } from '@/routes/website/articles';
 import { edit } from '@/routes/website/page';
 import { edit as settingsEdit } from '@/routes/website/settings';
 import type { WebsiteArea, WebsitePageStatus, WebsitePresetKey } from '@/types';
@@ -69,6 +70,15 @@ function applyPresetTo(preset: WebsitePresetKey): void {
         :description="t('website.card.description')"
     >
         <div class="flex w-full flex-col gap-6">
+            <Button
+                as-child
+                variant="outline"
+                class="self-start"
+            >
+                <Link :href="articlesIndex()">
+                    {{ t('article.title.index') }}
+                </Link>
+            </Button>
             <WebsitePresetPicker
                 v-if="canConfigure"
                 :preset="props.area.preset"

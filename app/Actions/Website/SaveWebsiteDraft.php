@@ -21,17 +21,20 @@ final readonly class SaveWebsiteDraft
     public function __construct(private ValidateWebsiteContent $validateContent, private RecordAuditLog $audit) {}
 
     /** @param array<string, mixed> $data */
-    public function handle(User $actor, array $data, ?WebsiteContent $content = null, ?int $expectedVersion = null, ?string $pageKey = null): WebsiteContent
+    public function handle(User $actor, array $data, ?WebsiteContent $content = null, ?int $expectedVersion = null, ?string $pageKey = null, ?string $authorId = null): WebsiteContent
     {
         Gate::forUser($actor)->authorize($content === null ? 'create' : 'update', $content ?? WebsiteContent::class);
-        Validator::make(['page_key' => $pageKey], ['page_key' => ['nullable', Rule::enum(WebsitePage::class)]])->validate();
+        Validator::make(['page_key' => $pageKey, 'author_id' => $authorId], ['author_id' => ['nullable', 'uuid', 'exists:users,id'], 'page_key' => ['nullable', Rule::enum(WebsitePage::class)]])->validate();
         try {
-            return DB::transaction(function () use ($actor, $data, $content, $expectedVersion, $pageKey): WebsiteContent {
+            return DB::transaction(function () use ($actor, $data, $content, $expectedVersion, $pageKey, $authorId): WebsiteContent {
                 $record = $content === null ? new WebsiteContent(['page_key' => $pageKey, 'author_id' => $actor->id]) : WebsiteContent::query()->lockForUpdate()->findOrFail($content->id);
                 if ($content !== null && $record->draft_version !== $expectedVersion) {
                     throw ValidationException::withMessages(['version' => __('website.error.stale_draft')]);
                 }
                 $validated = $this->validateContent->handle($data, $record, $record->page_key === null);
+                if ($authorId !== null) {
+                    $record->author_id = $authorId;
+                }
                 $record->fill(['draft' => $validated, 'draft_version' => $content === null ? 1 : $record->draft_version + 1, 'updated_by' => $actor->id]);
                 $record->save();
                 if ($record->page_key === null) {

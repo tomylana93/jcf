@@ -8,7 +8,7 @@ use App\Settings\GeneralSettings;
 
 final readonly class BuildPublicHome
 {
-    public function __construct(private GetPublicWebsiteContent $content, private GetPublicWebsiteSettings $settings, private GeneralSettings $general) {}
+    public function __construct(private GetPublicWebsiteContent $content, private GetPublicWebsiteSettings $settings, private GeneralSettings $general, private GetPublicArticles $articles) {}
 
     /** @return array<string, mixed>|null */
     public function handle(): ?array
@@ -33,8 +33,9 @@ final readonly class BuildPublicHome
         return [
             'preset' => $settings['preset'],
             'preferences' => $settings['preferences'],
-            // Further public routes become available in their own roadmap scopes.
-            'navigation' => [['label' => __('navigation.link.home'), 'href' => route('home', absolute: false), 'active' => true]],
+            'navigation' => [['label' => __('navigation.link.home'), 'href' => route('home', absolute: false), 'active' => true], ['label' => __('article.title.index'), 'href' => route('articles.index', absolute: false), 'active' => false]],
+            'articles' => $this->articles->recent(),
+            'featuredArticles' => $this->articles->recent(true),
             'footer' => ['text' => $settings['footer']['text'], 'links' => []],
             'page' => [
                 'kind' => 'home', 'title' => $title, 'sections' => $sections,

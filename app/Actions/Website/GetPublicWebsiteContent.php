@@ -35,7 +35,7 @@ final readonly class GetPublicWebsiteContent
             return null;
         }
         $content = Cache::remember('website.content.'.$record->id.'.'.$record->publication_version, 3600, static fn (): array => [
-            ...Arr::only($record->published ?? [], ['kind', 'title', 'slug', 'excerpt', 'body_html', 'body_text', 'sections', 'seo', 'cover', 'author']),
+            ...Arr::only($record->published ?? [], ['kind', 'title', 'slug', 'excerpt', 'body_html', 'body_text', 'sections', 'seo', 'cover', 'author', 'featured']),
             'published_at' => $record->published_at?->toIso8601String(),
         ]);
 

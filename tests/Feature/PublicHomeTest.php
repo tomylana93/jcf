@@ -149,7 +149,7 @@ describe('Public access contracts', function (): void {
         $settings->public_pages_enabled = $enabled;
         $settings->save();
 
-        foreach (['/about', '/contact', '/articles', '/articles/draft'] as $url) {
+        foreach (['/about', '/contact', '/articles/draft'] as $url) {
             get($url)->assertNotFound();
         }
     })->with([true, false]);

@@ -34,7 +34,7 @@ final class SaveWebsitePageRequest extends FormRequest
      * @param  mixed  $default
      * @return ($key is null ? array<string, mixed> : mixed)
      */
-    public function validated($key = null, $default = null)
+    public function validated($key = null, $default = null): mixed
     {
         // The version marker is editor state, not content.
         return Arr::except(parent::validated($key, $default), 'version');

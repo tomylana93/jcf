@@ -25,8 +25,11 @@ final readonly class ValidateWebsiteContent
     public function handle(array $data, WebsiteContent $content, bool $article): array
     {
         // The wrapper rejects unknown content fields, while the validators below report errors on clean input paths.
-        Validator::make(['content' => $data], ['content' => ['required', 'array:title,slug,excerpt,body_json,sections,seo,cover']])->validate();
+        Validator::make(['content' => $data], ['content' => ['required', 'array:title,slug,excerpt,body_json,sections,seo,cover,featured']])->validate();
         $validated = Validator::make($data, $this->rules($data, $content, $article))->validate();
+        if (array_key_exists('featured', $validated)) {
+            $validated['featured'] = (bool) $validated['featured'];
+        }
         foreach ($validated['sections'] as $index => $section) {
             $validated['sections'][$index]['visible'] = (bool) $section['visible'];
             if ($section['type'] === 'articles') {
@@ -67,6 +70,7 @@ final readonly class ValidateWebsiteContent
     private function rules(array $data, WebsiteContent $content, bool $article): array
     {
         $rules = [
+            'featured' => [$article ? 'sometimes' : 'prohibited', 'boolean'],
             'title' => ['required', 'string', 'max:255'],
             'slug' => [$article ? 'required' : 'prohibited', 'string', 'max:180', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/'],
             'excerpt' => ['present', 'nullable', 'string', 'max:2000'],

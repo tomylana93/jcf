@@ -73,7 +73,11 @@ const leadingHero = computed(() =>
             :key="section.id"
             :section="section"
             :preset="preset"
-            :articles="website.articles ?? []"
+            :articles="
+                section.type === 'articles' && section.featured
+                    ? (website.featuredArticles ?? website.articles ?? [])
+                    : (website.articles ?? [])
+            "
             :primary="section.id === leadingHero"
         />
         <template v-if="website.page.kind === 'article-index'">

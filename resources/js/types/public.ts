@@ -74,6 +74,7 @@ export type PublicWebsite = {
     page: PublicPage;
     breadcrumbs?: PublicNavigationItem[];
     articles?: PublicArticle[];
+    featuredArticles?: PublicArticle[];
     pagination?: PublicNavigationItem[];
     contact?: PublicContact;
     footer?: { text: string; links: PublicNavigationItem[] };

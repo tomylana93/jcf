@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Enums\Permission;
 use App\Http\Controllers\Website\WebsiteAreaController;
+use App\Http\Controllers\Website\WebsiteArticleController;
 use App\Http\Controllers\Website\WebsitePageController;
 use App\Http\Controllers\Website\WebsitePreviewController;
 use App\Http\Controllers\Website\WebsitePreviewImageController;
@@ -21,6 +22,18 @@ Route::middleware(['auth', 'verified'])->prefix('website')->name('website.')->gr
 
     Route::get('preview/{page}', WebsitePreviewController::class)->name('preview');
     Route::get('preview/images/{image}', WebsitePreviewImageController::class)->whereNumber('image')->name('preview.image');
+
+    Route::controller(WebsiteArticleController::class)->prefix('articles')->name('articles.')->group(function (): void {
+        Route::get('/', 'index')->name('index');
+        Route::get('create', 'create')->name('create');
+        Route::post('/', 'save')->can(Permission::EditWebsiteContent->value)->name('store');
+        Route::get('{article}/edit', 'edit')->whereUuid('article')->name('edit');
+        Route::post('{article}/draft', 'save')->whereUuid('article')->can(Permission::EditWebsiteContent->value)->name('save');
+        Route::post('{article}/publish', 'publish')->whereUuid('article')->can(Permission::PublishWebsiteContent->value)->name('publish');
+        Route::post('{article}/unpublish', 'unpublish')->whereUuid('article')->can(Permission::PublishWebsiteContent->value)->name('unpublish');
+        Route::post('{article}/image', 'image')->whereUuid('article')->can(Permission::EditWebsiteContent->value)->name('image');
+        Route::get('{article}/preview', 'preview')->whereUuid('article')->name('preview');
+    });
 
     Route::get('settings', [WebsiteSettingsController::class, 'edit'])->name('settings.edit');
     Route::patch('settings', [WebsiteSettingsController::class, 'update'])->can(Permission::ConfigureWebsite->value)->middleware(HandlePrecognitiveRequests::class)->name('settings.update');

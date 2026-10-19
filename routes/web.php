@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\Audit\AuditLogController;
 use App\Http\Controllers\Notification\NotificationController;
 use App\Http\Controllers\Permission\UserPermissionController;
+use App\Http\Controllers\Public\ArticleController;
 use App\Http\Controllers\Public\HomeController;
 use App\Http\Controllers\Public\WebsiteImageController;
 use App\Http\Controllers\Search\GlobalSearchController;
@@ -14,6 +15,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
 Route::get('website/images/{image}', WebsiteImageController::class)->whereNumber('image')->middleware(EnsurePublicPagesEnabled::class)->name('website.image');
+
+Route::middleware(EnsurePublicPagesEnabled::class)->prefix('articles')->name('articles.')->group(function (): void {
+    Route::get('/', [ArticleController::class, 'index'])->name('index');
+    Route::get('{slug}', [ArticleController::class, 'show'])->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')->name('show');
+});
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('search', GlobalSearchController::class)->middleware('throttle:60,1')->name('search');
