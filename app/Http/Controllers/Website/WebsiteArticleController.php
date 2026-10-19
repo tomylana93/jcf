@@ -89,9 +89,7 @@ final class WebsiteArticleController extends Controller
         /** @var User $user */
         $user = $request->user();
         $image = $request->file('image');
-        if ($image === null) {
-            abort(422);
-        }
+        abort_if($image === null, 422);
         $media = $upload->handle($user, $article, $image);
         Inertia::flash('image', $media->id);
 

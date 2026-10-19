@@ -76,6 +76,7 @@ final readonly class ValidateWebsiteContent
             'excerpt' => ['present', 'nullable', 'string', 'max:2000'],
             'body_json' => ['required', 'array'],
             'sections' => ['present', 'array', 'list', 'max:20', $this->uniqueSectionIds()],
+            'sections.*' => ['required', 'array'],
             'seo' => ['present', 'array:title,description,robots,image'],
             'seo.title' => ['sometimes', 'nullable', 'string', 'max:255'],
             'seo.description' => ['sometimes', 'nullable', 'string', 'max:500'],

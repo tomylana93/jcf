@@ -9,6 +9,7 @@ defineProps<{
     articles: PublicArticle[];
     variant: PublicPresetDefinition['articles'];
     showEmpty?: boolean;
+    headingLevel?: 2 | 3;
 }>();
 const { t } = useTranslations();
 </script>
@@ -28,6 +29,7 @@ const { t } = useTranslations();
             v-for="(article, index) in articles"
             :key="article.id"
             :article="article"
+            :heading-level="headingLevel"
             :compact="variant === 'list'"
             :prominent="variant === 'lead' && index === 0"
             :class="

@@ -61,17 +61,16 @@ final readonly class BuildWebsitePreview
      */
     private function draftContent(WebsiteContent $record): array
     {
-        // Stored drafts keep derived fields that validation refreshes; editor-only fields stay out.
-        $validated = $this->validateContent->handle(
-            Arr::except($record->draft, ['slug', 'body_html', 'body_text']),
-            $record,
-            false,
-        );
-        $sections = $validated['sections'];
-        foreach ($sections as $index => $section) {
-            // Only rendered representations are exposed; editor JSON stays out of every payload.
-            unset($sections[$index]['body_json']);
+        $draft = Arr::except($record->draft, ['slug', 'body_html', 'body_text']);
+        foreach ($draft['sections'] as &$section) {
+            unset($section['body']);
         }
+        unset($section);
+        $validated = $this->validateContent->handle($draft, $record, false);
+        foreach ($validated['sections'] as &$section) {
+            unset($section['body_json']);
+        }
+        unset($section);
 
         return Arr::only($validated, ['title', 'sections', 'body_html', 'cover', 'seo']);
     }

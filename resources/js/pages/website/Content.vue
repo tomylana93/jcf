@@ -443,9 +443,7 @@ watchEffect(() =>
                             </Button>
                             <Button
                                 v-if="
-                                    canPublish &&
-                                    props.editor.content !== null &&
-                                    !props.editor.status?.published
+                                    canPublish && props.editor.content !== null
                                 "
                                 type="button"
                                 size="sm"
@@ -480,7 +478,6 @@ watchEffect(() =>
                             form.isDirty &&
                             canPublish &&
                             props.editor.status &&
-                            !props.editor.status.published &&
                             props.editor.content !== null
                         "
                         class="text-sm text-muted-foreground"

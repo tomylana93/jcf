@@ -85,6 +85,7 @@ const leadingHero = computed(() =>
         />
         <template v-if="website.page.kind === 'article-index'">
             <PublicArticleList
+                :heading-level="2"
                 :articles="website.articles ?? []"
                 :variant="preset.articles"
                 show-empty

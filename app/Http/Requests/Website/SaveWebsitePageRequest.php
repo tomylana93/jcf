@@ -20,7 +20,7 @@ final class SaveWebsitePageRequest extends FormRequest
         // Keeps the payload shape; domain validation in the Website Actions owns every semantic rule.
         return [
             'title' => ['required', 'string', 'max:255'],
-            'excerpt' => ['present', 'string', 'max:2000'],
+            'excerpt' => ['present', 'nullable', 'string', 'max:2000'],
             'body_json' => ['required', 'array'],
             'sections' => ['present', 'array', 'list', 'max:20'],
             'seo' => ['present', 'array:title,description,robots,image'],

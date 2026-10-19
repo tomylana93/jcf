@@ -49,6 +49,16 @@ function savedHomeDraft(User $owner): WebsiteContent
 }
 
 describe('Website admin area', function (): void {
+    it('saves an empty optional page summary from the editor', function (): void {
+        actingAsUserWithPermissions(Permission::EditWebsiteContent);
+
+        post('/website/content/home/draft', [...websitePageDraft(overrides: ['excerpt' => '']), 'version' => 0])
+            ->assertSessionHasNoErrors()
+            ->assertRedirect();
+
+        expect(WebsiteContent::query()->where('page_key', 'home')->sole()->draft['excerpt'])->toBeNull();
+    });
+
     it('requires authentication for every admin endpoint', function (string $method, string $uri): void {
         $response = match ($method) {
             'GET' => get($uri),

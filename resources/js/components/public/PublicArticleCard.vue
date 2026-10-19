@@ -7,6 +7,7 @@ defineProps<{
     article: PublicArticle;
     prominent?: boolean;
     compact?: boolean;
+    headingLevel?: 2 | 3;
 }>();
 </script>
 
@@ -28,7 +29,8 @@ defineProps<{
         >
             {{ article.publishedLabel }}
         </time>
-        <h3
+        <component
+            :is="`h${headingLevel ?? 3}`"
             :class="[
                 'font-semibold tracking-tight text-balance wrap-anywhere',
                 prominent ? 'text-3xl sm:text-4xl' : 'text-xl',
@@ -40,7 +42,7 @@ defineProps<{
             >
                 {{ article.title }}
             </PublicLink>
-        </h3>
+        </component>
         <p
             v-if="article.excerpt"
             class="max-w-[70ch] leading-7 wrap-anywhere text-muted-foreground"
