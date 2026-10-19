@@ -48,7 +48,7 @@ describe('Shared application permissions', function (): void {
 
         get(route('dashboard'))->assertOk()->assertInertia(fn (Assert $page) => $page
             ->where('auth.permissions', [
-                'system.view', 'backups.manage', 'audit.view', 'settings.view', 'settings.manage', 'users.view', 'users.manage', 'users.permissions.assign', 'documentation.view', 'documentation.manage',
+                'system.view', 'backups.manage', 'audit.view', 'settings.view', 'settings.manage', 'users.view', 'users.manage', 'users.permissions.assign', 'documentation.view', 'documentation.manage', 'website.content.edit', 'website.content.publish', 'website.configure', 'website.inbox.view',
             ])
 
         );

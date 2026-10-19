@@ -1,8 +1,19 @@
 <script setup lang="ts">
+import { usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
+
 import PublicFooter from '@/components/layout/PublicFooter.vue';
 import PublicNavigation from '@/components/layout/PublicNavigation.vue';
+import { publicPresets } from '@/components/public/presets';
+import PublicContainer from '@/components/public/PublicContainer.vue';
 import { useBrowserTimezone } from '@/composables/useBrowserTimezone';
 import { useTranslations } from '@/composables/useTranslations';
+import type { PublicWebsite } from '@/types';
+
+const page = usePage<{ website?: PublicWebsite }>();
+const preset = computed(
+    () => publicPresets[page.props.website?.preset ?? 'corporate'],
+);
 
 const { t } = useTranslations();
 
@@ -21,9 +32,9 @@ useBrowserTimezone();
         <main
             id="public-content"
             tabindex="-1"
-            class="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 py-16 sm:px-6 sm:py-24 lg:px-8"
+            class="flex flex-1 flex-col py-12 sm:py-20"
         >
-            <slot />
+            <PublicContainer :width="preset.width"><slot /></PublicContainer>
         </main>
         <PublicFooter />
     </div>

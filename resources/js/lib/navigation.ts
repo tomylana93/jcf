@@ -2,6 +2,7 @@ import {
     Activity,
     BookOpen,
     FilePenLine,
+    Globe,
     LayoutGrid,
     ScrollText,
     Settings,
@@ -17,6 +18,7 @@ import { index as masterDataIndex } from '@/routes/master-data';
 import { index as permissionsIndex } from '@/routes/permissions';
 import { index as settingsIndex } from '@/routes/settings';
 import { index as systemIndex } from '@/routes/system';
+import { index as websiteIndex } from '@/routes/website';
 import type {
     EditorLinkOption,
     NavGroup,
@@ -41,6 +43,7 @@ export function createAdminNavigationGroups(
     canViewSettings = false,
     canViewUsers = false,
     canViewUserPermissions = false,
+    canViewWebsite = false,
     canManageDocumentation = false,
     canViewAudit = false,
     canViewSystem = false,
@@ -50,6 +53,7 @@ export function createAdminNavigationGroups(
         !canViewSettings &&
         !canViewUsers &&
         !canViewUserPermissions &&
+        !canViewWebsite &&
         !canManageDocumentation &&
         !canViewAudit &&
         !canViewSystem &&
@@ -77,6 +81,15 @@ export function createAdminNavigationGroups(
                               title: t('navigation.link.permission'),
                               href: permissionsIndex(),
                               icon: ShieldCheck,
+                          },
+                      ]
+                    : []),
+                ...(canViewWebsite
+                    ? [
+                          {
+                              title: t('navigation.link.website'),
+                              href: websiteIndex(),
+                              icon: Globe,
                           },
                       ]
                     : []),
@@ -142,6 +155,7 @@ export function createNavigationGroups(
     canViewSettings = false,
     canViewUsers = false,
     canViewUserPermissions = false,
+    canViewWebsite = false,
     canViewDocumentation = false,
     canManageDocumentation = false,
     canViewAudit = false,
@@ -157,6 +171,7 @@ export function createNavigationGroups(
             canViewSettings,
             canViewUsers,
             canViewUserPermissions,
+            canViewWebsite,
             canManageDocumentation,
             canViewAudit,
             canViewSystem,
@@ -175,6 +190,10 @@ export function createEditorLinkOptions(
             permissions.includes('settings.view'),
             permissions.includes('users.view'),
             permissions.includes('users.permissions.assign'),
+            permissions.includes('website.content.edit') ||
+                permissions.includes('website.content.publish') ||
+                permissions.includes('website.configure') ||
+                permissions.includes('website.inbox.view'),
             permissions.includes('documentation.view'),
             permissions.includes('documentation.manage'),
             permissions.includes('audit.view'),

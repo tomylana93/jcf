@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { Head, Link, usePage } from '@inertiajs/vue3';
+import { usePage } from '@inertiajs/vue3';
 
+import PublicPageContent from '@/components/public/PublicPageContent.vue';
+import PublicSeo from '@/components/public/PublicSeo.vue';
 import { Button } from '@/components/ui/button';
 import { useTranslations } from '@/composables/useTranslations';
-import { dashboard } from '@/routes';
+import type { PublicHomeProps } from '@/types';
 
-defineProps<{ canonicalUrl: string }>();
+defineProps<PublicHomeProps>();
 
 const page = usePage();
 const { t } = useTranslations();
@@ -13,59 +15,19 @@ const { t } = useTranslations();
 
 <template>
     <section class="my-auto flex flex-col items-start gap-8">
-        <Head title="">
-            <meta
-                head-key="description"
-                name="description"
-                :content="page.props.general.site_description"
-            />
-            <link
-                head-key="canonical"
-                rel="canonical"
-                :href="canonicalUrl"
-            />
-            <meta
-                head-key="og:type"
-                property="og:type"
-                content="website"
-            />
-            <meta
-                head-key="og:title"
-                property="og:title"
-                :content="page.props.general.site_name"
-            />
-            <meta
-                head-key="og:description"
-                property="og:description"
-                :content="page.props.general.site_description"
-            />
-            <meta
-                head-key="og:url"
-                property="og:url"
-                :content="canonicalUrl"
-            />
-            <meta
-                head-key="og:site_name"
-                property="og:site_name"
-                :content="page.props.general.site_name"
-            />
-            <meta
-                head-key="twitter:card"
-                name="twitter:card"
-                content="summary"
-            />
-            <meta
-                head-key="twitter:title"
-                name="twitter:title"
-                :content="page.props.general.site_name"
-            />
-            <meta
-                head-key="twitter:description"
-                name="twitter:description"
-                :content="page.props.general.site_description"
-            />
-        </Head>
-        <div class="flex max-w-3xl flex-col gap-6">
+        <PublicSeo
+            v-if="website"
+            :seo="website.page.seo"
+        />
+        <PublicPageContent
+            v-if="website"
+            :website="website"
+        />
+        <div
+            v-else
+            id="public-introduction"
+            class="flex max-w-3xl flex-col gap-6"
+        >
             <h1
                 class="text-4xl leading-tight font-semibold tracking-tight wrap-anywhere sm:text-5xl lg:text-6xl"
             >
@@ -79,11 +41,12 @@ const { t } = useTranslations();
             </p>
         </div>
         <Button
-            :as="Link"
-            :href="dashboard()"
+            v-if="!website"
+            as="a"
+            href="#public-introduction"
             size="lg"
         >
-            {{ t('navigation.link.dashboard') }}
+            {{ t('navigation.link.explore') }}
         </Button>
     </section>
 </template>

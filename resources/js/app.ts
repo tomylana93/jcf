@@ -67,6 +67,9 @@ void createInertiaApp<{
         if (ssr) {
             return;
         }
+        initializeTheme();
+        initializeFlashToast();
+
         const currentPage = usePage<{
             locale?: LocaleSettings;
             brand?: BrandSettings;
@@ -122,9 +125,3 @@ void createInertiaApp<{
         color: '#4B5563',
     },
 });
-
-// This will set light / dark mode on page load...
-initializeTheme();
-
-// This will listen for flash toast data from the server...
-initializeFlashToast();

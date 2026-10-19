@@ -5,12 +5,32 @@ declare(strict_types=1);
 use App\Http\Controllers\Audit\AuditLogController;
 use App\Http\Controllers\Notification\NotificationController;
 use App\Http\Controllers\Permission\UserPermissionController;
+use App\Http\Controllers\Public\AboutController;
+use App\Http\Controllers\Public\ArticleController;
+use App\Http\Controllers\Public\ContactController;
 use App\Http\Controllers\Public\HomeController;
+use App\Http\Controllers\Public\IndexingController;
+use App\Http\Controllers\Public\WebsiteImageController;
 use App\Http\Controllers\Search\GlobalSearchController;
 use App\Http\Controllers\System\SystemController;
+use App\Http\Middleware\EnsurePublicPagesEnabled;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
+Route::get('about', AboutController::class)->middleware(EnsurePublicPagesEnabled::class)->name('about');
+Route::get('sitemap.xml', [IndexingController::class, 'sitemap'])->name('sitemap');
+Route::get('robots.txt', [IndexingController::class, 'robots'])->name('robots');
+Route::get('website/images/{image}', WebsiteImageController::class)->whereNumber('image')->middleware(EnsurePublicPagesEnabled::class)->name('website.image');
+
+Route::middleware(EnsurePublicPagesEnabled::class)->prefix('articles')->name('articles.')->group(function (): void {
+    Route::get('/', [ArticleController::class, 'index'])->name('index');
+    Route::get('{slug}', [ArticleController::class, 'show'])->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')->name('show');
+});
+
+Route::middleware(EnsurePublicPagesEnabled::class)->group(function (): void {
+    Route::get('contact', [ContactController::class, 'index'])->name('contact.index');
+    Route::post('contact', [ContactController::class, 'store'])->middleware('throttle:5,1')->name('contact.store');
+});
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('search', GlobalSearchController::class)->middleware('throttle:60,1')->name('search');
@@ -26,6 +46,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 require __DIR__.'/settings.php';
+
+require __DIR__.'/website.php';
 
 require __DIR__.'/account.php';
 

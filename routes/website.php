@@ -1,0 +1,48 @@
+<?php
+
+declare(strict_types=1);
+
+use App\Enums\Permission;
+use App\Http\Controllers\Website\ContactInboxController;
+use App\Http\Controllers\Website\WebsiteAreaController;
+use App\Http\Controllers\Website\WebsiteArticleController;
+use App\Http\Controllers\Website\WebsitePageController;
+use App\Http\Controllers\Website\WebsitePreviewController;
+use App\Http\Controllers\Website\WebsitePreviewImageController;
+use App\Http\Controllers\Website\WebsiteSettingsController;
+use Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests;
+use Illuminate\Support\Facades\Route;
+
+Route::middleware(['auth', 'verified'])->prefix('website')->name('website.')->group(function (): void {
+    Route::get('/', WebsiteAreaController::class)->name('index');
+    Route::get('content/{page}', [WebsitePageController::class, 'edit'])->name('page.edit');
+    Route::post('content/{page}/draft', [WebsitePageController::class, 'saveDraft'])->middleware(HandlePrecognitiveRequests::class)->can(Permission::EditWebsiteContent->value)->name('page.save');
+    Route::post('content/{page}/publish', [WebsitePageController::class, 'publish'])->can(Permission::PublishWebsiteContent->value)->name('page.publish');
+    Route::post('content/{page}/unpublish', [WebsitePageController::class, 'unpublish'])->can(Permission::PublishWebsiteContent->value)->name('page.unpublish');
+    Route::post('content/{page}/image', [WebsitePageController::class, 'storeImage'])->can(Permission::EditWebsiteContent->value)->name('page.image.store');
+
+    Route::get('preview/{page}', WebsitePreviewController::class)->name('preview');
+    Route::get('preview/images/{image}', WebsitePreviewImageController::class)->whereNumber('image')->name('preview.image');
+
+    Route::controller(WebsiteArticleController::class)->prefix('articles')->name('articles.')->group(function (): void {
+        Route::get('/', 'index')->name('index');
+        Route::get('create', 'create')->name('create');
+        Route::post('/', 'save')->can(Permission::EditWebsiteContent->value)->name('store');
+        Route::get('{article}/edit', 'edit')->whereUuid('article')->name('edit');
+        Route::post('{article}/draft', 'save')->whereUuid('article')->can(Permission::EditWebsiteContent->value)->name('save');
+        Route::post('{article}/publish', 'publish')->whereUuid('article')->can(Permission::PublishWebsiteContent->value)->name('publish');
+        Route::post('{article}/unpublish', 'unpublish')->whereUuid('article')->can(Permission::PublishWebsiteContent->value)->name('unpublish');
+        Route::post('{article}/image', 'image')->whereUuid('article')->can(Permission::EditWebsiteContent->value)->name('image');
+        Route::get('{article}/preview', 'preview')->whereUuid('article')->name('preview');
+    });
+
+    Route::middleware('can:'.Permission::ViewContactInbox->value)->prefix('inbox')->name('inbox.')->group(function (): void {
+        Route::get('/', [ContactInboxController::class, 'index'])->name('index');
+        Route::get('{message}', [ContactInboxController::class, 'show'])->whereUuid('message')->name('show');
+        Route::patch('{message}', [ContactInboxController::class, 'update'])->whereUuid('message')->name('update');
+    });
+
+    Route::get('settings', [WebsiteSettingsController::class, 'edit'])->name('settings.edit');
+    Route::patch('settings', [WebsiteSettingsController::class, 'update'])->can(Permission::ConfigureWebsite->value)->middleware(HandlePrecognitiveRequests::class)->name('settings.update');
+    Route::patch('preset', [WebsiteSettingsController::class, 'applyPreset'])->can(Permission::ConfigureWebsite->value)->name('preset.update');
+});

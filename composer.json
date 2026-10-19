@@ -80,7 +80,7 @@
             "@check:fix"
         ],
         "test:type-coverage": "pest --type-coverage --min=100",
-        "test:prepare": "@build",
+        "test:prepare": "@build:ssr",
         "test:audit": [
             "composer audit",
             "pnpm audit"

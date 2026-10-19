@@ -19,6 +19,7 @@ return [
     ],
 
     'link' => [
+        'explore' => 'Jelajahi konten',
         'home' => 'Beranda',
         'system' => 'Kesehatan sistem',
         'audit' => 'Audit log',
@@ -27,6 +28,7 @@ return [
         'permission' => 'Permission',
         'account' => 'Akun',
         'master_data' => 'Master Data',
+        'website' => 'Website',
         'manage_documentation' => 'Kelola Dokumentasi',
         'documentation' => 'Dokumentasi',
     ],

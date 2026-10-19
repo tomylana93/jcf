@@ -17,4 +17,6 @@ return [
     'permission' => 'Permission',
     'master_data' => 'Master Data',
     'user' => 'Pengguna',
+    'website' => 'Website',
+    'website_settings' => 'Pengaturan website',
 ];
