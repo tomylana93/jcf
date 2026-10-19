@@ -84,10 +84,10 @@ describe('Website admin area', function (): void {
         'configure' => [Permission::ConfigureWebsite],
     ]);
 
-    it('refuses the website area for users without any website permission', function (): void {
+    it('routes inbox operators away from content management', function (): void {
         actingAsUserWithPermissions(Permission::ViewContactInbox);
 
-        get('/website')->assertForbidden();
+        get('/website')->assertRedirect(route('website.inbox.index'));
         get('/website/settings')->assertForbidden();
         get('/website/preview/home')->assertForbidden();
     });

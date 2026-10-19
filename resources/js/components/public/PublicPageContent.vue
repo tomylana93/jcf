@@ -11,7 +11,10 @@ import PublicPagination from './PublicPagination.vue';
 import PublicRichText from './PublicRichText.vue';
 import PublicSection from './PublicSection.vue';
 
-const props = defineProps<{ website: PublicWebsite }>();
+const props = defineProps<{
+    website: PublicWebsite;
+    hideContactInfo?: boolean;
+}>();
 const preset = computed(() => publicPresets[props.website.preset]);
 const sections = computed(() =>
     composePublicSections(
@@ -89,7 +92,11 @@ const leadingHero = computed(() =>
             <PublicPagination :items="website.pagination ?? []" />
         </template>
         <PublicContactInfo
-            v-if="website.page.kind === 'contact' && website.contact"
+            v-if="
+                !hideContactInfo &&
+                website.page.kind === 'contact' &&
+                website.contact
+            "
             :contact="website.contact"
         />
         <slot />

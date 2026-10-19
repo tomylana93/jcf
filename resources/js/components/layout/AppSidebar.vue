@@ -36,7 +36,8 @@ const navigationGroups = computed(() =>
             page.props.auth.permissions.includes('users.permissions.assign'),
         page.props.auth.permissions.includes('website.content.edit') ||
             page.props.auth.permissions.includes('website.content.publish') ||
-            page.props.auth.permissions.includes('website.configure'),
+            page.props.auth.permissions.includes('website.configure') ||
+            page.props.auth.permissions.includes('website.inbox.view'),
         page.props.auth.permissions.includes('documentation.view'),
         page.props.auth.permissions.includes('documentation.manage'),
         page.props.auth.permissions.includes('audit.view'),

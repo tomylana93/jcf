@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Enums\Permission;
+use App\Http\Controllers\Website\ContactInboxController;
 use App\Http\Controllers\Website\WebsiteAreaController;
 use App\Http\Controllers\Website\WebsiteArticleController;
 use App\Http\Controllers\Website\WebsitePageController;
@@ -33,6 +34,12 @@ Route::middleware(['auth', 'verified'])->prefix('website')->name('website.')->gr
         Route::post('{article}/unpublish', 'unpublish')->whereUuid('article')->can(Permission::PublishWebsiteContent->value)->name('unpublish');
         Route::post('{article}/image', 'image')->whereUuid('article')->can(Permission::EditWebsiteContent->value)->name('image');
         Route::get('{article}/preview', 'preview')->whereUuid('article')->name('preview');
+    });
+
+    Route::middleware('can:'.Permission::ViewContactInbox->value)->prefix('inbox')->name('inbox.')->group(function (): void {
+        Route::get('/', [ContactInboxController::class, 'index'])->name('index');
+        Route::get('{message}', [ContactInboxController::class, 'show'])->whereUuid('message')->name('show');
+        Route::patch('{message}', [ContactInboxController::class, 'update'])->whereUuid('message')->name('update');
     });
 
     Route::get('settings', [WebsiteSettingsController::class, 'edit'])->name('settings.edit');

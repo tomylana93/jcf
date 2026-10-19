@@ -6,6 +6,7 @@ use App\Http\Controllers\Audit\AuditLogController;
 use App\Http\Controllers\Notification\NotificationController;
 use App\Http\Controllers\Permission\UserPermissionController;
 use App\Http\Controllers\Public\ArticleController;
+use App\Http\Controllers\Public\ContactController;
 use App\Http\Controllers\Public\HomeController;
 use App\Http\Controllers\Public\WebsiteImageController;
 use App\Http\Controllers\Search\GlobalSearchController;
@@ -19,6 +20,11 @@ Route::get('website/images/{image}', WebsiteImageController::class)->whereNumber
 Route::middleware(EnsurePublicPagesEnabled::class)->prefix('articles')->name('articles.')->group(function (): void {
     Route::get('/', [ArticleController::class, 'index'])->name('index');
     Route::get('{slug}', [ArticleController::class, 'show'])->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')->name('show');
+});
+
+Route::middleware(EnsurePublicPagesEnabled::class)->group(function (): void {
+    Route::get('contact', [ContactController::class, 'index'])->name('contact.index');
+    Route::post('contact', [ContactController::class, 'store'])->middleware('throttle:5,1')->name('contact.store');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {

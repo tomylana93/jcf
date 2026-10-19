@@ -19,6 +19,7 @@ import WebsitePresetPicker from '@/components/website/WebsitePresetPicker.vue';
 import { useTranslations } from '@/composables/useTranslations';
 import { preview, index as websiteIndex } from '@/routes/website';
 import { index as articlesIndex } from '@/routes/website/articles';
+import { index as inboxIndex } from '@/routes/website/inbox';
 import { edit } from '@/routes/website/page';
 import { edit as settingsEdit } from '@/routes/website/settings';
 import type { WebsiteArea, WebsitePageStatus, WebsitePresetKey } from '@/types';
@@ -71,6 +72,7 @@ function applyPresetTo(preset: WebsitePresetKey): void {
     >
         <div class="flex w-full flex-col gap-6">
             <Button
+                v-if="canEdit"
                 as-child
                 variant="outline"
                 class="self-start"
@@ -78,6 +80,16 @@ function applyPresetTo(preset: WebsitePresetKey): void {
                 <Link :href="articlesIndex()">
                     {{ t('article.title.index') }}
                 </Link>
+            </Button>
+            <Button
+                v-if="
+                    page.props.auth.permissions.includes('website.inbox.view')
+                "
+                as-child
+                variant="outline"
+                class="self-start"
+            >
+                <Link :href="inboxIndex()">{{ t('contact.title.inbox') }}</Link>
             </Button>
             <WebsitePresetPicker
                 v-if="canConfigure"

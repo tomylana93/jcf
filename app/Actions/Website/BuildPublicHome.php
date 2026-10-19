@@ -33,7 +33,7 @@ final readonly class BuildPublicHome
         return [
             'preset' => $settings['preset'],
             'preferences' => $settings['preferences'],
-            'navigation' => [['label' => __('navigation.link.home'), 'href' => route('home', absolute: false), 'active' => true], ['label' => __('article.title.index'), 'href' => route('articles.index', absolute: false), 'active' => false]],
+            'navigation' => [['label' => __('navigation.link.home'), 'href' => route('home', absolute: false), 'active' => true], ['label' => __('article.title.index'), 'href' => route('articles.index', absolute: false), 'active' => false], ['label' => __('contact.title.public'), 'href' => route('contact.index', absolute: false), 'active' => false]],
             'articles' => $this->articles->recent(),
             'featuredArticles' => $this->articles->recent(true),
             'footer' => ['text' => $settings['footer']['text'], 'links' => []],

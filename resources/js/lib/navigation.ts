@@ -192,7 +192,8 @@ export function createEditorLinkOptions(
             permissions.includes('users.permissions.assign'),
             permissions.includes('website.content.edit') ||
                 permissions.includes('website.content.publish') ||
-                permissions.includes('website.configure'),
+                permissions.includes('website.configure') ||
+                permissions.includes('website.inbox.view'),
             permissions.includes('documentation.view'),
             permissions.includes('documentation.manage'),
             permissions.includes('audit.view'),
