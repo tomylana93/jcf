@@ -4,6 +4,7 @@ import { ArrowLeft, MessageSquarePlus, RefreshCw, Send } from '@lucide/vue';
 import { computed, onMounted, ref, watchEffect } from 'vue';
 
 import ChatAvatar from '@/components/chat/ChatAvatar.vue';
+import ChatConnectionBadge from '@/components/chat/ChatConnectionBadge.vue';
 import ChatHistory from '@/components/chat/ChatHistory.vue';
 import ChatRecipientPicker from '@/components/chat/ChatRecipientPicker.vue';
 import PageContainer from '@/components/layout/PageContainer.vue';
@@ -42,6 +43,7 @@ const {
     historyError,
     startError,
     readError,
+    realtimeState,
     inboxHttp,
     historyHttp,
     sendHttp,
@@ -84,8 +86,11 @@ function keydown(event: KeyboardEvent): void {
     <Head :title="t('chat.title')" />
 
     <PageContainer :title="t('chat.title')">
+        <div class="flex justify-end">
+            <ChatConnectionBadge :state="realtimeState" />
+        </div>
         <div
-            class="grid h-[calc(100dvh-15rem)] min-h-80 min-w-0 overflow-hidden rounded-xl border bg-background md:h-[calc(100dvh-12rem)] md:grid-cols-[18rem_minmax(0,1fr)]"
+            class="grid h-[calc(100dvh-17rem)] min-h-80 min-w-0 overflow-hidden rounded-xl border bg-background md:h-[calc(100dvh-14rem)] md:grid-cols-[18rem_minmax(0,1fr)]"
             data-test="chat-workspace"
         >
             <section

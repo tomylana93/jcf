@@ -39,6 +39,9 @@ return [
 
     'status' => [
         'loading' => 'Loading…',
+        'connected' => 'Connected',
+        'connecting' => 'Connecting…',
+        'disconnected' => 'Offline',
         'empty_inbox' => 'No conversations yet. Start a new conversation.',
         'empty_history' => 'No messages yet.',
         'select' => 'Select a conversation to read and send messages.',

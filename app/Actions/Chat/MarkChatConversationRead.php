@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Chat;
 
+use App\Events\ChatReadUpdated;
 use App\Models\ChatConversation;
 use App\Models\ChatParticipant;
 use App\Models\User;
@@ -35,6 +36,15 @@ final class MarkChatConversationRead
 
             if ($sequence > $participant->last_read_sequence) {
                 $participant->update(['last_read_sequence' => $sequence]);
+
+                event(new ChatReadUpdated(
+                    (string) $record->id,
+                    (string) $user->id,
+                    $sequence,
+                    array_values($record->participants()->pluck('user_id')
+                        ->map(fn (mixed $id): string => (string) $id)
+                        ->all()),
+                ));
             }
 
             return $participant;

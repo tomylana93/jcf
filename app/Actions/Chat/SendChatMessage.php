@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Chat;
 
+use App\Events\ChatMessageCreated;
 use App\Models\ChatConversation;
 use App\Models\ChatMessage;
 use App\Models\User;
@@ -43,6 +44,10 @@ final readonly class SendChatMessage
                 'sequence' => $record->last_message_sequence + 1,
             ]);
             $record->update(['last_message_sequence' => $message->sequence]);
+
+            event(new ChatMessageCreated($message, array_values($users->keys()
+                ->map(fn (mixed $id): string => (string) $id)
+                ->all())));
 
             return $message;
         }, attempts: 3);

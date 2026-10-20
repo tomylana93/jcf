@@ -1,6 +1,7 @@
 import { router, useHttp, usePage } from '@inertiajs/vue3';
 import { computed, onScopeDispose, ref, watch } from 'vue';
 
+import { useChatRealtime } from '@/composables/useChatRealtime';
 import { logout } from '@/routes';
 import { history, inbox, read, send, store } from '@/routes/chat';
 import type { Auth } from '@/types';
@@ -9,6 +10,7 @@ import type {
     ChatHistory,
     ChatMessage,
     ChatPage,
+    ChatReadEvent,
     PendingChatMessage,
 } from '@/types/chat';
 
@@ -59,6 +61,11 @@ export function useChat() {
     >({ sequence: 0 });
     let generation = 0;
     let disposed = false;
+    let inboxQueued = false;
+    let historyQueued = false;
+    let inboxTimer: ReturnType<typeof setTimeout> | undefined;
+    let historyTimer: ReturnType<typeof setTimeout> | undefined;
+    const actorId = computed(() => page.props.auth?.user?.id ?? '');
 
     function mergeMessages(
         current: ChatMessage[],
@@ -72,7 +79,11 @@ export function useChat() {
     }
 
     async function loadInbox(more = false): Promise<void> {
-        if (inboxHttp.processing) return;
+        if (inboxHttp.processing) {
+            inboxQueued = true;
+
+            return;
+        }
         inboxError.value = false;
         try {
             const result = await inboxHttp.get(
@@ -94,12 +105,22 @@ export function useChat() {
             inboxCursor.value = result.next_cursor;
         } catch {
             if (!disposed) inboxError.value = true;
+        } finally {
+            if (!disposed && inboxQueued) {
+                inboxQueued = false;
+                void loadInbox();
+            }
         }
     }
 
     async function loadHistory(older = false): Promise<void> {
         const id = selectedId.value;
-        if (!id || (older && historyHttp.processing)) return;
+        if (!id) return;
+        if (historyHttp.processing) {
+            if (!older) historyQueued = true;
+
+            return;
+        }
         const version = generation;
         historyError.value = false;
         try {
@@ -129,15 +150,25 @@ export function useChat() {
                 if (!after) hasOlder.value = result.has_more;
                 more = Boolean(after && result.has_more);
                 after = result.data.at(-1)?.sequence ?? after;
-                if (!older) loadedThrough.value = after ?? 0;
+                if (!older)
+                    loadedThrough.value = Math.max(
+                        loadedThrough.value,
+                        after ?? 0,
+                    );
             } while (more);
         } catch {
             if (!disposed && generation === version) historyError.value = true;
+        } finally {
+            if (!disposed && generation === version && historyQueued) {
+                historyQueued = false;
+                void loadHistory();
+            }
         }
     }
 
     function select(conversation: ChatConversation): void {
         generation++;
+        historyQueued = false;
         historyHttp.cancel();
         selectedId.value = conversation.id;
         messages.value = [];
@@ -248,9 +279,102 @@ export function useChat() {
         }
     }
 
+    function scheduleInboxRefresh(): void {
+        if (disposed || inboxTimer) return;
+        inboxTimer = setTimeout(() => {
+            inboxTimer = undefined;
+            void loadInbox();
+        }, 150);
+    }
+
+    function scheduleHistoryCatchUp(): void {
+        if (disposed || historyTimer) return;
+        historyTimer = setTimeout(() => {
+            historyTimer = undefined;
+            void loadHistory();
+        }, 150);
+    }
+
+    function receiveMessage(message: ChatMessage): void {
+        if (disposed) return;
+        const id = message.conversation_id;
+        const queued = pending.value[id];
+        if (
+            queued?.some(
+                (item) => item.client_message_id === message.client_message_id,
+            )
+        ) {
+            pending.value[id] = queued.filter(
+                (item) => item.client_message_id !== message.client_message_id,
+            );
+        }
+        const conversation = conversations.value.find((item) => item.id === id);
+        if (!conversation) {
+            scheduleInboxRefresh();
+
+            return;
+        }
+        if (selectedId.value === id) {
+            const previous = loadedThrough.value;
+            messages.value = mergeMessages(messages.value, [message]);
+            // A gap means a delivery was missed; keep the old cursor until
+            // catch-up fills the missing sequences.
+            if (previous > 0 && message.sequence > previous + 1) {
+                scheduleHistoryCatchUp();
+            } else {
+                loadedThrough.value = Math.max(
+                    loadedThrough.value,
+                    message.sequence,
+                );
+            }
+        }
+        if (message.sequence >= conversation.last_message_sequence) {
+            conversation.last_message = message;
+            conversation.last_message_sequence = message.sequence;
+            conversations.value = [
+                conversation,
+                ...conversations.value.filter((item) => item.id !== id),
+            ];
+        }
+        scheduleInboxRefresh();
+    }
+
+    function receiveRead(event: ChatReadEvent): void {
+        if (disposed) return;
+        const conversation = conversations.value.find(
+            (item) => item.id === event.conversation_id,
+        );
+        if (
+            conversation &&
+            event.user_id === actorId.value &&
+            event.last_read_sequence > conversation.last_read_sequence
+        ) {
+            conversation.last_read_sequence = event.last_read_sequence;
+        }
+        scheduleInboxRefresh();
+    }
+
+    function reconcile(): void {
+        if (disposed) return;
+        void loadInbox();
+        if (selectedId.value) void loadHistory();
+    }
+
+    const { state: realtimeState } = useChatRealtime({
+        onMessage: receiveMessage,
+        onRead: receiveRead,
+        onCatchUp: reconcile,
+    });
+
     function clear(): void {
         disposed = true;
         generation++;
+        clearTimeout(inboxTimer);
+        clearTimeout(historyTimer);
+        inboxTimer = undefined;
+        historyTimer = undefined;
+        inboxQueued = false;
+        historyQueued = false;
         for (const http of [
             inboxHttp,
             historyHttp,
@@ -287,6 +411,7 @@ export function useChat() {
         historyError,
         startError,
         readError,
+        realtimeState,
         inboxHttp,
         historyHttp,
         sendHttp,

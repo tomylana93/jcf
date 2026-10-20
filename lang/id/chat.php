@@ -39,6 +39,9 @@ return [
 
     'status' => [
         'loading' => 'Memuat…',
+        'connected' => 'Tersambung',
+        'connecting' => 'Menghubungkan…',
+        'disconnected' => 'Terputus',
         'empty_inbox' => 'Belum ada percakapan. Mulai percakapan baru.',
         'empty_history' => 'Belum ada pesan.',
         'select' => 'Pilih percakapan untuk membaca dan mengirim pesan.',

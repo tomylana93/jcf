@@ -1,7 +1,7 @@
 # Roadmap Modul Realtime Chat
 
 Tanggal: 20 Oktober 2026  
-Status: Scope 01–02 selesai secara lokal dan teruji. Scope 03–07 belum dikerjakan.
+Status: Scope 01–03 selesai secara lokal dan teruji. Scope 04–07 belum dikerjakan.
 
 ## Tujuan dan batas awal
 
@@ -119,11 +119,11 @@ Setiap scope memiliki perubahan, validasi, dan catatan hasil sendiri. Checkbox b
 
 ### Scope 03 — Broadcast Reverb dan sinkronisasi
 
-- [ ] Tambahkan event after-commit dengan payload minimal pada private user channel.
-- [ ] Tambahkan composable chat yang menggunakan helper Echo existing dan listener lifecycle terkelola.
-- [ ] Rekonsiliasi respons HTTP, optimistic message, duplicate/out-of-order event, inbox, dan multi-tab.
-- [ ] Tambahkan queue `chat` dan deklarasi worker Lerd melalui mekanisme worker yang tersedia.
-- [ ] Implementasikan catch-up setelah subscribe/reconnect serta indikator koneksi.
+- [x] Tambahkan event after-commit dengan payload minimal pada private user channel.
+- [x] Tambahkan composable chat yang menggunakan helper Echo existing dan listener lifecycle terkelola.
+- [x] Rekonsiliasi respons HTTP, optimistic message, duplicate/out-of-order event, inbox, dan multi-tab.
+- [x] Tambahkan queue `chat` dan deklarasi worker Lerd melalui mekanisme worker yang tersedia.
+- [x] Implementasikan catch-up setelah subscribe/reconnect serta indikator koneksi.
 
 **Selesai bila:** dua browser dengan akun berbeda menerima pesan tanpa reload; restart Reverb atau putus-sambung jaringan pulih tanpa pesan hilang/ganda; integrasi notifikasi existing tetap berfungsi. Simpan bukti runtime, bukan hanya test dengan broadcast fake.
 
@@ -206,3 +206,13 @@ Risiko utama adalah duplikasi akibat retry, celah fetch/subscribe, event tidak b
 - Pemeriksaan runtime lokal setelah migration: inbox dan pencarian penerima merespons 200, tanpa error JavaScript pada capture Lerd. Lens inbox bersih; flag repeated query pencarian berasal dari lookup cache rate limiter database yang jumlahnya tetap, bukan query per penerima. Query penerima sendiri berupa satu query terikat dengan pagination. Peringatan timing/settings historis bukan bukti query chat baru; profiling send/history/read dengan trafik representatif tetap berada pada Scope 05.
 - Snapshot database development dibuat sebelum aktivasi (`chat-scope02-20261020-20261020-043535`). Tiga migration chat dan `init:permission` telah dijalankan melalui Lerd pada database `jcf`; jumlah user tetap 5, permission `chat.use` tersedia, dan tabel conversation/message masih kosong. Tidak ada grant otomatis ke user biasa; database testing terpisah.
 - Gate akhir `lerd composer test` melalui CLI lulus dengan exit code 0 pada kode final: build client/SSR, Pint, Rector, frontend lint/format, PHPStan, Vue type check, type coverage 100%, dan backend code coverage 100%. Backend: 823 lulus, 4 skipped, 4.429 assertions; browser: 90 lulus, 1.957 assertions. Browser runner melaporkan 3 warning tanpa rincian dan tidak ada test gagal. Review UI desktop/mobile serta review terfokus cursor selesai tanpa temuan material terbuka.
+
+### Scope 03 — 20 Oktober 2026
+
+- `ChatMessageCreated` dan `ChatReadUpdated` memakai `ShouldBroadcast` + `ShouldDispatchAfterCommit`, connection `realtime`, queue `chat`, dan private channel `App.Models.User.{id}` untuk setiap peserta, termasuk pengirim agar seluruh tab akun ikut sinkron. Payload hanya memuat data yang dibutuhkan UI (identitas/sequence/body pesan atau cursor baca), tanpa model peserta atau data user lain. Event pesan hanya dikirim ketika pesan baru benar-benar dibuat; retry dengan `client_message_id` yang sama tidak mengirim event kedua. Event baca hanya dikirim ketika cursor benar-benar maju.
+- Worker `chat` dideklarasikan di `.lerd.yaml` dan dijalankan Lerd sebagai unit `lerd-chat-jcf` dengan `php artisan queue:work realtime --queue=chat --tries=3 --timeout=60 --sleep=1`. Worker notifications existing tetap memakai queue `notifications`; tidak ada perubahan pada alur notifikasi.
+- `useChatRealtime` memakai satu instance Echo bersama dari `getRealtimeEcho()`, memasang listener `ChatMessageCreated`/`ChatReadUpdated`, dan membersihkan listener dengan `stopListening` tanpa `leave` atau `disconnect`. Dengan demikian listener notifikasi pada private channel yang sama tetap hidup saat pengguna membuka chat. Indikator koneksi menampilkan `connected`, `connecting`, atau `disconnected` dari `onConnectionChange` dan event browser `offline`/`online`; label tersedia dalam en/id.
+- Rekonsiliasi klien: pesan digabung berdasarkan UUID dan diurutkan berdasarkan sequence; pesan optimistis dibersihkan lewat `client_message_id`; event duplikat atau out-of-order tidak menggandakan pesan dan tidak memundurkan cursor; celah sequence memicu catch-up HTTP setelah `loadedThrough`; inbox di-refresh dengan debounce; percakapan yang belum dikenal memicu reload inbox. Catch-up berjalan saat subscribe sukses, reconnect, tab kembali visible, dan browser online. Event baca menyegarkan inbox dan menghapus unread bila cursor valid, termasuk dari tab lain.
+- `ChatBroadcastTest` (5 tes) memeriksa kontrak event, payload minimal, channel kedua peserta, routing connection/queue, idempotensi retry, tidak adanya event pada validasi gagal, dan cursor baca monotonik. `ChatBrowserTest` bertambah satu skenario realtime (total 7) yang memakai WebSocket palsu untuk duplikasi, out-of-order, inbox percakapan baru, catch-up `subscription_succeeded`, dan sinkronisasi read/unread tanpa reload. Tes concurrency menjalankan proses terpisah dengan event broadcast di-fake karena database sementara tidak menyediakan tabel queue.
+- Bukti runtime dengan Reverb asli, worker `chat`/`notifications`, dua akun, dan tiga tab: Alpha dan Beta bertukar pesan pada `/chat` tanpa reload; balasan Beta diterima kedua tab Alpha. Saat jaringan Beta diputus, indikator berubah `disconnected` dan pesan baru tidak muncul; setelah online, indikator kembali `connected` dan pesan yang terlewat muncul tanpa reload. Worker Reverb dihentikan, kedua indikator berubah `connecting`; setelah dijalankan kembali keduanya `connected` dan pesan berikutnya diterima Beta tanpa reload. Notifikasi aplikasi yang dikirim saat tab chat terbuka juga memperbarui badge notifikasi tanpa reload, membuktikan listener notifikasi pada channel bersama tetap berfungsi. User, conversation, notification, role sementara, dan failed job verifikasi dihapus setelah pengujian.
+- Gate akhir `lerd composer test` lulus pada kode final: build client/SSR, Pint, Rector, frontend check, PHPStan, Vue type check, type coverage 100%, dan backend coverage 100%. Backend: 832 tes (828 lulus, 4 skipped, 4.469 assertions); browser: 91 lulus (1.971 assertions). Browser runner melaporkan 3 warning tanpa rincian dan tidak ada tes gagal.

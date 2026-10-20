@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 use App\Enums\Permission;
 use App\Enums\Role as RoleEnum;
+use App\Events\ChatMessageCreated;
+use App\Events\ChatReadUpdated;
 use App\Models\Permission as PermissionModel;
 use App\Models\Role;
 use App\Models\User;
@@ -216,6 +218,10 @@ function withChatConcurrencyDatabase(Closure $test): void
             foreach ($paths as $path) {
                 (require $path)->up();
             }
+            Event::fake([
+                ChatMessageCreated::class,
+                ChatReadUpdated::class,
+            ]);
             $test();
         } finally {
             DB::setDefaultConnection($default);
@@ -239,6 +245,10 @@ function runConcurrentChatOperations(array $operations): array
     $input["connection"]["name"] = "chat_worker";
     config(["database.connections.chat_worker" => $input["connection"], "database.default" => "chat_worker", "cache.default" => "array"]);
     Illuminate\Support\Facades\DB::purge("chat_worker");
+    Illuminate\Support\Facades\Event::fake([
+        App\Events\ChatMessageCreated::class,
+        App\Events\ChatReadUpdated::class,
+    ]);
     echo "READY\n";
     flush();
     fgets(STDIN);

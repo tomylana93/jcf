@@ -2,9 +2,12 @@
 
 declare(strict_types=1);
 
+use App\Actions\Chat\MarkChatConversationRead;
 use App\Actions\Chat\SendChatMessage;
 use App\Actions\Chat\StartDirectConversation;
 use App\Enums\AppLayout;
+use App\Events\ChatMessageCreated;
+use App\Events\ChatReadUpdated;
 use App\Models\ChatMessage;
 use App\Models\User;
 use App\Settings\LayoutSettings;
@@ -137,5 +140,81 @@ describe('Chat browser', function (): void {
     it('hides chat navigation without permission', function (): void {
         actingAs(User::factory()->create());
         visit(route('dashboard'))->assertMissing('a[href="'.route('chat.index', absolute: false).'"]')->assertNoJavaScriptErrors();
+    });
+
+    it('merges realtime messages, reconciles reconnect catch-up and syncs read state without reload', function (): void {
+        config(['broadcasting.default' => 'reverb', 'broadcasting.connections.reverb.key' => 'browser-key', 'broadcasting.connections.reverb.secret' => 'browser-secret', 'broadcasting.connections.reverb.app_id' => 'browser-app']);
+        require base_path('routes/channels.php');
+        [$actor, $recipient] = createChatUsers();
+        $recipient->update(['name' => 'Realtime Recipient']);
+        $conversation = resolve(StartDirectConversation::class)->handle($actor, $recipient);
+        [$other] = createChatUsers();
+        $other->update(['name' => 'Realtime Other']);
+        $otherConversation = resolve(StartDirectConversation::class)->handle($actor, $other);
+
+        actingAs($actor);
+        $page = visit(route('chat.index'));
+        $page->page()->context()->addInitScript(<<<'JS_WRAP'
+            (() => {
+                class TestSocket extends EventTarget {
+                    constructor(url) {
+                        super(); this.url = url; this.readyState = 0;
+                        window.chatSocket = this;
+                        setTimeout(() => {
+                            this.readyState = 1;
+                            this.onopen?.(new Event('open'));
+                            this.deliver('pusher:connection_established', {socket_id: '123.456', activity_timeout: 120});
+                        }, 0);
+                    }
+                    deliver(event, data) {
+                        this.onmessage?.({data: JSON.stringify({event, data: JSON.stringify(data), channel: this.channel})});
+                    }
+                    send(payload) {
+                        const message = JSON.parse(payload);
+                        if (message.event === 'pusher:subscribe') {
+                            this.channel = message.data.channel;
+                            this.deliver('pusher_internal:subscription_succeeded', {});
+                        }
+                    }
+                    close() { this.readyState = 3; this.onclose?.({code: 1000, wasClean: true}); }
+                }
+                TestSocket.CONNECTING = 0; TestSocket.OPEN = 1; TestSocket.CLOSING = 2; TestSocket.CLOSED = 3;
+                window.WebSocket = TestSocket;
+            })();
+        JS_WRAP);
+        $page->navigate(route('chat.index'));
+        $page->assertScript('() => Boolean(window.chatSocket?.channel)')
+            ->assertAttribute('[data-test="chat-connection"]', 'data-state', 'connected')
+            ->click('button[aria-pressed]:has-text("Realtime Recipient")')
+            ->assertVisible('#chat-body');
+
+        $message = resolve(SendChatMessage::class)->handle($recipient, $conversation, ['body' => 'Realtime incoming', 'client_message_id' => (string) Str::uuid()]);
+        $delivery = '() => window.chatSocket.deliver('.json_encode(ChatMessageCreated::class).', '.json_encode(new ChatMessageCreated($message, [$actor->id, $recipient->id])->broadcastWith()).')';
+        $page->script($delivery);
+        $page->assertSee('Realtime incoming')
+            ->assertScript('() => document.querySelectorAll("[data-test=chat-message-body]").length === 1');
+        $page->script($delivery);
+        $page->assertScript('() => document.querySelectorAll("[data-test=chat-message-body]").length === 1');
+
+        $otherMessage = resolve(SendChatMessage::class)->handle($other, $otherConversation, ['body' => 'Other incoming', 'client_message_id' => (string) Str::uuid()]);
+        $page->script('() => window.chatSocket.deliver('.json_encode(ChatMessageCreated::class).', '.json_encode(new ChatMessageCreated($otherMessage, [$actor->id, $other->id])->broadcastWith()).')');
+        $page->assertScript('() => document.querySelector("button[aria-pressed]").textContent.includes("Realtime Other")')
+            ->assertScript('() => document.querySelector("button[aria-pressed]").textContent.includes("Other incoming")');
+
+        $second = resolve(SendChatMessage::class)->handle($actor, $conversation, ['body' => 'Second message', 'client_message_id' => (string) Str::uuid()]);
+        $third = resolve(SendChatMessage::class)->handle($recipient, $conversation, ['body' => 'Third message', 'client_message_id' => (string) Str::uuid()]);
+        $page->script('() => { window.chatSocket.deliver('.json_encode(ChatMessageCreated::class).', '.json_encode(new ChatMessageCreated($third, [$actor->id, $recipient->id])->broadcastWith()).'); window.chatSocket.deliver('.json_encode(ChatMessageCreated::class).', '.json_encode(new ChatMessageCreated($second, [$actor->id, $recipient->id])->broadcastWith()).'); }');
+        $page->assertScript('() => [...document.querySelectorAll("[data-test=chat-message-body]")].map(node => node.textContent.trim()).join("|") === "Realtime incoming|Second message|Third message"');
+
+        $missed = resolve(SendChatMessage::class)->handle($recipient, $conversation, ['body' => 'Missed while offline', 'client_message_id' => (string) Str::uuid()]);
+        $page->script('() => window.chatSocket.deliver("pusher_internal:subscription_succeeded", {})');
+        $page->assertSee('Missed while offline')
+            ->assertScript('() => document.querySelectorAll("[data-test=chat-message-body]").length === 4');
+
+        $page->assertVisible('button[aria-pressed]:has-text("Realtime Recipient") [data-slot=badge]');
+        resolve(MarkChatConversationRead::class)->handle($actor, $conversation, $missed->sequence);
+        $page->script('() => window.chatSocket.deliver('.json_encode(ChatReadUpdated::class).', '.json_encode(new ChatReadUpdated($conversation->id, $actor->id, $missed->sequence, [$actor->id, $recipient->id])->broadcastWith()).')');
+        $page->assertMissing('button[aria-pressed]:has-text("Realtime Recipient") [data-slot=badge]')
+            ->assertNoJavaScriptErrors();
     });
 });

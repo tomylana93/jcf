@@ -19,6 +19,12 @@ export type ChatConversation = {
 };
 export type ChatPage<T> = { data: T[]; next_cursor: string | null };
 export type ChatHistory = { data: ChatMessage[]; has_more: boolean };
+export type ChatReadEvent = {
+    conversation_id: string;
+    user_id: string;
+    last_read_sequence: number;
+};
+export type ChatRealtimeState = 'connecting' | 'connected' | 'disconnected';
 export type PendingChatMessage = {
     client_message_id: string;
     body: string;
