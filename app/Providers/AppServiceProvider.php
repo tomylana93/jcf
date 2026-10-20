@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Broadcasting\UserChannelBroadcaster;
 use App\Enums\Permission;
 use App\Enums\Role;
 use App\Enums\UserStatus;
@@ -12,7 +13,10 @@ use App\Settings\AuthSettings;
 use App\Settings\SettingsMailTransport;
 use Carbon\CarbonImmutable;
 use Illuminate\Auth\Events\Login;
+use Illuminate\Broadcasting\BroadcastManager;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Mail\MailManager;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
@@ -20,6 +24,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Pusher\Pusher;
 use Spatie\Permission\PermissionRegistrar;
 
 final class AppServiceProvider extends ServiceProvider
@@ -29,7 +34,17 @@ final class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(function (): Pusher {
+            $connection = config('broadcasting.connections.reverb');
+            $options = is_array($connection) && is_array($connection['options'] ?? null) ? $connection['options'] : [];
+
+            return new Pusher(
+                (string) (is_array($connection) ? ($connection['key'] ?? '') : ''),
+                (string) (is_array($connection) ? ($connection['secret'] ?? '') : ''),
+                (string) (is_array($connection) ? ($connection['app_id'] ?? '') : ''),
+                ['timeout' => 5, ...$options],
+            );
+        });
     }
 
     /**
@@ -37,6 +52,11 @@ final class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Broadcast::extend('reverb', fn (Application $app, array $config): UserChannelBroadcaster => new UserChannelBroadcaster(
+            resolve(BroadcastManager::class)->pusher($config),
+            (bool) ($config['jsonp'] ?? false),
+        ));
+
         Event::listen(Login::class, function (Login $event): void {
             if ($event->guard === 'web' && $event->user instanceof User && request()->hasSession()) {
                 request()->session()->put('auth.session_token', $event->user->session_token);

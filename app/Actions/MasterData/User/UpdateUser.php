@@ -6,6 +6,7 @@ namespace App\Actions\MasterData\User;
 
 use App\Actions\Audit\GetUserAuditValues;
 use App\Actions\Audit\RecordAuditLog;
+use App\Actions\Chat\TerminateUserRealtimeConnections;
 use App\Enums\UserStatus;
 use App\Models\User;
 use App\Notifications\ApplicationNotification;
@@ -14,11 +15,17 @@ use Illuminate\Support\Facades\Password;
 
 final class UpdateUser
 {
-    public function __construct(public RecordAuditLog $recordAuditLog, public GetUserAuditValues $getAuditValues) {}
+    public function __construct(
+        public RecordAuditLog $recordAuditLog,
+        public GetUserAuditValues $getAuditValues,
+        private readonly TerminateUserRealtimeConnections $terminateRealtimeConnections,
+    ) {}
 
     /** @param array{name: string, email: string, role?: ?string, status: string} $data */
     public function handle(User $user, array $data, ?User $actor = null): void
     {
+        $wasDisabled = $user->status === UserStatus::Disabled;
+
         DB::transaction(function () use ($user, $data, $actor): void {
             $before = $this->getAuditValues->handle($user);
             $emailChanged = $user->email !== $data['email'];
@@ -44,5 +51,9 @@ final class UpdateUser
                 resolve(SendUserInvitation::class)->handle($user, $actor);
             }
         });
+
+        if (! $wasDisabled && $user->status === UserStatus::Disabled) {
+            $this->terminateRealtimeConnections->handle($user);
+        }
     }
 }

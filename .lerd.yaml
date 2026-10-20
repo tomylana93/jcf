@@ -11,6 +11,7 @@ services:
   - redis
 workers:
   - backups
+  - chat
   - notifications
   - queue
   - reverb
@@ -23,6 +24,12 @@ custom_workers:
     restart: always
     check:
       file: app/Jobs/CreateSystemBackup.php
+  chat:
+    label: Chat broadcasts
+    command: php artisan queue:work realtime --queue=chat --tries=3 --timeout=60 --sleep=1
+    restart: always
+    check:
+      file: app/Events/ChatMessageCreated.php
   notifications:
     label: Realtime notifications
     command: php artisan queue:work realtime --queue=notifications --tries=3 --timeout=60 --sleep=1

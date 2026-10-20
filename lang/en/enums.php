@@ -51,6 +51,7 @@ return [
     ],
 
     'permission' => [
+        'UseChat' => 'Use chat',
         'EditWebsiteContent' => 'Edit website content',
         'PublishWebsiteContent' => 'Publish website content',
         'ConfigureWebsite' => 'Configure website',

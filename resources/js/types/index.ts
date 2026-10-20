@@ -1,4 +1,5 @@
 export * from './auth';
+export * from './chat';
 export * from './forms';
 export * from './navigation';
 export * from './passkey';

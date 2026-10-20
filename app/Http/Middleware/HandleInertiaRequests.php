@@ -6,6 +6,7 @@ namespace App\Http\Middleware;
 
 use App\Actions\Account\GetUserPermissions;
 use App\Actions\Account\ResolveTimezone;
+use App\Actions\Chat\GetChatSummary;
 use App\Actions\Notification\GetNotificationSummary;
 use App\Actions\Settings\GetBrandSettings;
 use App\Actions\Settings\GetGeneralSettings;
@@ -67,6 +68,7 @@ final class HandleInertiaRequests extends Middleware
                 'year' => now()->year,
             ],
             'notificationSummary' => fn (): array => resolve(GetNotificationSummary::class)->handle($request->user()),
+            'chatSummary' => fn (): array => resolve(GetChatSummary::class)->handle($request->user()),
             'timezone' => fn (): array => resolve(ResolveTimezone::class)->handle($request->user(), $request->cookie('timezone')),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];

@@ -4,6 +4,7 @@ import {
     FilePenLine,
     Globe,
     LayoutGrid,
+    MessagesSquare,
     ScrollText,
     Settings,
     ShieldCheck,
@@ -12,6 +13,7 @@ import {
 
 import { dashboard } from '@/routes';
 import { index as auditIndex } from '@/routes/audit';
+import { index as chatIndex } from '@/routes/chat';
 import { index as documentationIndex } from '@/routes/documentation';
 import { index as manageDocumentationIndex } from '@/routes/documentation/manage';
 import { index as masterDataIndex } from '@/routes/master-data';
@@ -28,6 +30,8 @@ import type {
 
 export function createMainNavigationItems(
     t: (key: TranslationKey) => string,
+    canUseChat = false,
+    chatUnreadCount = 0,
 ): NavItem[] {
     return [
         {
@@ -35,6 +39,18 @@ export function createMainNavigationItems(
             href: dashboard(),
             icon: LayoutGrid,
         },
+        ...(canUseChat
+            ? [
+                  {
+                      title: t('chat.title'),
+                      href: chatIndex(),
+                      icon: MessagesSquare,
+                      ...(chatUnreadCount > 0
+                          ? { badge: chatUnreadCount }
+                          : {}),
+                  },
+              ]
+            : []),
     ];
 }
 
@@ -166,10 +182,12 @@ export function createNavigationGroups(
     canViewAudit = false,
     canViewSystem = false,
     canManageBackups = false,
+    canUseChat = false,
+    chatUnreadCount = 0,
 ): NavGroup[] {
     return [
         {
-            items: createMainNavigationItems(t),
+            items: createMainNavigationItems(t, canUseChat, chatUnreadCount),
         },
         ...createManagementNavigationGroups(
             t,
@@ -204,6 +222,7 @@ export function createEditorLinkOptions(
             permissions.includes('audit.view'),
             permissions.includes('system.view'),
             permissions.includes('backups.manage'),
+            permissions.includes('chat.use'),
         ).flatMap((group) => group.items),
         ...createFooterNavigationItems(
             t,

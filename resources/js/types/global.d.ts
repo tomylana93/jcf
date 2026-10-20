@@ -3,6 +3,7 @@ import type { Directive } from 'vue';
 import type {
     Auth,
     BrandSettings,
+    ChatSummary,
     GeneralSettings,
     LayoutSettings,
     LocaleSettings,
@@ -34,6 +35,7 @@ declare module '@inertiajs/core' {
             layout: LayoutSettings;
             locale: LocaleSettings;
             notificationSummary?: NotificationSummary;
+            chatSummary?: ChatSummary;
             [key: string]: unknown;
         };
     }

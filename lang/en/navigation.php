@@ -12,6 +12,7 @@ return [
         'account' => 'Open account menu',
         'close' => 'Close navigation menu',
         'toggle_submenu' => 'Toggle :title submenu',
+        'unread_messages' => ':count unread messages',
     ],
 
     'helper' => [
