@@ -51,6 +51,7 @@ return [
     ],
 
     'permission' => [
+        'UseChat' => 'Gunakan chat',
         'EditWebsiteContent' => 'Edit konten website',
         'PublishWebsiteContent' => 'Publikasikan konten website',
         'ConfigureWebsite' => 'Konfigurasi website',

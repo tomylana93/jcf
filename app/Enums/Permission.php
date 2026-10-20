@@ -11,6 +11,7 @@ enum Permission: string
 {
     use HasLabel, HasOptions;
 
+    case UseChat = 'chat.use';
     case ViewSystem = 'system.view';
     case ManageBackups = 'backups.manage';
     case ViewAuditLogs = 'audit.view';

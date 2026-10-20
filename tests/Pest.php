@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Process;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\Sleep;
@@ -24,7 +25,9 @@ use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
 use PHPUnit\Framework\Assert;
+use Spatie\Permission\PermissionRegistrar;
 use Spatie\TemporaryDirectory\TemporaryDirectory;
+use Symfony\Component\Process\InputStream;
 use Tests\TestCase;
 
 use function Pest\Laravel\actingAs;
@@ -187,4 +190,107 @@ function websiteDraft(array $overrides = []): array
         'seo' => ['title' => 'News', 'description' => 'Company updates', 'robots' => 'index,follow'],
         'cover' => null,
     ], $overrides);
+}
+
+/** @return array{User, User} */
+function createChatUsers(): array
+{
+    $users = User::factory()->count(2)->create();
+    foreach ($users as $user) {
+        assignRolePermissions($user, Permission::UseChat);
+    }
+
+    return [$users[0], $users[1]];
+}
+
+function withChatConcurrencyDatabase(Closure $test): void
+{
+    withIsolatedRestoreDatabase(function (string $connection) use ($test): void {
+        $default = DB::getDefaultConnection();
+        try {
+            config(['database.connections.'.$connection.'.name' => $connection]);
+            DB::setDefaultConnection($connection);
+            Schema::swap(DB::connection($connection)->getSchemaBuilder());
+            resolve(PermissionRegistrar::class)->forgetCachedPermissions();
+            $paths = [database_path('migrations/0001_01_01_000000_create_users_table.php'), ...glob(database_path('migrations/*create_permission_tables.php')), ...glob(database_path('migrations/*create_chat_*_table.php'))];
+            foreach ($paths as $path) {
+                (require $path)->up();
+            }
+            $test();
+        } finally {
+            DB::setDefaultConnection($default);
+            Schema::swap(DB::connection($default)->getSchemaBuilder());
+            resolve(PermissionRegistrar::class)->forgetCachedPermissions();
+        }
+    });
+}
+
+/**
+ * @param  list<array<string, mixed>>  $operations
+ * @return list<string>
+ */
+function runConcurrentChatOperations(array $operations): array
+{
+    $code = <<<'PHP'
+    require "vendor/autoload.php";
+    $app = require "bootstrap/app.php";
+    $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+    $input = json_decode(trim(fgets(STDIN)), true, flags: JSON_THROW_ON_ERROR);
+    $input["connection"]["name"] = "chat_worker";
+    config(["database.connections.chat_worker" => $input["connection"], "database.default" => "chat_worker", "cache.default" => "array"]);
+    Illuminate\Support\Facades\DB::purge("chat_worker");
+    echo "READY\n";
+    flush();
+    fgets(STDIN);
+    $operation = $input["operation"];
+    $actor = App\Models\User::query()->findOrFail($operation["actor"]);
+    $result = match ($operation["action"]) {
+        "start" => app(App\Actions\Chat\StartDirectConversation::class)->handle($actor, App\Models\User::query()->findOrFail($operation["recipient"])),
+        "send" => app(App\Actions\Chat\SendChatMessage::class)->handle($actor, App\Models\ChatConversation::query()->findOrFail($operation["conversation"]), ["body" => $operation["body"], "client_message_id" => $operation["token"]]),
+        "read" => app(App\Actions\Chat\MarkChatConversationRead::class)->handle($actor, App\Models\ChatConversation::query()->findOrFail($operation["conversation"]), $operation["sequence"]),
+    };
+    echo json_encode($result->id, JSON_THROW_ON_ERROR);
+    PHP;
+
+    $workers = [];
+    try {
+        foreach ($operations as $operation) {
+            $input = new InputStream;
+            $input->write(json_encode(['connection' => DB::connection()->getConfig(), 'operation' => $operation], JSON_THROW_ON_ERROR)."\n");
+            $process = new Symfony\Component\Process\Process([PHP_BINARY, '-r', $code], base_path(), ['APP_ENV' => 'testing'], timeout: 30);
+            $process->setInput($input);
+            $process->start();
+            $workers[] = [$process, $input];
+        }
+
+        foreach ($workers as [$process]) {
+            $ready = $process->waitUntil(fn (): bool => str_contains($process->getOutput(), "READY\n"));
+            if (! $ready) {
+                throw new RuntimeException('Chat worker did not become ready: '.$process->getErrorOutput().$process->getOutput());
+            }
+        }
+
+        foreach ($workers as [, $input]) {
+            $input->write("GO\n");
+            $input->close();
+        }
+
+        $results = [];
+        foreach ($workers as [$process]) {
+            $process->wait();
+            if (! $process->isSuccessful()) {
+                throw new RuntimeException('Chat worker failed: '.$process->getErrorOutput().$process->getOutput());
+            }
+            $results[] = json_decode(explode("\n", mb_trim($process->getOutput()), 2)[1], true, flags: JSON_THROW_ON_ERROR);
+        }
+
+        return $results;
+    } finally {
+        foreach ($workers as [$process, $input]) {
+            $input->close();
+            if ($process->isRunning()) {
+                $process->stop();
+            }
+        }
+    }
 }

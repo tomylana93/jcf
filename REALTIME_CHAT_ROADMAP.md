@@ -1,7 +1,7 @@
 # Roadmap Modul Realtime Chat
 
 Tanggal: 20 Oktober 2026  
-Status: perencanaan; seluruh scope implementasi belum dikerjakan.
+Status: Scope 01 selesai secara lokal dan teruji. Scope 02–07 belum dikerjakan.
 
 ## Tujuan dan batas awal
 
@@ -26,16 +26,16 @@ Baseline di atas merupakan inventaris kode dan konfigurasi, bukan bukti pengirim
 
 Halaman chat menggunakan AppLayout dan pola PageContainer aplikasi. Desktop terdiri dari daftar percakapan dan panel percakapan aktif. Mobile menampilkan satu panel dengan tombol kembali ke daftar. Tampilkan nama, avatar, ringkasan pesan terakhir, waktu, serta unread badge tanpa membuka isi percakapan milik user lain.
 
-| Kebutuhan | Komponen yang digunakan kembali |
-| --- | --- |
+| Kebutuhan                                    | Komponen yang digunakan kembali                                       |
+| -------------------------------------------- | --------------------------------------------------------------------- |
 | Histori, anchoring, kembali ke pesan terbaru | MessageScroller beserta provider, viewport, content, item, dan button |
-| Baris pesan, identitas, waktu, status | Message, MessageAvatar, MessageHeader, MessageContent, MessageFooter |
-| Isi pesan masuk/keluar | Bubble dan BubbleContent menggunakan variant tersedia |
-| Input pesan dan tombol kirim | InputGroup, InputGroupTextarea, InputGroupAddon, Button |
-| Pilih penerima | Dialog atau Sheet, Input, Avatar, daftar hasil dengan pagination |
-| Loading, error, unread | Skeleton, Alert, Badge, Spinner sesuai ketersediaan lokal |
-| Layout desktop | Resizable bila cocok dengan pola layout existing |
-| Lampiran pada tahap lanjutan | Attachment dan subkomponennya |
+| Baris pesan, identitas, waktu, status        | Message, MessageAvatar, MessageHeader, MessageContent, MessageFooter  |
+| Isi pesan masuk/keluar                       | Bubble dan BubbleContent menggunakan variant tersedia                 |
+| Input pesan dan tombol kirim                 | InputGroup, InputGroupTextarea, InputGroupAddon, Button               |
+| Pilih penerima                               | Dialog atau Sheet, Input, Avatar, daftar hasil dengan pagination      |
+| Loading, error, unread                       | Skeleton, Alert, Badge, Spinner sesuai ketersediaan lokal             |
+| Layout desktop                               | Resizable bila cocok dengan pola layout existing                      |
+| Lampiran pada tahap lanjutan                 | Attachment dan subkomponennya                                         |
 
 Komposisi domain ditempatkan di `resources/js/components/chat/`; primitive `resources/js/components/ui/` tetap read-only. Periksa API Vue lokal sebelum memakai contoh shadcn karena referensi React tidak selalu identik. Jangan membuat ulang bubble atau logika scroll yang sudah ditangani MessageScroller.
 
@@ -55,11 +55,11 @@ HTTP menjadi jalur penulisan dan pemulihan data. WebSocket menjadi pemberitahuan
 
 ### Model yang diusulkan
 
-| Tabel | Data dan aturan utama |
-| --- | --- |
-| `chat_conversations` | UUID, jenis `direct`, direct-pair key unik, last message sequence, timestamps |
-| `chat_participants` | UUID, conversation UUID, user UUID, last_read_sequence, timestamps; unique conversation + user |
-| `chat_messages` | UUID, conversation UUID, sender UUID, sequence per conversation, client_message_id, body plain text, timestamps |
+| Tabel                | Data dan aturan utama                                                                                           |
+| -------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `chat_conversations` | UUID, jenis `direct`, direct-pair key unik, last message sequence, timestamps                                   |
+| `chat_participants`  | UUID, conversation UUID, user UUID, last_read_sequence, timestamps; unique conversation + user                  |
+| `chat_messages`      | UUID, conversation UUID, sender UUID, sequence per conversation, client_message_id, body plain text, timestamps |
 
 Gunakan UUID dan foreign key kompatibel sesuai konvensi aplikasi. Direct-pair key dibentuk secara deterministik dari dua UUID yang diurutkan; unique constraint mencegah percakapan ganda ketika dua user memulai chat bersamaan. Larang percakapan dengan diri sendiri pada rilis awal.
 
@@ -71,14 +71,14 @@ Indeks awal: participant lookup `(user_id, conversation_id)`, message pagination
 
 Nama route dan URL final mengikuti pola sibling saat implementasi; tabel berikut adalah kontrak perilaku.
 
-| Operasi | Perilaku |
-| --- | --- |
-| Daftar percakapan | Paginated, hanya keanggotaan user, preview dan unread |
-| Cari penerima | Hanya user aktif yang boleh dihubungi; respons data minimal |
-| Mulai percakapan | Idempotent untuk pasangan user yang sama |
-| Muat pesan | Cursor sequence, histori sebelum cursor dan catch-up setelah cursor |
-| Kirim pesan | Validasi plain text 1–4.000 karakter, idempotency token, respons canonical message |
-| Tandai dibaca | Cursor valid milik conversation; update monotonik tanpa mundur |
+| Operasi           | Perilaku                                                                           |
+| ----------------- | ---------------------------------------------------------------------------------- |
+| Daftar percakapan | Paginated, hanya keanggotaan user, preview dan unread                              |
+| Cari penerima     | Hanya user aktif yang boleh dihubungi; respons data minimal                        |
+| Mulai percakapan  | Idempotent untuk pasangan user yang sama                                           |
+| Muat pesan        | Cursor sequence, histori sebelum cursor dan catch-up setelah cursor                |
+| Kirim pesan       | Validasi plain text 1–4.000 karakter, idempotency token, respons canonical message |
+| Tandai dibaca     | Cursor valid milik conversation; update monotonik tanpa mundur                     |
 
 Policy memeriksa keanggotaan pada setiap operasi, termasuk pagination dan read cursor. Jangan percaya sender_id dari request. Semua endpoint memerlukan akun aktif dan permission yang sesuai. Gunakan rate limit terpisah untuk kirim pesan, pencarian user, dan pembuatan percakapan.
 
@@ -101,10 +101,10 @@ Setiap scope memiliki perubahan, validasi, dan catatan hasil sendiri. Checkbox b
 
 ### Scope 01 — Fondasi domain dan kontrol akses
 
-- [ ] Finalisasi permission penggunaan chat, jangkauan penerima, batas teks, dan aturan akun nonaktif.
-- [ ] Tambahkan migration, model, relationship, factory, Policy, Form Request, dan Actions domain chat.
-- [ ] Implementasikan direct conversation unik, message sequence, idempotent send, dan cursor baca monotonik.
-- [ ] Tambahkan feature tests untuk peserta/nonpeserta, akun nonaktif, validasi, retry, serta konflik pembuatan conversation.
+- [x] Finalisasi permission penggunaan chat, jangkauan penerima, batas teks, dan aturan akun nonaktif.
+- [x] Tambahkan migration, model, relationship, factory, Policy, Form Request, dan Actions domain chat.
+- [x] Implementasikan direct conversation unik, message sequence, idempotent send, dan cursor baca monotonik.
+- [x] Tambahkan feature tests untuk peserta/nonpeserta, akun nonaktif, validasi, retry, serta konflik pembuatan conversation.
 
 **Selesai bila:** dua user aktif dapat memiliki tepat satu conversation, pesan konsisten tersimpan, dan akses user ketiga ditolak. Race condition dilindungi transaksi serta constraint database dan diuji memakai engine yang relevan.
 
@@ -180,4 +180,14 @@ Risiko utama adalah duplikasi akibat retry, celah fetch/subscribe, event tidak b
 
 ## Catatan hasil implementasi
 
-Belum ada implementasi atau pengujian runtime modul chat. Isi bagian ini per scope dengan tanggal, perubahan, validasi yang dijalankan, hasil, dan kendala tersisa.
+### Scope 01 — 20 Oktober 2026
+
+- Permission final: `chat.use` (UseChat), terintegrasi dengan initializer permission dan label en/id. Tidak ada grant otomatis untuk role biasa. SuperAdmin mengikuti gate existing, tetapi tetap wajib menjadi peserta untuk akses conversation.
+- Penerima: user internal yang berbeda, aktif, dan memiliki akses chat. Penonaktifan atau pencabutan permission salah satu peserta menolak pengiriman baru. Peserta lain yang masih berhak dapat membaca histori; aturan socket revocation menjadi bagian Scope 04.
+- Pesan: plain text, di-trim, maksimal 4.000 karakter multibyte; identitas pengirim dan sequence ditetapkan backend. Token UUID dinormalisasi dan retry harus cocok dengan conversation serta isi semula.
+- Tiga migration terpisah menambahkan `chat_conversations`, `chat_participants`, dan `chat_messages`. Constraint unik dan foreign key melindungi pasangan, peserta, sequence, token, serta keanggotaan pengirim.
+- Implementasi: model/factory/relationship, ChatConversationPolicy, tiga Form Request, serta Actions untuk start, validasi/send, dan cursor baca monotonik. Belum ada endpoint produksi, UI, event broadcast, atau perubahan worker.
+- Tes domain dan request boundary lulus. Empat tes concurrency menggunakan proses PHP terpisah dengan start barrier dan database PostgreSQL sementara: start dari dua arah, retry, sequence pengiriman, serta cursor baca. Database sementara dihapus setelah tes.
+- Validasi akhir: 46 tes chat lulus (36 domain, 6 request boundary, 4 concurrency); 8 tes permission terkait lulus. Gate lengkap `lerd composer test` lulus: client/SSR build, Pint, Rector, frontend lint/format, PHPStan, Vue type check, type coverage 100%, backend code coverage 100%, dan 84 browser tests. Browser runner melaporkan 3 warning tanpa rincian pada output; tidak ada test gagal.
+- Pemeriksaan diff dan diagnostik error Serena pada Actions utama serta policy bersih. Scope 01 tidak menambahkan route produksi; profiling HTTP chat dan bukti pengiriman Reverb tetap menjadi syarat scope berikutnya.
+- Migration development dan sinkronisasi permission belum dijalankan; validasi sejauh ini menggunakan database testing/disposable.
