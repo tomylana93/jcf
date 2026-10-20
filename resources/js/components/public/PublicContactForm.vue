@@ -2,6 +2,15 @@
 import { useHttp } from '@inertiajs/vue3';
 import { nextTick, ref } from 'vue';
 
+import { Button } from '@/components/ui/button';
+import {
+    Field,
+    FieldError,
+    FieldGroup,
+    FieldLabel,
+} from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { useTranslations } from '@/composables/useTranslations';
 import { store } from '@/routes/contact';
 
@@ -70,54 +79,57 @@ async function submit(): Promise<void> {
                 {{ t('contact.helper.form') }}
             </p>
         </div>
-        <div
-            v-for="field in fields"
-            :key="field"
-            class="flex min-w-0 flex-col gap-2"
-        >
-            <label
-                :for="`contact-${field}`"
-                class="text-sm font-medium"
+        <FieldGroup>
+            <Field
+                v-for="field in fields"
+                :key="field"
+                :data-invalid="!!form.errors[field]"
             >
-                {{ t(`contact.label.${field}`) }}
-            </label>
-            <textarea
-                v-if="field === 'message'"
-                :id="`contact-${field}`"
-                v-model="form[field]"
-                :name="field"
-                required
-                :maxlength="limits[field]"
-                rows="6"
-                :aria-invalid="!!form.errors[field]"
-                :aria-describedby="
-                    form.errors[field] ? `contact-${field}-error` : undefined
-                "
-                class="w-full min-w-0 rounded-md border border-input bg-background px-3 py-2 text-base focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-            />
-            <input
-                v-else
-                :id="`contact-${field}`"
-                v-model="form[field]"
-                :name="field"
-                :type="field === 'email' ? 'email' : 'text'"
-                :autocomplete="field === 'subject' ? 'off' : field"
-                required
-                :maxlength="limits[field]"
-                :aria-invalid="!!form.errors[field]"
-                :aria-describedby="
-                    form.errors[field] ? `contact-${field}-error` : undefined
-                "
-                class="min-h-11 w-full min-w-0 rounded-md border border-input bg-background px-3 py-2 text-base focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-            />
-            <p
-                v-if="form.errors[field]"
-                :id="`contact-${field}-error`"
-                class="text-sm text-destructive"
-            >
-                {{ form.errors[field] }}
-            </p>
-        </div>
+                <FieldLabel
+                    :for="`contact-${field}`"
+                    class="text-sm font-medium"
+                >
+                    {{ t(`contact.label.${field}`) }}
+                </FieldLabel>
+                <Textarea
+                    v-if="field === 'message'"
+                    :id="`contact-${field}`"
+                    v-model="form[field]"
+                    :name="field"
+                    required
+                    :maxlength="limits[field]"
+                    :rows="6"
+                    :aria-invalid="!!form.errors[field]"
+                    :aria-describedby="
+                        form.errors[field]
+                            ? `contact-${field}-error`
+                            : undefined
+                    "
+                />
+                <Input
+                    v-else
+                    :id="`contact-${field}`"
+                    v-model="form[field]"
+                    :name="field"
+                    :type="field === 'email' ? 'email' : 'text'"
+                    :autocomplete="field === 'subject' ? 'off' : field"
+                    required
+                    :maxlength="limits[field]"
+                    :aria-invalid="!!form.errors[field]"
+                    :aria-describedby="
+                        form.errors[field]
+                            ? `contact-${field}-error`
+                            : undefined
+                    "
+                    class="min-h-11"
+                />
+                <FieldError
+                    v-if="form.errors[field]"
+                    :id="`contact-${field}-error`"
+                    :errors="[form.errors[field]]"
+                />
+            </Field>
+        </FieldGroup>
         <div
             hidden
             aria-hidden="true"
@@ -148,10 +160,10 @@ async function submit(): Promise<void> {
         >
             {{ feedback }}
         </p>
-        <button
+        <Button
             type="submit"
             :disabled="form.processing"
-            class="min-h-11 self-start rounded-md bg-primary px-5 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-wait disabled:opacity-60"
+            class="min-h-11 self-start"
             data-test="contact_send"
         >
             {{
@@ -161,6 +173,6 @@ async function submit(): Promise<void> {
                         : 'contact.button.send',
                 )
             }}
-        </button>
+        </Button>
     </form>
 </template>

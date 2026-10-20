@@ -1,11 +1,17 @@
 <script setup lang="ts">
 import { useId } from 'vue';
 
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import {
+    Field,
+    FieldError,
+    FieldGroup,
+    FieldLabel,
+} from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import {
     Select,
     SelectContent,
+    SelectGroup,
     SelectItem,
     SelectTrigger,
     SelectValue,
@@ -59,7 +65,7 @@ function errorFor(field: string): string | undefined {
 </script>
 
 <template>
-    <div class="flex flex-col gap-6">
+    <FieldGroup>
         <Field :data-invalid="!!errorFor('title')">
             <FieldLabel :for="`${uid}_title`">
                 {{ t('website.label.seo.title') }}
@@ -118,19 +124,24 @@ function errorFor(field: string): string | undefined {
                     })
                 "
             >
-                <SelectTrigger :id="`${uid}_robots`">
+                <SelectTrigger
+                    :id="`${uid}_robots`"
+                    :aria-invalid="!!errorFor('robots')"
+                >
                     <SelectValue
                         :placeholder="t('website.placeholder.robots')"
                     />
                 </SelectTrigger>
                 <SelectContent>
-                    <SelectItem
-                        v-for="option in robotsOptions"
-                        :key="option.value"
-                        :value="option.value"
-                    >
-                        {{ option.label }}
-                    </SelectItem>
+                    <SelectGroup>
+                        <SelectItem
+                            v-for="option in robotsOptions"
+                            :key="option.value"
+                            :value="option.value"
+                        >
+                            {{ option.label }}
+                        </SelectItem>
+                    </SelectGroup>
                 </SelectContent>
             </Select>
             <FieldError
@@ -149,8 +160,8 @@ function errorFor(field: string): string | undefined {
                 media_id: errorFor('image.media_id'),
                 alt: errorFor('image.alt'),
             }"
-            @update:image="emit('update:image', $event)"
+            @update:value="emit('update:image', $event)"
             @upload="emit('upload', $event)"
         />
-    </div>
+    </FieldGroup>
 </template>

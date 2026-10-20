@@ -12,7 +12,12 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import {
+    Field,
+    FieldError,
+    FieldGroup,
+    FieldLabel,
+} from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import WebsiteLinkList from '@/components/website/WebsiteLinkList.vue';
@@ -192,7 +197,7 @@ function submit(): void {
                     </CardDescription>
                 </CardHeader>
                 <CardContent class="flex flex-col gap-6">
-                    <div class="grid gap-4 sm:grid-cols-2">
+                    <FieldGroup class="grid gap-4 sm:grid-cols-2">
                         <Field :data-invalid="!!form.errors['contact.email']">
                             <FieldLabel for="website_contact_email">
                                 {{ t('website.label.contact.email') }}
@@ -231,7 +236,7 @@ function submit(): void {
                                 "
                             />
                         </Field>
-                    </div>
+                    </FieldGroup>
                     <Field :data-invalid="!!form.errors['contact.address']">
                         <FieldLabel for="website_contact_address">
                             {{ t('website.label.contact.address') }}
@@ -250,7 +255,7 @@ function submit(): void {
                             "
                         />
                     </Field>
-                    <div class="grid gap-4 sm:grid-cols-2">
+                    <FieldGroup class="grid gap-4 sm:grid-cols-2">
                         <Field :data-invalid="!!form.errors['contact.hours']">
                             <FieldLabel for="website_contact_hours">
                                 {{ t('website.label.contact.hours') }}
@@ -296,7 +301,7 @@ function submit(): void {
                                 "
                             />
                         </Field>
-                    </div>
+                    </FieldGroup>
                     <WebsiteLinkList
                         :title="t('website.label.contact.social_links')"
                         :value="form.contact.social_links"

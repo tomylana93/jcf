@@ -38,7 +38,7 @@ export function createMainNavigationItems(
     ];
 }
 
-export function createAdminNavigationGroups(
+export function createManagementNavigationGroups(
     t: (key: TranslationKey) => string,
     canViewSettings = false,
     canViewUsers = false,
@@ -84,15 +84,6 @@ export function createAdminNavigationGroups(
                           },
                       ]
                     : []),
-                ...(canViewWebsite
-                    ? [
-                          {
-                              title: t('navigation.link.website'),
-                              href: websiteIndex(),
-                              icon: Globe,
-                          },
-                      ]
-                    : []),
                 ...(canViewSettings
                     ? [
                           {
@@ -131,7 +122,21 @@ export function createAdminNavigationGroups(
                     : []),
             ],
         },
-    ];
+        ...(canViewWebsite
+            ? [
+                  {
+                      title: t('navigation.link.website'),
+                      items: [
+                          {
+                              title: t('navigation.link.website'),
+                              href: websiteIndex(),
+                              icon: Globe,
+                          },
+                      ],
+                  },
+              ]
+            : []),
+    ].filter((group) => group.items.length > 0);
 }
 
 export function createFooterNavigationItems(
@@ -166,7 +171,7 @@ export function createNavigationGroups(
         {
             items: createMainNavigationItems(t),
         },
-        ...createAdminNavigationGroups(
+        ...createManagementNavigationGroups(
             t,
             canViewSettings,
             canViewUsers,

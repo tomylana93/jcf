@@ -19,6 +19,17 @@ import {
 
 import PageContainer from '@/components/layout/PageContainer.vue';
 import StatusBadge from '@/components/shared/StatusBadge.vue';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import {
     Field,
@@ -38,6 +49,7 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import WebsiteImageField from '@/components/website/WebsiteImageField.vue';
+import WebsitePublicationDate from '@/components/website/WebsitePublicationDate.vue';
 import WebsiteSeoFields from '@/components/website/WebsiteSeoFields.vue';
 import { useTranslations } from '@/composables/useTranslations';
 import { emptyEditorDocument } from '@/lib/editor';
@@ -111,6 +123,8 @@ const publication = useForm({
 });
 const dirty = computed(() => form.isDirty || sourceDirty.value);
 const uploading = ref(false);
+const publishOpen = ref(false);
+const unpublishOpen = ref(false);
 watch(
     () => [props.editor.id, props.editor.content?.version],
     (current, previous) => {
@@ -128,12 +142,7 @@ function submit(): void {
     });
 }
 function publishDraft(): void {
-    if (
-        !props.editor.id ||
-        dirty.value ||
-        !window.confirm(t('website.helper.publish_state'))
-    )
-        return;
+    if (!props.editor.id || dirty.value) return;
     publication
         .transform((data) => ({
             ...data,
@@ -144,8 +153,7 @@ function publishDraft(): void {
         .submit(publish(props.editor.id), { preserveScroll: true });
 }
 function withdraw(): void {
-    if (!props.editor.id || !window.confirm(t('article.helper.unpublish')))
-        return;
+    if (!props.editor.id) return;
     publication.submit(unpublish(props.editor.id), { preserveScroll: true });
 }
 function upload(file: File, target: 'cover' | 'seo'): void {
@@ -157,7 +165,7 @@ function upload(file: File, target: 'cover' | 'seo'): void {
         {
             preserveScroll: true,
             onSuccess: () => {
-                const id = (page.props.flash as { image?: number } | undefined)
+                const id = (page.flash as { image?: number } | undefined)
                     ?.image;
                 if (id) {
                     if (target === 'cover')
@@ -211,7 +219,7 @@ watchEffect(() =>
         :title="t(editor.id ? 'article.title.edit' : 'article.title.create')"
     >
         <form
-            class="flex w-full max-w-5xl flex-col gap-8"
+            class="flex w-full flex-col gap-8"
             novalidate
             @submit.prevent="submit"
         >
@@ -250,7 +258,7 @@ watchEffect(() =>
                     v-if="canPublish && editor.id"
                     type="button"
                     :disabled="dirty || publication.processing || uploading"
-                    @click="publishDraft"
+                    @click="publishOpen = true"
                 >
                     {{ t('website.button.publish') }}
                 </Button>
@@ -259,7 +267,7 @@ watchEffect(() =>
                     type="button"
                     variant="outline"
                     :disabled="publication.processing"
-                    @click="withdraw"
+                    @click="unpublishOpen = true"
                 >
                     {{ t('website.button.unpublish') }}
                 </Button>
@@ -273,26 +281,27 @@ watchEffect(() =>
             <p class="text-sm text-muted-foreground">
                 {{ t('article.helper.drafts') }}
             </p>
-            <div
+            <Alert
                 v-if="
                     Object.keys(form.errors).length ||
                     Object.keys(publication.errors).length ||
                     page.props.errors.image
                 "
-                role="alert"
-                class="rounded-lg border border-destructive p-4 text-sm text-destructive"
+                variant="destructive"
             >
-                <p
-                    v-for="(error, key) in {
-                        ...form.errors,
-                        ...publication.errors,
-                        image: page.props.errors.image,
-                    }"
-                    :key="key"
-                >
-                    {{ error }}
-                </p>
-            </div>
+                <AlertDescription>
+                    <p
+                        v-for="(error, key) in {
+                            ...form.errors,
+                            ...publication.errors,
+                            image: page.props.errors.image,
+                        }"
+                        :key="key"
+                    >
+                        {{ error }}
+                    </p>
+                </AlertDescription>
+            </Alert>
             <FieldGroup>
                 <Field
                     v-for="field in ['title', 'slug'] as const"
@@ -408,19 +417,66 @@ watchEffect(() =>
                 @update:image="form.seo.image = $event"
                 @upload="upload($event, 'seo')"
             />
-            <Field v-if="canPublish && editor.id">
-                <FieldLabel for="article-date">
-                    {{ t('article.label.date') }}
-                </FieldLabel>
-                <Input
-                    id="article-date"
+            <div
+                v-if="canPublish && editor.id"
+                class="flex flex-col gap-2"
+            >
+                <WebsitePublicationDate
                     v-model="publication.published_at"
-                    type="datetime-local"
+                    :disabled="publication.processing"
+                    :invalid="!!publication.errors.published_at"
                 />
+                <FieldError :errors="[publication.errors.published_at]" />
                 <p class="text-sm text-muted-foreground">
                     {{ t('article.helper.date') }}
                 </p>
-            </Field>
+            </div>
         </form>
+        <AlertDialog v-model:open="publishOpen">
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>
+                        {{ t('website.button.publish') }}
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                        {{ t('website.helper.publish_state') }}
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>
+                        {{ t('common.button.cancel') }}
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                        :disabled="dirty || publication.processing || uploading"
+                        @click="publishDraft"
+                    >
+                        {{ t('website.button.publish') }}
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+        <AlertDialog v-model:open="unpublishOpen">
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>
+                        {{ t('website.button.unpublish') }}
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                        {{ t('article.helper.unpublish') }}
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>
+                        {{ t('common.button.cancel') }}
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                        :disabled="publication.processing || uploading"
+                        @click="withdraw"
+                    >
+                        {{ t('website.button.unpublish') }}
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
     </PageContainer>
 </template>

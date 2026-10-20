@@ -59,7 +59,7 @@ final readonly class ValidateWebsiteContent
     {
         return static function (string $attribute, mixed $value, Closure $fail): void {
             if (! is_string($value) || preg_match('/[\x00-\x20\x7f\\\\]/', $value) || ! preg_match('~^(https?://[^/]+|/(?!/)|mailto:|tel:|\#)~i', $value)) {
-                $fail(__('validation.url', ['attribute' => $attribute]));
+                $fail('validation.url')->translate();
             }
         };
     }
@@ -166,7 +166,7 @@ final readonly class ValidateWebsiteContent
                 $id = is_array($section) ? ($section['id'] ?? null) : null;
                 if (is_string($id)) {
                     if (in_array($id, $ids, true)) {
-                        $fail(__('validation.distinct', ['attribute' => $attribute.'.*.id']));
+                        $fail('validation.distinct')->translate();
 
                         return;
                     }

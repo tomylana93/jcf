@@ -1,10 +1,18 @@
 <script setup lang="ts">
 import { Head, Link, router, setLayoutProps, usePage } from '@inertiajs/vue3';
-import { ChevronRight, ExternalLink, Globe, Settings } from '@lucide/vue';
+import {
+    ChevronRight,
+    ExternalLink,
+    Globe,
+    Inbox,
+    Newspaper,
+    Settings,
+} from '@lucide/vue';
 import { computed, watchEffect } from 'vue';
 
 import { applyPreset } from '@/actions/App/Http/Controllers/Website/WebsiteSettingsController';
 import PageContainer from '@/components/layout/PageContainer.vue';
+import NavigationCardGrid from '@/components/shared/NavigationCardGrid.vue';
 import StatusBadge from '@/components/shared/StatusBadge.vue';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -16,19 +24,26 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import WebsitePresetPicker from '@/components/website/WebsitePresetPicker.vue';
+import { useDateTime } from '@/composables/useDateTime';
 import { useTranslations } from '@/composables/useTranslations';
 import { preview, index as websiteIndex } from '@/routes/website';
 import { index as articlesIndex } from '@/routes/website/articles';
 import { index as inboxIndex } from '@/routes/website/inbox';
 import { edit } from '@/routes/website/page';
 import { edit as settingsEdit } from '@/routes/website/settings';
-import type { WebsiteArea, WebsitePageStatus, WebsitePresetKey } from '@/types';
+import type {
+    NavigationCard,
+    WebsiteArea,
+    WebsitePageStatus,
+    WebsitePresetKey,
+} from '@/types';
 
 const props = defineProps<{
     area: WebsiteArea;
 }>();
 
 const { t } = useTranslations();
+const { formatDateTime } = useDateTime();
 
 const page = usePage();
 
@@ -41,6 +56,31 @@ const canEdit = computed(
         page.props.auth.permissions.includes('website.content.edit') ||
         page.props.auth.permissions.includes('website.content.publish'),
 );
+
+const cards = computed<NavigationCard[]>(() => [
+    ...(canEdit.value
+        ? [
+              {
+                  id: 'articles',
+                  href: articlesIndex(),
+                  icon: Newspaper,
+                  title: 'article.title.index' as const,
+                  description: 'article.helper.drafts' as const,
+              },
+          ]
+        : []),
+    ...(page.props.auth.permissions.includes('website.inbox.view')
+        ? [
+              {
+                  id: 'inbox',
+                  href: inboxIndex(),
+                  icon: Inbox,
+                  title: 'contact.title.inbox' as const,
+                  description: 'contact.helper.inbox' as const,
+              },
+          ]
+        : []),
+]);
 
 watchEffect(() => {
     setLayoutProps({
@@ -71,26 +111,7 @@ function applyPresetTo(preset: WebsitePresetKey): void {
         :description="t('website.card.description')"
     >
         <div class="flex w-full flex-col gap-6">
-            <Button
-                v-if="canEdit"
-                as-child
-                variant="outline"
-                class="self-start"
-            >
-                <Link :href="articlesIndex()">
-                    {{ t('article.title.index') }}
-                </Link>
-            </Button>
-            <Button
-                v-if="
-                    page.props.auth.permissions.includes('website.inbox.view')
-                "
-                as-child
-                variant="outline"
-                class="self-start"
-            >
-                <Link :href="inboxIndex()">{{ t('contact.title.inbox') }}</Link>
-            </Button>
+            <NavigationCardGrid :cards="cards" />
             <WebsitePresetPicker
                 v-if="canConfigure"
                 :preset="props.area.preset"
@@ -136,9 +157,9 @@ function applyPresetTo(preset: WebsitePresetKey): void {
                             >
                                 {{ t('website.label.published_at') }}
                                 {{
-                                    new Date(
+                                    formatDateTime(
                                         item.status.published_at ?? '',
-                                    ).toLocaleString()
+                                    )
                                 }}
                             </span>
                         </div>
@@ -216,10 +237,7 @@ function applyPresetTo(preset: WebsitePresetKey): void {
                 </CardContent>
             </Card>
 
-            <Alert
-                v-if="!props.area.publicPagesEnabled"
-                class="border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-300 dark:bg-amber-950 dark:text-amber-200"
-            >
+            <Alert v-if="!props.area.publicPagesEnabled">
                 <Globe class="size-4" />
                 <AlertDescription>
                     {{ t('website.card.public_pages_disabled') }}

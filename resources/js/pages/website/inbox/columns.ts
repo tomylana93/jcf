@@ -14,6 +14,7 @@ export type ContactRow = {
 };
 export function createColumns(
     t: (key: TranslationKey) => string,
+    formatDateTime: (timestamp: string) => string,
 ): DataTableColumnDef<ContactRow>[] {
     return [
         {
@@ -33,7 +34,7 @@ export function createColumns(
         {
             accessorKey: 'created_at',
             header: t('contact.label.received'),
-            cell: ({ row }) => row.original.created_at,
+            cell: ({ row }) => formatDateTime(row.original.created_at),
         },
         {
             accessorKey: 'handled_at',
