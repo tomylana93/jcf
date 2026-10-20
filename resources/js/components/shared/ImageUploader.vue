@@ -11,6 +11,7 @@ import {
     onMounted,
     ref,
     shallowRef,
+    useId,
     watch,
 } from 'vue';
 
@@ -46,6 +47,8 @@ const props = withDefaults(
         progress?: number;
         kind?: 'avatar' | 'logo' | 'favicon' | 'background';
         title?: string;
+        allowedFileTypes?: string[];
+        maxFileSize?: number;
         chooseLabel?: string;
         doneLabel?: string;
     }>(),
@@ -61,6 +64,7 @@ const { getInitials } = useInitials();
 const { resolvedAppearance } = useAppearance();
 
 const open = ref(false);
+const errorId = `${useId()}-error`;
 
 const uppy = shallowRef<Uppy | null>(null);
 
@@ -85,7 +89,11 @@ onMounted(() => {
     const instance = new Uppy({
         autoProceed: false,
         locale: uppyLocale.value,
-        restrictions: { maxNumberOfFiles: 1 },
+        restrictions: {
+            maxNumberOfFiles: 1,
+            allowedFileTypes: props.allowedFileTypes,
+            maxFileSize: props.maxFileSize,
+        },
     }).use(ImageEditor, {
         ...(props.kind === 'logo' || props.kind === 'background'
             ? {}
@@ -173,7 +181,7 @@ onBeforeUnmount(() => {
                 variant="outline"
                 :disabled="disabled"
                 :aria-invalid="invalid"
-                :aria-describedby="invalid ? `${kind}-error` : undefined"
+                :aria-describedby="invalid ? errorId : undefined"
                 :data-test="`choose-${kind}`"
                 @click="open = true"
             >
@@ -212,7 +220,12 @@ onBeforeUnmount(() => {
                     />
                     <p class="text-sm text-muted-foreground">{{ status }}</p>
                 </div>
-                <FieldError v-if="error">{{ error }}</FieldError>
+                <FieldError
+                    v-if="error"
+                    :id="errorId"
+                >
+                    {{ error }}
+                </FieldError>
                 <DialogFooter>
                     <Button
                         type="button"

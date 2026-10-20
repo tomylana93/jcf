@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import { useId } from 'vue';
 
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import {
+    Field,
+    FieldError,
+    FieldGroup,
+    FieldLabel,
+} from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { useTranslations } from '@/composables/useTranslations';
 import type { WebsiteLink } from '@/types';
@@ -29,10 +34,10 @@ const hrefId = `${uid}_href`;
 <template>
     <Field :data-invalid="!!(props.errors?.label || props.errors?.href)">
         <FieldLabel>{{ title }}</FieldLabel>
-        <div
+        <FieldGroup
             class="grid gap-3 sm:grid-cols-[minmax(9rem,1fr)_minmax(12rem,1.5fr)]"
         >
-            <div class="flex flex-col gap-1.5">
+            <Field :data-invalid="!!props.errors?.label">
                 <FieldLabel
                     :for="labelId"
                     class="text-xs text-muted-foreground"
@@ -56,8 +61,8 @@ const hrefId = `${uid}_href`;
                     v-if="props.errors?.label"
                     :errors="[props.errors.label]"
                 />
-            </div>
-            <div class="flex flex-col gap-1.5">
+            </Field>
+            <Field :data-invalid="!!props.errors?.href">
                 <FieldLabel
                     :for="hrefId"
                     class="text-xs text-muted-foreground"
@@ -79,7 +84,7 @@ const hrefId = `${uid}_href`;
                     v-if="props.errors?.href"
                     :errors="[props.errors.href]"
                 />
-            </div>
-        </div>
+            </Field>
+        </FieldGroup>
     </Field>
 </template>

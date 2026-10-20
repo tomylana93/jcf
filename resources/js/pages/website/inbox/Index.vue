@@ -4,6 +4,7 @@ import { computed, watchEffect } from 'vue';
 
 import { DataTable } from '@/components/datatable';
 import PageContainer from '@/components/layout/PageContainer.vue';
+import { useDateTime } from '@/composables/useDateTime';
 import { useTranslations } from '@/composables/useTranslations';
 import { index } from '@/routes/website/inbox';
 
@@ -17,7 +18,8 @@ defineProps<{
     };
 }>();
 const { t } = useTranslations();
-const columns = computed(() => createColumns(t));
+const { formatDateTime } = useDateTime();
+const columns = computed(() => createColumns(t, formatDateTime));
 watchEffect(() =>
     setLayoutProps({
         breadcrumbs: [{ title: t('contact.title.inbox'), href: index() }],

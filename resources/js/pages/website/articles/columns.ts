@@ -41,6 +41,7 @@ export function createColumns(
         },
         {
             id: 'status',
+            enableSorting: false,
             header: t('article.label.status'),
             cell: ({ row }) =>
                 h(StatusBadge, {

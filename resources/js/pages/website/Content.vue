@@ -46,6 +46,7 @@ import {
 import {
     DropdownMenu,
     DropdownMenuContent,
+    DropdownMenuGroup,
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
@@ -125,6 +126,7 @@ const unpublishOpen = ref(false);
 const actionForm = useForm({ version: props.editor.content?.version ?? 0 });
 
 const saving = ref(false);
+const uploading = ref(false);
 
 const dirty = computed(() => form.isDirty);
 
@@ -181,7 +183,7 @@ watch(
  * Flush pending HTML source editors, then submit the working draft.
  */
 function submit(): void {
-    if (!canEdit || saving.value) return;
+    if (!canEdit || saving.value || uploading.value) return;
     if (!bodyEditor.value?.prepareSave()) return;
     for (const editor of Object.values(sectionEditors.value)) {
         if (editor && !editor.prepareSave()) return;
@@ -216,7 +218,7 @@ function withdraw(): void {
  * that started the upload.
  */
 function refreshUploadTarget(): void {
-    const flash = page.props.flash as { image?: number } | undefined;
+    const flash = page.flash as { image?: number } | undefined;
     const mediaId = flash?.image;
     const target = uploadTarget.value;
     if (mediaId === undefined || target === null) return;
@@ -238,7 +240,8 @@ function refreshUploadTarget(): void {
 }
 
 function uploadImage(file: File, target?: UploadTarget): void {
-    if (!canEdit || props.editor.content === null) return;
+    if (!canEdit || props.editor.content === null || uploading.value) return;
+    uploading.value = true;
     if (target) {
         uploadTarget.value = target;
     }
@@ -250,6 +253,7 @@ function uploadImage(file: File, target?: UploadTarget): void {
             onSuccess: () => refreshUploadTarget(),
             onFinish: () => {
                 uploadTarget.value = null;
+                uploading.value = false;
             },
         },
     );
@@ -449,7 +453,9 @@ watchEffect(() =>
                                 type="button"
                                 size="sm"
                                 :disabled="
-                                    form.isDirty || actionForm.processing
+                                    form.isDirty ||
+                                    actionForm.processing ||
+                                    uploading
                                 "
                                 data-test="request_publish_website"
                                 @click="publishOpen = true"
@@ -461,7 +467,7 @@ watchEffect(() =>
                                 v-if="canEdit"
                                 type="submit"
                                 size="sm"
-                                :disabled="saving"
+                                :disabled="saving || uploading"
                                 data-test="save_website_draft"
                             >
                                 {{ t('website.button.save_draft') }}
@@ -493,7 +499,7 @@ watchEffect(() =>
                             id="website_page_title"
                             v-model="form.title"
                             type="text"
-                            :disabled="!canEdit"
+                            :disabled="!canEdit || uploading"
                             :aria-invalid="!!form.errors.title"
                             data-test="website_page_title"
                         />
@@ -510,7 +516,7 @@ watchEffect(() =>
                             id="website_page_excerpt"
                             v-model="form.excerpt"
                             :rows="3"
-                            :disabled="!canEdit"
+                            :disabled="!canEdit || uploading"
                             :aria-invalid="!!form.errors.excerpt"
                             data-test="website_page_excerpt"
                         />
@@ -548,16 +554,20 @@ watchEffect(() =>
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent>
-                                <DropdownMenuItem
-                                    v-for="type in sectionTypes"
-                                    :key="type"
-                                    :data-test="`add_website_section_${type}`"
-                                    @click="addSection(type)"
-                                >
-                                    {{
-                                        t(`website.label.section.type.${type}`)
-                                    }}
-                                </DropdownMenuItem>
+                                <DropdownMenuGroup>
+                                    <DropdownMenuItem
+                                        v-for="type in sectionTypes"
+                                        :key="type"
+                                        :data-test="`add_website_section_${type}`"
+                                        @click="addSection(type)"
+                                    >
+                                        {{
+                                            t(
+                                                `website.label.section.type.${type}`,
+                                            )
+                                        }}
+                                    </DropdownMenuItem>
+                                </DropdownMenuGroup>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
@@ -585,7 +595,7 @@ watchEffect(() =>
                             :section="section"
                             :index="index"
                             :media="props.editor.images"
-                            :disabled="!canEdit"
+                            :disabled="!canEdit || uploading"
                             :upload-disabled="props.editor.content === null"
                             :errors="form.errors"
                             :link-options="linkOptions"
@@ -608,7 +618,7 @@ watchEffect(() =>
                     <RichTextEditor
                         ref="bodyEditor"
                         :model-value="form.body_json"
-                        :disabled="!canEdit"
+                        :disabled="!canEdit || uploading"
                         :error="form.errors.body_json"
                         :link-options="linkOptions"
                         @update:model-value="form.body_json = $event"
@@ -624,7 +634,7 @@ watchEffect(() =>
                     <WebsiteSeoFields
                         :value="form.seo"
                         :image="form.seo.image"
-                        :disabled="!canEdit"
+                        :disabled="!canEdit || uploading"
                         :media="props.editor.images"
                         :upload-disabled="props.editor.content === null"
                         prefix="seo"
@@ -648,7 +658,7 @@ watchEffect(() =>
                         :title="t('website.label.cover')"
                         :value="form.cover"
                         :media="props.editor.images"
-                        :disabled="!canEdit"
+                        :disabled="!canEdit || uploading"
                         :upload-disabled="props.editor.content === null"
                         :errors="{
                             media_id: form.errors['cover.media_id'],

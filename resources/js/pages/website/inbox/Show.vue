@@ -5,6 +5,7 @@ import { watchEffect } from 'vue';
 import PageContainer from '@/components/layout/PageContainer.vue';
 import StatusBadge from '@/components/shared/StatusBadge.vue';
 import { Button } from '@/components/ui/button';
+import { useDateTime } from '@/composables/useDateTime';
 import { useTranslations } from '@/composables/useTranslations';
 import { index, show, update } from '@/routes/website/inbox';
 
@@ -14,6 +15,7 @@ const props = defineProps<{
     message: ContactRow & { name: string; email: string; message: string };
 }>();
 const { t } = useTranslations();
+const { formatDateTime } = useDateTime();
 const form = useForm({ handled: false });
 watchEffect(() =>
     setLayoutProps({
@@ -56,7 +58,7 @@ function toggle(): void {
                     <dt class="text-sm text-muted-foreground">
                         {{ t('contact.label.received') }}
                     </dt>
-                    <dd>{{ message.created_at }}</dd>
+                    <dd>{{ formatDateTime(message.created_at) }}</dd>
                 </div>
                 <div>
                     <dt class="mb-1 text-sm text-muted-foreground">

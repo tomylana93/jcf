@@ -31,9 +31,9 @@ import { useCurrentUrl } from '@/composables/useCurrentUrl';
 import { getInitials } from '@/composables/useInitials';
 import { useTranslations } from '@/composables/useTranslations';
 import {
-    createAdminNavigationGroups,
     createFooterNavigationItems,
     createMainNavigationItems,
+    createManagementNavigationGroups,
     flattenNavigationItems,
 } from '@/lib/navigation';
 import { dashboard } from '@/routes';
@@ -59,7 +59,7 @@ const mainItems = computed(() =>
 );
 
 const adminGroups = computed(() =>
-    createAdminNavigationGroups(
+    createManagementNavigationGroups(
         t,
         page.props.auth.permissions.includes('settings.view'),
         page.props.auth.permissions.includes('users.view'),

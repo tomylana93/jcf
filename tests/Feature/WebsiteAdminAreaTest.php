@@ -256,7 +256,7 @@ describe('Website admin area', function (): void {
         actingAs($actor)->post('/website/content/home/draft', websitePageDraft())->assertRedirect();
         actingAs($actor)->post('/website/content/home/image', [
             'image' => UploadedFile::fake()->image('plug.png', 120, 120),
-        ])->assertRedirect();
+        ])->assertRedirect()->assertInertiaFlash('image');
 
         $record = WebsiteContent::query()->where('page_key', 'home')->firstOrFail();
         $media = $record->getMedia('website-images');
@@ -365,4 +365,19 @@ describe('Website admin area', function (): void {
             'actor_id' => $actor->id,
         ]);
     });
+    it('uses readable localized field labels in website forms', function (string $locale): void {
+        app()->setLocale($locale);
+        $actor = actingAsUserWithPermissions(Permission::EditWebsiteContent, Permission::ConfigureWebsite);
+        $record = savedHomeDraft($actor);
+        $label = $locale === 'id' ? 'deskripsi gambar sampul' : 'cover image description';
+        $message = $locale === 'id' ? "Field {$label} wajib diisi." : "The {$label} field is required.";
+        post('/website/content/home/draft', [...websitePageDraft(overrides: ['cover' => ['media_id' => 999, 'alt' => '']]), 'version' => 1])
+            ->assertSessionHasErrors(['cover.alt' => $message]);
+        $label = $locale === 'id' ? 'URL tautan' : 'link URL';
+        $message = $locale === 'id' ? "Field {$label} harus berupa URL yang valid." : "The {$label} field must be a valid URL.";
+        patch('/website/settings', ['navigation' => [['label' => 'Unsafe', 'href' => 'javascript:alert(1)']]])
+            ->assertSessionHasErrors(['navigation.0.href' => $message]);
+        expect($record->fresh()->draft_version)->toBe(1);
+    })->with(['en', 'id']);
+
 });

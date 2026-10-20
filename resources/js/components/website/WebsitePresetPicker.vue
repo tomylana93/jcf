@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Check } from '@lucide/vue';
-import { computed, ref, watch } from 'vue';
+import { computed, ref, useId, watch } from 'vue';
 
 import { publicPresets } from '@/components/public/presets';
 import {
@@ -22,7 +22,10 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+import { Field, FieldLabel } from '@/components/ui/field';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useTranslations } from '@/composables/useTranslations';
+import { cn } from '@/lib/utils';
 import { preview } from '@/routes/website';
 import type { WebsitePresetKey, WebsitePresetOption } from '@/types';
 
@@ -41,6 +44,7 @@ const emit = defineEmits<{
 const { t } = useTranslations();
 
 const selection = ref<WebsitePresetKey>(props.preset);
+const uid = useId();
 
 const confirming = ref(false);
 
@@ -78,30 +82,33 @@ function apply(): void {
             </CardDescription>
         </CardHeader>
         <CardContent class="flex flex-col gap-6">
-            <div
-                role="radiogroup"
+            <RadioGroup
+                v-model="selection"
+                :disabled="props.disabled"
                 :aria-label="t('website.card.preset.title')"
                 class="grid gap-3 md:grid-cols-3"
             >
-                <button
+                <Field
                     v-for="option in props.options"
                     :key="option.value"
-                    type="button"
-                    role="radio"
-                    :aria-checked="selection === option.value"
-                    :disabled="props.disabled"
-                    class="flex flex-col gap-2 rounded-xl border p-4 text-left transition-colors hover:bg-accent disabled:opacity-60"
                     :class="
-                        selection === option.value &&
-                        'border-primary ring-2 ring-ring'
+                        cn(
+                            'rounded-xl border p-4',
+                            selection === option.value &&
+                                'border-primary ring-2 ring-ring',
+                        )
                     "
-                    :data-test="`website_preset_${option.value}`"
-                    @click="selection = option.value"
                 >
                     <div class="flex items-center justify-between gap-2">
-                        <span class="text-sm font-semibold">
+                        <FieldLabel :for="`${uid}-${option.value}`">
                             {{ option.label }}
-                        </span>
+                        </FieldLabel>
+                        <RadioGroupItem
+                            :id="`${uid}-${option.value}`"
+                            :value="option.value"
+                            :aria-describedby="`${uid}-${option.value}-description`"
+                            :data-test="`website_preset_${option.value}`"
+                        />
                         <span
                             v-if="props.preset === option.value"
                             class="flex items-center gap-1 text-xs text-muted-foreground"
@@ -110,7 +117,10 @@ function apply(): void {
                             {{ t('website.card.preset.current') }}
                         </span>
                     </div>
-                    <span class="text-sm text-muted-foreground">
+                    <span
+                        :id="`${uid}-${option.value}-description`"
+                        class="text-sm text-muted-foreground"
+                    >
                         {{ t(`website.card.preset.${option.value}`) }}
                     </span>
                     <div class="flex flex-wrap gap-1">
@@ -138,8 +148,8 @@ function apply(): void {
                     >
                         {{ t('website.button.preview') }}
                     </a>
-                </button>
-            </div>
+                </Field>
+            </RadioGroup>
             <div class="flex items-center gap-3">
                 <Button
                     type="button"
@@ -158,29 +168,28 @@ function apply(): void {
                 </p>
             </div>
         </CardContent>
+        <AlertDialog v-model:open="confirming">
+            <AlertDialogContent class="max-w-md">
+                <AlertDialogHeader>
+                    <AlertDialogTitle>
+                        {{ t('website.button.apply_preset') }}
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                        {{ t('website.card.preset.description') }}
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>
+                        {{ t('common.button.cancel') }}
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                        data-test="confirm_apply_website_preset"
+                        @click="emit('apply', selection)"
+                    >
+                        {{ t('website.button.apply_preset') }}
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
     </Card>
-
-    <AlertDialog v-model:open="confirming">
-        <AlertDialogContent class="max-w-md">
-            <AlertDialogHeader>
-                <AlertDialogTitle>
-                    {{ t('website.button.apply_preset') }}
-                </AlertDialogTitle>
-                <AlertDialogDescription>
-                    {{ t('website.card.preset.description') }}
-                </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-                <AlertDialogCancel>
-                    {{ t('common.button.cancel') }}
-                </AlertDialogCancel>
-                <AlertDialogAction
-                    data-test="confirm_apply_website_preset"
-                    @click="emit('apply', selection)"
-                >
-                    {{ t('website.button.apply_preset') }}
-                </AlertDialogAction>
-            </AlertDialogFooter>
-        </AlertDialogContent>
-    </AlertDialog>
 </template>

@@ -72,7 +72,8 @@ final class WebsitePageController extends Controller
         $user = $request->user();
         $record = WebsiteContent::query()->where('page_key', $page->value)->firstOrFail();
         Validator::make(['image' => $request->file('image')], ['image' => ['required', 'image', 'mimes:jpeg,png,webp', 'max:5120', 'dimensions:max_width=6000,max_height=6000']])->validate();
-        $upload->handle($user, $record, $request->file('image'));
+        $media = $upload->handle($user, $record, $request->file('image'));
+        Inertia::flash('image', $media->id);
         Inertia::flash('toast', ['type' => 'success', 'message' => __('website.status.image_uploaded')]);
 
         return back();
