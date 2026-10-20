@@ -55,7 +55,10 @@ const { isMobile } = useSidebar();
 
 // Mirrors NavMain: external links live in NavFooter only.
 const mainItems = computed(() =>
-    createMainNavigationItems(t).filter((item) => !item.external),
+    createMainNavigationItems(
+        t,
+        page.props.auth.permissions.includes('chat.use'),
+    ).filter((item) => !item.external),
 );
 
 const adminGroups = computed(() =>

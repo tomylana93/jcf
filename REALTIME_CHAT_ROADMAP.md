@@ -1,7 +1,7 @@
 # Roadmap Modul Realtime Chat
 
 Tanggal: 20 Oktober 2026  
-Status: Scope 01 selesai secara lokal dan teruji. Scope 02–07 belum dikerjakan.
+Status: Scope 01–02 selesai secara lokal dan teruji. Scope 03–07 belum dikerjakan.
 
 ## Tujuan dan batas awal
 
@@ -110,10 +110,10 @@ Setiap scope memiliki perubahan, validasi, dan catatan hasil sendiri. Checkbox b
 
 ### Scope 02 — HTTP dan UI chat dasar
 
-- [ ] Tambahkan endpoint inbox, penerima, histori, kirim, dan read cursor beserta Wayfinder.
-- [ ] Bangun halaman chat dan navigasi permission-aware menggunakan komponen yang dipetakan di atas.
-- [ ] Tambahkan cursor pagination, state loading/error/empty, pending-send/retry, serta draft per conversation.
-- [ ] Verifikasi desktop/mobile, keyboard/IME, konten panjang, i18n/timezone, dan scrolling histori.
+- [x] Tambahkan endpoint inbox, penerima, histori, kirim, dan read cursor beserta Wayfinder.
+- [x] Bangun halaman chat dan navigasi permission-aware menggunakan komponen yang dipetakan di atas.
+- [x] Tambahkan cursor pagination, state loading/error/empty, pending-send/retry, serta draft per conversation.
+- [x] Verifikasi desktop/mobile, keyboard/IME, konten panjang, i18n/timezone, dan scrolling histori.
 
 **Selesai bila:** dua user dapat mengirim dan membaca histori melalui HTTP, refresh mempertahankan data, retry tidak menggandakan pesan, dan seluruh UI tersusun dari primitive existing.
 
@@ -191,3 +191,18 @@ Risiko utama adalah duplikasi akibat retry, celah fetch/subscribe, event tidak b
 - Validasi akhir: 46 tes chat lulus (36 domain, 6 request boundary, 4 concurrency); 8 tes permission terkait lulus. Gate lengkap `lerd composer test` lulus: client/SSR build, Pint, Rector, frontend lint/format, PHPStan, Vue type check, type coverage 100%, backend code coverage 100%, dan 84 browser tests. Browser runner melaporkan 3 warning tanpa rincian pada output; tidak ada test gagal.
 - Pemeriksaan diff dan diagnostik error Serena pada Actions utama serta policy bersih. Scope 01 tidak menambahkan route produksi; profiling HTTP chat dan bukti pengiriman Reverb tetap menjadi syarat scope berikutnya.
 - Migration development dan sinkronisasi permission belum dijalankan; validasi sejauh ini menggunakan database testing/disposable.
+
+### Scope 02 — 20 Oktober 2026
+
+- Endpoint `chat.index`, `chat.inbox`, `chat.recipients`, `chat.store`, `chat.history`, `chat.send`, dan `chat.read` memakai autentikasi, akun aktif, Form Request/Policy, serta Actions Scope 01. Response JSON memakai Resource eksplisit dan `Cache-Control: no-store, private`; identitas penerima terbatas pada UUID, nama, dan avatar.
+- Inbox dan pencarian penerima memakai cursor pagination 20 record dengan tie-breaker UUID. Histori mengembalikan maksimal 50 pesan berurutan berdasarkan sequence, mendukung `before` untuk histori dan `after` untuk catch-up. Query inbox eager-load peserta, permission, avatar, serta satu pesan terakhir; unread hanya menghitung pesan peserta lain setelah cursor baca.
+- Rate limit terpisah per user: pencarian penerima 30/menit, start conversation 10/menit, dan send 60/menit. Daftar penerima hanya mencakup user lain yang aktif dan berhak memakai chat, termasuk akses SuperAdmin existing.
+- Halaman `chat/Index` dan navigasi kedua AppLayout sudah permission-aware. Komposisi domain memakai Avatar, Message, Bubble, MessageScroller, InputGroup, Dialog, Button, Badge, dan Skeleton existing. Desktop menampilkan inbox dan conversation; mobile memakai satu panel dengan tombol kembali.
+- State loading/error/empty, pending-send, retry, dan draft per conversation tersedia. Retry mempertahankan body serta `client_message_id` asli; respons canonical dan refresh HTTP direkonsiliasi berdasarkan UUID/token. Draft dan pending hanya hidup di instance halaman, dibersihkan saat logout, perubahan akun, atau unmount.
+- Enter/Shift+Enter dan guard IME teruji. Konten di-render escaped, mendukung teks panjang, validasi 4.000 karakter multibyte, label en/id, timezone user, dark mode, serta viewport mobile 390×844. Refresh histori mengambil sequence lanjutan dan menjaga histori yang sudah dimuat. Cursor catch-up mengikuti sequence terakhir dari hasil fetch, terpisah dari pesan sendiri yang sudah tersimpan, sehingga respons send yang lebih maju tidak melewati pesan masuk yang belum dimuat.
+- Posisi scroll histori teruji ketika prepend dan ketika pesan masuk melalui refresh saat membaca pesan lama. Override optimasi content-visibility dan native overflow anchoring hanya di komposisi chat menghindari benturan dengan anchoring MessageScroller; primitive UI tetap tidak diubah.
+- Read cursor HTTP tersedia sebagai aksi manual untuk pesan yang telah dimuat. Status pengiriman hanya pending/tersimpan/gagal; deteksi pesan terlihat, read receipt otomatis, typing, dan sinkronisasi Reverb tetap menjadi Scope 03–04.
+- Validasi terfokus: 56 tes feature/domain/request/concurrency chat dan 6 tes browser chat lulus. Tes browser mencakup kedua layout, perpindahan draft, IME/multiline, refresh, respons kirim yang terputus setelah commit lalu retry tanpa duplikasi, prepend histori, escaping/konten panjang, timezone, i18n/dark mode, navigasi tanpa permission, serta catch-up dua halaman setelah respons pesan sendiri mendahului 60 pesan masuk yang belum dimuat.
+- Pemeriksaan runtime lokal setelah migration: inbox dan pencarian penerima merespons 200, tanpa error JavaScript pada capture Lerd. Lens inbox bersih; flag repeated query pencarian berasal dari lookup cache rate limiter database yang jumlahnya tetap, bukan query per penerima. Query penerima sendiri berupa satu query terikat dengan pagination. Peringatan timing/settings historis bukan bukti query chat baru; profiling send/history/read dengan trafik representatif tetap berada pada Scope 05.
+- Snapshot database development dibuat sebelum aktivasi (`chat-scope02-20261020-20261020-043535`). Tiga migration chat dan `init:permission` telah dijalankan melalui Lerd pada database `jcf`; jumlah user tetap 5, permission `chat.use` tersedia, dan tabel conversation/message masih kosong. Tidak ada grant otomatis ke user biasa; database testing terpisah.
+- Gate akhir `lerd composer test` melalui CLI lulus dengan exit code 0 pada kode final: build client/SSR, Pint, Rector, frontend lint/format, PHPStan, Vue type check, type coverage 100%, dan backend code coverage 100%. Backend: 823 lulus, 4 skipped, 4.429 assertions; browser: 90 lulus, 1.957 assertions. Browser runner melaporkan 3 warning tanpa rincian dan tidak ada test gagal. Review UI desktop/mobile serta review terfokus cursor selesai tanpa temuan material terbuka.

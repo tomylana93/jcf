@@ -43,6 +43,7 @@ const navigationGroups = computed(() =>
         page.props.auth.permissions.includes('audit.view'),
         page.props.auth.permissions.includes('system.view'),
         page.props.auth.permissions.includes('backups.manage'),
+        page.props.auth.permissions.includes('chat.use'),
     ),
 );
 
