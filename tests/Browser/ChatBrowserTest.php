@@ -267,6 +267,18 @@ describe('Chat browser', function (): void {
             ->assertAttribute('[data-test="chat-connection"]', 'data-state', 'connected')
             ->click('button[aria-pressed]:has-text("Realtime Recipient")')
             ->assertVisible('#chat-body');
+        $page->script(<<<'JS_WRAP'
+            () => {
+                window.chatSummaryReloads = 0;
+                const setHeader = XMLHttpRequest.prototype.setRequestHeader;
+                XMLHttpRequest.prototype.setRequestHeader = function(name, value) {
+                    if (name.toLowerCase() === 'x-inertia-partial-data' && value.split(',').includes('chatSummary')) {
+                        window.chatSummaryReloads++;
+                    }
+                    return setHeader.call(this, name, value);
+                };
+            }
+        JS_WRAP);
 
         $message = resolve(SendChatMessage::class)->handle($recipient, $conversation, ['body' => 'Realtime incoming', 'client_message_id' => (string) Str::uuid()]);
         $delivery = '() => window.chatSocket.deliver('.json_encode(ChatMessageCreated::class).', '.json_encode(new ChatMessageCreated($message, [$actor->id, $recipient->id])->broadcastWith()).')';
@@ -298,6 +310,8 @@ describe('Chat browser', function (): void {
         resolve(MarkChatConversationRead::class)->handle($actor, $conversation, $missed->sequence);
         $page->script('() => window.chatSocket.deliver('.json_encode(ChatReadUpdated::class).', '.json_encode(new ChatReadUpdated($conversation->id, $actor->id, $missed->sequence, [$actor->id, $recipient->id])->broadcastWith()).')');
         $page->assertMissing('button[aria-pressed]:has-text("Realtime Recipient") [data-slot=badge]')
+            ->assertSeeIn('a[href="/chat"] [data-slot=badge]', '1')
+            ->assertScript('() => window.chatSummaryReloads === 0')
             ->assertNoJavaScriptErrors();
     });
 });

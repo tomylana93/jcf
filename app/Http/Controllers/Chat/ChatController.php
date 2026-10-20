@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Chat;
 
 use App\Actions\Chat\GetChatHistory;
 use App\Actions\Chat\GetChatRecipients;
+use App\Actions\Chat\GetChatSummary;
 use App\Actions\Chat\MarkChatConversationRead;
 use App\Actions\Chat\QueryChatConversations;
 use App\Actions\Chat\SendChatMessage;
@@ -34,13 +35,14 @@ final class ChatController extends Controller
         return Inertia::render('chat/Index');
     }
 
-    public function inbox(ChatQueryRequest $request, QueryChatConversations $query): JsonResponse
+    public function inbox(ChatQueryRequest $request, QueryChatConversations $query, GetChatSummary $summary): JsonResponse
     {
         $page = $query->handle($request->user())->latest('updated_at')->orderByDesc('id')->cursorPaginate(20);
 
         return response()->json([
             'data' => ChatConversationResource::collection($page->items())->resolve($request),
             'next_cursor' => $page->nextCursor()?->encode(),
+            'summary' => $summary->handle($request->user()),
         ])->header('Cache-Control', 'no-store, private');
     }
 

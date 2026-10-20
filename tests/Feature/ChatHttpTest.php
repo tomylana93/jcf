@@ -13,6 +13,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
 use Inertia\Testing\AssertableInertia as Assert;
+use Spatie\TemporaryDirectory\TemporaryDirectory;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\assertDatabaseCount;
@@ -23,6 +24,29 @@ use function Pest\Laravel\patchJson;
 use function Pest\Laravel\postJson;
 
 describe('Chat HTTP', function (): void {
+    it('excludes private chat requests and responses from the enabled devtools recorder', function (): void {
+        [$actor, $recipient] = createChatUsers();
+        $conversation = resolve(StartDirectConversation::class)->handle($actor, $recipient);
+        $directory = new TemporaryDirectory(storage_path('framework/testing/chat-devtools-'.Str::uuid()));
+        $directory->create();
+        config(['inertia.devtools.enabled' => true, 'inertia.devtools.storage.path' => $directory->path()]);
+        actingAs($actor);
+
+        try {
+            get(route('dashboard'))->assertOk()->assertHeader('X-Inertia-Devtools-Id');
+            get(route('chat.index'))->assertOk()->assertHeaderMissing('X-Inertia-Devtools-Id');
+            postJson(route('chat.send', $conversation), ['body' => 'Private chat recorder probe', 'client_message_id' => (string) Str::uuid()])
+                ->assertOk()->assertHeaderMissing('X-Inertia-Devtools-Id');
+            getJson(route('chat.inbox'))->assertOk()->assertHeaderMissing('X-Inertia-Devtools-Id');
+            getJson(route('chat.history', $conversation))->assertOk()->assertHeaderMissing('X-Inertia-Devtools-Id');
+            foreach (glob($directory->path('*.json')) ?: [] as $file) {
+                expect(file_get_contents($file))->not->toContain('Private chat recorder probe');
+            }
+        } finally {
+            $directory->delete();
+        }
+    });
+
     it('requires authentication and chat permission for the page and discovery', function (): void {
         get(route('chat.index'))->assertRedirect(route('login'));
         getJson(route('chat.inbox'))->assertUnauthorized();
@@ -84,7 +108,8 @@ describe('Chat HTTP', function (): void {
         getJson(route('chat.history', $id))->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.id', $sent->json('data.id'));
         actingAs($recipient);
         getJson(route('chat.history', $id))->assertJsonPath('data.0.body', '<script>alert("escaped")</script>');
-        getJson(route('chat.inbox'))->assertJsonPath('data.0.unread_count', 1)->assertJsonPath('data.0.last_message.sequence', 1);
+        getJson(route('chat.inbox'))->assertJsonPath('data.0.unread_count', 1)->assertJsonPath('data.0.last_message.sequence', 1)
+            ->assertJsonPath('summary.unread_count', 1);
     });
 
     it('isolates inboxes and rejects foreign history, send and read requests', function (): void {

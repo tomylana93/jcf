@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Events;
 
+use App\Actions\Chat\GetChatBroadcastChannels;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Contracts\Events\ShouldDispatchAfterCommit;
@@ -33,8 +34,8 @@ final class ChatTypingUpdated implements ShouldBroadcast, ShouldDispatchAfterCom
      */
     public function broadcastOn(): array
     {
-        return array_map(
-            fn (string $userId): PrivateChannel => new PrivateChannel('App.Models.User.'.$userId),
+        return resolve(GetChatBroadcastChannels::class)->handle(
+            $this->conversationId,
             $this->userIds,
         );
     }

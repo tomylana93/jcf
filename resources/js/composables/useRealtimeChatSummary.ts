@@ -31,7 +31,7 @@ export function useRealtimeChatSummary(): void {
                 let pending = false;
 
                 const refresh = () => {
-                    if (!active) {
+                    if (!active || page.component === 'chat/Index') {
                         return;
                     }
                     pending = true;

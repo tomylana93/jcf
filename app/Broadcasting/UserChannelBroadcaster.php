@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Broadcasting;
 
 use Illuminate\Broadcasting\Broadcasters\PusherBroadcaster;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
@@ -17,10 +18,9 @@ final class UserChannelBroadcaster extends PusherBroadcaster
 {
     /**
      * @param  Request  $request
-     * @param  mixed  $result
-     * @return array<string, mixed>
+     * @return array<string, mixed>|JsonResponse
      */
-    public function validAuthenticationResponse($request, $result)
+    public function validAuthenticationResponse(mixed $request, mixed $result): array|JsonResponse
     {
         if (str_starts_with((string) $request->channel_name, 'private-App.Models.User.')) {
             $user = $request->user();

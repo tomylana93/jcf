@@ -8,6 +8,7 @@ use App\Actions\MasterData\User\UpdateUserStatus;
 use App\Broadcasting\UserChannelBroadcaster;
 use App\Enums\UserStatus;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Mockery\MockInterface;
@@ -17,6 +18,22 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use function Pest\Laravel\mock;
 
 describe('Chat realtime revocation', function (): void {
+    it('preserves optional JSONP authorization responses', function (bool $userChannel): void {
+        $user = User::factory()->create();
+        $broadcaster = new UserChannelBroadcaster(new Pusher('test-key', 'test-secret', 'test-app'), true);
+        $request = Request::create('/broadcasting/auth', 'POST', [
+            'channel_name' => $userChannel ? 'private-App.Models.User.'.$user->id : 'private-chat.other',
+            'socket_id' => '123.456',
+            'callback' => 'authorizeCallback',
+        ]);
+        $request->setUserResolver(fn (): User => $user);
+
+        $response = $broadcaster->validAuthenticationResponse($request, true);
+
+        expect($response)->toBeInstanceOf(JsonResponse::class)
+            ->and($response->getCallback())->toBe('authorizeCallback');
+    })->with([true, false]);
+
     beforeEach(function (): void {
         config([
             'broadcasting.default' => 'reverb',

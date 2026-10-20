@@ -18,12 +18,13 @@ import type {
     ChatMessage,
     ChatPage,
     ChatReadEvent,
+    ChatSummary,
     ChatTypingEvent,
     PendingChatMessage,
 } from '@/types/chat';
 
 export function useChat() {
-    const page = usePage<{ auth: Auth }>();
+    const page = usePage<{ auth: Auth; chatSummary?: ChatSummary }>();
     const conversations = ref<ChatConversation[]>([]);
     const selectedId = ref<string | null>(null);
     const selected = computed(
@@ -52,7 +53,7 @@ export function useChat() {
     const readError = ref(false);
     const inboxHttp = useHttp<
         Record<string, never>,
-        ChatPage<ChatConversation>
+        ChatPage<ChatConversation> & { summary: ChatSummary }
     >({});
     const historyHttp = useHttp<Record<string, never>, ChatHistory>({});
     const sendHttp = useHttp<
@@ -114,6 +115,12 @@ export function useChat() {
                 }),
             );
             if (disposed) return;
+            if (
+                page.props.chatSummary?.unread_count !==
+                result.summary.unread_count
+            ) {
+                router.replaceProp('chatSummary', result.summary);
+            }
             const entries = more ? conversations.value : [];
             const records = new Map(entries.map((item) => [item.id, item]));
             for (const item of result.data) records.set(item.id, item);

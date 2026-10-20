@@ -23,10 +23,6 @@ final class SendChatTyping
                 ->all(),
         );
 
-        if ($recipients === []) {
-            return;
-        }
-
         event(new ChatTypingUpdated(
             (string) $conversation->getKey(),
             (string) $actor->getKey(),
