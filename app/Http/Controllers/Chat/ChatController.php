@@ -9,10 +9,12 @@ use App\Actions\Chat\GetChatRecipients;
 use App\Actions\Chat\MarkChatConversationRead;
 use App\Actions\Chat\QueryChatConversations;
 use App\Actions\Chat\SendChatMessage;
+use App\Actions\Chat\SendChatTyping;
 use App\Actions\Chat\StartDirectConversation;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Chat\ChatHistoryRequest;
 use App\Http\Requests\Chat\ChatQueryRequest;
+use App\Http\Requests\Chat\ChatTypingRequest;
 use App\Http\Requests\Chat\MarkChatConversationReadRequest;
 use App\Http\Requests\Chat\SendChatMessageRequest;
 use App\Http\Requests\Chat\StartDirectConversationRequest;
@@ -84,5 +86,13 @@ final class ChatController extends Controller
         $participant = $markRead->handle($request->user(), $conversation, (int) $request->validated()['sequence']);
 
         return response()->json(['last_read_sequence' => $participant->last_read_sequence])->header('Cache-Control', 'no-store, private');
+    }
+
+    public function typing(ChatTypingRequest $request, ChatConversation $conversation, SendChatTyping $sendTyping): JsonResponse
+    {
+        $typing = (bool) $request->validated()['typing'];
+        $sendTyping->handle($request->user(), $conversation, $typing);
+
+        return response()->json(['typing' => $typing])->header('Cache-Control', 'no-store, private');
     }
 }

@@ -7,8 +7,10 @@ use App\Actions\Chat\StartDirectConversation;
 use App\Enums\Permission;
 use App\Enums\Role;
 use App\Enums\UserStatus;
+use App\Events\ChatTypingUpdated;
 use App\Models\ChatMessage;
 use App\Models\User;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
 use Inertia\Testing\AssertableInertia as Assert;
 
@@ -133,6 +135,72 @@ describe('Chat HTTP', function (): void {
         patchJson(route('chat.read', $conversation), ['sequence' => 1])->assertJsonPath('last_read_sequence', 2);
         patchJson(route('chat.read', $conversation), ['sequence' => 99])->assertUnprocessable();
         assertDatabaseHas('chat_participants', ['conversation_id' => $conversation->id, 'user_id' => $recipient->id, 'last_read_sequence' => 2]);
+    });
+
+    it('shares an unread summary that excludes own messages and users without chat access', function (): void {
+        [$actor, $recipient] = createChatUsers();
+        $conversation = resolve(StartDirectConversation::class)->handle($actor, $recipient);
+        $send = resolve(SendChatMessage::class);
+        $send->handle($actor, $conversation, ['body' => 'Incoming one', 'client_message_id' => (string) Str::uuid()]);
+        $send->handle($recipient, $conversation, ['body' => 'Own reply', 'client_message_id' => (string) Str::uuid()]);
+        $send->handle($actor, $conversation, ['body' => 'Incoming two', 'client_message_id' => (string) Str::uuid()]);
+
+        actingAs($recipient);
+        get(route('chat.index'))->assertInertia(fn (Assert $page): Assert => $page->where('chatSummary.unread_count', 2));
+        get(route('dashboard'))->assertInertia(fn (Assert $page): Assert => $page->where('chatSummary.unread_count', 2));
+        patchJson(route('chat.read', $conversation), ['sequence' => 3])->assertOk();
+        get(route('chat.index'))->assertInertia(fn (Assert $page): Assert => $page->where('chatSummary.unread_count', 0));
+
+        actingAs(User::factory()->create());
+        get(route('dashboard'))->assertInertia(fn (Assert $page): Assert => $page->where('chatSummary.unread_count', 0));
+    });
+
+    it('exposes recipient read receipts in the inbox', function (): void {
+        [$actor, $recipient] = createChatUsers();
+        $conversation = resolve(StartDirectConversation::class)->handle($actor, $recipient);
+        $send = resolve(SendChatMessage::class);
+        $send->handle($actor, $conversation, ['body' => 'First', 'client_message_id' => (string) Str::uuid()]);
+        $send->handle($actor, $conversation, ['body' => 'Second', 'client_message_id' => (string) Str::uuid()]);
+
+        actingAs($recipient);
+        patchJson(route('chat.read', $conversation), ['sequence' => 2])->assertOk();
+
+        actingAs($actor);
+        getJson(route('chat.inbox'))
+            ->assertJsonPath('data.0.recipient_last_read_sequence', 2)
+            ->assertJsonPath('data.0.last_read_sequence', 0)
+            ->assertJsonPath('data.0.unread_count', 0);
+    });
+
+    it('broadcasts typing only for participants and returns the accepted state', function (): void {
+        [$actor, $recipient] = createChatUsers();
+        $conversation = resolve(StartDirectConversation::class)->handle($actor, $recipient);
+        [$outsider] = createChatUsers();
+        Event::fake([ChatTypingUpdated::class]);
+        actingAs($actor);
+
+        postJson(route('chat.typing', $conversation), ['typing' => true])->assertOk()->assertJsonPath('typing', true);
+        postJson(route('chat.typing', $conversation), ['typing' => false])->assertOk()->assertJsonPath('typing', false);
+        postJson(route('chat.typing', $conversation), [])->assertUnprocessable()->assertJsonValidationErrors('typing');
+
+        Event::assertDispatchedTimes(ChatTypingUpdated::class, 2);
+        Event::assertDispatched(ChatTypingUpdated::class, function (ChatTypingUpdated $event) use ($actor, $recipient, $conversation): bool {
+            if (! $event->typing) {
+                return false;
+            }
+
+            expect($event->conversationId)->toBe($conversation->id)
+                ->and($event->userId)->toBe($actor->id)
+                ->and($event->typing)->toBeTrue()
+                ->and($event->expiresAt)->toBe(now()->addSeconds(4)->toISOString())
+                ->and($event->userIds)->toBe([$recipient->id]);
+
+            return true;
+        });
+
+        actingAs($outsider);
+        postJson(route('chat.typing', $conversation), ['typing' => true])->assertForbidden();
+        Event::assertDispatchedTimes(ChatTypingUpdated::class, 2);
     });
 
     it('keeps history readable but disables sending when a participant loses access', function (): void {

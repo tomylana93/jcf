@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ArrowDown } from '@lucide/vue';
+import { computed } from 'vue';
 
 import ChatAvatar from '@/components/chat/ChatAvatar.vue';
+import ChatHistoryVisibility from '@/components/chat/ChatHistoryVisibility.vue';
 import { Bubble, BubbleContent } from '@/components/ui/bubble';
 import { Button } from '@/components/ui/button';
 import {
@@ -28,22 +30,35 @@ import type {
     PendingChatMessage,
 } from '@/types/chat';
 
-defineProps<{
+const props = defineProps<{
     conversation: ChatConversation;
     messages: ChatMessage[];
     pending: PendingChatMessage[];
     actor: ChatUser;
     busy: boolean;
 }>();
-defineEmits<{ retry: [message: PendingChatMessage] }>();
+defineEmits<{
+    retry: [message: PendingChatMessage];
+    read: [sequence: number];
+}>();
 const { t } = useTranslations();
 const { formatDateTime } = useDateTime();
+const lastOwnMessageId = computed(
+    () =>
+        [...props.messages]
+            .reverse()
+            .find((message) => message.sender_id === props.actor.id)?.id,
+);
 </script>
 <template>
     <MessageScrollerProvider
         :auto-scroll="true"
         default-scroll-position="end"
     >
+        <ChatHistoryVisibility
+            :messages="messages"
+            @read="$emit('read', $event)"
+        />
         <MessageScroller>
             <MessageScrollerViewport
                 :aria-label="t('chat.label.history')"
@@ -109,7 +124,13 @@ const { formatDateTime } = useDateTime();
                                         v-if="message.sender_id === actor.id"
                                         class="ml-2"
                                     >
-                                        {{ t('chat.status.saved') }}
+                                        {{
+                                            message.id === lastOwnMessageId &&
+                                            conversation.recipient_last_read_sequence >=
+                                                message.sequence
+                                                ? t('chat.status.read')
+                                                : t('chat.status.saved')
+                                        }}
                                     </span>
                                 </MessageFooter>
                             </MessageContent>

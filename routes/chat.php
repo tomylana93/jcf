@@ -12,5 +12,6 @@ Route::middleware(['auth', 'verified'])->prefix('chat')->name('chat.')->group(fu
     Route::post('conversations', [ChatController::class, 'store'])->middleware('throttle:10,1,chat-start')->name('store');
     Route::get('{conversation}/messages', [ChatController::class, 'history'])->whereUuid('conversation')->name('history');
     Route::post('{conversation}/messages', [ChatController::class, 'send'])->whereUuid('conversation')->middleware('throttle:60,1,chat-send')->name('send');
+    Route::post('{conversation}/typing', [ChatController::class, 'typing'])->whereUuid('conversation')->middleware('throttle:60,1,chat-typing')->name('typing');
     Route::patch('{conversation}/read', [ChatController::class, 'read'])->whereUuid('conversation')->name('read');
 });

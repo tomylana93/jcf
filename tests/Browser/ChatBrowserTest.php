@@ -8,6 +8,7 @@ use App\Actions\Chat\StartDirectConversation;
 use App\Enums\AppLayout;
 use App\Events\ChatMessageCreated;
 use App\Events\ChatReadUpdated;
+use App\Events\ChatTypingUpdated;
 use App\Models\ChatMessage;
 use App\Models\User;
 use App\Settings\LayoutSettings;
@@ -95,6 +96,8 @@ describe('Chat browser', function (): void {
         $conversation->update(['last_message_sequence' => 65]);
         actingAs($actor);
         $page = visit(route('chat.index'))->click('button[aria-pressed]:has-text("History Recipient")')->assertSee('History message 65');
+        $page->wait(0.5);
+        expect($conversation->participants()->where('user_id', $actor->id)->firstOrFail()->last_read_sequence)->toBe(65);
         $page->script('() => { const viewport = document.querySelector("[data-slot=message-scroller-viewport]"); viewport.dispatchEvent(new WheelEvent("wheel", { bubbles: true })); viewport.scrollTop = 160; viewport.dispatchEvent(new Event("scroll")); const items = [...viewport.querySelectorAll("[data-message-id]")]; const item = items.find(item => item.getBoundingClientRect().top >= viewport.getBoundingClientRect().top); window.chatAnchor = item.dataset.messageId; window.chatAnchorTop = item.getBoundingClientRect().top - viewport.getBoundingClientRect().top; }');
         $page->click(__('chat.button.older'))->assertSee('History message 1');
         $page->assertScript('() => Math.abs(document.querySelector(`[data-message-id="${window.chatAnchor}"]`).getBoundingClientRect().top - document.querySelector("[data-slot=message-scroller-viewport]").getBoundingClientRect().top - window.chatAnchorTop) < 5');
@@ -116,7 +119,8 @@ describe('Chat browser', function (): void {
         $page->click('button[aria-label="'.__('chat.button.refresh_history').'"]')->assertSee('Catch-up message 126')
             ->assertScript('() => document.querySelectorAll("[data-test=chat-message-body]").length === 127')
             ->assertNoJavaScriptErrors();
-        $page->click(__('chat.button.read'))->assertMissing('button[aria-pressed] [data-slot=badge]');
+        $page->script('() => { const viewport = document.querySelector("[data-slot=message-scroller-viewport]"); viewport.scrollTop = viewport.scrollHeight; viewport.dispatchEvent(new Event("scroll")); }');
+        $page->wait(0.5)->assertMissing('button[aria-pressed] [data-slot=badge]');
         expect($conversation->participants()->where('user_id', $actor->id)->firstOrFail()->last_read_sequence)->toBe(127);
     });
 
@@ -142,6 +146,109 @@ describe('Chat browser', function (): void {
         visit(route('dashboard'))->assertMissing('a[href="'.route('chat.index', absolute: false).'"]')->assertNoJavaScriptErrors();
     });
 
+    it('shows the unread navigation badge without creating database notifications', function (): void {
+        [$actor, $recipient] = createChatUsers();
+        $conversation = resolve(StartDirectConversation::class)->handle($actor, $recipient);
+        foreach (['First unread', 'Second unread'] as $body) {
+            resolve(SendChatMessage::class)->handle($recipient, $conversation, ['body' => $body, 'client_message_id' => (string) Str::uuid()]);
+        }
+        actingAs($actor);
+        $link = 'a[href="'.route('chat.index', absolute: false).'"]';
+
+        $page = visit(route('dashboard'))->assertVisible($link.' [data-slot=badge]')
+            ->assertScript('() => document.querySelector('.json_encode($link).')?.querySelector("[data-slot=badge]")?.textContent.trim() === "2"');
+        assertDatabaseCount('notifications', 0);
+
+        resolve(MarkChatConversationRead::class)->handle($actor, $conversation, 2);
+
+        $page->navigate(route('dashboard'))->assertMissing($link.' [data-slot=badge]')->assertNoJavaScriptErrors();
+    });
+
+    it('marks messages read only while the document is focused', function (): void {
+        [$actor, $recipient] = createChatUsers();
+        $recipient->update(['name' => 'Focus Recipient']);
+        $conversation = resolve(StartDirectConversation::class)->handle($actor, $recipient);
+        foreach (['Focus message one', 'Focus message two'] as $body) {
+            resolve(SendChatMessage::class)->handle($recipient, $conversation, ['body' => $body, 'client_message_id' => (string) Str::uuid()]);
+        }
+        $participant = $conversation->participants()->where('user_id', $actor->id)->firstOrFail();
+        actingAs($actor);
+        $page = visit(route('chat.index'));
+        $page->script('() => { document.hasFocus = () => false; }');
+        $page->click('button[aria-pressed]:has-text("Focus Recipient")')
+            ->assertSee('Focus message two')
+            ->wait(0.5);
+        expect($participant->refresh()->last_read_sequence)->toBe(0);
+
+        $page->script('() => { document.hasFocus = () => true; window.dispatchEvent(new Event("focus")); }');
+        $page->wait(0.5);
+        expect($participant->refresh()->last_read_sequence)->toBe(2);
+        $page->assertMissing('button[aria-pressed] [data-slot=badge]')->assertNoJavaScriptErrors();
+    });
+
+    it('shows typing state with expiry and cancels it on send, switch and disconnect', function (): void {
+        config(['broadcasting.default' => 'reverb', 'broadcasting.connections.reverb.key' => 'browser-key', 'broadcasting.connections.reverb.secret' => 'browser-secret', 'broadcasting.connections.reverb.app_id' => 'browser-app']);
+        require base_path('routes/channels.php');
+        [$actor, $recipient] = createChatUsers();
+        $recipient->update(['name' => 'Typing Recipient']);
+        $conversation = resolve(StartDirectConversation::class)->handle($actor, $recipient);
+        [$other] = createChatUsers();
+        $other->update(['name' => 'Typing Other']);
+        $otherConversation = resolve(StartDirectConversation::class)->handle($actor, $other);
+
+        actingAs($actor);
+        $page = visit(route('chat.index'));
+        $page->page()->context()->addInitScript(chatRealtimeSocketScript());
+        $page->navigate(route('chat.index'))
+            ->assertAttribute('[data-test="chat-connection"]', 'data-state', 'connected')
+            ->click('button[aria-pressed]:has-text("Typing Recipient")')
+            ->assertVisible('#chat-body');
+
+        $typingLabel = __('chat.status.typing', ['name' => 'Typing Recipient']);
+        // Browser tests freeze PHP time, so expiry has to come from the browser clock.
+        $deliverTyping = static fn (string $conversationId, string $userId, bool $typing, string $expiresAt): string => '() => window.chatSocket.deliver('.json_encode(ChatTypingUpdated::class).', { ...'.json_encode(new ChatTypingUpdated($conversationId, $userId, $typing, now()->toISOString(), [$actor->id, $recipient->id])->broadcastWith()).', expires_at: '.$expiresAt.' })';
+
+        $page->script($deliverTyping($conversation->id, (string) $recipient->id, true, 'new Date(Date.now() + 4000).toISOString()'));
+        $page->assertSee($typingLabel);
+        $page->script($deliverTyping($conversation->id, (string) $recipient->id, false, 'new Date(Date.now() + 4000).toISOString()'));
+        $page->assertDontSee($typingLabel);
+        $page->script($deliverTyping($conversation->id, (string) $recipient->id, true, 'new Date(Date.now() - 1000).toISOString()'));
+        $page->assertDontSee($typingLabel);
+
+        $page->script(<<<'JS_WRAP'
+            () => {
+                const open = XMLHttpRequest.prototype.open;
+                const send = XMLHttpRequest.prototype.send;
+                window.chatTypingRequests = [];
+                XMLHttpRequest.prototype.open = function(method, url, ...args) {
+                    this.chatUrl = String(url);
+                    return open.call(this, method, url, ...args);
+                };
+                XMLHttpRequest.prototype.send = function(data) {
+                    if (this.chatUrl.includes('/typing')) {
+                        window.chatTypingRequests.push({url: this.chatUrl, typing: JSON.parse(data).typing});
+                    }
+                    return send.call(this, data);
+                };
+            }
+        JS_WRAP);
+        $page->fill('#chat-body', 'Typing in progress')->wait(0.4)
+            ->assertScript('() => window.chatTypingRequests.some(request => request.typing === true)')
+            ->keys('#chat-body', 'Enter')->assertSee(__('chat.status.saved'))->wait(0.5)
+            ->assertScript('() => window.chatTypingRequests.some(request => request.typing === false)');
+
+        $page->click('button[aria-pressed]:has-text("Typing Other")')
+            ->fill('#chat-body', 'Another draft')->wait(0.4)
+            ->assertScript('() => window.chatTypingRequests.some(request => request.typing === true && request.url.includes('.json_encode($otherConversation->id).'))')
+            ->click('button[aria-pressed]:has-text("Typing Recipient")')->wait(0.5)
+            ->assertScript('() => window.chatTypingRequests.some(request => request.typing === false && request.url.includes('.json_encode($otherConversation->id).'))');
+
+        $page->script($deliverTyping($conversation->id, (string) $recipient->id, true, 'new Date(Date.now() + 4000).toISOString()'));
+        $page->assertSee($typingLabel);
+        $page->script('() => window.chatSocket.close()');
+        $page->assertDontSee($typingLabel)->assertNoJavaScriptErrors();
+    });
+
     it('merges realtime messages, reconciles reconnect catch-up and syncs read state without reload', function (): void {
         config(['broadcasting.default' => 'reverb', 'broadcasting.connections.reverb.key' => 'browser-key', 'broadcasting.connections.reverb.secret' => 'browser-secret', 'broadcasting.connections.reverb.app_id' => 'browser-app']);
         require base_path('routes/channels.php');
@@ -154,34 +261,7 @@ describe('Chat browser', function (): void {
 
         actingAs($actor);
         $page = visit(route('chat.index'));
-        $page->page()->context()->addInitScript(<<<'JS_WRAP'
-            (() => {
-                class TestSocket extends EventTarget {
-                    constructor(url) {
-                        super(); this.url = url; this.readyState = 0;
-                        window.chatSocket = this;
-                        setTimeout(() => {
-                            this.readyState = 1;
-                            this.onopen?.(new Event('open'));
-                            this.deliver('pusher:connection_established', {socket_id: '123.456', activity_timeout: 120});
-                        }, 0);
-                    }
-                    deliver(event, data) {
-                        this.onmessage?.({data: JSON.stringify({event, data: JSON.stringify(data), channel: this.channel})});
-                    }
-                    send(payload) {
-                        const message = JSON.parse(payload);
-                        if (message.event === 'pusher:subscribe') {
-                            this.channel = message.data.channel;
-                            this.deliver('pusher_internal:subscription_succeeded', {});
-                        }
-                    }
-                    close() { this.readyState = 3; this.onclose?.({code: 1000, wasClean: true}); }
-                }
-                TestSocket.CONNECTING = 0; TestSocket.OPEN = 1; TestSocket.CLOSING = 2; TestSocket.CLOSED = 3;
-                window.WebSocket = TestSocket;
-            })();
-        JS_WRAP);
+        $page->page()->context()->addInitScript(chatRealtimeSocketScript());
         $page->navigate(route('chat.index'));
         $page->assertScript('() => Boolean(window.chatSocket?.channel)')
             ->assertAttribute('[data-test="chat-connection"]', 'data-state', 'connected')
@@ -212,6 +292,9 @@ describe('Chat browser', function (): void {
             ->assertScript('() => document.querySelectorAll("[data-test=chat-message-body]").length === 4');
 
         $page->assertVisible('button[aria-pressed]:has-text("Realtime Recipient") [data-slot=badge]');
+        resolve(MarkChatConversationRead::class)->handle($recipient, $conversation, $missed->sequence);
+        $page->script('() => window.chatSocket.deliver('.json_encode(ChatReadUpdated::class).', '.json_encode(new ChatReadUpdated($conversation->id, $recipient->id, $missed->sequence, [$actor->id, $recipient->id])->broadcastWith()).')');
+        $page->assertSee(__('chat.status.read'));
         resolve(MarkChatConversationRead::class)->handle($actor, $conversation, $missed->sequence);
         $page->script('() => window.chatSocket.deliver('.json_encode(ChatReadUpdated::class).', '.json_encode(new ChatReadUpdated($conversation->id, $actor->id, $missed->sequence, [$actor->id, $recipient->id])->broadcastWith()).')');
         $page->assertMissing('button[aria-pressed]:has-text("Realtime Recipient") [data-slot=badge]')

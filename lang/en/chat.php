@@ -34,7 +34,6 @@ return [
         'more' => 'Load more',
         'older' => 'Load older messages',
         'latest' => 'Go to latest message',
-        'read' => 'Mark loaded messages as read',
     ],
 
     'status' => [
@@ -48,6 +47,8 @@ return [
         'no_recipients' => 'No available recipients found.',
         'saved' => 'Saved',
         'sending' => 'Sending…',
+        'read' => 'Read',
+        'typing' => ':name is typing…',
         'unavailable' => 'Messages cannot be sent while a participant has no chat access.',
     ],
 

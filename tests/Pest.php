@@ -194,6 +194,38 @@ function websiteDraft(array $overrides = []): array
     ], $overrides);
 }
 
+function chatRealtimeSocketScript(): string
+{
+    return <<<'JS_WRAP'
+        (() => {
+            class TestSocket extends EventTarget {
+                constructor(url) {
+                    super(); this.url = url; this.readyState = 0;
+                    window.chatSocket = this;
+                    setTimeout(() => {
+                        this.readyState = 1;
+                        this.onopen?.(new Event('open'));
+                        this.deliver('pusher:connection_established', {socket_id: '123.456', activity_timeout: 120});
+                    }, 0);
+                }
+                deliver(event, data) {
+                    this.onmessage?.({data: JSON.stringify({event, data: JSON.stringify(data), channel: this.channel})});
+                }
+                send(payload) {
+                    const message = JSON.parse(payload);
+                    if (message.event === 'pusher:subscribe') {
+                        this.channel = message.data.channel;
+                        this.deliver('pusher_internal:subscription_succeeded', {});
+                    }
+                }
+                close() { this.readyState = 3; this.onclose?.({code: 1000, wasClean: true}); }
+            }
+            TestSocket.CONNECTING = 0; TestSocket.OPEN = 1; TestSocket.CLOSING = 2; TestSocket.CLOSED = 3;
+            window.WebSocket = TestSocket;
+        })();
+        JS_WRAP;
+}
+
 /** @return array{User, User} */
 function createChatUsers(): array
 {

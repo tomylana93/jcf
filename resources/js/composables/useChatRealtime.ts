@@ -7,11 +7,13 @@ import type {
     ChatMessage,
     ChatReadEvent,
     ChatRealtimeState,
+    ChatTypingEvent,
 } from '@/types/chat';
 
 type ChatRealtimeHandlers = {
     onMessage: (message: ChatMessage) => void;
     onRead: (event: ChatReadEvent) => void;
+    onTyping: (event: ChatTypingEvent) => void;
     onCatchUp: () => void;
 };
 
@@ -54,6 +56,11 @@ export function useChatRealtime(handlers: ChatRealtimeHandlers) {
                         handlers.onRead(event);
                     }
                 };
+                const onTyping = (event: ChatTypingEvent) => {
+                    if (active) {
+                        handlers.onTyping(event);
+                    }
+                };
                 const catchUp = () => {
                     if (active) {
                         handlers.onCatchUp();
@@ -62,6 +69,7 @@ export function useChatRealtime(handlers: ChatRealtimeHandlers) {
 
                 channel.listen('ChatMessageCreated', onMessage);
                 channel.listen('ChatReadUpdated', onRead);
+                channel.listen('ChatTypingUpdated', onTyping);
 
                 const status = echo.connectionStatus();
                 state.value =
@@ -130,6 +138,7 @@ export function useChatRealtime(handlers: ChatRealtimeHandlers) {
                     active = false;
                     channel.stopListening('ChatMessageCreated', onMessage);
                     channel.stopListening('ChatReadUpdated', onRead);
+                    channel.stopListening('ChatTypingUpdated', onTyping);
                     stopConnection();
                     document.removeEventListener('visibilitychange', resume);
                     window.removeEventListener('offline', offline);

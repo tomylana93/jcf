@@ -31,6 +31,7 @@ import type {
 export function createMainNavigationItems(
     t: (key: TranslationKey) => string,
     canUseChat = false,
+    chatUnreadCount = 0,
 ): NavItem[] {
     return [
         {
@@ -44,6 +45,9 @@ export function createMainNavigationItems(
                       title: t('chat.title'),
                       href: chatIndex(),
                       icon: MessagesSquare,
+                      ...(chatUnreadCount > 0
+                          ? { badge: chatUnreadCount }
+                          : {}),
                   },
               ]
             : []),
@@ -179,10 +183,11 @@ export function createNavigationGroups(
     canViewSystem = false,
     canManageBackups = false,
     canUseChat = false,
+    chatUnreadCount = 0,
 ): NavGroup[] {
     return [
         {
-            items: createMainNavigationItems(t, canUseChat),
+            items: createMainNavigationItems(t, canUseChat, chatUnreadCount),
         },
         ...createManagementNavigationGroups(
             t,

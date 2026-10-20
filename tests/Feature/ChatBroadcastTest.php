@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 use App\Actions\Chat\MarkChatConversationRead;
 use App\Actions\Chat\SendChatMessage;
+use App\Actions\Chat\SendChatTyping;
 use App\Actions\Chat\StartDirectConversation;
 use App\Events\ChatMessageCreated;
 use App\Events\ChatReadUpdated;
+use App\Events\ChatTypingUpdated;
 use App\Models\ChatMessage;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
@@ -114,6 +116,39 @@ describe('Chat broadcasting', function (): void {
                     'conversation_id' => $conversation->id,
                     'user_id' => $actor->id,
                     'last_read_sequence' => 2,
+                ]);
+
+            return true;
+        });
+    });
+
+    it('broadcasts typing state and expiry only to the other participant', function (): void {
+        [$actor, $recipient] = createChatUsers();
+        $conversation = resolve(StartDirectConversation::class)->handle($actor, $recipient);
+        Event::fake([ChatTypingUpdated::class]);
+        $sendTyping = resolve(SendChatTyping::class);
+
+        $sendTyping->handle($actor, $conversation, true);
+        $sendTyping->handle($actor, $conversation, false);
+
+        Event::assertDispatchedTimes(ChatTypingUpdated::class, 2);
+        Event::assertDispatched(ChatTypingUpdated::class, function (ChatTypingUpdated $event) use ($actor, $recipient, $conversation): bool {
+            if (! $event->typing) {
+                return false;
+            }
+
+            expect($event)->toBeInstanceOf(ShouldBroadcast::class)
+                ->and($event)->toBeInstanceOf(ShouldDispatchAfterCommit::class)
+                ->and($event->connection)->toBe('realtime')
+                ->and($event->queue)->toBe('chat')
+                ->and($event->userIds)->toBe([$recipient->id])
+                ->and(array_map(fn (PrivateChannel $channel): string => $channel->name, $event->broadcastOn()))
+                ->toBe(['private-App.Models.User.'.$recipient->id])
+                ->and($event->broadcastWith())->toBe([
+                    'conversation_id' => $conversation->id,
+                    'user_id' => $actor->id,
+                    'typing' => true,
+                    'expires_at' => now()->addSeconds(4)->toISOString(),
                 ]);
 
             return true;

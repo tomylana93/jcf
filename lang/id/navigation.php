@@ -12,6 +12,7 @@ return [
         'account' => 'Buka menu akun',
         'close' => 'Tutup menu navigasi',
         'toggle_submenu' => 'Alihkan submenu :title',
+        'unread_messages' => ':count pesan belum dibaca',
     ],
 
     'helper' => [

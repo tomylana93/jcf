@@ -43,19 +43,21 @@ const {
     historyError,
     startError,
     readError,
+    recipientTyping,
     realtimeState,
     inboxHttp,
     historyHttp,
     sendHttp,
     startHttp,
-    readHttp,
     loadInbox,
     loadHistory,
     select,
+    close,
     start,
     submit,
     transmit,
     markRead,
+    notifyTyping,
 } = useChat();
 const pickerOpen = ref(false);
 const composing = ref(false);
@@ -230,7 +232,7 @@ function keydown(event: KeyboardEvent): void {
                             variant="ghost"
                             class="md:hidden"
                             :aria-label="t('chat.button.back')"
-                            @click="selectedId = null"
+                            @click="close"
                         >
                             <ArrowLeft aria-hidden="true" />
                         </Button>
@@ -301,27 +303,27 @@ function keydown(event: KeyboardEvent): void {
                             :actor="actor"
                             :busy="sendHttp.processing"
                             @retry="transmit(selected!.id, $event)"
+                            @read="markRead"
                         />
                     </div>
                     <div
-                        class="flex shrink-0 flex-wrap items-center gap-2 border-t px-3 py-1"
+                        class="flex min-h-6 shrink-0 items-center gap-2 border-t px-3 py-1 text-xs"
+                        aria-live="polite"
                     >
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            :disabled="
-                                !messages.length ||
-                                readHttp.processing ||
-                                historyHttp.processing
-                            "
-                            @click="markRead()"
-                        >
-                            {{ t('chat.button.read') }}
-                        </Button>
                         <span
-                            v-if="readError"
+                            v-if="recipientTyping"
+                            class="text-muted-foreground"
+                        >
+                            {{
+                                t('chat.status.typing', {
+                                    name: selected.recipient.name,
+                                })
+                            }}
+                        </span>
+                        <span
+                            v-else-if="readError"
                             role="alert"
-                            class="text-xs text-destructive"
+                            class="text-destructive"
                         >
                             {{ t('chat.error.read') }}
                         </span>
@@ -358,6 +360,7 @@ function keydown(event: KeyboardEvent): void {
                                 rows="2"
                                 class="max-h-40 min-h-16"
                                 @keydown="keydown"
+                                @input="notifyTyping"
                                 @compositionstart="composing = true"
                                 @compositionend="composing = false"
                             />

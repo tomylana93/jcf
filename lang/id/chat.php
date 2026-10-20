@@ -34,7 +34,6 @@ return [
         'more' => 'Muat lainnya',
         'older' => 'Muat pesan sebelumnya',
         'latest' => 'Ke pesan terbaru',
-        'read' => 'Tandai pesan yang dimuat sebagai dibaca',
     ],
 
     'status' => [
@@ -48,6 +47,8 @@ return [
         'no_recipients' => 'Tidak ada penerima tersedia.',
         'saved' => 'Tersimpan',
         'sending' => 'Mengirim…',
+        'read' => 'Dibaca',
+        'typing' => ':name sedang menulis…',
         'unavailable' => 'Pesan tidak dapat dikirim saat salah satu peserta tidak memiliki akses chat.',
     ],
 

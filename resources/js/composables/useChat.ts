@@ -3,7 +3,14 @@ import { computed, onScopeDispose, ref, watch } from 'vue';
 
 import { useChatRealtime } from '@/composables/useChatRealtime';
 import { logout } from '@/routes';
-import { history, inbox, read, send, store } from '@/routes/chat';
+import {
+    history,
+    inbox,
+    read,
+    send,
+    store,
+    typing as typingRoute,
+} from '@/routes/chat';
 import type { Auth } from '@/types';
 import type {
     ChatConversation,
@@ -11,6 +18,7 @@ import type {
     ChatMessage,
     ChatPage,
     ChatReadEvent,
+    ChatTypingEvent,
     PendingChatMessage,
 } from '@/types/chat';
 
@@ -59,12 +67,23 @@ export function useChat() {
         { sequence: number },
         { last_read_sequence: number }
     >({ sequence: 0 });
+    const typingHttp = useHttp<{ typing: boolean }, { typing: boolean }>({
+        typing: false,
+    });
+    const recipientTyping = ref(false);
+    const typingActive = ref(false);
     let generation = 0;
     let disposed = false;
     let inboxQueued = false;
     let historyQueued = false;
     let inboxTimer: ReturnType<typeof setTimeout> | undefined;
     let historyTimer: ReturnType<typeof setTimeout> | undefined;
+    let typingIdleTimer: ReturnType<typeof setTimeout> | undefined;
+    let typingExpiryTimer: ReturnType<typeof setTimeout> | undefined;
+    let typingConversationId: string | null = null;
+    let typingSentAt = 0;
+    let queuedRead: { id: string; sequence: number } | null = null;
+    let queuedTyping: { id: string; typing: boolean } | null = null;
     const actorId = computed(() => page.props.auth?.user?.id ?? '');
 
     function mergeMessages(
@@ -166,16 +185,89 @@ export function useChat() {
         }
     }
 
+    function clearRecipientTyping(): void {
+        if (typingExpiryTimer) clearTimeout(typingExpiryTimer);
+        typingExpiryTimer = undefined;
+        recipientTyping.value = false;
+    }
+
+    function dispatchTyping(id: string, typing: boolean): void {
+        if (disposed) return;
+        if (typingHttp.processing) {
+            queuedTyping = { id, typing };
+
+            return;
+        }
+        typingHttp.typing = typing;
+        void typingHttp
+            .post(typingRoute.url(id))
+            .then(() => {
+                if (typing) typingSentAt = Date.now();
+            })
+            .catch(() => {
+                if (typing && typingConversationId === id)
+                    typingActive.value = false;
+            })
+            .finally(() => {
+                const next = queuedTyping;
+                queuedTyping = null;
+                if (next && !disposed) dispatchTyping(next.id, next.typing);
+            });
+    }
+
+    function stopTyping(notify = true): void {
+        if (typingIdleTimer) clearTimeout(typingIdleTimer);
+        typingIdleTimer = undefined;
+        const id = typingConversationId;
+        const wasActive = typingActive.value;
+        typingActive.value = false;
+        typingConversationId = null;
+        if (notify && wasActive && id) dispatchTyping(id, false);
+    }
+
+    function notifyTyping(): void {
+        const id = selectedId.value;
+        if (!id || !selected.value?.can_send) return;
+        if (!draft.value.trim()) {
+            stopTyping();
+
+            return;
+        }
+        if (typingIdleTimer) clearTimeout(typingIdleTimer);
+        typingIdleTimer = setTimeout(stopTyping, 2200);
+        if (
+            typingActive.value &&
+            typingConversationId === id &&
+            Date.now() - typingSentAt < 2000
+        ) {
+            return;
+        }
+        typingActive.value = true;
+        typingConversationId = id;
+        typingSentAt = Date.now();
+        dispatchTyping(id, true);
+    }
+
     function select(conversation: ChatConversation): void {
         generation++;
         historyQueued = false;
         historyHttp.cancel();
+        queuedRead = null;
+        stopTyping();
+        clearRecipientTyping();
         selectedId.value = conversation.id;
         messages.value = [];
         hasOlder.value = false;
         loadedThrough.value = 0;
         readError.value = false;
         void loadHistory();
+    }
+
+    function close(): void {
+        stopTyping();
+        clearRecipientTyping();
+        queuedRead = null;
+        selectedId.value = null;
     }
 
     async function start(recipientId: string): Promise<boolean> {
@@ -251,6 +343,7 @@ export function useChat() {
             !selected.value?.can_send
         )
             return;
+        stopTyping();
         const message: PendingChatMessage = {
             body,
             client_message_id: crypto.randomUUID(),
@@ -262,21 +355,64 @@ export function useChat() {
         void transmit(id, message);
     }
 
-    async function markRead(): Promise<void> {
-        const conversation = selected.value;
-        const sequence = messages.value.at(-1)?.sequence;
-        if (!conversation || !sequence || readHttp.processing) return;
+    async function persistRead(id: string, sequence: number): Promise<void> {
         readError.value = false;
         readHttp.sequence = sequence;
         try {
-            const result = await readHttp.patch(read.url(conversation.id));
+            const result = await readHttp.patch(read.url(id));
             if (disposed) return;
-            conversation.last_read_sequence = result.last_read_sequence;
+            const conversation = conversations.value.find(
+                (item) => item.id === id,
+            );
+            if (conversation) {
+                conversation.last_read_sequence = Math.max(
+                    conversation.last_read_sequence,
+                    result.last_read_sequence,
+                );
+            }
             // Reload canonical unread counts; messages sent concurrently may remain unread.
-            await loadInbox();
+            scheduleInboxRefresh();
         } catch {
-            if (!disposed) readError.value = true;
+            if (!disposed && selectedId.value === id) readError.value = true;
         }
+    }
+
+    async function drainReadQueue(): Promise<void> {
+        const next = queuedRead;
+        queuedRead = null;
+        if (!next || disposed) return;
+        const conversation = conversations.value.find(
+            (item) => item.id === next.id,
+        );
+        if (!conversation || next.sequence <= conversation.last_read_sequence)
+            return;
+        await persistRead(next.id, next.sequence);
+        await drainReadQueue();
+    }
+
+    async function markRead(sequence?: number): Promise<void> {
+        const conversation = selected.value;
+        const target = sequence ?? messages.value.at(-1)?.sequence;
+        if (
+            !conversation ||
+            !target ||
+            target <= conversation.last_read_sequence
+        )
+            return;
+        const id = conversation.id;
+        if (readHttp.processing) {
+            queuedRead =
+                queuedRead?.id === id
+                    ? {
+                          id,
+                          sequence: Math.max(queuedRead.sequence, target),
+                      }
+                    : { id, sequence: target };
+
+            return;
+        }
+        await persistRead(id, target);
+        await drainReadQueue();
     }
 
     function scheduleInboxRefresh(): void {
@@ -315,6 +451,7 @@ export function useChat() {
             return;
         }
         if (selectedId.value === id) {
+            if (message.sender_id !== actorId.value) clearRecipientTyping();
             const previous = loadedThrough.value;
             messages.value = mergeMessages(messages.value, [message]);
             // A gap means a delivery was missed; keep the old cursor until
@@ -344,14 +481,48 @@ export function useChat() {
         const conversation = conversations.value.find(
             (item) => item.id === event.conversation_id,
         );
-        if (
-            conversation &&
-            event.user_id === actorId.value &&
-            event.last_read_sequence > conversation.last_read_sequence
-        ) {
-            conversation.last_read_sequence = event.last_read_sequence;
+        if (conversation) {
+            if (
+                event.user_id === actorId.value &&
+                event.last_read_sequence > conversation.last_read_sequence
+            ) {
+                conversation.last_read_sequence = event.last_read_sequence;
+            }
+            if (
+                event.user_id === conversation.recipient.id &&
+                event.last_read_sequence >
+                    conversation.recipient_last_read_sequence
+            ) {
+                conversation.recipient_last_read_sequence =
+                    event.last_read_sequence;
+            }
         }
         scheduleInboxRefresh();
+    }
+
+    function receiveTyping(event: ChatTypingEvent): void {
+        if (
+            disposed ||
+            event.user_id === actorId.value ||
+            event.conversation_id !== selectedId.value
+        ) {
+            return;
+        }
+        clearRecipientTyping();
+        if (!event.typing) return;
+        const expiresAt = Date.parse(event.expires_at);
+        const delay = Number.isFinite(expiresAt)
+            ? Math.max(0, expiresAt - Date.now())
+            : 4000;
+        if (delay === 0) return;
+        recipientTyping.value = true;
+        typingExpiryTimer = setTimeout(
+            () => {
+                typingExpiryTimer = undefined;
+                recipientTyping.value = false;
+            },
+            Math.min(delay, 5000),
+        );
     }
 
     function reconcile(): void {
@@ -363,7 +534,15 @@ export function useChat() {
     const { state: realtimeState } = useChatRealtime({
         onMessage: receiveMessage,
         onRead: receiveRead,
+        onTyping: receiveTyping,
         onCatchUp: reconcile,
+    });
+
+    watch(realtimeState, (state) => {
+        if (state !== 'connected') {
+            stopTyping(false);
+            clearRecipientTyping();
+        }
     });
 
     function clear(): void {
@@ -371,16 +550,26 @@ export function useChat() {
         generation++;
         clearTimeout(inboxTimer);
         clearTimeout(historyTimer);
+        clearTimeout(typingIdleTimer);
+        clearTimeout(typingExpiryTimer);
         inboxTimer = undefined;
         historyTimer = undefined;
+        typingIdleTimer = undefined;
+        typingExpiryTimer = undefined;
         inboxQueued = false;
         historyQueued = false;
+        queuedRead = null;
+        queuedTyping = null;
+        typingActive.value = false;
+        typingConversationId = null;
+        recipientTyping.value = false;
         for (const http of [
             inboxHttp,
             historyHttp,
             sendHttp,
             startHttp,
             readHttp,
+            typingHttp,
         ])
             http.cancel();
         conversations.value = [];
@@ -411,6 +600,7 @@ export function useChat() {
         historyError,
         startError,
         readError,
+        recipientTyping,
         realtimeState,
         inboxHttp,
         historyHttp,
@@ -420,9 +610,12 @@ export function useChat() {
         loadInbox,
         loadHistory,
         select,
+        close,
         start,
         submit,
         transmit,
         markRead,
+        notifyTyping,
+        stopTyping,
     };
 }

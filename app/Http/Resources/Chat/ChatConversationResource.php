@@ -26,6 +26,7 @@ final class ChatConversationResource extends JsonResource
             'last_message' => $last === null ? null : new ChatMessageResource($last),
             'last_message_sequence' => $this->last_message_sequence,
             'last_read_sequence' => $self->last_read_sequence ?? 0,
+            'recipient_last_read_sequence' => $other->last_read_sequence ?? 0,
             'unread_count' => (int) $this->getAttribute('unread_count'),
             'can_send' => $this->participants->count() === 2 && $this->participants->every(
                 fn (ChatParticipant $participant): bool => $participant->user !== null && $participant->user->can('viewAny', ChatConversation::class),

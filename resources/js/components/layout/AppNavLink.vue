@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
 
+import { Badge } from '@/components/ui/badge';
 import { useTranslations } from '@/composables/useTranslations';
 import { toUrl } from '@/lib/utils';
 import type { NavItem } from '@/types';
@@ -27,6 +28,15 @@ const { t } = useTranslations();
             aria-hidden="true"
         />
         <span class="truncate">{{ item.title }}</span>
+        <Badge
+            v-if="item.badge"
+            class="ml-auto shrink-0 group-data-[collapsible=icon]:hidden"
+            :aria-label="
+                t('navigation.label.unread_messages', { count: item.badge })
+            "
+        >
+            {{ item.badge > 99 ? '99+' : item.badge }}
+        </Badge>
         <span
             v-if="item.external"
             class="sr-only"

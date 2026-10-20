@@ -58,6 +58,7 @@ const mainItems = computed(() =>
     createMainNavigationItems(
         t,
         page.props.auth.permissions.includes('chat.use'),
+        page.props.chatSummary?.unread_count ?? 0,
     ).filter((item) => !item.external),
 );
 
