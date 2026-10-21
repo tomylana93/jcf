@@ -6,6 +6,7 @@ use App\Enums\Permission;
 use App\Models\Documentation;
 use App\Models\Role;
 use App\Models\User;
+use App\Settings\DocumentationSettings;
 use Illuminate\Support\Facades\DB;
 
 use function Pest\Laravel\actingAs;
@@ -113,4 +114,33 @@ describe('Global search', function (): void {
         getJson(route('search', ['query' => 'needle']))->assertRedirect(route('login'))
             ->assertSessionHasErrors(['email' => __('auth.disabled')]);
     });
+
+    it('skips documentation queries while the module is inactive', function (bool $hard): void {
+        if ($hard) {
+            config(['features.documentation' => false]);
+        } else {
+            resolve(DocumentationSettings::class)->fill(['enabled' => false])->save();
+        }
+
+        $resolved = 0;
+        app()->beforeResolving(DocumentationSettings::class, function () use (&$resolved): void {
+            $resolved++;
+        });
+
+        $user = User::factory()->create();
+        assignRolePermissions($user, Permission::ViewDocumentation);
+        Documentation::factory()->published()->create(['title' => 'Needle guide', 'content_text' => 'needle']);
+        actingAs($user);
+
+        DB::enableQueryLog();
+        getJson(route('search', ['query' => 'needle']))->assertOk()->assertJsonPath('documents', []);
+        $queries = collect(DB::getQueryLog())->pluck('query');
+        DB::disableQueryLog();
+
+        expect($queries->filter(fn (string $sql): bool => str_contains($sql, 'search_vector')))->toBeEmpty();
+
+        if ($hard) {
+            expect($resolved)->toBe(0);
+        }
+    })->with([true, false]);
 });

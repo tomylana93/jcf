@@ -7,9 +7,12 @@ namespace App\Actions\Permission;
 use App\Enums\Permission;
 use App\Models\Permission as PermissionModel;
 use App\Models\User;
+use App\Support\FeatureManager;
 
-final class GetUserPermissionOptions
+final readonly class GetUserPermissionOptions
 {
+    public function __construct(private FeatureManager $features) {}
+
     /** @return list<array{value: string, label: string, group: string}> */
     public function handle(User $user): array
     {
@@ -22,7 +25,7 @@ final class GetUserPermissionOptions
                 'label' => $permission->label(),
                 'group' => explode('.', $permission->value)[0],
             ],
-            array_filter(Permission::cases(), fn (Permission $permission): bool => $permission !== Permission::AssignUserPermissions && in_array($permission->value, $initialized, true) && ! in_array($permission->value, $inherited, true)),
+            array_filter(Permission::cases(), fn (Permission $permission): bool => $this->features->moduleEnabled($permission->module()) && $permission !== Permission::AssignUserPermissions && in_array($permission->value, $initialized, true) && ! in_array($permission->value, $inherited, true)),
         ));
     }
 }

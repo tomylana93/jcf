@@ -55,7 +55,7 @@ final class HandleInertiaRequests extends Middleware
                 'fallback' => config('app.fallback_locale'),
                 'options' => Locale::options(),
             ],
-            'features' => fn (): array => ['website' => ['public' => resolve(FeatureManager::class)->publicWebsiteEnabled()]],
+            'features' => fn (): array => resolve(FeatureManager::class)->state(),
             'general' => fn (): array => resolve(GetGeneralSettings::class)->handle(),
             'brand' => fn (): array => resolve(GetBrandSettings::class)->handle(),
             'layout' => fn (): array => resolve(GetLayoutSettings::class)->handle(),
@@ -70,7 +70,9 @@ final class HandleInertiaRequests extends Middleware
                 'year' => now()->year,
             ],
             'notificationSummary' => fn (): array => resolve(GetNotificationSummary::class)->handle($request->user()),
-            'chatSummary' => fn (): array => resolve(GetChatSummary::class)->handle($request->user()),
+            'chatSummary' => fn (): array => resolve(FeatureManager::class)->enabled('chat')
+                ? resolve(GetChatSummary::class)->handle($request->user())
+                : ['unread_count' => 0],
             'timezone' => fn (): array => resolve(ResolveTimezone::class)->handle($request->user(), $request->cookie('timezone')),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];

@@ -33,7 +33,8 @@ const cards = computed<NavigationCard[]>(() => [
               },
           ]
         : []),
-    ...(page.props.auth.permissions.includes('backups.manage')
+    ...(page.props.features.backup.enabled &&
+    page.props.auth.permissions.includes('backups.manage')
         ? [
               {
                   id: 'backups',

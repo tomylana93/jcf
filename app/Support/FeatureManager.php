@@ -22,14 +22,19 @@ final class FeatureManager
     /** @var array<string, bool> */
     private array $enabled = [];
 
-    public function envEnabled(string $module): bool
+    public function available(string $module): bool
     {
         return isset(self::SETTINGS[$module]) && config('features.'.$module) === true;
     }
 
+    public function envEnabled(string $module): bool
+    {
+        return $this->available($module);
+    }
+
     public function enabled(string $module): bool
     {
-        if (! $this->envEnabled($module)) {
+        if (! $this->available($module)) {
             return false;
         }
 
@@ -42,6 +47,44 @@ final class FeatureManager
         }
 
         return $this->enabled[$module] ??= resolve(self::SETTINGS[$module])->enabled;
+    }
+
+    public function moduleEnabled(?string $module): bool
+    {
+        return $module === null || $this->enabled($module);
+    }
+
+    /**
+     * @return array{
+     *     website: array{available: bool, enabled: bool, public: bool},
+     *     chat: array{available: bool, enabled: bool},
+     *     documentation: array{available: bool, enabled: bool},
+     *     backup: array{available: bool, enabled: bool},
+     *     realtime: bool
+     * }
+     */
+    public function state(): array
+    {
+        return [
+            'website' => [
+                'available' => $this->available('website'),
+                'enabled' => $this->enabled('website'),
+                'public' => $this->publicWebsiteEnabled(),
+            ],
+            'chat' => [
+                'available' => $this->available('chat'),
+                'enabled' => $this->enabled('chat'),
+            ],
+            'documentation' => [
+                'available' => $this->available('documentation'),
+                'enabled' => $this->enabled('documentation'),
+            ],
+            'backup' => [
+                'available' => $this->available('backup'),
+                'enabled' => $this->enabled('backup'),
+            ],
+            'realtime' => ! in_array(config('broadcasting.default'), [null, 'null'], true),
+        ];
     }
 
     public function publicWebsiteEnabled(): bool

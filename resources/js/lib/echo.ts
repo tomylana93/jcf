@@ -5,8 +5,15 @@ import { authenticate } from '@/actions/Illuminate/Broadcasting/BroadcastControl
 
 let echo: Echo<'reverb'> | undefined;
 
-export function getRealtimeEcho(): Echo<'reverb'> | undefined {
-    if (typeof window === 'undefined' || !import.meta.env.VITE_REVERB_APP_KEY) {
+export function getRealtimeEcho(enabled = false): Echo<'reverb'> | undefined {
+    const connection = import.meta.env.VITE_BROADCAST_CONNECTION;
+
+    if (
+        typeof window === 'undefined' ||
+        !enabled ||
+        !import.meta.env.VITE_REVERB_APP_KEY ||
+        (connection !== undefined && connection !== 'reverb')
+    ) {
         return;
     }
 

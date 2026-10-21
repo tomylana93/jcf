@@ -22,38 +22,27 @@ import { useTranslations } from '@/composables/useTranslations';
 import {
     createFooterNavigationItems,
     createNavigationGroups,
+    navigationAccess,
 } from '@/lib/navigation';
 import { dashboard } from '@/routes';
 
 const { t } = useTranslations();
 
-const navigationGroups = computed(() =>
-    createNavigationGroups(
-        t,
-        page.props.auth.permissions.includes('settings.view'),
-        page.props.auth.permissions.includes('users.view'),
-        page.props.auth.super_admin &&
-            page.props.auth.permissions.includes('users.permissions.assign'),
-        page.props.auth.permissions.includes('website.content.edit') ||
-            page.props.auth.permissions.includes('website.content.publish') ||
-            page.props.auth.permissions.includes('website.configure') ||
-            page.props.auth.permissions.includes('website.inbox.view'),
-        page.props.auth.permissions.includes('documentation.view'),
-        page.props.auth.permissions.includes('documentation.manage'),
-        page.props.auth.permissions.includes('audit.view'),
-        page.props.auth.permissions.includes('system.view'),
-        page.props.auth.permissions.includes('backups.manage'),
-        page.props.auth.permissions.includes('chat.use'),
-        page.props.chatSummary?.unread_count ?? 0,
+const navigationOptions = computed(() => ({
+    access: navigationAccess(
+        page.props.auth.permissions,
+        page.props.auth.super_admin,
     ),
+    features: page.props.features,
+    chatUnreadCount: page.props.chatSummary?.unread_count ?? 0,
+}));
+
+const navigationGroups = computed(() =>
+    createNavigationGroups(t, navigationOptions.value),
 );
 
 const footerItems = computed(() =>
-    createFooterNavigationItems(
-        t,
-        page.props.auth.permissions.includes('documentation.view'),
-        page.props.auth.permissions.includes('documentation.manage'),
-    ),
+    createFooterNavigationItems(t, navigationOptions.value),
 );
 
 defineProps<{ mobileOnly?: boolean }>();

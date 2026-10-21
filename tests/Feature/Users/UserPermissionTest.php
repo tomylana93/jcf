@@ -2,12 +2,16 @@
 
 declare(strict_types=1);
 
+use App\Actions\Permission\UpdateUserPermissions;
 use App\Enums\Permission;
 use App\Enums\Role as CoreRole;
 use App\Models\AuditLog;
 use App\Models\Permission as PermissionModel;
 use App\Models\User;
+use App\Settings\ChatSettings;
+use App\Settings\DocumentationSettings;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Inertia\Testing\AssertableInertia as Assert;
 
 use function Pest\Laravel\actingAs;
@@ -212,5 +216,53 @@ describe('Direct user permissions', function (): void {
 
         assertGuest();
         expect($target->fresh()->getDirectPermissions())->toBeEmpty();
+    });
+
+    it('filters disabled module permissions and preserves hidden direct assignments', function (): void {
+        $actor = User::factory()->create();
+        $actor->assignRole(CoreRole::SuperAdmin);
+        $target = User::factory()->create();
+        assignRolePermissions($target, Permission::ViewSettings, Permission::ViewDocumentation);
+        $target->givePermissionTo(PermissionModel::findOrCreate('users.view', 'web'));
+        $target->givePermissionTo(PermissionModel::findOrCreate('chat.use', 'web'));
+        PermissionModel::findOrCreate('audit.view', 'web');
+        resolve(ChatSettings::class)->fill(['enabled' => false])->save();
+        resolve(DocumentationSettings::class)->fill(['enabled' => false])->save();
+        actingAs($actor);
+
+        get(route('permissions.edit', $target))->assertInertia(fn (Assert $page): Assert => $page
+            ->component('user-permissions/Edit')
+            ->where('user.direct_permissions', ['users.view'])
+            ->where('user.inherited_permissions', ['settings.view'])
+            ->where('permissions', fn ($permissions): bool => collect($permissions)->pluck('value')->all() === ['audit.view', 'users.view']));
+
+        patch(route('permissions.update', $target), ['permissions' => ['users.view', 'audit.view']])
+            ->assertRedirect()->assertSessionHasNoErrors();
+
+        expect($target->fresh()->getDirectPermissions()->pluck('name')->all())
+            ->toEqualCanonicalizing(['users.view', 'audit.view', 'chat.use']);
+
+        resolve(ChatSettings::class)->fill(['enabled' => true])->save();
+        resolve(DocumentationSettings::class)->fill(['enabled' => true])->save();
+
+        get(route('permissions.edit', $target))->assertInertia(fn (Assert $page): Assert => $page
+            ->has('user.direct_permissions', 3)
+            ->has('user.inherited_permissions', 2));
+    });
+
+    it('rejects disabled module permissions from requests and direct actions', function (): void {
+        $actor = User::factory()->create();
+        $actor->assignRole(CoreRole::SuperAdmin);
+        $target = User::factory()->create();
+        PermissionModel::findOrCreate('chat.use', 'web');
+        resolve(ChatSettings::class)->fill(['enabled' => false])->save();
+        actingAs($actor);
+
+        patch(route('permissions.update', $target), ['permissions' => ['chat.use']])
+            ->assertSessionHasErrors('permissions.0');
+
+        expect($target->fresh()->getDirectPermissions())->toBeEmpty()
+            ->and(fn () => resolve(UpdateUserPermissions::class)->handle($target, $actor, ['chat.use']))
+            ->toThrow(ValidationException::class);
     });
 });

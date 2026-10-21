@@ -1,7 +1,7 @@
 # Feature Flags dan Modul Batteries-Included
 
 Tanggal: 21 Oktober 2026
-Status: Fase 1–2 selesai dan tervalidasi lokal. Fase 3–5 belum dikerjakan.
+Status: Fase 1–3 selesai dan tervalidasi lokal. Fase 4–5 belum dikerjakan.
 
 ## Ringkasan
 
@@ -481,7 +481,17 @@ Navigasi, shared props lengkap, filter permission, dan search tetap mengikuti Fa
 - Guard scheduler dan health check; tetapkan status job yang dilewati serta penyelesaian operasi berjalan.
 - Test hard-off tanpa resolve settings, build bersih dengan modul mati, dan route cache runtime.
 
-### Fase 3 — Frontend, permission, dan search (P1)
+### Fase 3 — Frontend, permission, dan search (P1, selesai lokal)
+
+Implementasi lokal: shared prop `features` kini memuat state efektif seluruh modul beserta `realtime`. `FeatureManager::state()` memeriksa hard flag sebelum me-resolve settings, `chatSummary` tidak dihitung saat chat nonaktif, dan koneksi realtime mengikuti `BROADCAST_CONNECTION` (termasuk nilai `null`) serta guard `VITE_BROADCAST_CONNECTION` di client.
+
+Navigasi diubah dari positional boolean menjadi options object berisi `access`, `features`, dan jumlah unread chat. Sidebar, header, footer, editor links, global search, dan kartu backup memakai state efektif; link dokumentasi, CMS, chat, dan backup tidak muncul saat modul terkait nonaktif. Auth layout tetap memakai `features.website.public`.
+
+Permission memiliki mapping modul. Permission efektif untuk shared props, opsi editor, dan resource pengguna difilter berdasarkan modul aktif. `UpdateUserPermissions` menggabungkan kembali assignment langsung modul nonaktif sebelum `syncPermissions()`, sedangkan Form Request dan Action menolak payload yang mencoba memberikan permission modul nonaktif. Pencarian dokumentasi tidak menjalankan query saat modul nonaktif.
+
+Realtime chat memakai watch multi-sumber sehingga perubahan soft toggle melepas listener chat tanpa memutus Echo bersama atau listener notifikasi core. Browser test membuktikan pesan chat berhenti memicu reload setelah chat dimatikan, sementara notifikasi core tetap memicu reload, dan tidak ada koneksi realtime yang dibuka saat broadcasting `null`.
+
+Validasi lokal 21 Oktober 2026: Pint lulus, `pnpm types:check`, `pnpm format:check`, dan `pnpm build` lulus. Suite backend Feature lulus 932 kasus (928 pass, 4 skip yang sudah ada), Unit 10 kasus lulus, `ChatBrowserTest` 12 kasus lulus, dan 25 browser test terkait (realtime notification, global search, user permission, dokumentasi, backup, user management, settings) lulus. Tidak ada push/deploy atau reset database development tambahan pada Fase 3.
 
 - Share `features`; guard chat summary, realtime, navigasi, header, auth layout, footer, dan editor links.
 - Refactor navigation ke options object dan update card backup.
@@ -613,7 +623,7 @@ Arahan yang sudah ditetapkan pengguna:
 - Hard flag `.env`/config adalah gerbang pertama untuk seluruh konfigurasi, UI settings, dan migrasi modul.
 - Soft toggle aplikasi adalah gerbang kedua, hanya tersedia pada modul hard-on.
 - Migrasi existing boleh diedit dan database lokal boleh di-reset saat implementasi.
-- Fase 1 beserta reset/inisialisasi ulang database lokal dan Fase 2 telah diimplementasikan. Fase 3–5 menunggu instruksi berikutnya.
+- Fase 1 beserta reset/inisialisasi ulang database lokal, Fase 2, dan Fase 3 telah diimplementasikan. Fase 4–5 menunggu instruksi berikutnya.
 
 Detail rancangan saat ini (default flag dan alias legacy tetap usulan):
 

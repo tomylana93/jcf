@@ -44,4 +44,8 @@ return [
     'status' => [
         'updated' => 'User permissions updated successfully.',
     ],
+
+    'error' => [
+        'module_disabled' => 'This permission belongs to a module that is currently disabled.',
+    ],
 ];

@@ -11,7 +11,9 @@ use App\Events\ChatReadUpdated;
 use App\Events\ChatTypingUpdated;
 use App\Models\ChatMessage;
 use App\Models\User;
+use App\Settings\ChatSettings;
 use App\Settings\LayoutSettings;
+use Illuminate\Notifications\Events\BroadcastNotificationCreated;
 use Illuminate\Support\Str;
 
 use function Pest\Laravel\actingAs;
@@ -313,6 +315,85 @@ describe('Chat browser', function (): void {
         $page->assertMissing('button[aria-pressed]:has-text("Realtime Recipient") [data-slot=badge]')
             ->assertSeeIn('a[href="/chat"] [data-slot=badge]', '1')
             ->assertScript('() => window.chatSummaryReloads === 0')
+            ->assertNoJavaScriptErrors();
+    });
+
+    it('releases chat listeners after soft disabling while notifications keep working', function (): void {
+        config(['broadcasting.default' => 'reverb', 'broadcasting.connections.reverb.key' => 'browser-key', 'broadcasting.connections.reverb.secret' => 'browser-secret', 'broadcasting.connections.reverb.app_id' => 'browser-app']);
+        require base_path('routes/channels.php');
+        [$actor, $recipient] = createChatUsers();
+        $conversation = resolve(StartDirectConversation::class)->handle($actor, $recipient);
+        $message = resolve(SendChatMessage::class)->handle($recipient, $conversation, ['body' => 'Realtime summary', 'client_message_id' => (string) Str::uuid()]);
+
+        actingAs($actor);
+        $page = visit(route('dashboard'));
+        $page->page()->context()->addInitScript(chatRealtimeSocketScript());
+        $page->navigate(route('dashboard'))->assertScript('() => Boolean(window.chatSocket?.channel)');
+
+        $installReloadSpy = function () use ($page): void {
+            $page->script(<<<'JS_WRAP'
+                () => {
+                    window.chatSummaryReloads = 0;
+                    window.notificationSummaryReloads = 0;
+                    const setHeader = XMLHttpRequest.prototype.setRequestHeader;
+                    XMLHttpRequest.prototype.setRequestHeader = function (name, value) {
+                        if (name.toLowerCase() === 'x-inertia-partial-data') {
+                            const parts = value.split(',');
+                            if (parts.includes('chatSummary')) {
+                                window.chatSummaryReloads++;
+                            }
+                            if (parts.includes('notificationSummary')) {
+                                window.notificationSummaryReloads++;
+                            }
+                        }
+                        return setHeader.call(this, name, value);
+                    };
+                }
+            JS_WRAP);
+        };
+
+        $notification = '() => window.chatSocket.deliver('.json_encode(BroadcastNotificationCreated::class).', '.json_encode([
+            'id' => (string) Str::uuid(),
+            'type' => 'App\\Notifications\\ApplicationNotification',
+            'kind' => 'permissions_updated',
+        ]).')';
+
+        $delivery = '() => window.chatSocket.deliver('.json_encode(ChatMessageCreated::class).', '.json_encode(new ChatMessageCreated($message, [$actor->id, $recipient->id])->broadcastWith()).')';
+
+        $installReloadSpy();
+        $page->script($notification);
+        $page->wait(0.5)->assertScript('() => window.notificationSummaryReloads > 0');
+
+        $page->script('() => { window.chatSummaryReloads = 0; }');
+        $page->script($delivery);
+        $page->wait(0.5)->assertScript('() => window.chatSummaryReloads > 0');
+
+        resolve(ChatSettings::class)->fill(['enabled' => false])->save();
+        $page->navigate(route('dashboard'))
+            ->assertScript('() => Boolean(window.chatSocket?.channel)')
+            ->assertNoJavaScriptErrors();
+        $installReloadSpy();
+
+        $page->script($delivery);
+        $page->wait(0.5)->assertScript('() => window.chatSummaryReloads === 0');
+
+        $page->script('() => { window.notificationSummaryReloads = 0; }');
+        $page->script($notification);
+        $page->wait(0.5)
+            ->assertScript('() => window.notificationSummaryReloads > 0')
+            ->assertNoJavaScriptErrors();
+
+        resolve(ChatSettings::class)->fill(['enabled' => true])->save();
+    });
+
+    it('does not open realtime connections when broadcasting is disabled', function (): void {
+        config(['broadcasting.default' => null]);
+        actingAs(User::factory()->create());
+
+        $page = visit(route('dashboard'));
+        $page->page()->context()->addInitScript(chatRealtimeSocketScript());
+        $page->navigate(route('dashboard'))
+            ->assertScript('() => window.chatSocket === undefined')
             ->assertNoJavaScriptErrors();
     });
 });

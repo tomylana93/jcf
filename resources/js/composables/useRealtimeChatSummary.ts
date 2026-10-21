@@ -2,22 +2,26 @@ import { router, usePage } from '@inertiajs/vue3';
 import { onMounted, onScopeDispose, watch } from 'vue';
 
 import { getRealtimeEcho } from '@/lib/echo';
-import type { Auth } from '@/types';
+import type { Auth, Features } from '@/types';
 
 export function useRealtimeChatSummary(): void {
-    const page = usePage<{ auth: Auth }>();
+    const page = usePage<{ auth: Auth; features: Features }>();
 
     let dispose = () => {};
 
     onMounted(() => {
         const stop = watch(
-            () => page.props.auth?.user?.id,
-            (userId, _, onCleanup) => {
-                if (!userId) {
+            [
+                () => page.props.auth?.user?.id,
+                () => page.props.features.chat.enabled,
+                () => page.props.features.realtime,
+            ],
+            ([userId, chatEnabled, realtimeEnabled], _, onCleanup) => {
+                if (!userId || !chatEnabled || !realtimeEnabled) {
                     return;
                 }
 
-                const echo = getRealtimeEcho();
+                const echo = getRealtimeEcho(realtimeEnabled);
                 if (!echo) {
                     return;
                 }

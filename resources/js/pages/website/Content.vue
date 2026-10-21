@@ -89,7 +89,11 @@ const canPublish = page.props.auth.permissions.includes(
 );
 
 const linkOptions = computed<EditorLinkOption[]>(() =>
-    createEditorLinkOptions(t, page.props.auth.permissions),
+    createEditorLinkOptions(
+        t,
+        page.props.auth.permissions,
+        page.props.features,
+    ),
 );
 
 function formValues(editor: WebsitePageEditor): UpdateWebsitePageForm {

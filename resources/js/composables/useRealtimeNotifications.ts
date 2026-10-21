@@ -2,23 +2,26 @@ import { router, usePage } from '@inertiajs/vue3';
 import { onMounted, onScopeDispose, watch } from 'vue';
 
 import { disconnectRealtimeEcho, getRealtimeEcho } from '@/lib/echo';
-import type { Auth, BroadcastNotification } from '@/types';
+import type { Auth, BroadcastNotification, Features } from '@/types';
 
 export function useRealtimeNotifications(): void {
-    const page = usePage<{ auth: Auth }>();
+    const page = usePage<{ auth: Auth; features: Features }>();
 
     let dispose = () => {};
 
     onMounted(() => {
         const stop = watch(
-            () => page.props.auth?.user?.id,
-            (userId, _, onCleanup) => {
-                if (!userId) {
+            [
+                () => page.props.auth?.user?.id,
+                () => page.props.features.realtime,
+            ],
+            ([userId, realtimeEnabled], _, onCleanup) => {
+                if (!userId || !realtimeEnabled) {
                     disconnectRealtimeEcho();
                     return;
                 }
 
-                const echo = getRealtimeEcho();
+                const echo = getRealtimeEcho(realtimeEnabled);
                 if (!echo) {
                     return;
                 }

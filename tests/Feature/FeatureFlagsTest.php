@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Actions\Website\UpdateWebsiteSettings;
 use App\Enums\Permission;
+use App\Models\User;
 use App\Providers\FeatureServiceProvider;
 use App\Settings\ChatSettings;
 use App\Settings\GeneralSettings;
@@ -31,6 +32,7 @@ use Spatie\TemporaryDirectory\TemporaryDirectory;
 use Symfony\Component\Process\InputStream;
 use Symfony\Component\Process\Process;
 
+use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
 use function Pest\Laravel\patch;
 
@@ -280,4 +282,44 @@ describe('Feature flags', function (): void {
 
         });
     })->with(['website', 'chat', 'documentation', 'backup']);
+
+    it('shares complete effective feature state with the frontend', function (?string $broadcasting): void {
+        config(['broadcasting.default' => $broadcasting]);
+
+        get(route('login'))->assertInertia(fn ($page) => $page
+            ->where('features.website', ['available' => true, 'enabled' => true, 'public' => true])
+            ->where('features.chat', ['available' => true, 'enabled' => true])
+            ->where('features.documentation', ['available' => true, 'enabled' => true])
+            ->where('features.backup', ['available' => true, 'enabled' => true])
+            ->where('features.realtime', false));
+    })->with([null, 'null']);
+
+    it('shares hard off state without resolving module settings', function (): void {
+        $resolved = [];
+        foreach (FeatureManager::SETTINGS as $module => $class) {
+            config(['features.'.$module => false]);
+            app()->beforeResolving($class, function () use (&$resolved, $module): void {
+                $resolved[] = $module;
+            });
+        }
+
+        get(route('login'))->assertInertia(fn ($page) => $page
+            ->where('features.website', ['available' => false, 'enabled' => false, 'public' => false])
+            ->where('features.chat', ['available' => false, 'enabled' => false])
+            ->where('features.documentation', ['available' => false, 'enabled' => false])
+            ->where('features.backup', ['available' => false, 'enabled' => false]));
+
+        expect($resolved)->toBeEmpty();
+    });
+
+    it('reflects soft toggles and realtime configuration in shared state', function (): void {
+        actingAs(User::factory()->create());
+        resolve(ChatSettings::class)->fill(['enabled' => false])->save();
+        config(['broadcasting.default' => 'reverb']);
+
+        get(route('dashboard'))->assertInertia(fn ($page) => $page
+            ->where('features.chat', ['available' => true, 'enabled' => false])
+            ->where('chatSummary.unread_count', 0)
+            ->where('features.realtime', true));
+    });
 });

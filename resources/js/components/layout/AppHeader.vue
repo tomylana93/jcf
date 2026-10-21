@@ -35,6 +35,7 @@ import {
     createMainNavigationItems,
     createManagementNavigationGroups,
     flattenNavigationItems,
+    navigationAccess,
 } from '@/lib/navigation';
 import { dashboard } from '@/routes';
 import type { BreadcrumbItem, NavGroup } from '@/types';
@@ -54,38 +55,27 @@ const { isCurrentUrl } = useCurrentUrl();
 const { isMobile } = useSidebar();
 
 // Mirrors NavMain: external links live in NavFooter only.
+const navigationOptions = computed(() => ({
+    access: navigationAccess(
+        page.props.auth.permissions,
+        page.props.auth.super_admin,
+    ),
+    features: page.props.features,
+    chatUnreadCount: page.props.chatSummary?.unread_count ?? 0,
+}));
+
 const mainItems = computed(() =>
-    createMainNavigationItems(
-        t,
-        page.props.auth.permissions.includes('chat.use'),
-        page.props.chatSummary?.unread_count ?? 0,
-    ).filter((item) => !item.external),
+    createMainNavigationItems(t, navigationOptions.value).filter(
+        (item) => !item.external,
+    ),
 );
 
 const adminGroups = computed(() =>
-    createManagementNavigationGroups(
-        t,
-        page.props.auth.permissions.includes('settings.view'),
-        page.props.auth.permissions.includes('users.view'),
-        page.props.auth.super_admin &&
-            page.props.auth.permissions.includes('users.permissions.assign'),
-        page.props.auth.permissions.includes('website.content.edit') ||
-            page.props.auth.permissions.includes('website.content.publish') ||
-            page.props.auth.permissions.includes('website.configure') ||
-            page.props.auth.permissions.includes('website.inbox.view'),
-        page.props.auth.permissions.includes('documentation.manage'),
-        page.props.auth.permissions.includes('audit.view'),
-        page.props.auth.permissions.includes('system.view'),
-        page.props.auth.permissions.includes('backups.manage'),
-    ),
+    createManagementNavigationGroups(t, navigationOptions.value),
 );
 
 const footerItems = computed(() =>
-    createFooterNavigationItems(
-        t,
-        auth.value.permissions.includes('documentation.view'),
-        auth.value.permissions.includes('documentation.manage'),
-    ),
+    createFooterNavigationItems(t, navigationOptions.value),
 );
 
 function isGroupActive(group: NavGroup): boolean {

@@ -10,6 +10,7 @@ use App\Enums\UserStatus;
 use App\Events\ChatTypingUpdated;
 use App\Models\ChatMessage;
 use App\Models\User;
+use App\Settings\ChatSettings;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -264,5 +265,22 @@ describe('Chat HTTP', function (): void {
         getJson(route('chat.recipients'))->assertOk();
         $conversation = resolve(StartDirectConversation::class)->handle($actor, $recipient);
         postJson(route('chat.send', $conversation), ['body' => 'Allowed', 'client_message_id' => (string) Str::uuid()])->assertOk();
+    });
+
+    it('clears the shared chat summary after the chat module is disabled', function (): void {
+        [$actor, $recipient] = createChatUsers();
+        $conversation = resolve(StartDirectConversation::class)->handle($actor, $recipient);
+        resolve(SendChatMessage::class)->handle($actor, $conversation, ['body' => 'Unread', 'client_message_id' => (string) Str::uuid()]);
+        actingAs($recipient);
+
+        get(route('dashboard'))->assertInertia(fn (Assert $page): Assert => $page
+            ->where('features.chat.enabled', true)
+            ->where('chatSummary.unread_count', 1));
+
+        resolve(ChatSettings::class)->fill(['enabled' => false])->save();
+
+        get(route('dashboard'))->assertInertia(fn (Assert $page): Assert => $page
+            ->where('features.chat', ['available' => true, 'enabled' => false])
+            ->where('chatSummary.unread_count', 0));
     });
 });

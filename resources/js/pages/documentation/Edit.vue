@@ -71,7 +71,11 @@ const { t } = useTranslations();
 const page = usePage();
 
 const linkOptions = computed(() =>
-    createEditorLinkOptions(t, page.props.auth.permissions),
+    createEditorLinkOptions(
+        t,
+        page.props.auth.permissions,
+        page.props.features,
+    ),
 );
 
 const form = useForm<DocumentationForm>({

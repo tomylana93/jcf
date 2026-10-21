@@ -8,15 +8,18 @@ use App\Enums\Permission;
 use App\Enums\Role;
 use App\Models\Documentation;
 use App\Models\User;
+use App\Support\FeatureManager;
 use Illuminate\Database\Eloquent\Builder;
 
-final class SearchGlobal
+final readonly class SearchGlobal
 {
+    public function __construct(private FeatureManager $features) {}
+
     /** @return array{documents: list<array{id: string, title: string, summary: string|null, slug: string}>, users: list<array{id: string, name: string, email: string}>} */
     public function handle(User $user, string $query): array
     {
         $documents = [];
-        if ($user->can('viewAny', Documentation::class)) {
+        if ($this->features->enabled('documentation') && $user->can('viewAny', Documentation::class)) {
             $documents = Documentation::query()
                 ->select(['id', 'title', 'summary', 'slug'])
                 ->unless($user->can(Permission::ManageDocumentation), fn (Builder $builder): Builder => $builder->where('status', 'published'))

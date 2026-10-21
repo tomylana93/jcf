@@ -6,6 +6,7 @@ use App\Actions\Account\GetUserPermissions;
 use App\Enums\Permission;
 use App\Enums\Role as CoreRole;
 use App\Models\User;
+use App\Settings\ChatSettings;
 use Inertia\Testing\AssertableInertia as Assert;
 
 use function Pest\Laravel\actingAs;
@@ -60,4 +61,19 @@ describe('Shared application permissions', function (): void {
 
         expect(resolve(GetUserPermissions::class)->handle($user))->toBeEmpty();
     });
+
+    it('filters permissions from inactive modules', function (bool $hard): void {
+        if ($hard) {
+            config(['features.chat' => false]);
+        } else {
+            resolve(ChatSettings::class)->fill(['enabled' => false])->save();
+        }
+
+        actingAsUserWithPermissions(Permission::ViewSettings, Permission::UseChat);
+
+        get(route('dashboard'))->assertOk()->assertInertia(fn (Assert $page) => $page
+            ->where('auth.permissions', ['settings.view'])
+
+        );
+    })->with([true, false]);
 });

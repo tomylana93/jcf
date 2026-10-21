@@ -26,4 +26,15 @@ enum Permission: string
     case PublishWebsiteContent = 'website.content.publish';
     case ConfigureWebsite = 'website.configure';
     case ViewContactInbox = 'website.inbox.view';
+
+    public function module(): ?string
+    {
+        return match ($this) {
+            self::UseChat => 'chat',
+            self::ManageBackups => 'backup',
+            self::ViewDocumentation, self::ManageDocumentation => 'documentation',
+            self::EditWebsiteContent, self::PublishWebsiteContent, self::ConfigureWebsite, self::ViewContactInbox => 'website',
+            default => null,
+        };
+    }
 }
