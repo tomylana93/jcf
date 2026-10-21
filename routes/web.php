@@ -12,25 +12,33 @@ use App\Http\Controllers\Public\HomeController;
 use App\Http\Controllers\Public\IndexingController;
 use App\Http\Controllers\Public\WebsiteImageController;
 use App\Http\Controllers\Search\GlobalSearchController;
+use App\Http\Controllers\StartController;
 use App\Http\Controllers\System\SystemController;
 use App\Http\Middleware\EnsurePublicPagesEnabled;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', HomeController::class)->name('home');
-Route::get('about', AboutController::class)->middleware(EnsurePublicPagesEnabled::class)->name('about');
-Route::get('sitemap.xml', [IndexingController::class, 'sitemap'])->name('sitemap');
 Route::get('robots.txt', [IndexingController::class, 'robots'])->name('robots');
-Route::get('website/images/{image}', WebsiteImageController::class)->whereNumber('image')->middleware(EnsurePublicPagesEnabled::class)->name('website.image');
 
-Route::middleware(EnsurePublicPagesEnabled::class)->prefix('articles')->name('articles.')->group(function (): void {
-    Route::get('/', [ArticleController::class, 'index'])->name('index');
-    Route::get('{slug}', [ArticleController::class, 'show'])->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')->name('show');
-});
+if (config('features.website')) {
+    Route::get('/', HomeController::class)->name('home');
+    Route::middleware('feature:website')->group(function (): void {
+        Route::get('about', AboutController::class)->middleware(EnsurePublicPagesEnabled::class)->name('about');
+        Route::get('sitemap.xml', [IndexingController::class, 'sitemap'])->middleware(EnsurePublicPagesEnabled::class)->name('sitemap');
+        Route::get('website/images/{image}', WebsiteImageController::class)->whereNumber('image')->middleware(EnsurePublicPagesEnabled::class)->name('website.image');
 
-Route::middleware(EnsurePublicPagesEnabled::class)->group(function (): void {
-    Route::get('contact', [ContactController::class, 'index'])->name('contact.index');
-    Route::post('contact', [ContactController::class, 'store'])->middleware('throttle:5,1')->name('contact.store');
-});
+        Route::middleware(EnsurePublicPagesEnabled::class)->prefix('articles')->name('articles.')->group(function (): void {
+            Route::get('/', [ArticleController::class, 'index'])->name('index');
+            Route::get('{slug}', [ArticleController::class, 'show'])->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')->name('show');
+        });
+
+        Route::middleware(EnsurePublicPagesEnabled::class)->group(function (): void {
+            Route::get('contact', [ContactController::class, 'index'])->name('contact.index');
+            Route::post('contact', [ContactController::class, 'store'])->middleware('throttle:5,1')->name('contact.store');
+        });
+    });
+} else {
+    Route::get('/', StartController::class)->name('home');
+}
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('search', GlobalSearchController::class)->middleware('throttle:60,1')->name('search');
@@ -45,14 +53,24 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'Dashboard')->name('dashboard');
 });
 
-require __DIR__.'/chat.php';
+if (config('features.chat')) {
+    Route::middleware('feature:chat')->group(__DIR__.'/chat.php');
+}
 
 require __DIR__.'/settings.php';
 
-require __DIR__.'/website.php';
+if (config('features.website')) {
+    Route::middleware('feature:website')->group(__DIR__.'/website.php');
+}
 
 require __DIR__.'/account.php';
 
 require __DIR__.'/master-data.php';
 
-require __DIR__.'/documentation.php';
+if (config('features.documentation')) {
+    Route::middleware('feature:documentation')->group(__DIR__.'/documentation.php');
+}
+
+if (config('features.backup')) {
+    Route::middleware('feature:backup')->group(__DIR__.'/backups.php');
+}

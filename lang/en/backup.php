@@ -40,6 +40,7 @@ return [
     ],
 
     'badge' => [
+        'skipped' => 'Skipped',
         'idle' => 'Idle',
         'running' => 'Running',
         'completed' => 'Completed',

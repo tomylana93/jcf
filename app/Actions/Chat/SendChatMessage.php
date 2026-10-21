@@ -8,6 +8,7 @@ use App\Events\ChatMessageCreated;
 use App\Models\ChatConversation;
 use App\Models\ChatMessage;
 use App\Models\User;
+use App\Support\FeatureManager;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
@@ -19,6 +20,8 @@ final readonly class SendChatMessage
     /** @param array<string, mixed> $data */
     public function handle(User $actor, ChatConversation $conversation, array $data): ChatMessage
     {
+        abort_unless(resolve(FeatureManager::class)->enabled('chat'), 404);
+
         return DB::transaction(function () use ($actor, $conversation, $data): ChatMessage {
             $ids = $conversation->participants()->pluck('user_id')->push($actor->id)->unique()->sort()->values();
             $users = User::query()->whereIn('id', $ids)->orderBy('id')->lockForUpdate()->get()->keyBy('id');

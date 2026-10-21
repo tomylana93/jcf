@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Actions\System;
 
 use App\Settings\MailSettings;
+use App\Support\FeatureManager;
 use Closure;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -58,7 +59,10 @@ final readonly class GetSystemHealth
             }),
             $this->check('scheduler', fn (): string => $this->heartbeat('system.scheduler_heartbeat')),
             $this->check('backup', function (): string {
-                if (! config('jalara.operations.backup_enabled') || ! config('backup.backup.password')) {
+                if (! resolve(FeatureManager::class)->enabled('backup')) {
+                    return 'disabled';
+                }
+                if (! config('backup.backup.password')) {
                     return 'not_configured';
                 }
                 $disk = Storage::disk('backups');

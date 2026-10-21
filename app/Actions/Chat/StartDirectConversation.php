@@ -6,6 +6,7 @@ namespace App\Actions\Chat;
 
 use App\Models\ChatConversation;
 use App\Models\User;
+use App\Support\FeatureManager;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
@@ -14,6 +15,8 @@ final class StartDirectConversation
 {
     public function handle(User $actor, User $recipient): ChatConversation
     {
+        abort_unless(resolve(FeatureManager::class)->enabled('chat'), 404);
+
         return DB::transaction(function () use ($actor, $recipient): ChatConversation {
             $ids = [$actor->id, $recipient->id];
             sort($ids, SORT_STRING);

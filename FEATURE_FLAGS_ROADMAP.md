@@ -1,7 +1,7 @@
 # Feature Flags dan Modul Batteries-Included
 
 Tanggal: 21 Oktober 2026
-Status: Fase 1 selesai dan tervalidasi lokal. Fase 2–5 belum dikerjakan.
+Status: Fase 1–2 selesai dan tervalidasi lokal. Fase 3–5 belum dikerjakan.
 
 ## Ringkasan
 
@@ -458,7 +458,21 @@ Test fondasi membuktikan migrasi core-only, aktivasi migrasi pending per modul t
 
 Validasi lokal: `lerd composer test` lulus (893 backend test lulus, 4 dilewati, 94 browser test lulus; coverage 100%). Round-trip `config:cache`/`config:clear` juga lulus. Database development `jcf` memiliki 24 migrasi, 15 permission, satu role superadmin dengan satu pengguna, dan settings toggle modul; `jcf_testing` tetap terpisah. Artefak runtime test, cache/session/view/log lama, dan 12 conversion temp directories telah dibersihkan.
 
-### Fase 2 — Gerbang backend dan kontrak build (P0)
+### Fase 2 — Gerbang backend dan kontrak build (P0, selesai lokal)
+
+Implementasi lokal: route modul didaftarkan berdasarkan hard flag, root hard-off memakai `StartController`, dan middleware efektif berjalan sebelum route binding. CMS root/robots tidak me-resolve settings atau Action CMS ketika hard-off; public guard memakai FeatureManager secara lazy.
+
+Pengiriman, pembukaan conversation, read, dan typing chat ditolak sebelum mutasi saat fitur mati. Event memeriksa fitur sebelum dispatch broadcast dan kembali memeriksanya saat menentukan channel pada eksekusi antrean. Backup/restore memeriksa fitur sebelum dispatch dan saat job mulai; job yang dilewati berstatus `skipped`, tanpa mengambil lock operasi. Operasi yang sudah berjalan tetap menyelesaikan cleanup/status. Scheduler mengevaluasi toggle pada setiap pemeriksaan; health backup hard-off menampilkan `disabled`.
+
+`wayfinder:catalog` menjalankan generator pada proses terpisah dengan seluruh hard flag aktif serta path config/route cache tersendiri. Plugin Vite memakai command tersebut untuk client/SSR dan dev, sehingga cache runtime deployment tidak menjadi sumber generator dan tidak berubah oleh build. Tidak ada perubahan `.env` atau soft toggle tersimpan. Generator yang terpasang belum menyediakan `--skip-database`; katalog dan build core-only telah diuji dengan versi yang terpasang tanpa opsi itu.
+
+Bukti lokal: build client/SSR dari direktori generated bersih lulus untuk seluruh modul hard-off dan setiap modul hard-off secara terpisah; build penuh pada database disposable core-only juga lulus. Test permanen mencakup route cache lima kombinasi tersebut, katalog core-only, guard tanpa resolve settings hard-off, job/event tertunda, dan evaluasi scheduler dalam proses yang sama.
+
+Urutan operasional hard flag: gunakan flag deployment sebenarnya untuk konfigurasi dan migrasi pending, jalankan `lerd composer build:ssr` (atau Composer pada runtime deployment), buat config/route cache runtime memakai flag sebenarnya, lalu restart proses PHP/queue/scheduler yang hidup lama sebelum membuka trafik. Generate manual memakai `wayfinder:catalog --with-form`. Perubahan soft toggle tidak memerlukan rebuild/cache ulang/restart. Guard job tetap wajib walaupun worker modul dihentikan oleh supervisor.
+
+Validasi akhir 21 Oktober 2026: build client/SSR, Pint, Rector, frontend check, PHPStan, Vue typecheck, type coverage 100%, dan suite backend 931 kasus (927 pass, 4 skip yang sudah ada) dengan code coverage 100%. Suite browser selesai dengan 96 kasus tanpa defect pada test history terbaru. Pemanggilan `lerd composer test` melalui MCP mencapai batas transport 300 detik saat browser suite masih berjalan; proses berlanjut sampai selesai, sehingga exit code keseluruhan tidak dikembalikan oleh MCP. Hasil browser diverifikasi dari test history yang diperbarui setelah proses selesai. Pengujian guard/katalog terakhir juga lulus 34/34. Tidak ada push/deploy atau reset database development tambahan pada Fase 2.
+
+Navigasi, shared props lengkap, filter permission, dan search tetap mengikuti Fase 3; halaman Modules mengikuti Fase 4. Acceptance runtime seluruh aplikasi pada schema core-only tetap mengikuti Fase 5.
 
 - Conditional route loading, `StartController`, dan lazy resolution CMS.
 - Middleware `feature:*` dan urutan guard public CMS.
@@ -599,7 +613,7 @@ Arahan yang sudah ditetapkan pengguna:
 - Hard flag `.env`/config adalah gerbang pertama untuk seluruh konfigurasi, UI settings, dan migrasi modul.
 - Soft toggle aplikasi adalah gerbang kedua, hanya tersedia pada modul hard-on.
 - Migrasi existing boleh diedit dan database lokal boleh di-reset saat implementasi.
-- Implementasi saat ini dibatasi pada Fase 1 beserta reset dan inisialisasi ulang database lokal.
+- Fase 1 beserta reset/inisialisasi ulang database lokal dan Fase 2 telah diimplementasikan. Fase 3–5 menunggu instruksi berikutnya.
 
 Detail rancangan saat ini (default flag dan alias legacy tetap usulan):
 

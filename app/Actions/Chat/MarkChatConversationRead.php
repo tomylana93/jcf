@@ -8,6 +8,7 @@ use App\Events\ChatReadUpdated;
 use App\Models\ChatConversation;
 use App\Models\ChatParticipant;
 use App\Models\User;
+use App\Support\FeatureManager;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
@@ -26,6 +27,8 @@ final class MarkChatConversationRead
 
     public function handle(User $actor, ChatConversation $conversation, int $sequence): ChatParticipant
     {
+        abort_unless(resolve(FeatureManager::class)->enabled('chat'), 404);
+
         return DB::transaction(function () use ($actor, $conversation, $sequence): ChatParticipant {
             $user = User::query()->lockForUpdate()->findOrFail($actor->id);
             $record = ChatConversation::query()->lockForUpdate()->findOrFail($conversation->id);

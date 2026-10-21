@@ -37,6 +37,7 @@ return [
         'unavailable' => 'Pemeriksaan gagal. Periksa konfigurasi layanan.',
         'synchronous' => 'Queue berjalan sinkron; background worker belum terverifikasi.',
         'stale' => 'Aktivitas terbaru belum tersedia. Periksa worker, scheduler, atau konfigurasi backup.',
+        'disabled' => 'Modul dinonaktifkan.',
         'not_configured' => 'Konfigurasi produksi belum lengkap.',
     ],
 ];

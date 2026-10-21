@@ -6,6 +6,6 @@ export type BackupArchive = {
 export type BackupPageProps = {
     backups: import('./table').TablePaginator<BackupArchive>;
     backupConfigured: boolean;
-    backupStatus: 'idle' | 'running' | 'completed' | 'failed';
-    restoreStatus: 'idle' | 'running' | 'completed' | 'failed';
+    backupStatus: 'idle' | 'running' | 'completed' | 'failed' | 'skipped';
+    restoreStatus: 'idle' | 'running' | 'completed' | 'failed' | 'skipped';
 };

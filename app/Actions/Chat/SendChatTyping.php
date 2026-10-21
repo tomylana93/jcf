@@ -7,12 +7,15 @@ namespace App\Actions\Chat;
 use App\Events\ChatTypingUpdated;
 use App\Models\ChatConversation;
 use App\Models\User;
+use App\Support\FeatureManager;
 use Illuminate\Support\Facades\Gate;
 
 final class SendChatTyping
 {
     public function handle(User $actor, ChatConversation $conversation, bool $typing): void
     {
+        abort_unless(resolve(FeatureManager::class)->enabled('chat'), 404);
+
         Gate::forUser($actor)->authorize('sendMessage', $conversation);
 
         $recipients = array_values(

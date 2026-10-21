@@ -18,6 +18,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Foundation\PackageManifest;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\Response;
@@ -33,6 +34,8 @@ $app = Application::configure(basePath: dirname(__DIR__))
         $middleware->trimStrings(except: ['content_json.*']);
 
         $middleware->alias(['verified' => EnsureEmailIsVerifiedWhenRequired::class, 'feature' => EnsureFeatureEnabled::class]);
+
+        $middleware->prependToPriorityList(SubstituteBindings::class, EnsureFeatureEnabled::class);
 
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state', 'timezone', 'locale']);
 

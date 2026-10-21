@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Actions\Website\BuildWebsiteSitemap;
 use App\Actions\Website\PublishWebsiteContent;
 use App\Actions\Website\ResolvePublicSeo;
 use App\Actions\Website\SaveWebsiteDraft;
@@ -93,7 +94,8 @@ describe('Public indexing and metadata', function (): void {
         resolve(WebsiteSettings::class)->fill(['public_pages_enabled' => false])->save();
         $general->save();
         get('/robots.txt')->assertSee("Disallow: /\n");
-        get('/sitemap.xml')->assertDontSeeHtml('<url>');
+        get('/sitemap.xml')->assertNotFound();
+        expect(resolve(BuildWebsiteSitemap::class)->handle())->toBeEmpty();
         resolve(WebsiteSettings::class)->fill(['public_pages_enabled' => true])->save();
         $general->save();
         $settings = resolve(WebsiteSettings::class);

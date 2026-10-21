@@ -7,6 +7,7 @@ namespace App\Jobs;
 use App\Actions\MasterData\Backup\RestoreActiveBackup;
 use App\Models\User;
 use App\Notifications\ApplicationNotification;
+use App\Support\FeatureManager;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -30,6 +31,12 @@ final class RestoreSystemBackup implements ShouldBeUnique, ShouldQueue
 
     public function handle(RestoreActiveBackup $restoreBackup): void
     {
+        if (! resolve(FeatureManager::class)->enabled('backup')) {
+            Cache::store('file')->put('system.restore_status', 'skipped', 86400);
+
+            return;
+        }
+
         $restoreBackup->handle($this->filename, $this->checksum);
         $this->delete();
         User::query()->find($this->actorId)?->notify(new ApplicationNotification('restore_ready', $this->filename));

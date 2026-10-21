@@ -6,6 +6,7 @@ namespace App\Events;
 
 use App\Actions\Chat\GetChatBroadcastChannels;
 use App\Models\ChatMessage;
+use App\Support\FeatureManager;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Contracts\Events\ShouldDispatchAfterCommit;
@@ -23,6 +24,11 @@ final class ChatMessageCreated implements ShouldBroadcast, ShouldDispatchAfterCo
 
     /** @param list<string> $userIds */
     public function __construct(public ChatMessage $message, public array $userIds) {}
+
+    public function broadcastWhen(): bool
+    {
+        return resolve(FeatureManager::class)->enabled('chat');
+    }
 
     /**
      * Get the channels the event should broadcast on.

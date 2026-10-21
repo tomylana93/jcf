@@ -6,7 +6,7 @@ namespace App\Http\Controllers\Public;
 
 use App\Actions\Website\BuildWebsiteSitemap;
 use App\Http\Controllers\Controller;
-use App\Settings\WebsiteSettings;
+use App\Support\FeatureManager;
 use Illuminate\Http\Response;
 
 final class IndexingController extends Controller
@@ -21,15 +21,17 @@ final class IndexingController extends Controller
         return response($xml.'</urlset>', headers: ['Content-Type' => 'application/xml; charset=UTF-8', 'Cache-Control' => 'no-store']);
     }
 
-    public function robots(WebsiteSettings $general): Response
+    public function robots(FeatureManager $features): Response
     {
         $body = "User-agent: *\n";
-        if (! $general->public_pages_enabled) {
+        if (! $features->publicWebsiteEnabled()) {
             $body .= "Disallow: /\n";
         } else {
             $body .= "Disallow: /website\nDisallow: /settings\nDisallow: /account\nDisallow: /dashboard\n";
         }
-        $body .= 'Sitemap: '.mb_rtrim((string) config('app.url'), '/').route('sitemap', absolute: false)."\n";
+        if ($features->envEnabled('website')) {
+            $body .= 'Sitemap: '.mb_rtrim((string) config('app.url'), '/').route('sitemap', absolute: false)."\n";
+        }
 
         return response($body, headers: ['Content-Type' => 'text/plain; charset=UTF-8', 'Cache-Control' => 'no-store']);
     }
