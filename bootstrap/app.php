@@ -4,19 +4,25 @@ declare(strict_types=1);
 
 use App\Http\Middleware\EnsureAccountIsActive;
 use App\Http\Middleware\EnsureEmailIsVerifiedWhenRequired;
+use App\Http\Middleware\EnsureFeatureEnabled;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\HandleLocale;
+use App\Support\FeatureConfiguration;
+use App\Support\FeaturePackageManifest;
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Foundation\Application;
+use Illuminate\Foundation\Bootstrap\LoadConfiguration;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Foundation\PackageManifest;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\Response;
 
-return Application::configure(basePath: dirname(__DIR__))
+$app = Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
         commands: __DIR__.'/../routes/console.php',
@@ -26,7 +32,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trimStrings(except: ['content_json.*']);
 
-        $middleware->alias(['verified' => EnsureEmailIsVerifiedWhenRequired::class]);
+        $middleware->alias(['verified' => EnsureEmailIsVerifiedWhenRequired::class, 'feature' => EnsureFeatureEnabled::class]);
 
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state', 'timezone', 'locale']);
 
@@ -73,3 +79,12 @@ return Application::configure(basePath: dirname(__DIR__))
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
     })->create();
+
+$app->bind(LoadConfiguration::class, FeatureConfiguration::class);
+$app->singleton(PackageManifest::class, fn (Application $app): FeaturePackageManifest => new FeaturePackageManifest(
+    new Filesystem,
+    $app->basePath(),
+    $app->getCachedPackagesPath(),
+));
+
+return $app;

@@ -20,9 +20,10 @@ final readonly class ValidateWebsiteSettings
     public function handle(array $data): array
     {
         // The wrapper rejects unknown settings fields, the flat rules report errors on clean paths.
-        Validator::make(['settings' => $data], ['settings' => ['required', 'array:preset,identity,seo,contact,navigation,footer,preferences']])->validate();
+        Validator::make(['settings' => $data], ['settings' => ['required', 'array:public_pages_enabled,preset,identity,seo,contact,navigation,footer,preferences']])->validate();
         $link = ['array:label,href'];
         $rules = [
+            'public_pages_enabled' => ['sometimes', 'required', 'boolean'],
             'preset' => ['sometimes', Rule::in(['corporate', 'editorial', 'minimal'])],
             'identity' => ['sometimes', 'string', 'max:255'],
             'seo' => ['sometimes', 'array:title,description,robots', 'required_array_keys:title,description,robots'],

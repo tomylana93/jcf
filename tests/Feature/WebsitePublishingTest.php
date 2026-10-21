@@ -80,8 +80,8 @@ describe('Website publishing foundation', function (): void {
         $general = resolve(GeneralSettings::class);
         $general->site_name = 'Existing organization';
         $general->save();
-        $migration = require database_path('migrations/2026_10_17_045751_create_website_contents_table.php');
-        $settingsMigration = require database_path('settings/2026_10_17_045750_create_website_settings.php');
+        $migration = require database_path('migrations/website/2026_10_17_045751_create_website_contents_table.php');
+        $settingsMigration = require database_path('settings/website/2026_10_17_045750_create_website_settings.php');
 
         $migration->down();
         $settingsMigration->down();
@@ -174,7 +174,7 @@ describe('Website publishing foundation', function (): void {
         resolve(PublishWebsiteContent::class)->handle($actor, $content, 1);
         expect(resolve(GetPublicWebsiteContent::class)->handle('company-news', true))->not->toBeNull();
         $general = resolve(GeneralSettings::class);
-        $general->public_pages_enabled = false;
+        resolve(WebsiteSettings::class)->fill(['public_pages_enabled' => false])->save();
         $general->save();
 
         expect(resolve(GetPublicWebsiteContent::class)->handle('company-news', true))->toBeNull()

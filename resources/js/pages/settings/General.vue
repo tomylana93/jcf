@@ -8,14 +8,11 @@ import PageContainer from '@/components/layout/PageContainer.vue';
 import { Button } from '@/components/ui/button';
 import {
     Field,
-    FieldContent,
-    FieldDescription,
     FieldError,
     FieldGroup,
     FieldLabel,
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { useTranslations } from '@/composables/useTranslations';
 import { index } from '@/routes/settings';
@@ -55,7 +52,6 @@ const submit = () => {
             form.site_name = props.settings.site_name;
             form.site_description = props.settings.site_description;
             form.support_email = props.settings.support_email ?? '';
-            form.public_pages_enabled = props.settings.public_pages_enabled;
             form.defaults();
         },
     });
@@ -75,36 +71,6 @@ const submit = () => {
             @submit.prevent="submit"
         >
             <FieldGroup>
-                <Field
-                    orientation="horizontal"
-                    :data-invalid="!!form.errors.public_pages_enabled"
-                >
-                    <FieldContent>
-                        <FieldLabel for="public_pages_enabled">
-                            {{
-                                t('settings.general.label.public_pages_enabled')
-                            }}
-                        </FieldLabel>
-                        <FieldDescription id="public_pages_enabled_description">
-                            {{
-                                t(
-                                    'settings.general.helper.public_pages_enabled',
-                                )
-                            }}
-                        </FieldDescription>
-                        <FieldError
-                            id="public_pages_enabled_error"
-                            :errors="[form.errors.public_pages_enabled]"
-                        />
-                    </FieldContent>
-                    <Switch
-                        id="public_pages_enabled"
-                        v-model="form.public_pages_enabled"
-                        :disabled="!canManage"
-                        :aria-invalid="!!form.errors.public_pages_enabled"
-                        aria-describedby="public_pages_enabled_description public_pages_enabled_error"
-                    />
-                </Field>
                 <Field :data-invalid="!!form.errors.site_name">
                     <FieldLabel for="site_name">
                         {{ t('settings.general.label.site_name') }}

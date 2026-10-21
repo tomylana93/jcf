@@ -7,6 +7,7 @@ use App\Http\Middleware\EnsurePublicPagesEnabled;
 use App\Models\User;
 use App\Settings\AuthSettings;
 use App\Settings\GeneralSettings;
+use App\Settings\WebsiteSettings;
 use Illuminate\Support\Facades\Route;
 use Inertia\Testing\AssertableInertia as Assert;
 
@@ -17,7 +18,7 @@ use function Pest\Laravel\withSession;
 describe('Public home', function (): void {
     it('renders saved content and canonical metadata without consuming intended URLs', function (bool $authenticated): void {
         $settings = resolve(GeneralSettings::class);
-        $settings->public_pages_enabled = true;
+        resolve(WebsiteSettings::class)->fill(['public_pages_enabled' => true])->save();
         $settings->site_name = 'JCF <Logistics>';
         $settings->site_description = 'Shipping & tracking';
         $settings->save();
@@ -40,7 +41,7 @@ describe('Public home', function (): void {
 
     it('redirects guests to login when disabled and retains the intended URL', function (): void {
         $settings = resolve(GeneralSettings::class);
-        $settings->public_pages_enabled = false;
+        resolve(WebsiteSettings::class)->fill(['public_pages_enabled' => false])->save();
         $settings->save();
 
         withSession(['url.intended' => route('profile.edit')]);
@@ -50,7 +51,7 @@ describe('Public home', function (): void {
 
     it('redirects signed-in users to their intended destination when disabled', function (): void {
         $settings = resolve(GeneralSettings::class);
-        $settings->public_pages_enabled = false;
+        resolve(WebsiteSettings::class)->fill(['public_pages_enabled' => false])->save();
         $settings->save();
 
         actingAs(User::factory()->create());
@@ -61,7 +62,7 @@ describe('Public home', function (): void {
 
     it('redirects signed-in users to dashboard without an intended destination', function (): void {
         $settings = resolve(GeneralSettings::class);
-        $settings->public_pages_enabled = false;
+        resolve(WebsiteSettings::class)->fill(['public_pages_enabled' => false])->save();
         $settings->save();
 
         actingAs(User::factory()->create());
@@ -71,13 +72,13 @@ describe('Public home', function (): void {
 
     it('redirects the home page until public pages are enabled', function (): void {
         $settings = resolve(GeneralSettings::class);
-        $settings->public_pages_enabled = false;
+        resolve(WebsiteSettings::class)->fill(['public_pages_enabled' => false])->save();
         $settings->save();
 
         get(route('home'))->assertRedirect(route('login'));
 
         $settings = resolve(GeneralSettings::class);
-        $settings->public_pages_enabled = true;
+        resolve(WebsiteSettings::class)->fill(['public_pages_enabled' => true])->save();
         $settings->save();
 
         get(route('home'))->assertInertia(fn (Assert $page) => $page->component('public/Home'));
@@ -87,7 +88,7 @@ describe('Public home', function (): void {
 describe('Public access contracts', function (): void {
     it('matches dashboard visibility to the verification requirement', function (bool $authenticated, bool $verified, bool $required, bool $allowed): void {
         $settings = resolve(GeneralSettings::class);
-        $settings->public_pages_enabled = true;
+        resolve(WebsiteSettings::class)->fill(['public_pages_enabled' => true])->save();
         $settings->save();
         $auth = resolve(AuthSettings::class);
         $auth->email_verification_required = $required;
@@ -116,7 +117,7 @@ describe('Public access contracts', function (): void {
 
     it('gates non-root public content without consuming intended URLs', function (bool $enabled, bool $authenticated): void {
         $settings = resolve(GeneralSettings::class);
-        $settings->public_pages_enabled = $enabled;
+        resolve(WebsiteSettings::class)->fill(['public_pages_enabled' => $enabled])->save();
         $settings->save();
         Route::middleware(['web', EnsurePublicPagesEnabled::class])->get('/public-contract-probe', fn (): string => 'Published content');
         withSession(['url.intended' => route('profile.edit')]);
@@ -135,7 +136,7 @@ describe('Public access contracts', function (): void {
 
     it('keeps settings permission-protected and available while public pages are disabled', function (): void {
         $settings = resolve(GeneralSettings::class);
-        $settings->public_pages_enabled = false;
+        resolve(WebsiteSettings::class)->fill(['public_pages_enabled' => false])->save();
         $settings->save();
         actingAs(User::factory()->create());
         get(route('settings.general.edit'))->assertForbidden();
@@ -146,7 +147,7 @@ describe('Public access contracts', function (): void {
 
     it('keeps unfinished public routes unavailable', function (bool $enabled): void {
         $settings = resolve(GeneralSettings::class);
-        $settings->public_pages_enabled = $enabled;
+        resolve(WebsiteSettings::class)->fill(['public_pages_enabled' => $enabled])->save();
         $settings->save();
 
         foreach (['/about', '/articles/draft'] as $url) {

@@ -13,7 +13,7 @@ use function Pest\Laravel\get;
 describe('Contact form and inbox interactions', function (): void {
     it('renders through production SSR and submits a message in each preset', function (string $preset): void {
         $general = resolve(GeneralSettings::class);
-        $general->public_pages_enabled = true;
+        resolve(WebsiteSettings::class)->fill(['public_pages_enabled' => true])->save();
         $general->save();
         $settings = resolve(WebsiteSettings::class);
         $settings->preset = $preset;
@@ -37,7 +37,7 @@ describe('Contact form and inbox interactions', function (): void {
 
     it('keeps input after validation and supports correction', function (): void {
         $general = resolve(GeneralSettings::class);
-        $general->public_pages_enabled = true;
+        resolve(WebsiteSettings::class)->fill(['public_pages_enabled' => true])->save();
         $general->save();
         $page = visit('/contact')->fill('name', 'Browser visitor')->fill('email', 'browser@example.com')->fill('subject', 'Browser enquiry')->fill('message', 'Retained input');
         $page->script("document.querySelector('form').noValidate = true; document.querySelector('#contact-email').value = 'invalid'; document.querySelector('#contact-email').dispatchEvent(new Event('input', {bubbles:true}));");
@@ -48,7 +48,7 @@ describe('Contact form and inbox interactions', function (): void {
 
     it('retains input and explains failed submissions', function (string $failure, string $key): void {
         $general = resolve(GeneralSettings::class);
-        $general->public_pages_enabled = true;
+        resolve(WebsiteSettings::class)->fill(['public_pages_enabled' => true])->save();
         $general->save();
         $page = visit('/contact')->fill('name', 'Browser visitor')->fill('email', 'browser@example.com')->fill('subject', 'Browser enquiry')->fill('message', 'Keep this message');
         $page->script("window.contactOriginalSend = XMLHttpRequest.prototype.send;

@@ -14,8 +14,6 @@ final class GeneralSettings extends Settings
 
     public ?string $support_email = null;
 
-    public bool $public_pages_enabled;
-
     public static function group(): string
     {
         return 'general';

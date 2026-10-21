@@ -262,6 +262,7 @@ describe('Chat browser', function (): void {
         actingAs($actor);
         $page = visit(route('chat.index'));
         $page->page()->context()->addInitScript(chatRealtimeSocketScript());
+        $page->page()->context()->addInitScript('Object.defineProperty(document, "hasFocus", { configurable: true, value: () => false });');
         $page->navigate(route('chat.index'));
         $page->assertScript('() => Boolean(window.chatSocket?.channel)')
             ->assertAttribute('[data-test="chat-connection"]', 'data-state', 'connected')

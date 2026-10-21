@@ -246,7 +246,7 @@ function withChatConcurrencyDatabase(Closure $test): void
             DB::setDefaultConnection($connection);
             Schema::swap(DB::connection($connection)->getSchemaBuilder());
             resolve(PermissionRegistrar::class)->forgetCachedPermissions();
-            $paths = [database_path('migrations/0001_01_01_000000_create_users_table.php'), ...glob(database_path('migrations/*create_permission_tables.php')), ...glob(database_path('migrations/*create_chat_*_table.php'))];
+            $paths = [database_path('migrations/0001_01_01_000000_create_users_table.php'), ...glob(database_path('migrations/*create_permission_tables.php')), ...glob(database_path('migrations/chat/*create_chat_*_table.php'))];
             foreach ($paths as $path) {
                 (require $path)->up();
             }

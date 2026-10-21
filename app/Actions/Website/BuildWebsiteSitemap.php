@@ -5,19 +5,17 @@ declare(strict_types=1);
 namespace App\Actions\Website;
 
 use App\Models\WebsiteContent;
-use App\Settings\GeneralSettings;
 use App\Settings\WebsiteSettings;
 
 final readonly class BuildWebsiteSitemap
 {
-    public function __construct(private GeneralSettings $general, private WebsiteSettings $settings, private ResolvePublicSeo $seo) {}
+    public function __construct(private WebsiteSettings $settings, private ResolvePublicSeo $seo) {}
 
     /** @return list<string> */
     public function handle(): array
     {
-        $this->general->refresh();
         $this->settings->refresh();
-        if (! $this->general->public_pages_enabled) {
+        if (! $this->settings->public_pages_enabled) {
             return [];
         }
         // Read current snapshots so scheduled visibility and switch changes cannot serve stale entries.

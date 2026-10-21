@@ -20,8 +20,7 @@ describe('General settings', function (): void {
 
         $migration->up();
 
-        expect(resolve(GeneralSettings::class)->refresh()->support_email)->toBe('initial@example.com')
-            ->and(resolve(GeneralSettings::class)->public_pages_enabled)->toBeTrue();
+        expect(resolve(GeneralSettings::class)->refresh()->support_email)->toBe('initial@example.com');
     });
 
     it('redirects guests to login', function (): void {
@@ -57,7 +56,7 @@ describe('General settings', function (): void {
 
         actingAs($user)->get(route('settings.general.edit'))->assertForbidden();
 
-        patch(route('settings.general.update'), ['site_name' => 'Unauthorized', 'site_description' => '', 'support_email' => null, 'public_pages_enabled' => false])->assertForbidden();
+        patch(route('settings.general.update'), ['site_name' => 'Unauthorized', 'site_description' => '', 'support_email' => null])->assertForbidden();
 
         expect(resolve(GeneralSettings::class)->refresh()->site_name)->toBe($name);
 
@@ -75,10 +74,11 @@ describe('General settings', function (): void {
             ->where('settings.site_name', $name)
             ->where('settings.site_description', 'A modern, modular starterkit for building simple, purposeful applications.')
             ->where('settings.support_email', resolve(GeneralSettings::class)->support_email)
-            ->where('settings.public_pages_enabled', true)
+            ->missing('settings.public_pages_enabled')
+            ->missing('general.public_pages_enabled')
             ->where('auth.permissions', ['settings.view']));
 
-        patch(route('settings.general.update'), ['site_name' => 'Unauthorized', 'site_description' => '', 'support_email' => null, 'public_pages_enabled' => false])->assertForbidden();
+        patch(route('settings.general.update'), ['site_name' => 'Unauthorized', 'site_description' => '', 'support_email' => null])->assertForbidden();
     });
 
     it('keeps the stored support contact when configuration changes', function (): void {
@@ -100,7 +100,7 @@ describe('General settings', function (): void {
         actingAs($user)->patch(route('settings.general.update'), [
             'site_name' => 'New Brand',
             'site_description' => 'Application description',
-            'support_email' => 'override@example.com', 'public_pages_enabled' => false,
+            'support_email' => 'override@example.com',
         ])->assertSessionHasNoErrors()->assertRedirect(route('settings.general.edit'));
 
         assertDatabaseHas('settings', ['group' => 'general', 'name' => 'site_name', 'payload' => '"New Brand"']);
@@ -117,7 +117,7 @@ describe('General settings', function (): void {
         $user = User::factory()->create();
         assignRolePermissions($user, Permission::ViewSettings, Permission::ManageSettings);
 
-        actingAs($user)->patch(route('settings.general.update'), ['site_name' => 'Brand', 'site_description' => null, 'support_email' => null, 'public_pages_enabled' => false])
+        actingAs($user)->patch(route('settings.general.update'), ['site_name' => 'Brand', 'site_description' => null, 'support_email' => null])
             ->assertSessionHasNoErrors()->assertRedirect(route('settings.general.edit'));
 
         assertDatabaseHas('settings', ['group' => 'general', 'name' => 'site_description', 'payload' => '""']);
@@ -132,19 +132,17 @@ describe('General settings', function (): void {
 
         expect(resolve(GeneralSettings::class)->refresh()->site_name)->toBe($name);
     })->with([
-        'invalid email' => [['site_name' => 'Brand', 'site_description' => '', 'support_email' => 'invalid', 'public_pages_enabled' => false], 'support_email', 'valid email'],
-        'non-string email' => [['site_name' => 'Brand', 'site_description' => '', 'support_email' => ['invalid'], 'public_pages_enabled' => false], 'support_email', 'string'],
-        'long email' => [['site_name' => 'Brand', 'site_description' => '', 'support_email' => str_repeat('a', 243).'@example.com', 'public_pages_enabled' => false], 'support_email', '254'],
+        'invalid email' => [['site_name' => 'Brand', 'site_description' => '', 'support_email' => 'invalid'], 'support_email', 'valid email'],
+        'non-string email' => [['site_name' => 'Brand', 'site_description' => '', 'support_email' => ['invalid']], 'support_email', 'string'],
+        'long email' => [['site_name' => 'Brand', 'site_description' => '', 'support_email' => str_repeat('a', 243).'@example.com'], 'support_email', '254'],
         'missing email' => [['site_name' => 'Brand', 'site_description' => ''], 'support_email', 'present'],
-        'missing name' => [['site_description' => '', 'support_email' => null, 'public_pages_enabled' => false], 'site_name', 'required'],
-        'blank name' => [['site_name' => '   ', 'site_description' => '', 'support_email' => null, 'public_pages_enabled' => false], 'site_name', 'required'],
-        'non-string name' => [['site_name' => ['invalid'], 'site_description' => '', 'support_email' => null, 'public_pages_enabled' => false], 'site_name', 'string'],
-        'long name' => [['site_name' => str_repeat('a', 101), 'site_description' => '', 'support_email' => null, 'public_pages_enabled' => false], 'site_name', '100'],
+        'missing name' => [['site_description' => '', 'support_email' => null], 'site_name', 'required'],
+        'blank name' => [['site_name' => '   ', 'site_description' => '', 'support_email' => null], 'site_name', 'required'],
+        'non-string name' => [['site_name' => ['invalid'], 'site_description' => '', 'support_email' => null], 'site_name', 'string'],
+        'long name' => [['site_name' => str_repeat('a', 101), 'site_description' => '', 'support_email' => null], 'site_name', '100'],
         'missing description' => [['site_name' => 'Brand'], 'site_description', 'present'],
-        'non-string description' => [['site_name' => 'Brand', 'site_description' => ['invalid'], 'support_email' => null, 'public_pages_enabled' => false], 'site_description', 'string'],
-        'long description' => [['site_name' => 'Brand', 'site_description' => str_repeat('a', 501), 'support_email' => null, 'public_pages_enabled' => false], 'site_description', '500'],
-        'missing public mode' => [['site_name' => 'Brand', 'site_description' => '', 'support_email' => null], 'public_pages_enabled', 'required'],
-        'invalid public mode' => [['site_name' => 'Brand', 'site_description' => '', 'support_email' => null, 'public_pages_enabled' => 'enabled'], 'public_pages_enabled', 'true or false'],
+        'non-string description' => [['site_name' => 'Brand', 'site_description' => ['invalid'], 'support_email' => null], 'site_description', 'string'],
+        'long description' => [['site_name' => 'Brand', 'site_description' => str_repeat('a', 501), 'support_email' => null], 'site_description', '500'],
     ]);
 
     it('validates with precognition without persisting changes', function (): void {
@@ -153,7 +151,7 @@ describe('General settings', function (): void {
         $name = resolve(GeneralSettings::class)->site_name;
 
         actingAs($user)->withHeaders(['Precognition' => 'true'])->patch(route('settings.general.update'), [
-            'site_name' => 'Preview Brand', 'site_description' => 'Preview description', 'support_email' => 'preview@example.com', 'public_pages_enabled' => false,
+            'site_name' => 'Preview Brand', 'site_description' => 'Preview description', 'support_email' => 'preview@example.com',
         ])->assertSuccessfulPrecognition();
 
         expect(resolve(GeneralSettings::class)->refresh()->site_name)->toBe($name);

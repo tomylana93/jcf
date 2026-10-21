@@ -14,6 +14,7 @@ use App\Actions\Settings\GetLayoutSettings;
 use App\Enums\Locale;
 use App\Enums\Role;
 use App\Settings\AuthSettings;
+use App\Support\FeatureManager;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -54,6 +55,7 @@ final class HandleInertiaRequests extends Middleware
                 'fallback' => config('app.fallback_locale'),
                 'options' => Locale::options(),
             ],
+            'features' => fn (): array => ['website' => ['public' => resolve(FeatureManager::class)->publicWebsiteEnabled()]],
             'general' => fn (): array => resolve(GetGeneralSettings::class)->handle(),
             'brand' => fn (): array => resolve(GetBrandSettings::class)->handle(),
             'layout' => fn (): array => resolve(GetLayoutSettings::class)->handle(),

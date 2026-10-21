@@ -20,6 +20,7 @@ final class UpdateWebsiteSettingsRequest extends FormRequest
     {
         // Keeps the payload shape; domain validation in the Website Actions owns every semantic rule.
         return [
+            'public_pages_enabled' => ['sometimes', 'required', 'boolean'],
             'preset' => ['sometimes', 'required', Rule::enum(WebsitePreset::class)],
             'identity' => ['sometimes', 'string', 'max:255'],
             'seo' => ['sometimes', 'array:title,description,robots'],

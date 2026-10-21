@@ -1,7 +1,7 @@
 # Feature Flags dan Modul Batteries-Included
 
 Tanggal: 21 Oktober 2026
-Status: Draft diperbarui sesuai arahan dua lapis flag. Hanya perubahan roadmap; belum ada perubahan kode aplikasi atau reset database.
+Status: Fase 1 selesai dan tervalidasi lokal. Fase 2–5 belum dikerjakan.
 
 ## Ringkasan
 
@@ -27,7 +27,7 @@ Target akhirnya adalah **configurable single-tenant starterkit**, bukan starterk
 - Hard-off menyembunyikan seluruh pengaturan modul, termasuk baris/toggle pada halaman Modules; tidak ada switch disabled atau keterangan deployment untuk modul tersebut.
 - Migrasi schema dan settings modul hard-off tidak masuk daftar migrasi yang dijalankan dan tidak dicatat sebagai sudah dijalankan.
 - Config registry flag tetap core dan selalu tersedia agar keputusan hard-off dapat dibuat tanpa resolve settings modul.
-- Migrasi existing boleh diedit dan database lokal checkout ini boleh di-reset pada tahap implementasi. Tahap saat ini hanya memperbaiki roadmap; reset belum dijalankan.
+- Migrasi existing boleh diedit dan database lokal checkout ini boleh di-reset pada tahap implementasi. Reset dan inisialisasi ulang database lokal `jcf` telah dijalankan pada Fase 1; database testing tetap terpisah.
 - Branding hanya fallback; `Jalara` tidak perlu dinetralkan.
 - Database hanya PostgreSQL.
 - Tidak ada multi-tenant; semua settings dan flags bersifat global.
@@ -45,30 +45,30 @@ Target akhirnya adalah **configurable single-tenant starterkit**, bukan starterk
 
 ## 3. Temuan utama
 
-| Area | Kondisi sekarang | Konsekuensi |
-| --- | --- | --- |
-| Flag | Belum ada registry terpusat; hanya `BACKUP_ENABLED`. | Tidak ada cara konsisten mematikan modul. |
-| CMS | `public_pages_enabled` ada di `GeneralSettings` dan selalu di-share. | Setting CMS dibaca di semua request. |
-| CMS root | `HomeController` selalu terdaftar dan meng-resolve `BuildPublicHome` → `WebsiteSettings`. | Middleware saja tidak cukup; settings bisa ter-resolve sebelum pengecekan. |
-| Route | `chat.php`, `website.php`, `documentation.php`, dan `master-data.php` selalu dimuat. | Modul mati tetap punya route. |
-| Chat | `chatSummary` selalu di-share dan realtime chat selalu dimulai di `AppLayout`. | Query chat dan koneksi realtime tetap aktif. |
-| Navigasi | `navigation.ts` memakai 12 parameter boolean posisional. | Menambah module flag semakin rawan salah urutan. |
-| Permission | Semua permission selalu dikirim ke frontend. | Permission modul mati tetap terlihat. |
-| Search | Dokumentasi dicari berdasarkan permission saja. | Dokumen bisa muncul meski modul documentation mati. |
-| Backup | Route, scheduler, dan worker backup selalu aktif. | Backup tidak benar-benar terkunci. |
-| PostgreSQL | `tsvector`, GIN, `websearch_to_tsquery`, dan restore `public` schema sudah spesifik PostgreSQL. | Sesuai requirement; tidak perlu portability. |
-| Branding | `Jalara` hanya fallback. | Tidak perlu diubah. |
+| Area       | Kondisi sekarang                                                                                | Konsekuensi                                                                |
+| ---------- | ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| Flag       | Belum ada registry terpusat; hanya `BACKUP_ENABLED`.                                            | Tidak ada cara konsisten mematikan modul.                                  |
+| CMS        | `public_pages_enabled` ada di `GeneralSettings` dan selalu di-share.                            | Setting CMS dibaca di semua request.                                       |
+| CMS root   | `HomeController` selalu terdaftar dan meng-resolve `BuildPublicHome` → `WebsiteSettings`.       | Middleware saja tidak cukup; settings bisa ter-resolve sebelum pengecekan. |
+| Route      | `chat.php`, `website.php`, `documentation.php`, dan `master-data.php` selalu dimuat.            | Modul mati tetap punya route.                                              |
+| Chat       | `chatSummary` selalu di-share dan realtime chat selalu dimulai di `AppLayout`.                  | Query chat dan koneksi realtime tetap aktif.                               |
+| Navigasi   | `navigation.ts` memakai 12 parameter boolean posisional.                                        | Menambah module flag semakin rawan salah urutan.                           |
+| Permission | Semua permission selalu dikirim ke frontend.                                                    | Permission modul mati tetap terlihat.                                      |
+| Search     | Dokumentasi dicari berdasarkan permission saja.                                                 | Dokumen bisa muncul meski modul documentation mati.                        |
+| Backup     | Route, scheduler, dan worker backup selalu aktif.                                               | Backup tidak benar-benar terkunci.                                         |
+| PostgreSQL | `tsvector`, GIN, `websearch_to_tsquery`, dan restore `public` schema sudah spesifik PostgreSQL. | Sesuai requirement; tidak perlu portability.                               |
+| Branding   | `Jalara` hanya fallback.                                                                        | Tidak perlu diubah.                                                        |
 
 Temuan paling penting: **`public_pages_enabled` harus dipindahkan keluar dari `GeneralSettings`**. Selama nilai itu berada di `general` dan selalu di-share, syarat “flag `.env` sebelum settings” tidak terpenuhi.
 
 ## 4. Matriks flag
 
-| Modul | Hard flag `.env` | Soft toggle settings | Sub-toggle |
-| --- | --- | --- | --- |
-| Website/CMS | `FEATURE_WEBSITE` | `website.enabled` | `website.public_pages_enabled` |
-| Chat | `FEATURE_CHAT` | `chat.enabled` | — |
-| Documentation | `FEATURE_DOCUMENTATION` | `documentation.enabled` | — |
-| Backup | `FEATURE_BACKUP` | `backup.enabled` | `BACKUP_ENABLED` sebagai alias legacy |
+| Modul         | Hard flag `.env`        | Soft toggle settings    | Sub-toggle                            |
+| ------------- | ----------------------- | ----------------------- | ------------------------------------- |
+| Website/CMS   | `FEATURE_WEBSITE`       | `website.enabled`       | `website.public_pages_enabled`        |
+| Chat          | `FEATURE_CHAT`          | `chat.enabled`          | —                                     |
+| Documentation | `FEATURE_DOCUMENTATION` | `documentation.enabled` | —                                     |
+| Backup        | `FEATURE_BACKUP`        | `backup.enabled`        | `BACKUP_ENABLED` sebagai alias legacy |
 
 ### Semantik CMS
 
@@ -81,30 +81,30 @@ Pemisahan `website.enabled` dan `public_pages_enabled` diperlukan agar admin bis
 
 ### Default yang direkomendasikan
 
-| Flag | Default | Alasan |
-| --- | --- | --- |
-| `FEATURE_WEBSITE` | `true` | Mempertahankan perilaku sekarang. |
-| `FEATURE_CHAT` | `true` | Mempertahankan perilaku sekarang. |
-| `FEATURE_DOCUMENTATION` | `true` | Mempertahankan perilaku sekarang. |
-| `FEATURE_BACKUP` | `false` | Backup butuh password, storage, dan psql; lebih aman opt-in. |
-| Soft toggle website/chat/docs | `true` | Modul langsung aktif setelah env mengizinkan. |
-| Soft toggle backup | `true` | Tetap tidak aktif sampai env `true` dan password tersedia. |
+| Flag                          | Default | Alasan                                                       |
+| ----------------------------- | ------- | ------------------------------------------------------------ |
+| `FEATURE_WEBSITE`             | `true`  | Mempertahankan perilaku sekarang.                            |
+| `FEATURE_CHAT`                | `true`  | Mempertahankan perilaku sekarang.                            |
+| `FEATURE_DOCUMENTATION`       | `true`  | Mempertahankan perilaku sekarang.                            |
+| `FEATURE_BACKUP`              | `false` | Backup butuh password, storage, dan psql; lebih aman opt-in. |
+| Soft toggle website/chat/docs | `true`  | Modul langsung aktif setelah env mengizinkan.                |
+| Soft toggle backup            | `true`  | Tetap tidak aktif sampai env `true` dan password tersedia.   |
 
 ## 5. Perilaku target
 
-| Kondisi | Route | Navigasi | Settings modul | Worker/job |
-| --- | --- | --- | --- | --- |
-| Env `false` | Tidak didaftarkan | Hidden, termasuk seluruh UI settings modul | Tidak dimuat/dibaca/ditulis | Operasi baru ditolak; job tertunda dilewati; operasi berjalan menyelesaikan cleanup |
-| Env `true`, settings `false` | Terdaftar, middleware 404 | Hidden | Grup settings boleh dibaca untuk menentukan toggle | Operasi baru ditolak; job tertunda dilewati |
-| Env `true`, settings `true` | Aktif | Tampil sesuai permission | Dibaca | Aktif |
+| Kondisi                      | Route                     | Navigasi                                   | Settings modul                                     | Worker/job                                                                          |
+| ---------------------------- | ------------------------- | ------------------------------------------ | -------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Env `false`                  | Tidak didaftarkan         | Hidden, termasuk seluruh UI settings modul | Tidak dimuat/dibaca/ditulis                        | Operasi baru ditolak; job tertunda dilewati; operasi berjalan menyelesaikan cleanup |
+| Env `true`, settings `false` | Terdaftar, middleware 404 | Hidden                                     | Grup settings boleh dibaca untuk menentukan toggle | Operasi baru ditolak; job tertunda dilewati                                         |
+| Env `true`, settings `true`  | Aktif                     | Tampil sesuai permission                   | Dibaca                                             | Aktif                                                                               |
 
 Kontrak migrasi dan toggle:
 
-| Hard flag | Soft toggle | Migrasi schema/settings modul | Tampilan pengaturan modul |
-| --- | --- | --- | --- |
-| `false` | Tidak dibaca | Dilewati, tidak dicatat sebagai executed | Seluruhnya disembunyikan |
-| `true` | `false` | Dijalankan jika pending | Toggle Modules tampil untuk mengaktifkan kembali; halaman operasional modul 404 |
-| `true` | `true` | Dijalankan jika pending | Tampil sesuai permission |
+| Hard flag | Soft toggle  | Migrasi schema/settings modul            | Tampilan pengaturan modul                                                       |
+| --------- | ------------ | ---------------------------------------- | ------------------------------------------------------------------------------- |
+| `false`   | Tidak dibaca | Dilewati, tidak dicatat sebagai executed | Seluruhnya disembunyikan                                                        |
+| `true`    | `false`      | Dijalankan jika pending                  | Toggle Modules tampil untuk mengaktifkan kembali; halaman operasional modul 404 |
+| `true`    | `true`       | Dijalankan jika pending                  | Tampil sesuai permission                                                        |
 
 Soft toggle tidak menentukan pendaftaran migrasi. Saat hard flag diaktifkan, jalankan migrasi pending sebelum melayani request dan worker modul. Mengubah hard flag menjadi `false` pada instalasi yang sudah memiliki modul tidak otomatis menghapus tabel, settings, atau data lama.
 
@@ -439,7 +439,13 @@ Tidak ada perubahan branding yang direkomendasikan.
 
 ## 8. Fase implementasi
 
-### Fase 1 — Fondasi flag dan data settings (P0)
+### Fase 1 — Fondasi flag dan data settings (P0, selesai lokal)
+
+Implementasi lokal: registry hard flag, FeatureManager, middleware, loader konfigurasi sebelum evaluasi file modul, filter auto-discovery package backup, registrasi settings eksplisit, serta path migrasi per modul. `config/backup.php` dan `config/website.php` tetap berupa array konfigurasi biasa tanpa guard yang me-require `features.php`.
+
+`public_pages_enabled` sudah dipindahkan ke grup Website beserta pembaca/penulis dan kontrak props terkait. Kontrol General lama dihapus; halaman Modules serta kontrol UI Website mengikuti Fase 4. Conditional routing dan guard operasional mengikuti Fase 2; hard-off runtime menyeluruh belum menjadi hasil Fase 1.
+
+Test fondasi membuktikan migrasi core-only, aktivasi migrasi pending per modul tanpa reset core, tidak ada resolve/query settings hard-off, serta perubahan toggle lintas proses dengan cache settings aktif. Database lokal `jcf` sudah di-reset dan diinisialisasi ulang; snapshot sebelum reset disimpan di Lerd.
 
 - `config/features.php`, default flag, `FeatureManager`, middleware `feature`.
 - Pisahkan registrasi konfigurasi/settings class dan path migrasi core/modul berdasarkan hard flag sebelum mengakses settings.
@@ -449,6 +455,8 @@ Tidak ada perubahan branding yang direkomendasikan.
 - Tetapkan lifecycle memoization, invalidasi lintas proses, serta kontrak hard-off tidak membaca settings.
 - Test semantik `env && settings`, instalasi schema/settings sesuai hard flag, migrasi pending setelah hard-on, dan perilaku default existing.
 - Belum menambahkan halaman Modules; jangan menjalankan fase yang bergantung pada key settings sebelum migration tersedia.
+
+Validasi lokal: `lerd composer test` lulus (893 backend test lulus, 4 dilewati, 94 browser test lulus; coverage 100%). Round-trip `config:cache`/`config:clear` juga lulus. Database development `jcf` memiliki 24 migrasi, 15 permission, satu role superadmin dengan satu pengguna, dan settings toggle modul; `jcf_testing` tetap terpisah. Artefak runtime test, cache/session/view/log lama, dan 12 conversion temp directories telah dibersihkan.
 
 ### Fase 2 — Gerbang backend dan kontrak build (P0)
 
@@ -490,12 +498,12 @@ Tidak ada perubahan branding yang direkomendasikan.
 
 ### Matrix flag
 
-| Skenario | Ekspektasi |
-| --- | --- |
-| Env `false` | Route tidak terdaftar, seluruh UI konfigurasi modul hidden, permission modul hidden, konfigurasi/settings modul tidak dimuat, migrasi modul dilewati |
-| Env `true`, settings `false` | Route 404, nav hidden, settings page masih bisa mengaktifkan kembali |
-| Env `true`, settings `true` | Perilaku existing tetap lulus |
-| Env `false`, settings `true` | Modul tetap mati; settings tidak bisa mengaktifkan |
+| Skenario                     | Ekspektasi                                                                                                                                           |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Env `false`                  | Route tidak terdaftar, seluruh UI konfigurasi modul hidden, permission modul hidden, konfigurasi/settings modul tidak dimuat, migrasi modul dilewati |
+| Env `true`, settings `false` | Route 404, nav hidden, settings page masih bisa mengaktifkan kembali                                                                                 |
+| Env `true`, settings `true`  | Perilaku existing tetap lulus                                                                                                                        |
+| Env `false`, settings `true` | Modul tetap mati; settings tidak bisa mengaktifkan                                                                                                   |
 
 ### CMS
 
@@ -566,23 +574,23 @@ Tidak ada perubahan branding yang direkomendasikan.
 
 ## 10. Risiko dan mitigasi
 
-| Risiko | Mitigasi |
-| --- | --- |
-| Pemindahan `public_pages_enabled` memecahkan test/API internal | Lakukan dalam satu fase, update semua pemakaian, jalankan test CMS terkait. |
-| Settings query bertambah setiap request | Memoize per request/unit kerja; invalidasi cache settings lintas proses setelah update. |
-| Import Wayfinder hilang akibat conditional routing | Katalog lengkap khusus build, cache runtime terpisah, dan build client/SSR bersih pada matrix env. |
-| Permission tersembunyi terhapus ketika editor disimpan | Pertahankan assignment modul nonaktif sebelum sync; uji off/edit/on. |
-| Worker/scheduler menyimpan state toggle lama | Refresh pada setiap job/evaluasi dan uji perubahan dalam proses yang sama. |
-| Job dilewati meninggalkan status/lock | Finalisasi status dan cleanup; operasi berjalan menyelesaikan jalur konsistensinya. |
-| Route cache tidak sinkron setelah env berubah | Dokumentasikan provisioning migration, rebuild cache, dan restart proses panjang sebelum trafik modul dibuka. |
-| Migrasi modul hard-off terlanjur dicatat sebagai executed | Kecualikan path dari discovery, bukan no-op dalam up(); uji hard-off lalu hard-on/migrate. |
-| Core meng-query tabel modul yang tidak dipasang | Audit seeder/initializer, health, search, cleanup, dan dependency schema; uji tanpa tabel modul. |
-| Edit baseline migration diterapkan ke database deployed | Batasi reset pada lokal; rencana upgrade deployed terpisah sebelum penerapan. |
-| Worker modul mati tetap berjalan | Guard di job/event; atur supervisor production; dokumentasikan worker. |
-| Permission modul mati tetap tersimpan | Filter dari UI/shared props; jangan hapus data; route tetap digerbang. |
-| `BACKUP_ENABLED` legacy membingungkan | Pertahankan sebagai fallback, dokumentasikan `FEATURE_BACKUP` sebagai flag utama. |
-| Realtime chat tetap connect saat broadcasting mati | Perbaiki guard `echo.ts` dan `useRealtimeChatSummary()`. |
-| `public_pages_enabled` masih dibaca lewat shared props | Pindahkan ke `WebsiteSettings` dan share hanya state fitur yang lazy. |
+| Risiko                                                         | Mitigasi                                                                                                      |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Pemindahan `public_pages_enabled` memecahkan test/API internal | Lakukan dalam satu fase, update semua pemakaian, jalankan test CMS terkait.                                   |
+| Settings query bertambah setiap request                        | Memoize per request/unit kerja; invalidasi cache settings lintas proses setelah update.                       |
+| Import Wayfinder hilang akibat conditional routing             | Katalog lengkap khusus build, cache runtime terpisah, dan build client/SSR bersih pada matrix env.            |
+| Permission tersembunyi terhapus ketika editor disimpan         | Pertahankan assignment modul nonaktif sebelum sync; uji off/edit/on.                                          |
+| Worker/scheduler menyimpan state toggle lama                   | Refresh pada setiap job/evaluasi dan uji perubahan dalam proses yang sama.                                    |
+| Job dilewati meninggalkan status/lock                          | Finalisasi status dan cleanup; operasi berjalan menyelesaikan jalur konsistensinya.                           |
+| Route cache tidak sinkron setelah env berubah                  | Dokumentasikan provisioning migration, rebuild cache, dan restart proses panjang sebelum trafik modul dibuka. |
+| Migrasi modul hard-off terlanjur dicatat sebagai executed      | Kecualikan path dari discovery, bukan no-op dalam up(); uji hard-off lalu hard-on/migrate.                    |
+| Core meng-query tabel modul yang tidak dipasang                | Audit seeder/initializer, health, search, cleanup, dan dependency schema; uji tanpa tabel modul.              |
+| Edit baseline migration diterapkan ke database deployed        | Batasi reset pada lokal; rencana upgrade deployed terpisah sebelum penerapan.                                 |
+| Worker modul mati tetap berjalan                               | Guard di job/event; atur supervisor production; dokumentasikan worker.                                        |
+| Permission modul mati tetap tersimpan                          | Filter dari UI/shared props; jangan hapus data; route tetap digerbang.                                        |
+| `BACKUP_ENABLED` legacy membingungkan                          | Pertahankan sebagai fallback, dokumentasikan `FEATURE_BACKUP` sebagai flag utama.                             |
+| Realtime chat tetap connect saat broadcasting mati             | Perbaiki guard `echo.ts` dan `useRealtimeChatSummary()`.                                                      |
+| `public_pages_enabled` masih dibaca lewat shared props         | Pindahkan ke `WebsiteSettings` dan share hanya state fitur yang lazy.                                         |
 
 ## 11. Keputusan dan batas pekerjaan
 
@@ -591,7 +599,7 @@ Arahan yang sudah ditetapkan pengguna:
 - Hard flag `.env`/config adalah gerbang pertama untuk seluruh konfigurasi, UI settings, dan migrasi modul.
 - Soft toggle aplikasi adalah gerbang kedua, hanya tersedia pada modul hard-on.
 - Migrasi existing boleh diedit dan database lokal boleh di-reset saat implementasi.
-- Pekerjaan saat ini hanya memperbaiki roadmap; tidak mengubah aplikasi atau menjalankan reset.
+- Implementasi saat ini dibatasi pada Fase 1 beserta reset dan inisialisasi ulang database lokal.
 
 Detail rancangan saat ini (default flag dan alias legacy tetap usulan):
 

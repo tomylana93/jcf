@@ -24,7 +24,7 @@ use function Pest\Laravel\withUnencryptedCookie;
 describe('Production public SEO and SSR', function (): void {
     it('renders initial HTTP HTML and hydrates every page with isolated heads', function (string $preset): void {
         $general = resolve(GeneralSettings::class);
-        $general->public_pages_enabled = true;
+        resolve(WebsiteSettings::class)->fill(['public_pages_enabled' => true])->save();
         $general->save();
         $settings = resolve(WebsiteSettings::class);
         $settings->preset = $preset;

@@ -30,14 +30,14 @@ function contactInput(): array
 function enableContactWebsite(): void
 {
     $settings = resolve(GeneralSettings::class);
-    $settings->public_pages_enabled = true;
+    resolve(WebsiteSettings::class)->fill(['public_pages_enabled' => true])->save();
     $settings->save();
 }
 
 describe('Public contact and protected inbox', function (): void {
     it('hides the form and rejects submissions when public access is disabled', function (): void {
         $settings = resolve(GeneralSettings::class);
-        $settings->public_pages_enabled = false;
+        resolve(WebsiteSettings::class)->fill(['public_pages_enabled' => false])->save();
         $settings->save();
         get('/contact')->assertNotFound();
         postJson('/contact', contactInput())->assertNotFound();

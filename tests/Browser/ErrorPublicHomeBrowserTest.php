@@ -5,13 +5,14 @@ declare(strict_types=1);
 use App\Models\User;
 use App\Settings\AuthSettings;
 use App\Settings\GeneralSettings;
+use App\Settings\WebsiteSettings;
 
 use function Pest\Laravel\actingAs;
 
 describe('Public home and error recovery', function (): void {
     it('renders home metadata and a content CTA without guest dashboard links', function (): void {
         $settings = resolve(GeneralSettings::class);
-        $settings->public_pages_enabled = true;
+        resolve(WebsiteSettings::class)->fill(['public_pages_enabled' => true])->save();
         $settings->site_name = 'JCF Public';
         $settings->site_description = 'Shipping and tracking';
         $settings->save();
@@ -30,7 +31,7 @@ describe('Public home and error recovery', function (): void {
 
     it('shows dashboard only when the signed-in account can enter it', function (bool $verified, bool $required, bool $allowed): void {
         $settings = resolve(GeneralSettings::class);
-        $settings->public_pages_enabled = true;
+        resolve(WebsiteSettings::class)->fill(['public_pages_enabled' => true])->save();
         $settings->save();
         $auth = resolve(AuthSettings::class);
         $auth->email_verification_required = $required;

@@ -18,7 +18,7 @@ use function Pest\Laravel\get;
 describe('Public indexing and metadata', function (): void {
     beforeEach(function (): void {
         $general = resolve(GeneralSettings::class);
-        $general->public_pages_enabled = true;
+        resolve(WebsiteSettings::class)->fill(['public_pages_enabled' => true])->save();
         $general->save();
         config(['app.url' => 'https://trusted.example']);
     });
@@ -90,11 +90,11 @@ describe('Public indexing and metadata', function (): void {
     it('aligns robots and sitemap with the public switch and indexing defaults', function (): void {
         get('/robots.txt')->assertOk()->assertSee('Sitemap: https://trusted.example/sitemap.xml')->assertSee('Disallow: /website');
         $general = resolve(GeneralSettings::class);
-        $general->public_pages_enabled = false;
+        resolve(WebsiteSettings::class)->fill(['public_pages_enabled' => false])->save();
         $general->save();
         get('/robots.txt')->assertSee("Disallow: /\n");
         get('/sitemap.xml')->assertDontSeeHtml('<url>');
-        $general->public_pages_enabled = true;
+        resolve(WebsiteSettings::class)->fill(['public_pages_enabled' => true])->save();
         $general->save();
         $settings = resolve(WebsiteSettings::class);
         $settings->seo['robots'] = 'noindex,nofollow';

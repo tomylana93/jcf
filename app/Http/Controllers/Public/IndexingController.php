@@ -6,7 +6,7 @@ namespace App\Http\Controllers\Public;
 
 use App\Actions\Website\BuildWebsiteSitemap;
 use App\Http\Controllers\Controller;
-use App\Settings\GeneralSettings;
+use App\Settings\WebsiteSettings;
 use Illuminate\Http\Response;
 
 final class IndexingController extends Controller
@@ -21,7 +21,7 @@ final class IndexingController extends Controller
         return response($xml.'</urlset>', headers: ['Content-Type' => 'application/xml; charset=UTF-8', 'Cache-Control' => 'no-store']);
     }
 
-    public function robots(GeneralSettings $general): Response
+    public function robots(WebsiteSettings $general): Response
     {
         $body = "User-agent: *\n";
         if (! $general->public_pages_enabled) {

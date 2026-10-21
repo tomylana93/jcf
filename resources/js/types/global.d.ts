@@ -31,6 +31,7 @@ declare module '@inertiajs/core' {
             timezone: TimezoneSettings;
             sidebarOpen: boolean;
             general: GeneralSettings;
+            features: { website: { public: boolean } };
             brand: BrandSettings;
             layout: LayoutSettings;
             locale: LocaleSettings;

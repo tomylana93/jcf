@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+use App\Settings\AuthSettings;
+use App\Settings\BrandSettings;
+use App\Settings\GeneralSettings;
+use App\Settings\LayoutSettings;
+use App\Settings\MailSettings;
 use Spatie\LaravelSettings\SettingsCasts\DateTimeInterfaceCast;
 use Spatie\LaravelSettings\SettingsCasts\DateTimeZoneCast;
 use Spatie\LaravelSettings\SettingsRepositories\DatabaseSettingsRepository;
@@ -14,7 +19,11 @@ return [
      * put them (manually) here.
      */
     'settings' => [
-
+        AuthSettings::class,
+        BrandSettings::class,
+        GeneralSettings::class,
+        LayoutSettings::class,
+        MailSettings::class,
     ],
 
     /*
@@ -27,9 +36,7 @@ return [
      * migration created via the make:settings-migration command will be stored in the first path or
      * a custom defined path when running the command.
      */
-    'migrations_paths' => [
-        database_path('settings'),
-    ],
+    'migrations_paths' => [database_path('settings')],
 
     /*
      * When no repository was set for a settings class the following repository
@@ -93,13 +100,11 @@ return [
      * The package will look for settings in these paths and automatically
      * register them.
      */
-    'auto_discover_settings' => [
-        app_path('Settings'),
-    ],
+    'auto_discover_settings' => [],
 
     /*
      * Automatically discovered settings classes can be cached, so they don't
      * need to be searched each time the application boots up.
      */
-    'discovered_settings_cache_path' => base_path('bootstrap/cache'),
+    'discovered_settings_cache_path' => base_path('bootstrap/cache/settings-core'),
 ];
