@@ -6,6 +6,7 @@ namespace App\Http\Requests\Website;
 
 use App\Enums\WebsitePreset;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 
 final class UpdateWebsiteSettingsRequest extends FormRequest
@@ -28,5 +29,16 @@ final class UpdateWebsiteSettingsRequest extends FormRequest
             'navigation' => ['sometimes', 'array', 'list', 'max:10'],
             'footer' => ['sometimes', 'array:text,links'],
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $data = $this->all();
+        foreach (['identity', 'seo.title', 'seo.description', 'contact.address', 'contact.hours', 'footer.text'] as $field) {
+            if (Arr::has($data, $field) && Arr::get($data, $field) === null) {
+                Arr::set($data, $field, '');
+            }
+        }
+        $this->replace($data);
     }
 }

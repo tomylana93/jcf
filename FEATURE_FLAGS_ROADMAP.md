@@ -1,7 +1,7 @@
 # Feature Flags dan Modul Batteries-Included
 
 Tanggal: 21 Oktober 2026
-Status: Fase 1–3 selesai dan tervalidasi lokal. Fase 4–5 belum dikerjakan.
+Status: Fase 1–4 selesai dan tervalidasi lokal. Fase 5 belum dikerjakan.
 
 ## Ringkasan
 
@@ -499,10 +499,18 @@ Validasi lokal 21 Oktober 2026: Pint lulus, `pnpm types:check`, `pnpm format:che
 - Gate pencarian dokumentasi dan perbaiki guard broadcasting pada `echo.ts`.
 - Test permission round-trip, search, dan pelepasan subscription chat tanpa memutus notifikasi core.
 
-### Fase 4 — UI pengaturan modul (P1)
+### Fase 4 — UI pengaturan modul (P1, selesai lokal)
+
+Implementasi lokal: halaman core `Settings > Modules` menampilkan toggle hanya untuk modul hard-on, menggunakan permission `settings.view` untuk membaca dan `settings.manage` untuk menyimpan. Validasi HTTP dan Action menolak key modul tidak tersedia, key tidak dikenal, nilai non-boolean, serta payload tidak lengkap sebelum menulis. Perubahan dilakukan dalam transaksi dengan penguncian grup settings, dicatat melalui audit settings, dan me-reset state FeatureManager setelah penyimpanan.
+
+Modul soft-off tetap ditampilkan agar dapat diaktifkan kembali. Seluruh baris modul hard-off disembunyikan tanpa resolve atau menulis settings modul tersebut; ketika semua hard-off, kartu Modules disembunyikan dan endpoint mengembalikan 404. Ini mengikuti requirement utama dan test plan; butir lama yang menyebut status deployment untuk hard-off telah dikoreksi.
+
+Kontrol public pages tersedia di Website Settings dan terpisah dari toggle website. Nilai identity dan SEO kosong tetap memakai fallback; Form Request menormalkan field teks kosong yang diubah middleware menjadi null, sehingga penyimpanan toggle pada konfigurasi awal tetap valid. Test mencakup authorization, validasi HTTP/Action, audit, semua soft toggle off/on, cache aktif/nonaktif, lifecycle job berikutnya, serta browser desktop/mobile dan penyembunyian modul hard-off. Perubahan kecil pada test chat mengikuti aturan Rector (referensi kelas notifikasi).
+
+Validasi akhir lokal 21 Oktober 2026: `lerd composer test` lulus dengan exit code 0. Build client/SSR, Pint, Rector, frontend check, PHPStan, Vue typecheck, dan type coverage 100% lulus; suite backend 956 kasus (952 pass, 4 skip yang sudah ada) dengan code coverage 100%, serta 99 browser test lulus. Test browser menampilkan 3 warning tanpa rincian pada reporter; tidak ada failure atau risky test pada run akhir. Screenshot halaman Modules desktop 1440 px dan mobile 390 px telah diperiksa; assertion mobile memastikan tidak ada overflow horizontal. Tidak ada push/deploy atau reset database development tambahan pada Fase 4.
 
 - Halaman core `Settings > Modules`, authorization, validasi HTTP/Action, dan audit.
-- Hard-off menampilkan status deployment tanpa resolve atau menulis settings modul tersebut.
+- Hard-off menyembunyikan seluruh baris tanpa resolve atau menulis settings modul tersebut.
 - Modul hard-on yang soft-off tetap dapat diaktifkan kembali dari halaman Modules. Jika semua modul hard-off, menu/halaman Modules disembunyikan dan endpoint 404.
 - Pindahkan kontrol public pages ke Website Settings.
 - Test perubahan toggle langsung terlihat pada request/job berikutnya, termasuk ketika cache settings aktif.
@@ -623,7 +631,7 @@ Arahan yang sudah ditetapkan pengguna:
 - Hard flag `.env`/config adalah gerbang pertama untuk seluruh konfigurasi, UI settings, dan migrasi modul.
 - Soft toggle aplikasi adalah gerbang kedua, hanya tersedia pada modul hard-on.
 - Migrasi existing boleh diedit dan database lokal boleh di-reset saat implementasi.
-- Fase 1 beserta reset/inisialisasi ulang database lokal, Fase 2, dan Fase 3 telah diimplementasikan. Fase 4–5 menunggu instruksi berikutnya.
+- Fase 1 beserta reset/inisialisasi ulang database lokal, Fase 2, Fase 3, dan Fase 4 telah diimplementasikan. Fase 5 menunggu instruksi berikutnya.
 
 Detail rancangan saat ini (default flag dan alias legacy tetap usulan):
 

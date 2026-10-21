@@ -6,7 +6,9 @@ use App\Enums\Permission;
 use App\Jobs\MasterData\User\SendUserInvitation;
 use App\Models\User;
 use App\Settings\AuthSettings;
+use App\Settings\ChatSettings;
 use App\Settings\MailSettings;
+use App\Settings\WebsiteSettings;
 use Illuminate\Support\Facades\Queue;
 
 use function Pest\Laravel\actingAs;
@@ -86,5 +88,44 @@ describe('Auth settings in the browser', function (): void {
         expect(User::query()->where('email', 'browser-invited@example.test')->sole()->invited_at)->not->toBeNull();
 
         Queue::assertPushed(SendUserInvitation::class);
+    });
+});
+
+describe('Module settings in the browser', function (): void {
+    it('hides unavailable modules and the card when none are installed', function (): void {
+        config(['features.website' => false, 'features.documentation' => false, 'features.backup' => false]);
+        actingAsUserWithPermissions(Permission::ViewSettings, Permission::ManageSettings);
+        visit(route('settings.modules.edit'))->assertPresent('#module-chat')
+            ->assertMissing('#module-website')->assertMissing('#module-documentation')->assertMissing('#module-backup')
+            ->assertNoJavaScriptErrors();
+        config(['features.chat' => false]);
+        visit(route('settings.index'))->assertMissing('@modules-settings-card')->assertNoJavaScriptErrors();
+    });
+
+    it('saves public page availability from website settings', function (): void {
+        actingAsUserWithPermissions(Permission::ConfigureWebsite);
+        visit(route('website.settings.edit'))->click('#public_pages_enabled')->click('@save_website_settings')
+            ->assertSee(__('website.status.settings_updated'))
+            ->assertAttribute('#public_pages_enabled', 'aria-checked', 'false')
+            ->assertNoJavaScriptErrors();
+        expect(resolve(WebsiteSettings::class)->refresh()->public_pages_enabled)->toBeFalse();
+    });
+
+    it('disables and re-enables installed modules from the core settings page', function (): void {
+        actingAsUserWithPermissions(Permission::ViewSettings, Permission::ManageSettings);
+
+        visit(route('settings.index'))->click('@modules-settings-card')
+            ->assertUrlIs(route('settings.modules.edit'))
+            ->resize(1440, 900)->screenshot(filename: 'phase-four-modules-desktop')
+            ->resize(390, 844)->screenshot(filename: 'phase-four-modules-mobile')
+            ->assertScript('document.documentElement.scrollWidth <= window.innerWidth')
+            ->click('#module-chat')->click('@save-module-settings')
+            ->assertSee(__('settings.modules.status.updated'))
+            ->assertAttribute('#module-chat', 'aria-checked', 'false')
+            ->click('#module-chat')->click('@save-module-settings')
+            ->assertAttribute('#module-chat', 'aria-checked', 'true')
+            ->assertNoJavaScriptErrors();
+
+        expect(resolve(ChatSettings::class)->refresh()->enabled)->toBeTrue();
     });
 });

@@ -8,11 +8,14 @@ use App\Http\Controllers\Settings\BrandSettingsController;
 use App\Http\Controllers\Settings\GeneralSettingsController;
 use App\Http\Controllers\Settings\LayoutSettingsController;
 use App\Http\Controllers\Settings\MailSettingsController;
+use App\Http\Controllers\Settings\ModuleSettingsController;
 use Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified'])->prefix('settings')->name('settings.')->group(function (): void {
     Route::inertia('/', 'settings/Index')->can(Permission::ViewSettings->value)->name('index');
+    Route::get('modules', [ModuleSettingsController::class, 'edit'])->can(Permission::ViewSettings->value)->name('modules.edit');
+    Route::patch('modules', [ModuleSettingsController::class, 'update'])->can(Permission::ViewSettings->value)->can(Permission::ManageSettings->value)->middleware(HandlePrecognitiveRequests::class)->name('modules.update');
     Route::get('general', [GeneralSettingsController::class, 'edit'])->can(Permission::ViewSettings->value)->name('general.edit');
     Route::patch('general', [GeneralSettingsController::class, 'update'])->can(Permission::ViewSettings->value)->can(Permission::ManageSettings->value)->middleware(HandlePrecognitiveRequests::class)->name('general.update');
     Route::get('layout', [LayoutSettingsController::class, 'edit'])->can(Permission::ViewSettings->value)->name('layout.edit');

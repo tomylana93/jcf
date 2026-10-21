@@ -9,6 +9,19 @@ return [
         'description' => 'Manage application settings.',
     ],
 
+    'modules' => [
+        'title' => 'Modules',
+        'card' => ['title' => 'Modules', 'description' => 'Enable or disable installed application modules.'],
+        'label' => ['website' => 'Website / CMS', 'chat' => 'Chat', 'documentation' => 'Documentation', 'backup' => 'Backup'],
+        'helper' => [
+            'website' => 'Manage website content and public pages.',
+            'chat' => 'Internal conversations and realtime messages.',
+            'documentation' => 'Application documentation and guides.',
+            'backup' => 'System backup and restore operations.',
+        ],
+        'status' => ['updated' => 'Module settings updated.'],
+    ],
+
     'general' => [
         'title' => 'General settings',
         'card' => [

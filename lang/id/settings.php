@@ -9,6 +9,19 @@ return [
         'description' => 'Kelola pengaturan aplikasi.',
     ],
 
+    'modules' => [
+        'title' => 'Modul',
+        'card' => ['title' => 'Modul', 'description' => 'Aktifkan atau nonaktifkan modul aplikasi yang terpasang.'],
+        'label' => ['website' => 'Website / CMS', 'chat' => 'Chat', 'documentation' => 'Documentation', 'backup' => 'Backup'],
+        'helper' => [
+            'website' => 'Kelola konten website dan halaman publik.',
+            'chat' => 'Percakapan internal dan pesan realtime.',
+            'documentation' => 'Dokumentasi dan panduan aplikasi.',
+            'backup' => 'Operasi backup dan restore sistem.',
+        ],
+        'status' => ['updated' => 'Pengaturan modul diperbarui.'],
+    ],
+
     'general' => [
         'title' => 'Pengaturan umum',
         'card' => [

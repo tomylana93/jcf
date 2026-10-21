@@ -7,6 +7,7 @@ return [
     'audit' => 'Audit log',
     'notifications' => 'Notifikasi',
     'settings' => 'Pengaturan',
+    'modules' => 'Modul',
     'general' => 'Pengaturan umum',
     'brand' => 'Pengaturan Brand',
     'auth' => 'Pengaturan autentikasi',

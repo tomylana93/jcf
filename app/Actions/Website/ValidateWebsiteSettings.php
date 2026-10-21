@@ -27,7 +27,7 @@ final readonly class ValidateWebsiteSettings
             'preset' => ['sometimes', Rule::in(['corporate', 'editorial', 'minimal'])],
             'identity' => ['sometimes', 'string', 'max:255'],
             'seo' => ['sometimes', 'array:title,description,robots', 'required_array_keys:title,description,robots'],
-            'seo.title' => ['required_with:seo', 'string', 'max:255'],
+            'seo.title' => ['present_with:seo', 'string', 'max:255'],
             'seo.description' => ['present_with:seo', 'string', 'max:500'],
             'seo.robots' => ['required_with:seo', Rule::in(['index,follow', 'noindex,nofollow'])],
             'contact' => ['sometimes', 'array:email,phone,address,hours,location_url,social_links', 'required_array_keys:email,phone,address,hours,location_url,social_links'],

@@ -11,6 +11,7 @@ use App\Events\ChatReadUpdated;
 use App\Events\ChatTypingUpdated;
 use App\Models\ChatMessage;
 use App\Models\User;
+use App\Notifications\ApplicationNotification;
 use App\Settings\ChatSettings;
 use App\Settings\LayoutSettings;
 use Illuminate\Notifications\Events\BroadcastNotificationCreated;
@@ -354,7 +355,7 @@ describe('Chat browser', function (): void {
 
         $notification = '() => window.chatSocket.deliver('.json_encode(BroadcastNotificationCreated::class).', '.json_encode([
             'id' => (string) Str::uuid(),
-            'type' => 'App\\Notifications\\ApplicationNotification',
+            'type' => ApplicationNotification::class,
             'kind' => 'permissions_updated',
         ]).')';
 
