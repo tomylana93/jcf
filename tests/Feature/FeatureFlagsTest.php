@@ -205,7 +205,7 @@ describe('Feature flags', function (): void {
         withIsolatedRestoreDatabase(function (string $connection) use ($module): void {
             $db = DB::connection($connection);
             $environment = [
-                'APP_ENV' => 'testing', 'DB_CONNECTION' => 'pgsql', 'DB_DATABASE' => $db->getDatabaseName(),
+                'APP_ENV' => 'testing', 'DB_CONNECTION' => 'pgsql', 'DB_DATABASE' => $db->getDatabaseName().'_development', 'DB_TEST_DATABASE' => $db->getDatabaseName(),
                 'DB_HOST' => $db->getConfig('host'), 'DB_PORT' => (string) $db->getConfig('port'),
                 'DB_USERNAME' => $db->getConfig('username'), 'DB_PASSWORD' => $db->getConfig('password'), 'DB_URL' => '',
                 'FEATURE_WEBSITE' => 'false', 'FEATURE_CHAT' => 'false',

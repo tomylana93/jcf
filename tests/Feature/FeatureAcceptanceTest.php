@@ -15,7 +15,7 @@ describe('Feature deployment acceptance', function (): void {
             $directory = new TemporaryDirectory(storage_path('framework/testing/feature-acceptance-'.getmypid()));
             $directory->create();
             $environment = [
-                'APP_ENV' => 'testing', 'DB_CONNECTION' => 'pgsql', 'DB_DATABASE' => $db->getDatabaseName(), 'DB_URL' => '',
+                'APP_ENV' => 'testing', 'DB_CONNECTION' => 'pgsql', 'DB_DATABASE' => $db->getDatabaseName().'_development', 'DB_TEST_DATABASE' => $db->getDatabaseName(), 'DB_URL' => '',
                 'DB_HOST' => $db->getConfig('host'), 'DB_PORT' => (string) $db->getConfig('port'),
                 'DB_USERNAME' => $db->getConfig('username'), 'DB_PASSWORD' => $db->getConfig('password'),
                 'APP_CONFIG_CACHE' => $directory->path('config.php'), 'APP_ROUTES_CACHE' => $directory->path('routes.php'),

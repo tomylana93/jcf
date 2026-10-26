@@ -2,7 +2,7 @@
 
 Tanggal: 26 Oktober 2026
 
-Status: fase 0 didokumentasikan; gate akses Packagist dan minimum installer/Composer masih terbuka. Fase 1–6 belum dimulai.
+Status: fase 0 didokumentasikan dan fase 1 diimplementasikan secara lokal; gate akses Packagist, minimum installer/Composer, dan acceptance publik tetap terbuka. Fase 2–6 belum dimulai.
 
 Baseline analisis: `5424c54e603cc9b567e1d3cfb0b99538d87b54f5`
 
@@ -267,17 +267,40 @@ Gate fase 0 **belum tertutup sepenuhnya**: F0-02 menunggu minimum Composer/Insta
 
 ### Fase 1 — Instalasi dan isolasi aplikasi
 
-- [ ] **F1-01** Pisahkan persiapan tanpa DB dari migrasi/setup aplikasi; hapus perilaku pembuatan SQLite pada jalur distribusi.
-- [ ] **F1-02** Audit hook Composer dan `extra.laravel.installer`; pilih satu urutan setup agar migrasi/initialization tidak terjadi dua kali.
-- [ ] **F1-03** Pastikan DB development/testing unik untuk aplikasi baru; tidak ada migrasi ke DB JCF.
-- [ ] **F1-04** Pertahankan guard `init:app`, APP_KEY existing, dan perilaku idempotent permission/superadmin. Evaluasi default credential hanya pada konteks yang diizinkan.
-- [ ] **F1-05** Audit Laravel Installer terhadap PostgreSQL, pnpm, frozen lockfile, dan pilihan Git.
-- [ ] **F1-06** Sesuaikan nama instance backup, cookie/cache prefix, email, URL, dan konfigurasi Lerd tanpa netralisasi branding total.
-- [ ] **F1-07** Tambahkan regression test hanya untuk perubahan perilaku dan failure modes instalasi.
+- [x] **F1-01** Pisahkan persiapan tanpa DB dari migrasi/setup aplikasi; hapus perilaku pembuatan SQLite pada jalur distribusi.
+- [x] **F1-02** Audit hook Composer dan `extra.laravel.installer`; pilih satu urutan setup agar migrasi/initialization tidak terjadi dua kali.
+- [x] **F1-03** Pastikan DB development/testing unik untuk aplikasi baru; tidak ada migrasi ke DB JCF.
+- [x] **F1-04** Pertahankan guard `init:app`, APP_KEY existing, dan perilaku idempotent permission/superadmin. Evaluasi default credential hanya pada konteks yang diizinkan.
+- [x] **F1-05** Audit Laravel Installer terhadap PostgreSQL, pnpm, frozen lockfile, dan pilihan Git.
+- [x] **F1-06** Sesuaikan nama instance backup, cookie/cache prefix, email, URL, dan konfigurasi Lerd tanpa netralisasi branding total.
+- [x] **F1-07** Tambahkan regression test hanya untuk perubahan perilaku dan failure modes instalasi.
 
 File terkait: `composer.json`, `.env.example`, command initialization existing, `config/backup.php`, konfigurasi instance, dan test console terkait.
 
 Gate: instalasi DB-ready sukses; DB belum siap menghasilkan instruksi dan kegagalan yang jujur pada langkah wajib; re-run menjaga key/data/user; produksi tidak mendapat akun default dari hook setup.
+
+### Bukti fase 1 — 26 Oktober 2026
+
+Implementasi pada branch yang sama, dimulai dari commit `2827ea3`. Cakupan hanya instalasi dan isolasi; belum membuat versi/provenance atau otomasi rilis fase 2–4.
+
+| Item | Implementasi dan bukti |
+| --- | --- |
+| F1-01 / F1-02 | Hook Composer pembuatan proyek hanya menjalankan `init:prepare`: key baru jika kosong, tanpa akses DB/migrasi/akun. Hook SQLite dan `migrate --graceful` dihapus. `composer setup` menjadi jalur eksplisit: install → prepare → init:app → pnpm frozen → build. Install/update dependency biasa tidak menjalankan creation hook. |
+| F1-03 | `.env.example` tidak menentukan nama DB. Konfigurasi memisahkan DB development efektif (termasuk DB_URL) dan DB_TEST_DATABASE, default `<dev>_testing`. Test tidak memakai DB_URL sebagai target dan menolak nama sama sebelum bootstrap selesai. PHPUnit tidak lagi membawa nama DB JCF atau menimpa informasi URL development. CI dan subprocess test meneruskan target testing secara eksplisit. |
+| F1-04 | Guard local/testing dan key existing dipertahankan. `init:app` memeriksa konfigurasi PostgreSQL dan koneksi sebelum setup; menolak target `jcf`/`jcf_testing` pada checkout yang bukan bernama `jcf`. Kegagalan koneksi tidak mencetak credential. Kegagalan command menghentikan urutan. Default email/password superadmin dihapus; rerun menjaga akun existing. |
+| F1-05 | Sumber Laravel Installer v5.32.0, SHA `6d47ce9f44a42da0d06d50acdfa80f8c9b13c8c3`: hooks dijalankan sebelum rewrite DB, community kit tanpa opsi DB menjadi SQLite, opsi DB eksplisit dapat menjalankan migrasi, pnpm menggunakan `install --ignore-scripts` tanpa frozen, Git/GitHub berjalan sesudah DB. Hook installer kini menolak otomatisasi sebelum langkah-langkah tersebut. Tidak mengklaim dukungan `--using`; membuka jalur ini menunggu integration/acceptance fase 5. |
+| F1-06 | Backup/monitor, cookie, cache, dan Redis namespace memakai APP_INSTANCE atau nama direktori. Override existing tetap didukung. Domain `jcf` dihapus dari konfigurasi Lerd committed; sender contoh menjadi example.com dan Reverb key contoh dikosongkan. Branding Jalara tetap boleh dipakai. Perubahan default cookie menyebabkan login ulang bila SESSION_COOKIE tidak dipin. |
+| F1-07 | Regression tests untuk persiapan tanpa DB/key idempotent, hook Composer nyata tanpa DB, penolakan installer/cache, target tidak aman, koneksi gagal, pemisahan DB_URL/testing, namespace instance, dan setup/rerun pada PostgreSQL disposable. Test permission/superadmin existing dipertahankan. |
+
+Validasi lokal:
+
+- Suite non-browser `composer test:feature`: **985 total, 981 passed, 4 skipped**; setelah itu dua test guard cache ditambahkan dan seluruh console tests diuji ulang.
+- `composer test:feature-build`: **10 passed, 91 assertions**, termasuk profil build default/core dan modul opsional existing. Ini bukan bukti instalasi dependency bersih dari paket publik.
+- Setup nyata di subprocess terhadap PostgreSQL disposable berhasil dua kali: schema/migrasi, satu administrator unchanged, APP_KEY unchanged, dan storage link tersedia.
+- PHPStan pada kedua command: lulus. Rector dry-run kedua command: lulus. Pint dirty dan Composer validate strict: lulus. Lockfile hanya berubah content-hash, tanpa perubahan versi dependency.
+- Kegagalan awal subprocess acceptance diselesaikan dengan meneruskan DB_TEST_DATABASE. Sebanyak 22 database turunan test yang terbentuk pada run awal dibersihkan; pemeriksaan database `jcf_restore_test_%` kemudian kosong. DB development tidak direset.
+
+Batas bukti: full gate `composer test` (termasuk audit, seluruh lint/type/coverage dan browser), hosted CI, fresh Composer dist, serta installer/paket publik belum dijalankan untuk commit ini. Perubahan ini tidak menyentuh handler HTTP; tidak ada browser acceptance pada fase ini. Fase 0 tetap memiliki gate eksternal yang belum tertutup. Tidak ada push, publikasi, merge, atau deployment.
 
 ### Fase 2 — Distribusi bersih dan provenance minimal
 
@@ -403,7 +426,7 @@ Roadmap dianggap selesai ketika:
 - [ ] Satu aplikasi contoh menyelesaikan rilis independen dan satu siklus adopsi upgrade.
 - [ ] Bukti lokal, hosted CI, publikasi paket, dan acceptance turunan tercatat secara terpisah.
 
-Fase 0 menambahkan kontrak dan bukti pemeriksaan pada README serta roadmap ini. Belum ada perubahan kode aplikasi, dependency, database, konfigurasi Release Please, publikasi Packagist, push, merge, atau deployment.
+Fase 0 menambahkan kontrak dan bukti pemeriksaan. Fase 1 mengubah jalur setup, konfigurasi instance/database, dan regression tests sebagaimana dicatat di atas. Versi dependency tidak berubah; belum ada konfigurasi Release Please, publikasi Packagist, push, merge, atau deployment.
 
 ## 13. Referensi
 
