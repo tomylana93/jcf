@@ -1,51 +1,51 @@
 # JCF
 
-JCF adalah fondasi aplikasi Laravel single-tenant dengan PostgreSQL. Distribusinya menggunakan model **source scaffold**: setelah pembuatan proyek, aplikasi memiliki kode, repository, database, secret, branding, dan siklus rilis sendiri. `composer update` memperbarui dependency, bukan mengadopsi perubahan kode JCF secara otomatis.
+JCF is a foundation for single-tenant Laravel applications using PostgreSQL. It follows a **source scaffold** distribution model: once a project is created, the application owns its code, repository, database, secrets, branding, and release cycle. `composer update` updates dependencies; it does not automatically adopt changes to JCF's application code.
 
-Status: persiapan starter kit, **belum rilis stabil**. Paket `tomylana93/jcf` belum ditemukan di Packagist pada pemeriksaan 26 Oktober 2026. Instalasi publik melalui Laravel Installer belum lulus acceptance; jangan memakai hook pembuatan proyek saat ini sebagai jalur instalasi turunan yang sudah aman.
+Status: starter kit preparation, **no stable release yet**. The `tomylana93/jcf` package was not found on Packagist during the check on October 26, 2026. Public installation through Laravel Installer has not passed acceptance testing. The current project creation hooks should not be treated as a validated, safe installation path for derived applications.
 
-## Kontrak dukungan
+## Support contract
 
-| Komponen | Target | Bukti baseline 26 Oktober 2026 |
+| Component | Target | Baseline evidence as of October 26, 2026 |
 | --- | --- | --- |
-| PHP | 8.5 (`^8.5`) | CLI host 8.5.12; site Lerd memilih 8.5. |
-| Laravel | 13 | Dependency terpasang dan lockfile `v13.38.0`. |
-| PostgreSQL | Satu database per aplikasi; testing terpisah | Koneksi lokal terverifikasi 16.15; CI menggunakan image `postgres:18`, dengan run historis sukses. Belum menguji instalasi bersih pada keduanya. |
-| Node | 26 | Host 26.12.1; `.node-version` dan CI memilih 26. |
-| pnpm | 12.10.1 | Host, `packageManager`, dan CI selaras; gunakan frozen lockfile. |
-| Composer | Kandidat pengujian 2.10.3 | CLI dan validasi manifest berhasil; minimum instalasi yang didukung belum ditetapkan melalui acceptance. |
-| Laravel Installer | Kandidat pengujian 5.32.0 | `--version` dan `new --help` berhasil; tersedia `--using`, `--database`, `--pnpm`, `--no-node`. Minimum instalasi JCF belum terbukti. |
+| PHP | 8.5 (`^8.5`) | Host CLI 8.5.12; the Lerd site selects 8.5. |
+| Laravel | 13 | Installed dependency and lockfile version `v13.38.0`. |
+| PostgreSQL | One database per application; a separate testing database | Local connection verified on 16.15; CI uses the `postgres:18` image and has a successful historical run. Clean installation has not been tested on either version. |
+| Node | 26 | Host 26.12.1; `.node-version` and CI select 26. |
+| pnpm | 12.10.1 | Host, `packageManager`, and CI agree; use the frozen lockfile. |
+| Composer | Test candidate 2.10.3 | CLI and manifest validation passed; the minimum supported installation version has not been established through acceptance testing. |
+| Laravel Installer | Test candidate 5.32.0 | `--version` and `new --help` passed; `--using`, `--database`, `--pnpm`, and `--no-node` are available. The minimum version for installing JCF has not been verified. |
 
-Versi target bukan klaim semua patch/minor telah diuji. PostgreSQL-only berarti SQLite/MySQL bukan jalur aplikasi yang didukung. Lerd adalah lingkungan pengembangan opsional; aplikasi turunan harus dapat dipasang tanpa registry/domain mesin JCF setelah gate instalasi dipenuhi.
+These targets do not imply that every patch or minor version has been tested. PostgreSQL is the only supported database; SQLite and MySQL are outside the application support contract. Lerd is an optional development environment. Once the installation gates are met, derived applications must be installable without the JCF developer machine's registry or domains.
 
-## Core dan modul
+## Core and modules
 
-Core meliputi auth/account, user/permission, shell, locale/timezone, settings dasar, audit, notifikasi, dan infrastruktur generik existing. Website/CMS, chat, documentation, dan backup adalah modul opsional. Website, chat, dan documentation hard-on secara default; backup opt-in.
+Core includes authentication and accounts, users and permissions, the application shell, locale and timezone, basic settings, audit, notifications, and existing generic infrastructure. Website/CMS, chat, documentation, and backup are optional modules. Website, chat, and documentation are enabled by default through hard flags; backup is opt-in.
 
-Hard flag mengatur ketersediaan modul dan registrasi migrasi; modul hard-off tidak boleh mengakses settings/schema miliknya. Soft toggle mengatur penggunaan tanpa menghapus schema/data. Aktifkan migrasi sebelum traffic/worker saat menyalakan hard flag belakangan. Realtime notifikasi core tetap terpisah dari modul chat. Alur bisnis, permission domain, navigasi domain, integrasi, deployment, dan identitas instance menjadi milik aplikasi turunan; branding Jalara boleh tetap menjadi fallback.
+Hard flags control module availability and migration registration. A module disabled through its hard flag must not access its settings or schema. Soft toggles control usage without deleting schema or data. When enabling a hard flag later, run migrations before allowing module traffic or workers. Core realtime notifications remain separate from the chat module. Derived applications own their business workflows, domain permissions, domain navigation, integrations, deployment, and instance identity. Jalara branding may remain as a fallback.
 
-## Instalasi: status dan batas saat ini
+## Installation: current status and limitations
 
-Target setelah publikasi dan acceptance adalah `laravel new nama-aplikasi --using=tomylana93/jcf`; jalur versi tetap adalah `composer create-project tomylana93/jcf nama-aplikasi 1.0.0`. Keduanya **belum merupakan instruksi instalasi publik yang tervalidasi**. Dukungan community starter kit melalui Packagist dijelaskan dalam [dokumentasi Laravel 13](https://laravel.com/docs/13.x/starter-kits#community-maintained-starter-kits).
+After publication and acceptance testing, the target command is `laravel new app-name --using=tomylana93/jcf`; the fixed-version path is `composer create-project tomylana93/jcf app-name 1.0.0`. Neither is a **validated public installation instruction yet**. Community starter kit support through Packagist is described in the [Laravel 13 documentation](https://laravel.com/docs/13.x/starter-kits#community-maintained-starter-kits).
 
-Hook `post-create-project-cmd` saat ini masih membuat SQLite dan menjalankan `migrate --graceful`; `.env.example` masih menunjuk nama DB `jcf`. Perbaikannya termasuk fase 1. Tetapkan identitas aplikasi, PostgreSQL development dan testing yang berbeda, serta secret sendiri sebelum migrasi. Jangan arahkan aplikasi baru ke database fondasi.
+The current `post-create-project-cmd` hook still creates a SQLite file and runs `migrate --graceful`; `.env.example` still uses the database name `jcf`. Fixing these belongs to phase 1. Configure the application identity, separate PostgreSQL development and testing databases, and application-specific secrets before running migrations. Do not point a new application at the foundation's database.
 
-`init:app` hanya boleh berjalan pada local/testing, mempertahankan APP_KEY existing, lalu menjalankan migrasi, permission, superadmin, dan storage link dengan pemeriksaan kegagalan. Ini bukan installer produksi. Setup frontend menggunakan `pnpm install --frozen-lockfile` dan `pnpm run build`. Instalasi Lerd mengikuti discovery site, pemilihan DB aplikasi, env setup, lalu framework setup; jangan menyalin domain instance JCF.
+`init:app` may only run in local or testing environments. It preserves an existing APP_KEY, then runs migrations, permission initialization, superadmin initialization, and storage linking, checking for failures. It is not a production installer. Frontend setup uses `pnpm install --frozen-lockfile` and `pnpm run build`. For Lerd, discover the site, select the application's database, set up the environment, then run framework setup. Do not copy the JCF instance's domain.
 
-## Kontrak versi dan adopsi
+## Versioning and adoption contract
 
-Kontrak berikut ditetapkan sebelum implementasi otomasi:
+The following contract is established before automation is implemented:
 
-- `version.txt` menyimpan versi repository: target rilis stabil awal JCF `1.0.0`, baseline pengembangan turunan `0.1.0`. Release Please menggunakan strategi `simple`, satu root package, tag `vX.Y.Z`, manifest dan changelog milik repository masing-masing.
-- Hanya turunan membawa `.foundation-version`, satu baris `jcf@X.Y.Z` dari versi sumber sebelum reset versi aplikasi. JCF tidak perlu menandai dirinya sendiri.
-- Versi fondasi dan aplikasi independen. Patch untuk perbaikan kompatibel, minor untuk kemampuan kompatibel, major untuk pemutusan kontrak/dukungan; dependency update dinilai berdasarkan dampaknya.
-- Bootstrap turunan harus idempotent, memulai history/changelog sendiri, dan tidak dijalankan pada install/update dependency biasa. Rilis aplikasi tidak mengubah penanda asal fondasi.
-- Adopsi melalui PR terarah dan pengujian. Naikkan baseline fondasi hanya setelah adopsi penuh tervalidasi; patch parsial dicatat pada PR/changelog. Migrasi yang telah dirilis memakai perubahan forward-only.
+- `version.txt` stores the repository version: JCF's first stable release target is `1.0.0`, and the initial development baseline for a derived application is `0.1.0`. Release Please uses the `simple` strategy, one root package, `vX.Y.Z` tags, and a manifest and changelog owned by each repository.
+- Only derived applications carry `.foundation-version`: one line containing `jcf@X.Y.Z`, taken from the source version before resetting the application version. JCF does not need to mark itself.
+- Foundation and application versions are independent. Use patch releases for compatible fixes, minor releases for compatible capabilities, and major releases for breaking contract or support changes. Assess dependency updates by their compatibility impact.
+- Derived application bootstrap must be idempotent, start its own history and changelog, and stay outside ordinary dependency installation or updates. Application releases do not change the foundation origin marker.
+- Adopt foundation changes through focused PRs and testing. Advance the foundation baseline only after full adoption has been validated; record partial patches in PRs and the changelog. Changes to released migrations must use new, forward-only migrations.
 
-File versi, Release Please, finalisasi turunan, kebijakan arsip, dan acceptance publik belum diimplementasikan pada fase 0. Tidak ada kebutuhan registry/discovery fondasi atau frontend unit-test tooling tambahan.
+Version files, Release Please, derived application finalization, archive policy, and public acceptance testing have not been implemented in phase 0. No foundation registry or discovery service, or additional frontend unit-test tooling, is required.
 
-## Validasi dan rilis
+## Validation and releases
 
-Gate existing adalah `composer test`: audit, acceptance feature build, build SSR, lint, type checks, type coverage, coverage backend, dan browser tests. CI menjalankannya dalam satu job Linux untuk PR non-draft ke `main`, serta menyediakan manual dispatch. Hasil hosted historis bukan bukti bahwa commit dokumentasi ini atau instalasi starter kit telah lulus full suite.
+The existing gate is `composer test`: audits, feature build acceptance, SSR build, linting, type checks, type coverage, backend coverage, and browser tests. CI runs it in one Linux job for non-draft PRs targeting `main`, with manual dispatch available. Historical hosted results do not prove that this documentation commit or starter kit installation has passed the full suite.
 
-Rilis membutuhkan credential GitHub App yang dapat memicu checks release PR, required checks pada head terbaru, dan review. Tag/release bukan izin deployment. Detail baseline, akses eksternal, dan gate yang masih terbuka dicatat dalam [roadmap implementasi](REUSABLE_STARTERKIT_ROADMAP.md).
+Releases require GitHub App credentials that can trigger release PR checks, required checks on the latest head, and review. A tag or release does not authorize deployment. Baseline details, external access checks, and outstanding gates are recorded in the [implementation roadmap](REUSABLE_STARTERKIT_ROADMAP.md).
