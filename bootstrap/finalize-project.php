@@ -30,14 +30,29 @@ if (! preg_match($versionPattern, $source)) {
     exit(1);
 }
 
-if (file_exists($root.'/release-please-config.json') || file_exists($root.'/.github/workflows/release-please.yml')) {
-    fwrite(STDERR, "Release configuration requires the derived application template before finalization.\n");
+if (is_link($root.'/.github/workflows/release-please.yml') || ! is_file($root.'/.github/workflows/release-please.yml')) {
+    fwrite(STDERR, "Missing or non-regular release workflow; use a complete JCF source archive.\n");
     exit(1);
 }
+
+$releaseConfig = [
+    '$schema' => 'https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json',
+    'packages' => [
+        '.' => [
+            'release-type' => 'simple',
+            'version-file' => 'version.txt',
+            'include-component-in-tag' => false,
+            'include-v-in-tag' => true,
+            'bump-minor-pre-major' => false,
+            'bump-patch-for-minor-pre-major' => false,
+        ],
+    ],
+];
 
 $files = [
     'version.txt' => "0.1.0\n",
     '.release-please-manifest.json' => "{\n    \".\": \"0.1.0\"\n}\n",
+    'release-please-config.json' => json_encode($releaseConfig, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR)."\n",
     'CHANGELOG.md' => "# Changelog\n\nApplication release history starts here.\n",
     '.foundation-version' => 'jcf@'.$source."\n",
 ];

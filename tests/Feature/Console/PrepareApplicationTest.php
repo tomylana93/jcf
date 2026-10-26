@@ -44,6 +44,8 @@ describe('Database-free preparation', function (): void {
     it('runs the Composer creation hook successfully with no database configured', function (): void {
         $directory = (new TemporaryDirectory)->create();
         File::copy(base_path('bootstrap/finalize-project.php'), $directory->path('bootstrap/finalize-project.php'));
+        File::copy(base_path('.github/workflows/release-please.yml'), $directory->path('.github/workflows/release-please.yml'));
+        File::copy(base_path('release-please-config.json'), $directory->path('release-please-config.json'));
         File::put($directory->path('version.txt'), "1.2.3\n");
         $manifest = json_decode(File::get(base_path('composer.json')), true, flags: JSON_THROW_ON_ERROR);
         $manifest['scripts']['post-create-project-cmd'][0] = '@php '.escapeshellarg(base_path('artisan')).' init:prepare --no-interaction';

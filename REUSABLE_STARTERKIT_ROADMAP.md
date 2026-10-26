@@ -2,7 +2,7 @@
 
 Tanggal: 26 Oktober 2026
 
-Status: fase 0 didokumentasikan dan fase 1 diimplementasikan secara lokal; gate akses Packagist, minimum installer/Composer, dan acceptance publik tetap terbuka. Fase 2 divalidasi lokal. Konfigurasi fase 3 divalidasi lokal dan sandbox privat disiapkan; gate hosted tertahan billing GitHub Actions. Fase 4–6 belum dimulai.
+Status: fase 0 didokumentasikan dan fase 1 diimplementasikan secara lokal; gate akses Packagist, minimum installer/Composer, dan acceptance publik tetap terbuka. Fase 2 divalidasi lokal. Fase 3–4 diimplementasikan dengan validasi lokal dan PR sandbox; gate CI sukses serta tag/release hosted tertahan billing GitHub Actions. Fase 5–6 belum dimulai.
 
 Baseline analisis: `5424c54e603cc9b567e1d3cfb0b99538d87b54f5`
 
@@ -356,14 +356,32 @@ Guard fase 2 tetap menolak finalisasi archive yang memuat konfigurasi rilis fond
 
 ### Fase 4 — Release Please aplikasi turunan
 
-- [ ] **F4-01** Sediakan config/workflow rilis generik yang benar pada hasil scaffold.
-- [ ] **F4-02** Uji baseline versi aplikasi dan batas pencarian commit setelah pembuatan repository baru.
-- [ ] **F4-03** Pastikan release aplikasi tidak mengubah `.foundation-version` atau repository/tag JCF.
-- [ ] **F4-04** Buat panduan singkat aktivasi credential dan branch protection per aplikasi.
-- [ ] **F4-05** Uji dua perubahan aplikasi: perbaikan dan fitur; release PR memperbarui changelog/versi aplikasi saja.
-- [ ] **F4-06** Jika template harus dibedakan dari config release JCF, gunakan transformasi kecil yang teruji; jangan menambah framework metadata untuk membedakannya.
+- [x] **F4-01** Sediakan config/workflow rilis generik yang benar pada hasil scaffold.
+- [x] **F4-02** Uji baseline versi aplikasi dan batas pencarian commit setelah pembuatan repository baru.
+- [x] **F4-03** Pastikan release aplikasi tidak mengubah `.foundation-version` atau repository/tag JCF.
+- [x] **F4-04** Buat panduan singkat aktivasi credential dan branch protection per aplikasi.
+- [x] **F4-05** Uji dua perubahan aplikasi: perbaikan dan fitur; release PR memperbarui changelog/versi aplikasi saja.
+- [x] **F4-06** Jika template harus dibedakan dari config release JCF, gunakan transformasi kecil yang teruji; jangan menambah framework metadata untuk membedakannya.
 
 Gate: sandbox turunan memiliki history, release PR, tag, dan changelog sendiri; tidak mewarisi baseline rilis JCF. Secret repository fondasi tidak tersedia pada turunan.
+
+### Bukti fase 4 — 26 Oktober 2026
+
+Checkbox F4-01–F4-06 merekam implementasi dan validasi kandidat/PR, bukan penerimaan gate tag/release hosted yang masih terbuka.
+
+- `bootstrap/finalize-project.php` mengganti seluruh config fondasi dengan config root `simple` generik. Batas SHA fondasi, initial-version `1.0.0`, component, release-as dan opsi sumber lainnya tidak diwarisi. Tidak ada metadata arsitektur baru. Workflow existing sudah mendeteksi repository saat ini dan tidak memuat owner/repo fondasi; komentar aktivasi dibuat generik.
+- Manifest/versi aplikasi tetap `0.1.0`. Release Please 17.6.0 memakainya sebagai baseline awal: fix pertama `0.1.1`, feat pertama `0.2.0`, breaking pertama `1.0.0`. Bukan klaim tag `0.1.0` sudah pernah diterbitkan. Repository baru hanya memuat history aplikasi; tidak ada bootstrap SHA dari repository JCF. Bump patch berlanjut dari tag simulasi `0.1.1` ke minor `0.2.0`.
+- Workflow wajib tersedia sebagai file reguler dalam archive. Pemeriksaan destination yang sudah ada dan rollback file diperluas ke config. Marker valid tetap membuat finalizer no-op, sehingga config/workflow aplikasi yang sudah disesuaikan, versi, manifest, changelog dan provenance tidak direset pada rerun. Composer install/update/setup tetap tidak memanggil finalizer.
+- README distribusi menjelaskan baseline/bump pertama, Git history baru, aktivasi GitHub App dengan izin minimum, secret/variable repository sendiri, `RELEASE_ENABLED`, required check `CI`, review pada head terbaru, manual dispatch dan verifikasi tag/release. Secret fondasi tidak diwariskan. Konfigurasi credential di sandbox turunan dilakukan terpisah dari key lokal yang diotorisasi, bukan membaca/menyalin secret terenkripsi JCF. Perubahan permission/ruleset aplikasi nyata tetap tugas pemilik aplikasi ketika aktivasi.
+- Archive kandidat aktual dari temporary Git index/tree `5918598e0f74c5428d90242e3e71470e8da6989a` diekstrak dan difinalisasi tanpa vendor, node_modules atau koneksi fondasi. Setelah itu dibuat history Git baru dan sandbox privat `https://github.com/tomylana93/jcf-derived-release-sandbox-20261026`; root commit `c9bdaf48634e9325a217d3c217ac4a3dd20b307b` independen dari JCF. Ini bukti scaffold release assets, bukan fresh dependency installation/boot aplikasi fase 5.
+- Branch sandbox `acceptance` dipakai untuk percobaan PR tanpa merge perubahan ke `main` yang checks-nya belum bisa berjalan. Fix `f9dc8b692b01d5370891fc8769b4880d4e405a54` menghasilkan [PR turunan #1](https://github.com/tomylana93/jcf-derived-release-sandbox-20261026/pull/1) versi `0.1.1`, head `c9184fb1bcbcada1bd9beecb0af065202a4c6769`. Feature `71266e6a531da01c922a23a24e5754dc83183109` memperbarui PR yang sama ke `0.2.0`, head `cd51cfa828d15e40b6af1370b6e8a059c96858c0`. Kedua diff tepat tiga file: version, manifest, changelog aplikasi. `.foundation-version` pada head PR tetap `jcf@0.1.0`; tidak ada tag JCF yang dibuat. App token dicabut setelah setiap invocation lokal.
+- PR tersebut dibuat melalui library lokal dengan token App, menargetkan `acceptance`, bukan oleh workflow `main`. Tidak mengklaim CI `main` lulus, required checks/branch protection sudah terpasang di aplikasi produksi, atau tag/release turunan sudah dibuat. PR tidak di-merge; workflow turunan tetap nonaktif. Billing GitHub Actions yang ditemukan pada fase 3 tetap memblokir pembuktian end-to-end, sehingga gate fase 3/4 dan acceptance hosted fase 5 masih terbuka.
+
+Validasi: **16 tests passed, 68 assertions** (finalizer dan Composer creation hook), schema config turunan, simulasi Release Please root/baseline/bump/link repository/provenance, Actionlint, Pint dirty, Rector dry-run kedua file test, PHPStan script mandiri, serta diff whitespace lulus. Rector sempat menyarankan facade untuk `unlink` pada unit test tanpa Laravel app; percobaan itu gagal, kemudian fixture diubah agar dapat tidak membuat workflow dan seluruh test dijalankan ulang sampai lulus. Tidak ada perubahan dependency, HTTP handler atau migrasi; full `composer test`, browser, fresh dependency install, hosted checks sukses dan tag/release belum dibuktikan.
+
+Diagnostics Serena script dan unit test bersih. Feature test memiliki diagnostics lama pada union return `artisan()` (`PendingCommand|int`) di tiga assertion existing; baris tersebut tidak diubah, dan test eksekusinya lulus. Ini tidak diklaim sebagai seluruh diagnostics repository bersih.
+
+Fase 3 sudah commit lokal `513825e`. Implementasi JCF fase 4 disimpan sebagai commit lokal terpisah pada branch pengerjaan; tidak ada push/merge/rilis/deployment JCF. Aktivitas remote hanya dua sandbox privat. Fase 5–6 belum dikerjakan.
 
 ### Fase 5 — Acceptance instalasi dan publikasi
 

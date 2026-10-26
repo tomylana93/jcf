@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   release:
-    # Enable only after sandbox acceptance; public JCF releases wait for phase 5.
+    # Enable after repository-specific release acceptance and authorization.
     if: vars.RELEASE_ENABLED == 'true' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 10
