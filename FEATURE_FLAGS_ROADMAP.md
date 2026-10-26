@@ -1,7 +1,7 @@
 # Feature Flags dan Modul Batteries-Included
 
 Tanggal: 21 Oktober 2026
-Status: Fase 1–4 selesai dan tervalidasi lokal. Fase 5 belum dikerjakan.
+Status: Fase 1–5 selesai dan tervalidasi lokal. Validasi hosted CI dan deployment tetap terpisah.
 
 ## Ringkasan
 
@@ -515,7 +515,38 @@ Validasi akhir lokal 21 Oktober 2026: `lerd composer test` lulus dengan exit cod
 - Pindahkan kontrol public pages ke Website Settings.
 - Test perubahan toggle langsung terlihat pada request/job berikutnya, termasuk ketika cache settings aktif.
 
-### Fase 5 — Acceptance dan operasional (P1)
+### Fase 5 — Acceptance dan operasional (P1, selesai lokal)
+
+Implementasi acceptance 26 Oktober 2026:
+
+Validasi akhir: `lerd composer test` lulus dengan exit code 0. Sepuluh build matrix lulus (91 assertion); backend 973 kasus (969 pass, 4 skip existing, 5464 assertion) dengan code coverage 100%; seluruh 104 browser test lulus (2104 assertion). Pint, Rector, frontend check, PHPStan, Vue typecheck, dan type coverage 100% lulus. Reporter browser mencatat satu warning tanpa rincian; assertion JavaScript error dan console pada test SSR/hydration baru lulus. Bukti browser berasal dari server Pest; Lerd tidak menyediakan request ID atau browser event untuk run ini, sehingga pemeriksaan lenses/N+1 live tidak diklaim. Database development tidak di-reset; database disposable dibersihkan setelah setiap skenario. Ini merupakan acceptance lokal, bukan bukti hosted CI atau production.
+
+- `FeatureAcceptanceTest` menjalankan 17 skenario empat modul × hard/soft on/off dan seluruh modul mati, masing-masing pada database PostgreSQL disposable. Proses aplikasi baru menjalankan request dashboard, settings, permission, search, system health, route modul, evaluasi scheduler, dan cleanup dry-run dengan schema sesuai hard flag; permission modul nonaktif tidak dikirim dan query domain nonaktif ditolak oleh assertion.
+- `FeatureBuildTest` menjalankan sepuluh build client/SSR secara berurutan: setiap modul hard-off dan seluruh modul hard-off, masing-masing dengan config/route cache aktif dan nonaktif. Direktori Wayfinder dihapus sebelum setiap build; route runtime dibandingkan sebelum/sesudah dan hash route cache harus tetap sama. Build seluruh modul mati memakai database core-only.
+- `FeatureSsrBrowserTest` memakai renderer production dan menghapus schema/settings modul hard-off dalam transaksi database testing. HTML harus berasal dari SSR, aplikasi harus terhidrasi, link modul mati tidak muncul, dan browser tidak boleh memiliki JavaScript error atau console log. Halaman public juga diperiksa ketika Website tetap aktif.
+- Matrix build tersedia melalui `lerd composer test:feature-build` dan menjadi bagian awal `lerd composer test`; workflow CI yang ada tetap memakai satu job dan entry point yang sama.
+
+Urutan deployment untuk perubahan hard flag:
+
+1. Tahan trafik dan pengambilan job baru untuk modul yang berubah; izinkan operasi backup/restore yang sudah berjalan menyelesaikan cleanup.
+2. Terapkan hard flag deployment sebenarnya, bangun config cache baru dengan `php artisan config:cache`, lalu jalankan `php artisan migrate --force --no-interaction` untuk schema/settings pending. Mematikan modul tidak menghapus data lama.
+3. Jalankan `composer build:ssr`. Vite memanggil `wayfinder:catalog` pada proses terpisah dengan katalog lengkap; jangan mengaktifkan semua flag di `.env` deployment. Jangan menjalankan acceptance test terhadap database production.
+4. Buat ulang config dan route cache runtime dengan flag deployment sebenarnya (`php artisan config:cache`, `php artisan route:cache`).
+5. Restart proses PHP panjang, queue worker, scheduler, Reverb, serta renderer SSR sesuai process manager deployment. Buka trafik setelah migrasi, cache, dan proses memakai konfigurasi baru.
+
+Perubahan **soft toggle** cukup disimpan melalui Settings > Modules; tidak memerlukan build, cache ulang, atau restart. Job berikutnya dan evaluasi scheduler berikutnya membaca state baru; job tertunda tetap wajib melewati guard saat mulai.
+
+| Worker lokal                                    | Ketika modul mati                                                                                                              |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `lerd-chat-jcf` (`realtime`, queue `chat`)      | Boleh dihentikan ketika chat nonaktif; job lama tetap digerbang jika worker dijalankan kembali.                                |
+| `lerd-backups-jcf` (`backups`, queue `backups`) | Boleh dihentikan setelah operasi berjalan selesai. Job tertunda akan menjadi `skipped` ketika diproses dalam kondisi nonaktif. |
+| `lerd-notifications-jcf`                        | Tetap diperlukan untuk notifikasi core ketika realtime dipakai, termasuk saat chat mati.                                       |
+| `lerd-queue-jcf`                                | Tetap diperlukan untuk job core/default; jangan dihentikan hanya karena modul mati.                                            |
+| `lerd-schedule-jcf`                             | Tetap diperlukan untuk jadwal core; backup/clean/monitor digerbang pada setiap evaluasi.                                       |
+| `lerd-reverb-jcf`                               | Tetap diperlukan jika notifikasi core memakai realtime; chat mati saja tidak cukup untuk menghentikannya.                      |
+| `lerd-vite-jcf` / renderer SSR                  | Mengikuti mode development/deployment, bukan toggle modul.                                                                     |
+
+Nama unit di atas berasal dari konfigurasi Lerd lokal; supervisor production harus mengikuti koneksi dan queue yang sama, bukan mengasumsikan nama unit Lerd tersedia di server.
 
 - Jalankan matrix empat modul × env on/off × settings on/off serta kombinasi seluruh modul mati.
 - Verifikasi CMS public off/admin on, navigasi, permission, search, scheduler, dan system health pada database yang benar-benar tidak memiliki schema/settings modul hard-off.
@@ -631,9 +662,9 @@ Arahan yang sudah ditetapkan pengguna:
 - Hard flag `.env`/config adalah gerbang pertama untuk seluruh konfigurasi, UI settings, dan migrasi modul.
 - Soft toggle aplikasi adalah gerbang kedua, hanya tersedia pada modul hard-on.
 - Migrasi existing boleh diedit dan database lokal boleh di-reset saat implementasi.
-- Fase 1 beserta reset/inisialisasi ulang database lokal, Fase 2, Fase 3, dan Fase 4 telah diimplementasikan. Fase 5 menunggu instruksi berikutnya.
+- Fase 1 beserta reset/inisialisasi ulang database lokal, Fase 2, Fase 3, dan Fase 4 telah diimplementasikan. Fase 5 beserta acceptance lokal selesai pada 26 Oktober 2026.
 
-Detail rancangan saat ini (default flag dan alias legacy tetap usulan):
+Konfigurasi yang telah diterapkan:
 
 1. Default flag: website/chat/documentation `true`, backup `false`.
 2. CMS: pindahkan `public_pages_enabled` ke `WebsiteSettings` dan tambahkan `website.enabled`.
@@ -641,4 +672,4 @@ Detail rancangan saat ini (default flag dan alias legacy tetap usulan):
 4. UI: satu halaman `Settings > Modules`, hanya untuk modul hard-on; seluruh konfigurasi modul hard-off disembunyikan. Jika semuanya hard-off, halaman/menu Modules juga tidak tersedia.
 5. Permission: tetap inisialisasi semua permission, tetapi filter yang ditampilkan dan diberikan ke frontend berdasarkan fitur efektif.
 
-Saat pengguna meminta implementasi, mulai dari Fase 1: fondasi flag beserta migration settings dan pemisahan General/CMS. Fase 2 baru dijalankan setelah fondasi tersebut lulus, termasuk pembuktian strategi build Wayfinder sebelum conditional routing dinyatakan selesai.
+Seluruh fase implementasi dan acceptance lokal telah selesai. Perubahan berikutnya wajib mempertahankan matrix runtime, migrasi core-only, build Wayfinder bersih, dan SSR/hydration melalui gate proyek.
