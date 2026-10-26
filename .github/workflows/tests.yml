@@ -57,6 +57,12 @@ jobs:
       SESSION_DRIVER: array
       QUEUE_CONNECTION: sync
       MAIL_MAILER: array
+      # Browser lifecycle tests provide their own WebSocket implementation.
+      VITE_BROADCAST_CONNECTION: reverb
+      VITE_REVERB_APP_KEY: browser-key
+      VITE_REVERB_HOST: 127.0.0.1
+      VITE_REVERB_PORT: '8080'
+      VITE_REVERB_SCHEME: http
       BACKUP_INTEGRATION: '1'
       PGPASSWORD: postgres
 
