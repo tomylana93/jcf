@@ -86,6 +86,7 @@
             "pnpm audit"
         ],
         "test:feature": "pest --compact --parallel --exclude-testsuite=Browser",
+        "test:feature-build": "pest tests/Acceptance/FeatureBuildTest.php --compact",
         "test:lint": [
             "pint --parallel --test",
             "rector --dry-run",
@@ -102,6 +103,7 @@
             "@types:check"
         ],
         "test:backend": [
+            "@test:feature-build",
             "@test:prepare",
             "@test:lint",
             "@test:types",
