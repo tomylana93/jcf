@@ -19,7 +19,7 @@ use function Pest\Laravel\actingAs;
 describe('Public website acceptance', function (): void {
     $enablePublicPages = function (): void {
         $general = resolve(GeneralSettings::class);
-        $general->public_pages_enabled = true;
+        resolve(WebsiteSettings::class)->fill(['public_pages_enabled' => true])->save();
         $general->save();
     };
 
@@ -265,7 +265,7 @@ describe('Public website acceptance', function (): void {
         $actor = actingAsUserWithPermissions(Permission::EditWebsiteContent, Permission::PublishWebsiteContent);
         $publishPage($actor, 'about', 'Disabled about');
         $general = resolve(GeneralSettings::class);
-        $general->public_pages_enabled = false;
+        resolve(WebsiteSettings::class)->fill(['public_pages_enabled' => false])->save();
         $general->save();
 
         auth()->forgetGuards();

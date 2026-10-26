@@ -10,6 +10,7 @@ return new class extends SettingsMigration
     public function up(): void
     {
         $defaults = [
+            'enabled' => true, 'public_pages_enabled' => true,
             'preset' => 'corporate', 'identity' => '',
             'seo' => ['title' => '', 'description' => '', 'robots' => 'index,follow'],
             'contact' => ['email' => null, 'phone' => null, 'address' => '', 'hours' => '', 'location_url' => null, 'social_links' => []],
@@ -24,7 +25,7 @@ return new class extends SettingsMigration
 
     public function down(): void
     {
-        foreach (['preset', 'identity', 'seo', 'contact', 'navigation', 'footer', 'preferences', 'public_version'] as $key) {
+        foreach (['enabled', 'public_pages_enabled', 'preset', 'identity', 'seo', 'contact', 'navigation', 'footer', 'preferences', 'public_version'] as $key) {
             $this->migrator->delete('website.'.$key);
         }
     }

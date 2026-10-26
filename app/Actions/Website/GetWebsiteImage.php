@@ -6,13 +6,13 @@ namespace App\Actions\Website;
 
 use App\Models\User;
 use App\Models\WebsiteContent;
-use App\Settings\GeneralSettings;
+use App\Settings\WebsiteSettings;
 use Illuminate\Support\Facades\Gate;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 final readonly class GetWebsiteImage
 {
-    public function __construct(private GeneralSettings $general) {}
+    public function __construct(private WebsiteSettings $settings) {}
 
     public function handle(int $id, ?User $actor = null): ?Media
     {
@@ -27,7 +27,7 @@ final readonly class GetWebsiteImage
         if ($actor !== null && Gate::forUser($actor)->allows('preview', $content)) {
             return $media;
         }
-        if (! $this->general->public_pages_enabled || $content->published === null || $content->published_at === null || $content->published_at->isFuture()) {
+        if (! $this->settings->public_pages_enabled || $content->published === null || $content->published_at === null || $content->published_at->isFuture()) {
             return null;
         }
         $images = [$content->published['cover'] ?? null, $content->published['seo']['image'] ?? null];

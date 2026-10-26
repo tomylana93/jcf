@@ -8,6 +8,10 @@ use Spatie\LaravelSettings\Settings;
 
 final class WebsiteSettings extends Settings
 {
+    public bool $enabled;
+
+    public bool $public_pages_enabled;
+
     public string $preset;
 
     public string $identity;

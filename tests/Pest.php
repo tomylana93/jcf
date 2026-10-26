@@ -10,6 +10,7 @@ use App\Models\Permission as PermissionModel;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Contracts\Foundation\MaintenanceMode;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\FileBasedMaintenanceMode;
 use Illuminate\Foundation\Http\Events\RequestHandled;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -154,7 +155,7 @@ function withIsolatedRestoreDatabase(Closure $test, string $connection = 'restor
 function isolateBackupOperations(): TemporaryDirectory
 {
     $directory = new TemporaryDirectory(storage_path('framework/testing/active-restore'))->create();
-    config(['jalara.operations.restore_files_directory' => $directory->path('active'), 'jalara.operations.restore_directory' => $directory->path('staging'), 'jalara.operations.backup_enabled' => true, 'backup.backup.password' => 'test-secret']);
+    config(['jalara.operations.restore_files_directory' => $directory->path('active'), 'jalara.operations.restore_directory' => $directory->path('staging'), 'features.backup' => true, 'backup.backup.password' => 'test-secret']);
     File::ensureDirectoryExists($directory->path('active'));
     app()->instance(MaintenanceMode::class, new class($directory->path('maintenance.json')) extends FileBasedMaintenanceMode
     {
@@ -246,10 +247,19 @@ function withChatConcurrencyDatabase(Closure $test): void
             DB::setDefaultConnection($connection);
             Schema::swap(DB::connection($connection)->getSchemaBuilder());
             resolve(PermissionRegistrar::class)->forgetCachedPermissions();
-            $paths = [database_path('migrations/0001_01_01_000000_create_users_table.php'), ...glob(database_path('migrations/*create_permission_tables.php')), ...glob(database_path('migrations/*create_chat_*_table.php'))];
+            $paths = [database_path('migrations/0001_01_01_000000_create_users_table.php'), ...glob(database_path('migrations/*create_permission_tables.php')), ...glob(database_path('migrations/chat/*create_chat_*_table.php'))];
             foreach ($paths as $path) {
                 (require $path)->up();
             }
+            Schema::create('settings', function (Blueprint $table): void {
+                $table->id();
+                $table->string('group');
+                $table->string('name');
+                $table->boolean('locked')->default(false);
+                $table->json('payload');
+                $table->timestamps();
+            });
+            DB::table('settings')->insert(['group' => 'chat', 'name' => 'enabled', 'payload' => 'true']);
             Event::fake([
                 ChatMessageCreated::class,
                 ChatReadUpdated::class,

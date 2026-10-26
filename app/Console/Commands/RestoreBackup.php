@@ -21,7 +21,7 @@ final class RestoreBackup extends Command
 
             return self::FAILURE;
         }
-        $backup = $this->argument('backup');
+        $backup = $this->input->getArgument('backup');
         $connection = $this->option('connection');
 
         if (! is_string($backup) || ! is_string($connection)) {

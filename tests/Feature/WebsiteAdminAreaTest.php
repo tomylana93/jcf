@@ -334,6 +334,25 @@ describe('Website admin area', function (): void {
         assertDatabaseHas('audit_logs', ['event' => 'website.settings.updated']);
     });
 
+    it('saves public page availability with empty fallback identity and SEO fields', function (): void {
+        actingAsUserWithPermissions(Permission::ConfigureWebsite);
+        patch('/website/settings', [
+            'public_pages_enabled' => false,
+            'identity' => '',
+            'seo' => ['title' => '', 'description' => '', 'robots' => 'index,follow'],
+            'contact' => ['email' => null, 'phone' => null, 'address' => '', 'hours' => '', 'location_url' => null, 'social_links' => []],
+            'footer' => ['text' => '', 'links' => []],
+        ])->assertSessionHasNoErrors()->assertRedirect(route('website.settings.edit'));
+        $settings = resolve(WebsiteSettings::class)->refresh();
+        expect($settings->public_pages_enabled)->toBeFalse()
+            ->and($settings->identity)->toBe('')
+            ->and($settings->seo['title'])->toBe('')
+            ->and($settings->seo['description'])->toBe('')
+            ->and($settings->contact['address'])->toBe('')
+            ->and($settings->contact['hours'])->toBe('')
+            ->and($settings->footer['text'])->toBe('');
+    });
+
     it('reports invalid website settings without partial updates', function (array $payload, string $key): void {
         actingAsUserWithPermissions(Permission::ConfigureWebsite);
 

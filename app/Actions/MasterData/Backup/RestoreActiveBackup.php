@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\MasterData\Backup;
 
+use App\Support\FeatureManager;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -17,12 +18,13 @@ final readonly class RestoreActiveBackup
 
     public function handle(string $filename, string $checksum): void
     {
-        throw_unless(config('jalara.operations.backup_enabled') && config('backup.backup.password'), RuntimeException::class, __('backup.error.not_configured'));
+        throw_unless(resolve(FeatureManager::class)->envEnabled('backup'), RuntimeException::class, __('backup.error.not_configured'));
+        throw_if(DB::connection()->getDriverName() !== 'pgsql' || DB::connection()->getConfig('search_path') !== 'public', RuntimeException::class, 'Active restore requires PostgreSQL with the public schema.');
+        throw_unless(resolve(FeatureManager::class)->enabled('backup') && config('backup.backup.password'), RuntimeException::class, __('backup.error.not_configured'));
         $lock = $this->getBackupLock->handle();
         throw_unless($lock->get(), RuntimeException::class, __('backup.error.busy'));
         try {
             throw_if(app()->isDownForMaintenance(), RuntimeException::class, 'The application is already in maintenance mode.');
-            throw_if(DB::connection()->getDriverName() !== 'pgsql' || DB::connection()->getConfig('search_path') !== 'public', RuntimeException::class, 'Active restore requires PostgreSQL with the public schema.');
             $directory = $this->extractBackup->handle($filename, $checksum, true);
             try {
                 $sqlPath = $directory->path('db-dumps/postgresql-'.config('database.default').'.sql');

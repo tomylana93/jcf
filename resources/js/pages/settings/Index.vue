@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, setLayoutProps } from '@inertiajs/vue3';
+import { Head, setLayoutProps, usePage } from '@inertiajs/vue3';
 import {
     LayoutTemplate,
     Mail,
@@ -7,7 +7,7 @@ import {
     Settings,
     ShieldCheck,
 } from '@lucide/vue';
-import { watchEffect } from 'vue';
+import { computed, watchEffect } from 'vue';
 
 import PageContainer from '@/components/layout/PageContainer.vue';
 import NavigationCardGrid from '@/components/shared/NavigationCardGrid.vue';
@@ -18,6 +18,7 @@ import { edit as editBrand } from '@/routes/settings/brand';
 import { edit } from '@/routes/settings/general';
 import { edit as editLayout } from '@/routes/settings/layout';
 import { edit as editMail } from '@/routes/settings/mail';
+import { edit as editModules } from '@/routes/settings/modules';
 import type { NavigationCard } from '@/types';
 
 const { t } = useTranslations();
@@ -28,7 +29,22 @@ watchEffect(() => {
     });
 });
 
-const cards: NavigationCard[] = [
+const page = usePage();
+const cards = computed<NavigationCard[]>(() => [
+    ...(Object.values(page.props.features).some(
+        (feature) => typeof feature === 'object' && feature.available,
+    )
+        ? [
+              {
+                  id: 'modules',
+                  href: editModules(),
+                  icon: Settings,
+                  title: 'settings.modules.card.title' as const,
+                  description: 'settings.modules.card.description' as const,
+                  dataTest: 'modules-settings-card',
+              },
+          ]
+        : []),
     {
         id: 'general',
         href: edit(),
@@ -69,7 +85,7 @@ const cards: NavigationCard[] = [
         description: 'settings.mail.card.description',
         dataTest: 'mail-settings-card',
     },
-];
+]);
 </script>
 
 <template>

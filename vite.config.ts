@@ -83,6 +83,7 @@ export default defineConfig({
             },
         }),
         wayfinder({
+            command: 'php artisan wayfinder:catalog',
             formVariants: true,
         }),
     ]),

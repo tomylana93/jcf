@@ -23,16 +23,60 @@ import { index as systemIndex } from '@/routes/system';
 import { index as websiteIndex } from '@/routes/website';
 import type {
     EditorLinkOption,
+    Features,
     NavGroup,
     NavItem,
     TranslationKey,
 } from '@/types';
 
+export type NavigationAccess = {
+    canViewSettings: boolean;
+    canViewUsers: boolean;
+    canViewUserPermissions: boolean;
+    canViewWebsite: boolean;
+    canViewDocumentation: boolean;
+    canManageDocumentation: boolean;
+    canViewAudit: boolean;
+    canViewSystem: boolean;
+    canManageBackups: boolean;
+    canUseChat: boolean;
+};
+
+export type NavigationOptions = {
+    access: NavigationAccess;
+    features: Features;
+    chatUnreadCount?: number;
+};
+
+export function navigationAccess(
+    permissions: readonly string[],
+    superAdmin = false,
+): NavigationAccess {
+    return {
+        canViewSettings: permissions.includes('settings.view'),
+        canViewUsers: permissions.includes('users.view'),
+        canViewUserPermissions:
+            superAdmin && permissions.includes('users.permissions.assign'),
+        canViewWebsite:
+            permissions.includes('website.content.edit') ||
+            permissions.includes('website.content.publish') ||
+            permissions.includes('website.configure') ||
+            permissions.includes('website.inbox.view'),
+        canViewDocumentation: permissions.includes('documentation.view'),
+        canManageDocumentation: permissions.includes('documentation.manage'),
+        canViewAudit: permissions.includes('audit.view'),
+        canViewSystem: permissions.includes('system.view'),
+        canManageBackups: permissions.includes('backups.manage'),
+        canUseChat: permissions.includes('chat.use'),
+    };
+}
+
 export function createMainNavigationItems(
     t: (key: TranslationKey) => string,
-    canUseChat = false,
-    chatUnreadCount = 0,
+    { access, features, chatUnreadCount = 0 }: NavigationOptions,
 ): NavItem[] {
+    const canUseChat = access.canUseChat && features.chat.enabled;
+
     return [
         {
             title: t('navigation.link.dashboard'),
@@ -56,15 +100,18 @@ export function createMainNavigationItems(
 
 export function createManagementNavigationGroups(
     t: (key: TranslationKey) => string,
-    canViewSettings = false,
-    canViewUsers = false,
-    canViewUserPermissions = false,
-    canViewWebsite = false,
-    canManageDocumentation = false,
-    canViewAudit = false,
-    canViewSystem = false,
-    canManageBackups = false,
+    { access, features }: NavigationOptions,
 ): NavGroup[] {
+    const canViewUsers = access.canViewUsers;
+    const canManageBackups = access.canManageBackups && features.backup.enabled;
+    const canViewUserPermissions = access.canViewUserPermissions;
+    const canViewSettings = access.canViewSettings;
+    const canManageDocumentation =
+        access.canManageDocumentation && features.documentation.enabled;
+    const canViewAudit = access.canViewAudit;
+    const canViewSystem = access.canViewSystem;
+    const canViewWebsite = access.canViewWebsite && features.website.enabled;
+
     if (
         !canViewSettings &&
         !canViewUsers &&
@@ -157,10 +204,13 @@ export function createManagementNavigationGroups(
 
 export function createFooterNavigationItems(
     t: (key: TranslationKey) => string,
-    canViewDocumentation = false,
-    canManageDocumentation = false,
+    { access, features }: NavigationOptions,
 ): NavItem[] {
-    return canViewDocumentation || canManageDocumentation
+    const canViewDocumentation =
+        features.documentation.enabled &&
+        (access.canViewDocumentation || access.canManageDocumentation);
+
+    return canViewDocumentation
         ? [
               {
                   title: t('navigation.link.documentation'),
@@ -173,62 +223,29 @@ export function createFooterNavigationItems(
 
 export function createNavigationGroups(
     t: (key: TranslationKey) => string,
-    canViewSettings = false,
-    canViewUsers = false,
-    canViewUserPermissions = false,
-    canViewWebsite = false,
-    canViewDocumentation = false,
-    canManageDocumentation = false,
-    canViewAudit = false,
-    canViewSystem = false,
-    canManageBackups = false,
-    canUseChat = false,
-    chatUnreadCount = 0,
+    options: NavigationOptions,
 ): NavGroup[] {
     return [
         {
-            items: createMainNavigationItems(t, canUseChat, chatUnreadCount),
+            items: createMainNavigationItems(t, options),
         },
-        ...createManagementNavigationGroups(
-            t,
-            canViewSettings,
-            canViewUsers,
-            canViewUserPermissions,
-            canViewWebsite,
-            canManageDocumentation,
-            canViewAudit,
-            canViewSystem,
-            canManageBackups,
-        ),
+        ...createManagementNavigationGroups(t, options),
     ];
 }
 
 export function createEditorLinkOptions(
     t: (key: TranslationKey) => string,
     permissions: readonly string[],
+    features: Features,
 ): EditorLinkOption[] {
+    const options: NavigationOptions = {
+        access: navigationAccess(permissions),
+        features,
+    };
+
     return [
-        ...createNavigationGroups(
-            t,
-            permissions.includes('settings.view'),
-            permissions.includes('users.view'),
-            permissions.includes('users.permissions.assign'),
-            permissions.includes('website.content.edit') ||
-                permissions.includes('website.content.publish') ||
-                permissions.includes('website.configure') ||
-                permissions.includes('website.inbox.view'),
-            permissions.includes('documentation.view'),
-            permissions.includes('documentation.manage'),
-            permissions.includes('audit.view'),
-            permissions.includes('system.view'),
-            permissions.includes('backups.manage'),
-            permissions.includes('chat.use'),
-        ).flatMap((group) => group.items),
-        ...createFooterNavigationItems(
-            t,
-            permissions.includes('documentation.view'),
-            permissions.includes('documentation.manage'),
-        ),
+        ...createNavigationGroups(t, options).flatMap((group) => group.items),
+        ...createFooterNavigationItems(t, options),
     ]
         .filter((item) => !item.external)
         .map((item) => ({

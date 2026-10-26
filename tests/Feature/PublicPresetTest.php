@@ -20,7 +20,7 @@ use function Pest\Laravel\get;
 describe('Public preset presentation', function (): void {
     it('uses the selected preset and preserves isolated presentation preferences', function (string $preset): void {
         $general = resolve(GeneralSettings::class);
-        $general->public_pages_enabled = true;
+        resolve(WebsiteSettings::class)->fill(['public_pages_enabled' => true])->save();
         $general->save();
         $settings = resolve(WebsiteSettings::class);
         $settings->preset = $preset;
@@ -69,7 +69,7 @@ describe('Public preset presentation', function (): void {
 
     it('returns no presentation and no image when public access is disabled', function (): void {
         $settings = resolve(GeneralSettings::class);
-        $settings->public_pages_enabled = false;
+        resolve(WebsiteSettings::class)->fill(['public_pages_enabled' => false])->save();
         $settings->save();
 
         expect(resolve(BuildPublicHome::class)->handle())->toBeNull();

@@ -40,6 +40,7 @@ return [
     ],
 
     'badge' => [
+        'skipped' => 'Dilewati',
         'idle' => 'Siaga',
         'running' => 'Berjalan',
         'completed' => 'Selesai',

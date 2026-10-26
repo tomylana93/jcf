@@ -88,11 +88,11 @@ describe('System operations authorization', function (): void {
     it('validates configuration and queues a backup on the isolated worker connection', function (): void {
         $user = actingAsSuperAdmin();
         withSession(['auth.password_confirmed_at' => time()]);
-        config(['jalara.operations.backup_enabled' => false]);
+        config(['backup.backup.password' => null]);
 
         post(route('master-data.backups.store'))->assertSessionHasErrors(['backup' => __('backup.error.not_configured')]);
 
-        config(['jalara.operations.backup_enabled' => true, 'backup.backup.password' => 'test-secret']);
+        config(['features.backup' => true, 'backup.backup.password' => 'test-secret']);
         Queue::fake([CreateSystemBackup::class]);
 
         post(route('master-data.backups.store'))->assertSessionHasNoErrors()->assertRedirect();
@@ -113,7 +113,7 @@ describe('System readiness checks', function (): void {
 
         resolve(SystemHeartbeat::class)->handle();
 
-        config(['queue.default' => 'database', 'jalara.operations.backup_enabled' => true, 'backup.backup.password' => 'test-secret', 'mail.default' => 'smtp']);
+        config(['queue.default' => 'database', 'features.backup' => true, 'backup.backup.password' => 'test-secret', 'mail.default' => 'smtp']);
         Storage::fake('backups')->put('jcf/test.zip', 'backup');
         $checks = collect(resolve(GetSystemHealth::class)->handle())->keyBy('name');
 
@@ -124,7 +124,7 @@ describe('System readiness checks', function (): void {
             ->and($checks['storage']['status'])->toBe('ok');
     });
     it('distinguishes stale workers and settings mail from a delivery test', function (): void {
-        config(['queue.default' => 'database', 'mail.default' => 'settings', 'jalara.operations.backup_enabled' => true, 'backup.backup.password' => 'test-secret']);
+        config(['queue.default' => 'database', 'mail.default' => 'settings', 'features.backup' => true, 'backup.backup.password' => 'test-secret']);
         Storage::fake('backups');
         Cache::put('system.queue_heartbeat', now()->subMinutes(6)->timestamp);
         $mail = resolve(MailSettings::class);
@@ -155,7 +155,7 @@ describe('System readiness checks', function (): void {
 describe('Storage readiness failure', function (): void {
     it('reports a failed health check when a storage write returns false', function (): void {
         $action = resolve(GetSystemHealth::class);
-        config(['jalara.operations.backup_enabled' => false]);
+        config(['backup.backup.password' => null]);
         $disk = Mockery::mock(FilesystemAdapter::class);
         $disk->shouldReceive('put')->once()->andReturn(false);
         $disk->shouldReceive('delete')->once()->andReturn(true);

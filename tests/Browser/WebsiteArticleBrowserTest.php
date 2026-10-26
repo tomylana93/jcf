@@ -10,6 +10,7 @@ use App\Settings\GeneralSettings;
 use App\Settings\WebsiteSettings;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
 
@@ -80,7 +81,7 @@ describe('Article browser flows', function (): void {
                 ->and($article->fresh()->draft['cover']['media_id'])->toBe($article->getFirstMedia('website-images')->id);
         } finally {
             mb_internal_encoding($encoding);
-            unlink($path);
+            File::delete($path);
         }
     });
 
@@ -116,14 +117,14 @@ describe('Article browser flows', function (): void {
                 ->and($content->fresh()->draft['seo']['image']['media_id'])->toBe($content->getFirstMedia('website-images')->id);
         } finally {
             mb_internal_encoding($encoding);
-            unlink($path);
+            File::delete($path);
         }
     });
 
     it('renders readable article pages and navigation in every preset', function (string $preset): void {
         $actor = actingAsUserWithPermissions(Permission::EditWebsiteContent, Permission::PublishWebsiteContent);
         $general = resolve(GeneralSettings::class);
-        $general->public_pages_enabled = true;
+        resolve(WebsiteSettings::class)->fill(['public_pages_enabled' => true])->save();
         $general->save();
         $settings = resolve(WebsiteSettings::class);
         $settings->preset = $preset;

@@ -29,7 +29,7 @@ use function Pest\Laravel\post;
 describe('Website publication acceptance', function (): void {
     it('returns unavailable page data independently of HTTP handling when public pages are disabled', function (string $builder, array $arguments): void {
         $general = resolve(GeneralSettings::class);
-        $general->public_pages_enabled = false;
+        resolve(WebsiteSettings::class)->fill(['public_pages_enabled' => false])->save();
         $general->save();
 
         expect(resolve($builder)->handle(...$arguments))->toBeNull();
@@ -43,7 +43,7 @@ describe('Website publication acceptance', function (): void {
     it('keeps structured page images and rendered sections consistent through preview and publication', function (string $key, string $path): void {
         Storage::fake('local');
         $general = resolve(GeneralSettings::class);
-        $general->public_pages_enabled = true;
+        resolve(WebsiteSettings::class)->fill(['public_pages_enabled' => true])->save();
         $general->save();
         $actor = actingAsUserWithPermissions(Permission::EditWebsiteContent, Permission::PublishWebsiteContent);
         $save = resolve(SaveWebsiteDraft::class);
@@ -90,7 +90,7 @@ describe('Website publication acceptance', function (): void {
     it('rejects hidden missing and orphaned images while preserving private editor access', function (): void {
         Storage::fake('local');
         $general = resolve(GeneralSettings::class);
-        $general->public_pages_enabled = true;
+        resolve(WebsiteSettings::class)->fill(['public_pages_enabled' => true])->save();
         $general->save();
         $actor = actingAsUserWithPermissions(Permission::EditWebsiteContent, Permission::PublishWebsiteContent);
         $save = resolve(SaveWebsiteDraft::class);
@@ -205,7 +205,7 @@ describe('Website publication acceptance', function (): void {
         $save->handle($actor, Arr::except(websiteDraft(['sections' => $sections]), ['slug']), pageKey: 'home');
         patch('/website/settings', ['navigation' => [['label' => 'Newsroom', 'href' => '/articles']], 'footer' => ['text' => 'Preview footer', 'links' => [['label' => 'Privacy', 'href' => '/privacy']]]])->assertSessionHasNoErrors();
         $general = resolve(GeneralSettings::class);
-        $general->public_pages_enabled = false;
+        resolve(WebsiteSettings::class)->fill(['public_pages_enabled' => false])->save();
         $general->save();
 
         get('/website/preview/home?preset=editorial')->assertOk()->assertInertia(fn (Assert $page): Assert => $page

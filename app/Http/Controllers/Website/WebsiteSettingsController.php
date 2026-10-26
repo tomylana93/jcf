@@ -28,7 +28,7 @@ final class WebsiteSettingsController extends Controller
         $settings->refresh();
 
         return Inertia::render('website/Settings', [
-            'settings' => Arr::only($settings->toArray(), ['identity', 'seo', 'contact', 'navigation', 'footer']),
+            'settings' => Arr::only($settings->toArray(), ['public_pages_enabled', 'identity', 'seo', 'contact', 'navigation', 'footer']),
             'preset' => $settings->preset,
             'presetOptions' => [...array_map(static fn (WebsitePreset $preset): array => ['value' => $preset->value, 'label' => $preset->label()], WebsitePreset::cases())],
         ]);

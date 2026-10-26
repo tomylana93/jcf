@@ -6,6 +6,7 @@ namespace App\Actions\Chat;
 
 use App\Models\ChatConversation;
 use App\Models\ChatParticipant;
+use App\Support\FeatureManager;
 use Illuminate\Broadcasting\PrivateChannel;
 use Spatie\Permission\PermissionRegistrar;
 
@@ -19,6 +20,10 @@ final readonly class GetChatBroadcastChannels
      */
     public function handle(string $conversationId, array $userIds): array
     {
+        if (! resolve(FeatureManager::class)->enabled('chat')) {
+            return [];
+        }
+
         $this->permissions->clearPermissionsCollection();
 
         return array_values(ChatParticipant::query()

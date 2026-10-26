@@ -96,6 +96,7 @@ export type WebsitePageEditor = {
 };
 
 export type WebsiteSettingsData = {
+    public_pages_enabled: boolean;
     identity: string;
     seo: {
         title: string;
@@ -126,6 +127,7 @@ export type WebsiteSettingsProps = {
 export type UpdateWebsitePageForm = WebsitePageContentForm;
 
 export type UpdateWebsiteSettingsForm = {
+    public_pages_enabled: boolean;
     identity: string;
     seo: {
         title: string;

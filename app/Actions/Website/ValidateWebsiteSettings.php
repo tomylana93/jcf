@@ -20,13 +20,14 @@ final readonly class ValidateWebsiteSettings
     public function handle(array $data): array
     {
         // The wrapper rejects unknown settings fields, the flat rules report errors on clean paths.
-        Validator::make(['settings' => $data], ['settings' => ['required', 'array:preset,identity,seo,contact,navigation,footer,preferences']])->validate();
+        Validator::make(['settings' => $data], ['settings' => ['required', 'array:public_pages_enabled,preset,identity,seo,contact,navigation,footer,preferences']])->validate();
         $link = ['array:label,href'];
         $rules = [
+            'public_pages_enabled' => ['sometimes', 'required', 'boolean'],
             'preset' => ['sometimes', Rule::in(['corporate', 'editorial', 'minimal'])],
             'identity' => ['sometimes', 'string', 'max:255'],
             'seo' => ['sometimes', 'array:title,description,robots', 'required_array_keys:title,description,robots'],
-            'seo.title' => ['required_with:seo', 'string', 'max:255'],
+            'seo.title' => ['present_with:seo', 'string', 'max:255'],
             'seo.description' => ['present_with:seo', 'string', 'max:500'],
             'seo.robots' => ['required_with:seo', Rule::in(['index,follow', 'noindex,nofollow'])],
             'contact' => ['sometimes', 'array:email,phone,address,hours,location_url,social_links', 'required_array_keys:email,phone,address,hours,location_url,social_links'],

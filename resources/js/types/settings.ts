@@ -2,7 +2,6 @@ export type GeneralSettings = {
     site_name: string;
     site_description: string;
     support_email: string | null;
-    public_pages_enabled: boolean;
 };
 
 export type LogoType = 'logo_only' | 'logo_text';

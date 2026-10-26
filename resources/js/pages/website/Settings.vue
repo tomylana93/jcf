@@ -19,6 +19,7 @@ import {
     FieldLabel,
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import WebsiteLinkList from '@/components/website/WebsiteLinkList.vue';
 import WebsiteSeoFields from '@/components/website/WebsiteSeoFields.vue';
@@ -45,6 +46,7 @@ watchEffect(() => {
 });
 
 const form = useForm<UpdateWebsiteSettingsForm>({
+    public_pages_enabled: props.settings.public_pages_enabled,
     identity: props.settings.identity,
     seo: {
         title: props.settings.seo.title,
@@ -93,6 +95,17 @@ function submit(): void {
             class="flex w-full flex-col gap-6"
             @submit.prevent="submit"
         >
+            <Field orientation="horizontal">
+                <FieldLabel for="public_pages_enabled">
+                    {{ t('settings.general.label.public_pages_enabled') }}
+                </FieldLabel>
+                <Switch
+                    id="public_pages_enabled"
+                    v-model="form.public_pages_enabled"
+                    :disabled="!canConfigure"
+                />
+                <FieldError :errors="[form.errors.public_pages_enabled]" />
+            </Field>
             <Card>
                 <CardHeader>
                     <CardTitle>

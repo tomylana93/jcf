@@ -6,18 +6,18 @@ namespace App\Actions\Website;
 
 use App\Models\WebsiteContent;
 use App\Models\WebsiteSlug;
-use App\Settings\GeneralSettings;
+use App\Settings\WebsiteSettings;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 
 final readonly class GetPublicWebsiteContent
 {
-    public function __construct(private GeneralSettings $general) {}
+    public function __construct(private WebsiteSettings $settings) {}
 
     /** @return array{content: array<string, mixed>, redirect_slug: string|null}|null */
     public function handle(string $key, bool $article = false): ?array
     {
-        if (! $this->general->public_pages_enabled) {
+        if (! $this->settings->public_pages_enabled) {
             return null;
         }
         $query = WebsiteContent::query()->select(['id', 'published', 'published_slug', 'published_at', 'publication_version'])->whereNotNull('published')->where('published_at', '<=', now());

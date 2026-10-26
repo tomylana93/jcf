@@ -7,6 +7,7 @@ return [
     'audit' => 'Audit log',
     'notifications' => 'Notifications',
     'settings' => 'Settings',
+    'modules' => 'Modules',
     'general' => 'General settings',
     'brand' => 'Brand Settings',
     'auth' => 'Authentication settings',

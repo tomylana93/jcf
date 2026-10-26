@@ -32,7 +32,7 @@ final class ExportFrontendTranslations extends Command
             }
         }
 
-        $output = $this->option('output') ?? resource_path('js/lang/messages.json');
+        $output = $this->input->getOption('output') ?? resource_path('js/lang/messages.json');
         if (! is_string($output)) {
             $this->error('The output path must be a string.');
 

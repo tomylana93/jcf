@@ -2,7 +2,7 @@ import { usePage } from '@inertiajs/vue3';
 import { onMounted, onScopeDispose, ref, watch } from 'vue';
 
 import { getRealtimeEcho } from '@/lib/echo';
-import type { Auth } from '@/types';
+import type { Auth, Features } from '@/types';
 import type {
     ChatMessage,
     ChatReadEvent,
@@ -18,24 +18,28 @@ type ChatRealtimeHandlers = {
 };
 
 export function useChatRealtime(handlers: ChatRealtimeHandlers) {
-    const page = usePage<{ auth: Auth }>();
+    const page = usePage<{ auth: Auth; features: Features }>();
     const state = ref<ChatRealtimeState>('connecting');
 
     let dispose = () => {};
 
     onMounted(() => {
         const stop = watch(
-            () => page.props.auth?.user?.id,
-            (userId, _, onCleanup) => {
+            [
+                () => page.props.auth?.user?.id,
+                () => page.props.features.chat.enabled,
+                () => page.props.features.realtime,
+            ],
+            ([userId, chatEnabled, realtimeEnabled], _, onCleanup) => {
                 state.value = 'connecting';
 
-                if (!userId) {
+                if (!userId || !chatEnabled || !realtimeEnabled) {
                     state.value = 'disconnected';
 
                     return;
                 }
 
-                const echo = getRealtimeEcho();
+                const echo = getRealtimeEcho(realtimeEnabled);
 
                 if (!echo) {
                     state.value = 'disconnected';

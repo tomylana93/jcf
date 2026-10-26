@@ -189,6 +189,8 @@ describe('Linux backup and restore integration', function (): void {
         $originalDefault = config('database.default');
         try {
             withIsolatedRestoreDatabase(function (string $source) use ($workspace, $originalDefault): void {
+                DB::connection($source)->statement('CREATE TABLE settings (id SERIAL PRIMARY KEY, "group" VARCHAR(255), name VARCHAR(255), locked BOOLEAN DEFAULT FALSE, payload TEXT, created_at TIMESTAMP, updated_at TIMESTAMP)');
+                DB::connection($source)->table('settings')->insert(['group' => 'backup', 'name' => 'enabled', 'payload' => 'true']);
                 DB::connection($source)->statement('CREATE TABLE roundtrip_data (id INTEGER PRIMARY KEY, label TEXT NOT NULL)');
                 DB::connection($source)->table('roundtrip_data')->insert(['id' => 42, 'label' => 'verified-database']);
                 config([
@@ -198,7 +200,7 @@ describe('Linux backup and restore integration', function (): void {
                     'backup.backup.source.files.exclude' => [],
                     'backup.backup.source.files.relative_path' => $workspace->path(),
                     'backup.backup.password' => 'integration-only-test-secret',
-                    'jalara.operations.backup_enabled' => true,
+                    'features.backup' => true,
                 ]);
                 Config::rebind();
                 Process::swap(new Factory);

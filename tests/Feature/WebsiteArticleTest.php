@@ -9,6 +9,7 @@ use App\Enums\Permission;
 use App\Models\User;
 use App\Models\WebsiteContent;
 use App\Settings\GeneralSettings;
+use App\Settings\WebsiteSettings;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -135,7 +136,7 @@ describe('Article administration and public reading', function (): void {
         $article = resolve(SaveWebsiteDraft::class)->handle($actor, websiteDraft());
         resolve(PublishWebsiteContent::class)->handle($actor, $article, 1);
         $settings = resolve(GeneralSettings::class);
-        $settings->public_pages_enabled = false;
+        resolve(WebsiteSettings::class)->fill(['public_pages_enabled' => false])->save();
         $settings->save();
         get('/articles')->assertNotFound();
         get('/articles/company-news')->assertNotFound();

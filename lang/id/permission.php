@@ -44,4 +44,8 @@ return [
     'status' => [
         'updated' => 'Permission user berhasil diperbarui.',
     ],
+
+    'error' => [
+        'module_disabled' => 'Permission ini berasal dari modul yang sedang dinonaktifkan.',
+    ],
 ];

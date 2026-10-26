@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\AuditLog;
+use App\Support\FeatureManager;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
@@ -17,6 +18,6 @@ Schedule::command('model:prune', ['--model' => [AuditLog::class]])->daily()->wit
 
 Schedule::command('system:heartbeat')->everyMinute()->withoutOverlapping();
 
-Schedule::command('system:backup')->dailyAt('01:30')->withoutOverlapping(40)->when(fn (): bool => (bool) config('jalara.operations.backup_enabled') && (bool) config('backup.backup.password'));
-Schedule::command('backup:clean')->dailyAt('01:00')->withoutOverlapping()->when(fn (): bool => (bool) config('jalara.operations.backup_enabled'));
-Schedule::command('backup:monitor')->dailyAt('10:00')->withoutOverlapping()->when(fn (): bool => (bool) config('jalara.operations.backup_enabled'));
+Schedule::command('system:backup')->dailyAt('01:30')->withoutOverlapping(40)->when(fn (): bool => (bool) resolve(FeatureManager::class)->enabled('backup') && (bool) config('backup.backup.password'));
+Schedule::command('backup:clean')->dailyAt('01:00')->withoutOverlapping()->when(fn (): bool => (bool) resolve(FeatureManager::class)->enabled('backup'));
+Schedule::command('backup:monitor')->dailyAt('10:00')->withoutOverlapping()->when(fn (): bool => (bool) resolve(FeatureManager::class)->enabled('backup'));

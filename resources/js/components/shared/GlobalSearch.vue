@@ -32,7 +32,7 @@ const { t } = useTranslations();
 const { query, results, loading, failed, load, reset } = useGlobalSearch();
 
 const pages = computed(() =>
-    createEditorLinkOptions(t, page.props.auth.permissions)
+    createEditorLinkOptions(t, page.props.auth.permissions, page.props.features)
         .filter((item) =>
             item.label
                 .toLocaleLowerCase()

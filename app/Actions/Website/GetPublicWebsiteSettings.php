@@ -4,18 +4,17 @@ declare(strict_types=1);
 
 namespace App\Actions\Website;
 
-use App\Settings\GeneralSettings;
 use App\Settings\WebsiteSettings;
 use Illuminate\Support\Facades\Cache;
 
 final readonly class GetPublicWebsiteSettings
 {
-    public function __construct(private GeneralSettings $general, private WebsiteSettings $settings) {}
+    public function __construct(private WebsiteSettings $settings) {}
 
     /** @return array<string, mixed>|null */
     public function handle(): ?array
     {
-        if (! $this->general->public_pages_enabled) {
+        if (! $this->settings->public_pages_enabled) {
             return null;
         }
         $this->settings->refresh();

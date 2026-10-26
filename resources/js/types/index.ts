@@ -11,6 +11,7 @@ export * from './settings';
 export * from './table';
 export * from './permission';
 export * from './editor';
+export * from './features';
 export * from './documentation';
 export * from './audit';
 export * from './notification';

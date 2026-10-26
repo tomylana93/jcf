@@ -67,6 +67,7 @@ const busy = computed(
 
 const statusTones = {
     idle: 'neutral',
+    skipped: 'neutral',
     running: 'info',
     completed: 'success',
     failed: 'danger',

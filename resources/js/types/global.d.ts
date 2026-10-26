@@ -4,6 +4,7 @@ import type {
     Auth,
     BrandSettings,
     ChatSummary,
+    Features,
     GeneralSettings,
     LayoutSettings,
     LocaleSettings,
@@ -31,6 +32,7 @@ declare module '@inertiajs/core' {
             timezone: TimezoneSettings;
             sidebarOpen: boolean;
             general: GeneralSettings;
+            features: Features;
             brand: BrandSettings;
             layout: LayoutSettings;
             locale: LocaleSettings;

@@ -7,12 +7,11 @@ namespace App\Actions\Website;
 use App\Enums\WebsitePage;
 use App\Enums\WebsitePreset;
 use App\Models\WebsiteContent;
-use App\Settings\GeneralSettings;
 use App\Settings\WebsiteSettings;
 
 final readonly class GetWebsiteArea
 {
-    public function __construct(private WebsiteSettings $settings, private GeneralSettings $general) {}
+    public function __construct(private WebsiteSettings $settings) {}
 
     /** @return array<string, mixed> */
     public function handle(): array
@@ -34,7 +33,7 @@ final readonly class GetWebsiteArea
             }, WebsitePage::cases()),
             'preset' => $this->settings->preset,
             'presetOptions' => [...array_map(static fn (WebsitePreset $preset): array => ['value' => $preset->value, 'label' => $preset->label()], WebsitePreset::cases())],
-            'publicPagesEnabled' => $this->general->public_pages_enabled,
+            'publicPagesEnabled' => $this->settings->public_pages_enabled,
         ];
     }
 }

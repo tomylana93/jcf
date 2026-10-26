@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\MasterData\Backup;
 
+use App\Support\FeatureManager;
 use RuntimeException;
 
 final readonly class CreateBackup
@@ -12,7 +13,7 @@ final readonly class CreateBackup
 
     public function handle(): string
     {
-        if (! config('jalara.operations.backup_enabled') || ! config('backup.backup.password')) {
+        if (! resolve(FeatureManager::class)->enabled('backup') || ! config('backup.backup.password')) {
             throw new RuntimeException(__('backup.error.not_configured'));
         }
 

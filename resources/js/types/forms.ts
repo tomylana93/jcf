@@ -76,7 +76,6 @@ export type UpdateGeneralSettingsForm = {
     site_name: string;
     site_description: string;
     support_email: string;
-    public_pages_enabled: boolean;
 };
 
 export type UpdateBrandSettingsForm = {

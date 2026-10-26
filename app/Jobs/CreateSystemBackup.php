@@ -7,6 +7,7 @@ namespace App\Jobs;
 use App\Actions\MasterData\Backup\CreateBackup;
 use App\Models\User;
 use App\Notifications\ApplicationNotification;
+use App\Support\FeatureManager;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -30,6 +31,12 @@ final class CreateSystemBackup implements ShouldBeUnique, ShouldQueue
 
     public function handle(CreateBackup $createBackup): void
     {
+        if (! resolve(FeatureManager::class)->enabled('backup')) {
+            Cache::put('system.backup_status', 'skipped', 86400);
+
+            return;
+        }
+
         $filename = $createBackup->handle();
         User::query()->find($this->actorId)?->notify(new ApplicationNotification('backup_ready', $filename));
     }
