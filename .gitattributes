@@ -6,6 +6,37 @@
 *.md diff=markdown
 *.php diff=php
 
-CHANGELOG.md export-ignore
-README.md export-ignore
-.github/workflows/browser-tests.yml export-ignore
+# Keep application code, tests, rules, lockfiles, README and CI in dist.
+# Exclude only foundation planning and machine/runtime state at the root.
+/*_ROADMAP.md export-ignore
+/.lerd.yaml export-ignore
+/.lerd.local.yaml export-ignore
+/.serena export-ignore
+/.impeccable export-ignore
+/.vscode export-ignore
+/.agents export-ignore
+/.codex export-ignore
+/.claude export-ignore
+/.mcp.json export-ignore
+/AGENTS.md export-ignore
+/CLAUDE.md export-ignore
+/boost.json export-ignore
+/.env export-ignore
+/.env.* export-ignore
+/.env.example -export-ignore
+/auth.json export-ignore
+/vendor export-ignore
+/node_modules export-ignore
+/public/build export-ignore
+/public/hot export-ignore
+/public/storage export-ignore
+/bootstrap/cache/*.php export-ignore
+/bootstrap/ssr export-ignore
+/storage/*.key export-ignore
+/storage/backups export-ignore
+/storage/backup-temp export-ignore
+/storage/restore-drills export-ignore
+/storage/logs/*.log export-ignore
+/tests/Browser/Screenshots export-ignore
+/tests/Browser/Traces export-ignore
+/.phpunit.cache export-ignore

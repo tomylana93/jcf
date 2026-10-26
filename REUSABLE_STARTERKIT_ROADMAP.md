@@ -2,7 +2,7 @@
 
 Tanggal: 26 Oktober 2026
 
-Status: fase 0 didokumentasikan dan fase 1 diimplementasikan secara lokal; gate akses Packagist, minimum installer/Composer, dan acceptance publik tetap terbuka. Fase 2–6 belum dimulai.
+Status: fase 0 didokumentasikan dan fase 1 diimplementasikan secara lokal; gate akses Packagist, minimum installer/Composer, dan acceptance publik tetap terbuka. Fase 2 diimplementasikan dan divalidasi lokal; Fase 3–6 belum dimulai.
 
 Baseline analisis: `5424c54e603cc9b567e1d3cfb0b99538d87b54f5`
 
@@ -304,14 +304,29 @@ Batas bukti: full gate `composer test` (termasuk audit, seluruh lint/type/covera
 
 ### Fase 2 — Distribusi bersih dan provenance minimal
 
-- [ ] **F2-01** Terapkan allow/deny file arsip menggunakan `.gitattributes` yang spesifik.
-- [ ] **F2-02** Buat README instalasi yang ikut distribusi; dokumen internal roadmap tidak ikut turunan.
-- [ ] **F2-03** Finalisasi satu penanda `.foundation-version` dari versi sumber sebelum reset versi aplikasi.
-- [ ] **F2-04** Atur bootstrap aplikasi `version.txt`/manifest dan changelog tanpa metadata/histori JCF.
-- [ ] **F2-05** Buktikan finalisasi hanya pada pembuatan aplikasi baru, bukan setiap install/update dependency.
-- [ ] **F2-06** Pastikan proyek hasil instalasi tidak membutuhkan registry/discovery service atau koneksi balik ke repository fondasi.
+- [x] **F2-01** Terapkan allow/deny file arsip menggunakan `.gitattributes` yang spesifik.
+- [x] **F2-02** Buat README instalasi yang ikut distribusi; dokumen internal roadmap tidak ikut turunan.
+- [x] **F2-03** Finalisasi satu penanda `.foundation-version` dari versi sumber sebelum reset versi aplikasi.
+- [x] **F2-04** Atur bootstrap aplikasi `version.txt`/manifest dan changelog tanpa metadata/histori JCF.
+- [x] **F2-05** Buktikan finalisasi hanya pada pembuatan aplikasi baru, bukan setiap install/update dependency.
+- [x] **F2-06** Pastikan proyek hasil instalasi tidak membutuhkan registry/discovery service atau koneksi balik ke repository fondasi.
 
 Gate: arsip aktual berisi kode/panduan/lockfile/workflow yang dibutuhkan; metadata asal fondasi tepat satu file; riwayat versi aplikasi independen dan re-run tidak meresetnya.
+
+### Bukti fase 2 — 26 Oktober 2026
+
+Cakupan lokal F2-01–F2-06; tidak mengaktifkan Release Please atau mengerjakan acceptance publik fase berikutnya.
+
+- `.gitattributes` memakai pengecualian root yang spesifik untuk roadmap internal, Lerd/editor/agent state, secret dan artefak runtime. `.env.example`, README, kode, rules, tests, lockfile dan workflow CI tetap tersedia. README tidak lagi menautkan roadmap yang tidak ikut distribusi.
+- `bootstrap/finalize-project.php` dijalankan hanya dari event `post-create-project-cmd`, setelah persiapan tanpa DB. Script mandiri tidak memakai Laravel, vendor, Git executable, registry/discovery atau koneksi ke fondasi. Pemeriksaan graph scripts memastikan install/update/autoload/setup tidak memanggil finalisasi.
+- `version.txt` sumber ditambahkan dengan baseline development **0.1.0**, bukan klaim tag/rilis stabil. Ini prasyarat provenance fase 2; baseline rilis fondasi dan otomasi tetap cakupan fase 3. Penanda `.foundation-version` tidak dibuat pada repository fondasi.
+- Pada aplikasi baru, sumber dibaca sebelum reset; script menghasilkan satu penanda `jcf@<versi sumber>`, versi dan manifest aplikasi `0.1.0`, serta changelog baru tanpa history fondasi. Marker valid membuat rerun no-op, termasuk setelah versi/changelog aplikasi berubah.
+- Source version/marker invalid, repository Git existing tanpa provenance, destination non-regular, dan konfigurasi/workflow Release Please yang belum mempunyai transformasi turunan ditolak. Guard konfigurasi ini perlu diintegrasikan dengan template fase 4 sebelum paket dengan release config fondasi dapat dipasang. Script memulihkan file yang sudah ditulis bila write berikutnya gagal; ini bukan transaksi tahan crash/power loss.
+- `git archive` dari temporary index/tree kandidat aktual memuat **1466 entri**; 9 path wajib dan 12 pengecualian diperiksa. Tree tidak mengubah index Git pengguna dan bukan commit/rilis. Finalisasi serta rerun pada hasil ekstraksi berhasil tanpa vendor/node_modules. Percobaan awal melalui PHP shim dengan direktori host `/tmp` tidak melihat `version.txt` di container; pengujian diulang pada direktori disposable yang termount dan berhasil.
+
+Validasi: **15 tests passed, 62 assertions** (unit finalisasi dan feature creation hook tanpa DB), Pint dirty lulus, Rector dry-run kedua file test lulus, PHPStan script mandiri lulus, Composer validate strict lulus, dan diff whitespace lulus. Rector Laravel tidak diterapkan pada script mandiri karena transformasi facade/helper memerlukan bootstrap Laravel; script ini berada di luar default paths Rector. Tidak ada perubahan versi dependency/content-hash lockfile, handler HTTP, atau migrasi.
+
+Batas bukti: tidak menjalankan full `composer test`, fresh dependency installation, browser, hosted CI, Release Please sandbox atau paket publik. Gate distribusi/provenance fase 2 terbukti lokal; acceptance kandidat dari commit tetap dan paket publik tetap fase 5. Belum commit/push/merge/publikasi/deploy. Work log Daily Tasks diperbarui sebagai In Progress.
 
 ### Fase 3 — Release Please fondasi
 
@@ -426,7 +441,7 @@ Roadmap dianggap selesai ketika:
 - [ ] Satu aplikasi contoh menyelesaikan rilis independen dan satu siklus adopsi upgrade.
 - [ ] Bukti lokal, hosted CI, publikasi paket, dan acceptance turunan tercatat secara terpisah.
 
-Fase 0 menambahkan kontrak dan bukti pemeriksaan. Fase 1 mengubah jalur setup, konfigurasi instance/database, dan regression tests sebagaimana dicatat di atas. Versi dependency tidak berubah; belum ada konfigurasi Release Please, publikasi Packagist, push, merge, atau deployment.
+Fase 0 menambahkan kontrak dan bukti pemeriksaan. Fase 1 mengubah jalur setup, konfigurasi instance/database, dan regression tests sebagaimana dicatat di atas. Fase 2 menambahkan distribusi bersih dan finalisasi provenance/versi aplikasi. Versi dependency tidak berubah; belum ada konfigurasi Release Please, publikasi Packagist, push, merge, atau deployment.
 
 ## 13. Referensi
 

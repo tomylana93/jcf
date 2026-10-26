@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Spatie\TemporaryDirectory\TemporaryDirectory;
+use Symfony\Component\Process\Process;
 
 use function Pest\Laravel\artisan;
 
@@ -24,9 +25,9 @@ describe('Database-free preparation', function (): void {
 
             artisan('init:prepare')->assertSuccessful();
 
-            expect($key)->toStartWith('base64:');
-            expect(config('app.key'))->toBe($key);
-            expect(File::get($directory->path('.env')))->toBe($contents);
+            expect($key)->toStartWith('base64:')
+                ->and(config('app.key'))->toBe($key)
+                ->and(File::get($directory->path('.env')))->toBe($contents);
         } finally {
             app()->useEnvironmentPath($originalPath);
             $directory->delete();
@@ -41,7 +42,13 @@ describe('Database-free preparation', function (): void {
             ->assertFailed();
     });
     it('runs the Composer creation hook successfully with no database configured', function (): void {
-        $process = new Symfony\Component\Process\Process(['composer', 'run', 'post-create-project-cmd', '--no-interaction'], base_path(), [
+        $directory = (new TemporaryDirectory)->create();
+        File::copy(base_path('bootstrap/finalize-project.php'), $directory->path('bootstrap/finalize-project.php'));
+        File::put($directory->path('version.txt'), "1.2.3\n");
+        $manifest = json_decode(File::get(base_path('composer.json')), true, flags: JSON_THROW_ON_ERROR);
+        $manifest['scripts']['post-create-project-cmd'][0] = '@php '.escapeshellarg(base_path('artisan')).' init:prepare --no-interaction';
+        File::put($directory->path('composer.json'), json_encode($manifest, JSON_THROW_ON_ERROR));
+        $process = new Process(['composer', 'run', 'post-create-project-cmd', '--no-interaction'], $directory->path(), [
             'APP_ENV' => 'local',
             'APP_KEY' => config('app.key'),
             'DB_CONNECTION' => 'pgsql',
@@ -52,24 +59,29 @@ describe('Database-free preparation', function (): void {
             'DB_TEST_DATABASE' => '',
         ]);
 
-        $process->run();
+        try {
+            $process->run();
 
-        expect($process->isSuccessful())->toBeTrue($process->getOutput().$process->getErrorOutput());
-        expect($process->getOutput())->toContain('Preparation complete. Configure PostgreSQL');
+            expect($process->isSuccessful())->toBeTrue($process->getOutput().$process->getErrorOutput())
+                ->and($process->getOutput())->toContain('Preparation complete. Configure PostgreSQL')
+                ->and(File::get($directory->path('.foundation-version')))->toBe("jcf@1.2.3\n");
+        } finally {
+            $directory->delete();
+        }
     });
     it('requires clearing cached configuration before setup', function (): void {
         $directory = (new TemporaryDirectory)->create();
         $cachePath = $directory->path('config.php');
         File::put($cachePath, '<?php return '.var_export(config()->all(), true).';');
-        $process = new Symfony\Component\Process\Process([PHP_BINARY, 'artisan', 'init:prepare', '--no-interaction'], base_path(), [
+        $process = new Process([PHP_BINARY, 'artisan', 'init:prepare', '--no-interaction'], base_path(), [
             'APP_CONFIG_CACHE' => $cachePath,
         ]);
 
         try {
             $process->run();
 
-            expect($process->isSuccessful())->toBeFalse();
-            expect($process->getOutput())->toContain('Clear cached configuration');
+            expect($process->isSuccessful())->toBeFalse()
+                ->and($process->getOutput())->toContain('Clear cached configuration');
         } finally {
             $directory->delete();
         }

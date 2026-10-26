@@ -28,7 +28,7 @@ Hard flags control module availability and migration registration. A module disa
 
 After publication and acceptance testing, the target command is `laravel new app-name --using=tomylana93/jcf`; the fixed-version path is `composer create-project tomylana93/jcf app-name 1.0.0`. Neither is a **validated public installation instruction yet**. Community starter kit support through Packagist is described in the [Laravel 13 documentation](https://laravel.com/docs/13.x/starter-kits#community-maintained-starter-kits).
 
-The Composer creation hook runs `init:prepare` only. It generates an application key when missing, preserves an existing key, and prints the remaining setup steps. It does not create a SQLite file, run migrations, or provision accounts. Ordinary dependency installation and updates do not run this creation hook.
+The Composer creation hook runs `init:prepare`, then database-free application release finalization. It generates an application key when missing, preserves an existing key, and prints the remaining setup steps. It does not create a SQLite file, run migrations, or provision accounts. Ordinary dependency installation and updates do not run this creation hook.
 
 For a checkout or Composer-created application, complete setup explicitly:
 
@@ -43,7 +43,7 @@ Tests use `DB_TEST_DATABASE` rather than a hardcoded JCF name. Testing ignores t
 
 Backup names, session cookies, cache prefixes, and Redis prefixes default to `APP_INSTANCE` or the checkout directory name. Existing installations can retain their namespaces with `BACKUP_NAME`, `SESSION_COOKIE`, `CACHE_PREFIX`, and `REDIS_PREFIX`; changing cookie names requires users to sign in again. Configure a real mail sender and unique Reverb credentials before enabling those services. Backup remains opt-in.
 
-The committed Lerd configuration no longer declares the `jcf` domain. For Lerd, discover the site, select its own database, set up the environment, then run framework setup. Configure a checkout-specific domain in `.lerd.local.yaml` or through Lerd. Do not copy the foundation instance's domain or secrets.
+The distribution archive excludes the foundation instance’s `.lerd.yaml`. For Lerd, discover the site, select its own database, set up the environment, then run framework setup. Configure a checkout-specific domain in `.lerd.local.yaml` or through Lerd. Do not copy the foundation instance's domain or secrets.
 
 ### Laravel Installer audit
 
@@ -53,7 +53,7 @@ The JCF installer hook therefore returns a nonzero status before those database,
 
 ## Versioning and adoption contract
 
-The following contract is established before automation is implemented:
+The distribution implements the following version contract:
 
 - `version.txt` stores the repository version: JCF's first stable release target is `1.0.0`, and the initial development baseline for a derived application is `0.1.0`. Release Please uses the `simple` strategy, one root package, `vX.Y.Z` tags, and a manifest and changelog owned by each repository.
 - Only derived applications carry `.foundation-version`: one line containing `jcf@X.Y.Z`, taken from the source version before resetting the application version. JCF does not need to mark itself.
@@ -61,10 +61,14 @@ The following contract is established before automation is implemented:
 - Derived application bootstrap must be idempotent, start its own history and changelog, and stay outside ordinary dependency installation or updates. Application releases do not change the foundation origin marker.
 - Adopt foundation changes through focused PRs and testing. Advance the foundation baseline only after full adoption has been validated; record partial patches in PRs and the changelog. Changes to released migrations must use new, forward-only migrations.
 
-Version files, Release Please, derived application finalization, archive policy, and public acceptance testing have not been implemented in phase 0. No foundation registry or discovery service, or additional frontend unit-test tooling, is required.
+The source `version.txt` currently contains the development baseline `0.1.0`; this is not a published stable release. During Composer project creation, `bootstrap/finalize-project.php` reads that source version, writes `.foundation-version`, resets `version.txt` and the root Release Please manifest to `0.1.0`, and starts an application changelog. Rerunning with a valid origin marker preserves all application release files. A missing/invalid source version, an invalid origin marker, or an existing Git repository without provenance fails explicitly. Finalize an archive before `git init`; do not run the creation event on the foundation checkout. Ordinary `composer install`, `composer update`, and `composer setup` do not finalize release identity.
+
+For a source archive installed with `--no-scripts`, run `php bootstrap/finalize-project.php` explicitly before initializing Git. It needs only PHP and local files, with no registry, discovery service, Git executable, or connection to JCF. Foundation Release Please automation and the derived application release template are later phases. Until that template exists, finalization refuses inherited Release Please configuration/workflows rather than carrying foundation release settings into an application. The manifest is initial state only; it does not establish the first public release behavior.
+
+Archives retain application code, regression tests, project rules, README, lockfiles, and CI. Root roadmap files and machine-specific Lerd/editor/agent state are excluded. Public package acceptance remains pending. No frontend unit-test tooling is required.
 
 ## Validation and releases
 
 The existing gate is `composer test`: audits, feature build acceptance, SSR build, linting, type checks, type coverage, backend coverage, and browser tests. CI runs it in one Linux job for non-draft PRs targeting `main`, with manual dispatch available. Historical hosted results do not prove that this documentation commit or starter kit installation has passed the full suite.
 
-Releases require GitHub App credentials that can trigger release PR checks, required checks on the latest head, and review. A tag or release does not authorize deployment. Baseline details, external access checks, and outstanding gates are recorded in the [implementation roadmap](REUSABLE_STARTERKIT_ROADMAP.md).
+Releases require GitHub App credentials that can trigger release PR checks, required checks on the latest head, and review. A tag or release does not authorize deployment. Consult the foundation repository for its internal implementation roadmap and outstanding publication gates; internal roadmap files are not distributed.

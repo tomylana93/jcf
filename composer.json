@@ -128,7 +128,8 @@
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
         ],
         "post-create-project-cmd": [
-            "@php artisan init:prepare --no-interaction"
+            "@php artisan init:prepare --no-interaction",
+            "@php bootstrap/finalize-project.php"
         ],
         "pre-package-uninstall": [
             "Illuminate\\Foundation\\ComposerScripts::prePackageUninstall"
