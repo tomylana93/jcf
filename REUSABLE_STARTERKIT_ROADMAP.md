@@ -2,7 +2,7 @@
 
 Tanggal: 26 Oktober 2026
 
-Status: fase 0 didokumentasikan dan fase 1 diimplementasikan secara lokal; gate akses Packagist, minimum installer/Composer, dan acceptance publik tetap terbuka. Fase 2 diimplementasikan dan divalidasi lokal; Fase 3–6 belum dimulai.
+Status: fase 0 didokumentasikan dan fase 1 diimplementasikan secara lokal; gate akses Packagist, minimum installer/Composer, dan acceptance publik tetap terbuka. Fase 2 divalidasi lokal. Konfigurasi fase 3 divalidasi lokal dan sandbox privat disiapkan; gate hosted tertahan billing GitHub Actions. Fase 4–6 belum dimulai.
 
 Baseline analisis: `5424c54e603cc9b567e1d3cfb0b99538d87b54f5`
 
@@ -330,14 +330,29 @@ Batas bukti: tidak menjalankan full `composer test`, fresh dependency installati
 
 ### Fase 3 — Release Please fondasi
 
-- [ ] **F3-01** Tambahkan `version.txt`, config, manifest, dan workflow Release Please JCF.
-- [ ] **F3-02** Tetapkan baseline dan batas commit awal agar release PR pertama tidak menyerap history yang tidak relevan.
-- [ ] **F3-03** Tambahkan pengecualian orkestrasi rilis ringan ke aturan CI.
-- [ ] **F3-04** Pasang credential release yang dapat memicu checks release PR.
-- [ ] **F3-05** Verifikasi bump patch/minor/major, changelog, tag, dan root package dari konfigurasi.
+- [x] **F3-01** Tambahkan `version.txt`, config, manifest, dan workflow Release Please JCF.
+- [x] **F3-02** Tetapkan baseline dan batas commit awal agar release PR pertama tidak menyerap history yang tidak relevan.
+- [x] **F3-03** Tambahkan pengecualian orkestrasi rilis ringan ke aturan CI.
+- [x] **F3-04** Pasang credential release yang dapat memicu checks release PR.
+- [x] **F3-05** Verifikasi bump patch/minor/major, changelog, tag, dan root package dari konfigurasi.
 - [ ] **F3-06** Uji alur pada repository sandbox; rilis publik JCF menunggu Fase 5.
 
 Gate: release PR memperoleh checks pada head yang benar; merge menghasilkan tag/release sesuai versi; tidak ada auto-merge atau deployment implisit. Validasi lokal config saja belum memenuhi gate hosted.
+
+### Bukti fase 3 — 26 Oktober 2026
+
+- Root package `.` menggunakan strategi `simple`, `version.txt` dan tag `vX.Y.Z`. Versi sumber development tetap `0.1.0`; manifest `0.0.0` berarti belum ada rilis fondasi. `initial-version: 1.0.0` menetapkan kandidat perdana, tanpa `release-as` permanen yang akan mengunci bump berikutnya. Manifest turunan fase 2 tetap dihasilkan sebagai `0.1.0` oleh finalizer existing.
+- `bootstrap-sha` eksklusif adalah `8da70c9840b1e3b88a4167cdc5f9fca1617c86f1`, akhir fase 2. History sebelum/sampai baseline tersebut tidak masuk changelog awal. Setelah rilis pertama, tag/manifest rilis menjadi batas pencarian. Commit CI/docs saja tidak dipaksa menghasilkan rilis; perubahan user-facing berikutnya menjadi kandidat rilis.
+- Workflow push `main`/manual hanya mengorkestrasi PR/rilis, memakai action Release Please v5.0.0 pada SHA `45996ed1f6d02564a971a2fa1b5860e934307cf7` dan create-github-app-token v3.3.0 pada SHA `64ab729a6294000f5aa4a4bc0b73d1f32bc45510`. Tidak ada auto-merge, deployment, instalasi dependency aplikasi, atau full suite kedua. `tests.yml` tetap gate CI PR existing.
+- Token App dibatasi ke repository workflow dengan contents/issues/pull requests write; tidak ada fallback GITHUB_TOKEN. `RELEASE_APP_ID` dan `RELEASE_APP_PRIVATE_KEY` existing ditemukan di JCF. Key lokal yang ditunjukkan pengguna berhasil mengautentikasi App ID `4566733`, `jalara-release-bot`, dengan izin yang sesuai dan instalasi akun mencakup semua repository. Tidak ada key/token yang ditulis ke repository atau ditampilkan.
+- `RELEASE_ENABLED` JCF tetap tidak disetel. Aktivasi JCF menunggu gate sandbox dan izin publikasi fase 5; workflow juga menolak dispatch dari ref selain `main`. Untuk aktivasi kelak, pasang App pada repository tujuan, isi variable App ID dan secret private key, pastikan checks CI required pada head release PR, lalu set variable tersebut `true`. Tidak menyalin secret fondasi ke aplikasi turunan.
+- Sandbox privat: `https://github.com/tomylana93/jcf-release-sandbox-20261026`. Config sama dengan baseline SHA sandbox sendiri, credential App dipasang, dan workflow diaktifkan hanya pada sandbox. CI sandbox memeriksa konsistensi artefak rilis untuk pembuktian pemicu/check SHA; bukan pengganti full `composer test` JCF.
+- Run hosted `40295105031` gagal sebelum satu step pun berjalan. Annotation GitHub: “The job was not started because recent account payments have failed or your spending limit needs to be increased.” F3-06 dan gate end-to-end tetap terbuka; jangan merge release PR untuk melewati gate ini.
+- Sebagai bukti terpisah, Release Please 17.6.0 dijalankan lokal terhadap sandbox memakai installation token App yang dibatasi repository tersebut dan dicabut sesudahnya. App membuka [release PR #1](https://github.com/tomylana93/jcf-release-sandbox-20261026/pull/1), `chore(main): release 1.0.0`, dengan tepat tiga file: version, manifest dan changelog. Author `app/jalara-release-bot`. Workflow `tests` event `pull_request` benar-benar terpicu pada head `4cf2a01065a6000299d6fc75b592a7d4b61aa181`, run `40295211504`, check `CI` ID `121479495677`. Ini memenuhi pemasangan credential/pemicu F3-04; job CI tetap gagal sebelum berjalan karena billing yang sama, sehingga bukan bukti checks lulus. PR dibiarkan terbuka, tanpa merge/tag/release.
+
+Validasi lokal memakai library Release Please **17.6.0**, sama dengan lockfile action yang dipin, di direktori disposable tanpa mengubah dependency aplikasi. Schema resmi dan Actionlint lulus. Simulasi memakai config/manifest aktual: satu root package, kandidat perdana `1.0.0`, batas SHA eksklusif, history lama tidak masuk changelog, hanya version/changelog/manifest diperbarui; dari `1.2.3`, fix menjadi `1.2.4`, feat menjadi `1.3.0`, breaking menjadi `2.0.0`; kandidat release bertag tepat dan menunjuk SHA merge simulasi. Ini bukti kandidat, bukan tag/release hosted. Test finalizer existing: **11 passed, 48 assertions**. Diff whitespace lulus. Tidak ada PHP/dependency/handler HTTP/migrasi yang diubah; full suite/browser tidak dijalankan.
+
+Guard fase 2 tetap menolak finalisasi archive yang memuat konfigurasi rilis fondasi sampai transformasi kecil fase 4 tersedia. Ini gate yang sudah dinyatakan pada fase 2, bukan klaim scaffold fase 3 sudah siap publik. Belum ada push/merge/rilis/deployment pada JCF; aktivitas hosted hanya sandbox.
 
 ### Fase 4 — Release Please aplikasi turunan
 
@@ -441,7 +456,7 @@ Roadmap dianggap selesai ketika:
 - [ ] Satu aplikasi contoh menyelesaikan rilis independen dan satu siklus adopsi upgrade.
 - [ ] Bukti lokal, hosted CI, publikasi paket, dan acceptance turunan tercatat secara terpisah.
 
-Fase 0 menambahkan kontrak dan bukti pemeriksaan. Fase 1 mengubah jalur setup, konfigurasi instance/database, dan regression tests sebagaimana dicatat di atas. Fase 2 menambahkan distribusi bersih dan finalisasi provenance/versi aplikasi. Versi dependency tidak berubah; belum ada konfigurasi Release Please, publikasi Packagist, push, merge, atau deployment.
+Fase 0 menambahkan kontrak dan bukti pemeriksaan. Fase 1 mengubah jalur setup, konfigurasi instance/database, dan regression tests sebagaimana dicatat di atas. Fase 2 menambahkan distribusi bersih dan finalisasi provenance/versi aplikasi. Fase 3 menambahkan konfigurasi Release Please dan bukti PR/check trigger sandbox; gate CI sukses serta tag/release hosted masih tertahan billing. Versi dependency aplikasi tidak berubah; tidak ada publikasi Packagist, push/merge/rilis JCF atau deployment pada implementasi fase 3.
 
 ## 13. Referensi
 
