@@ -82,7 +82,7 @@
         "test:type-coverage": "pest --type-coverage --min=100",
         "test:prepare": "@build:ssr",
         "test:audit": [
-            "composer audit",
+            "composer audit --abandoned=report",
             "pnpm audit"
         ],
         "test:feature": "pest --compact --parallel --exclude-testsuite=Browser",
@@ -103,6 +103,7 @@
             "@types:check"
         ],
         "test:backend": [
+            "@test:audit",
             "@test:feature-build",
             "@test:prepare",
             "@test:lint",
