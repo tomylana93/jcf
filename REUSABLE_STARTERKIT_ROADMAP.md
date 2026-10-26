@@ -2,7 +2,7 @@
 
 Tanggal: 26 Oktober 2026
 
-Status: rencana; implementasi belum dimulai
+Status: fase 0 didokumentasikan; gate akses Packagist dan minimum installer/Composer masih terbuka. Fase 1–6 belum dimulai.
 
 Baseline analisis: `5424c54e603cc9b567e1d3cfb0b99538d87b54f5`
 
@@ -234,15 +234,36 @@ Setiap item diselesaikan dengan perubahan terfokus dan bukti validasi. Mulai han
 
 ### Fase 0 — Kontrak dukungan dan baseline
 
-- [ ] **F0-01** Inventaris runtime/dependency, inisialisasi, feature flags, CI, dan file distribusi pada commit implementasi.
+- [x] **F0-01** Inventaris runtime/dependency, inisialisasi, feature flags, CI, dan file distribusi pada commit implementasi.
 - [ ] **F0-02** Tetapkan matriks: PHP 8.5, Laravel 13, PostgreSQL dengan versi yang diuji, Node 26, pnpm 12.10.1; catat versi minimum Laravel Installer dan Composer dari pengujian.
-- [ ] **F0-03** Tegaskan PostgreSQL-only/single-tenant, core/modul opsional, dan model source scaffold.
-- [ ] **F0-04** Tetapkan kontrak `version.txt`, `.foundation-version`, versi awal, dan SemVer.
+- [x] **F0-03** Tegaskan PostgreSQL-only/single-tenant, core/modul opsional, dan model source scaffold.
+- [x] **F0-04** Tetapkan kontrak `version.txt`, `.foundation-version`, versi awal, dan SemVer.
 - [ ] **F0-05** Verifikasi akses Packagist, status nama paket, GitHub Actions, branch protection, dan pilihan credential release.
 
 File terkait: `composer.json`, `composer.lock`, `package.json`, `pnpm-lock.yaml`, `.php-version`, `.node-version`, aturan CI, dan README yang akan dibuat.
 
 Gate: baseline jelas; pilihan hosting paket dan credential tercatat tanpa secret; belum ada klaim rilis stabil. Jangan mengubah dependency hanya untuk menyederhanakan pengujian.
+
+### Bukti fase 0 — 26 Oktober 2026
+
+Baseline implementasi: `72d78bc1c8114afddc30f66e6790ab336784d037`, branch `docs/reusable-foundation-roadmap`, working tree bersih sebelum pekerjaan. Perubahan fase ini hanya README dan catatan roadmap; tidak mengubah dependency, DB, hook, arsip, atau workflow.
+
+| Item | Hasil dan bukti | Status |
+| --- | --- | --- |
+| F0-01 | `composer show --direct --format=json` melalui Lerd mengonfirmasi Laravel 13.38.0, Inertia Laravel 3.5.2, Fortify 1.41.0, Reverb 1.12.0, Wayfinder 0.1.23, Pest 5.3.3. Manifest/lockfile menjadi inventaris dependency lengkap. `pnpm list --depth 0 --json`: Vue 3.5.44, Inertia Vue/Vite 3.9.1, Vite Plus 1.3.0, TypeScript 7.0.2, vue-tsc 3.3.13. | Selesai: inventaris aktual. |
+| F0-01 | `InitializeApplication::handle` membatasi local/testing, hanya membuat key jika kosong, memeriksa kegagalan migrate/permission/superadmin/storage. `config/features.php`: website/chat/documentation default true, backup default false (fallback BACKUP_ENABLED). CI `.github/workflows/tests.yml` satu job CI pada PR non-draft/manual, PostgreSQL 18, PHP 8.5, Node 26, pnpm 12.10.1, entry point `composer test`. | Selesai: inspeksi, bukan rerun perilaku. |
+| F0-01 | `composer.json` bertipe project/MIT; hook SQLite dan migrate graceful masih ada. `.gitattributes` masih mengecualikan README/CHANGELOG tanpa jangkar root dan menyebut browser workflow lama. `.env.example`, `.lerd.yaml`, serta backup/branding instance perlu penanganan fase 1–2. Tidak ada tag remote atau file Release Please saat pemeriksaan. | Selesai: masalah dicatat untuk fase berikutnya. |
+| F0-02 | README menetapkan PHP 8.5/Laravel 13/Node 26/pnpm 12.10.1. `SELECT version()` melalui Boost membuktikan PostgreSQL lokal 16.15. Host Composer 2.10.3 dan Installer 5.32.0 lulus version/help; Composer manifest lulus validasi strict. | Parsial: minimum Composer/Installer belum diuji lewat fresh install, tidak disamakan dengan versi terpasang. |
+| F0-03 / F0-04 | README menetapkan PostgreSQL-only/single-tenant, core/modul, source scaffold, SemVer, versi awal 1.0.0/0.1.0, dan satu penanda baseline turunan. Kontrak tidak menciptakan file versi sebelum fase 2–3. | Selesai. |
+| F0-05 | GET `https://packagist.org/packages/tomylana93/jcf.json` menghasilkan HTTP 404. Hosting dipilih Packagist publik dengan source GitHub `tomylana93/jcf` (PUBLIC); akses akun Packagist/kemampuan submit belum dapat diverifikasi dari credential GitHub. 404 tidak membuktikan kepemilikan nama paket. | Terbuka: verifikasi akun/submit pada langkah publikasi yang diotorisasi. |
+| F0-05 | GitHub API: akun `tomylana93` mempunyai admin repository; Actions enabled, allowed_actions all. Proteksi `main`: HTTP 404 Branch not protected; rulesets `[]`. Run tests historis sukses pada SHA `a8ff502ec26a291a4753b6d33a12a35105a6b2cf`. | Inspeksi selesai; required checks/review belum enforced. |
+| F0-05 | Pilihan credential: GitHub App installation token existing, menggunakan variable `RELEASE_APP_ID` dan secret `RELEASE_APP_PRIVATE_KEY` yang namanya terdaftar. Nilai secret tidak dibaca. Izin target contents/pull requests/issues write, cakupan hanya repo tujuan; token tidak diwariskan ke turunan. | Pilihan tercatat; instalasi App, izin efektif, dan pemicu checks harus dibuktikan fase 3. |
+
+Bukti hosted historis: [tests run 40269601679](https://github.com/tomylana93/jcf/actions/runs/40269601679), bukan run commit fase 0. Versi patch PostgreSQL pada hosted run tidak diketahui; image `postgres:18` belum dipin digest. Tidak ada klaim dukungan seluruh versi PostgreSQL atau rilis stabil.
+
+Validasi fase 0: `composer validate --strict --no-check-publish` melalui Lerd berhasil; pemeriksaan CLI/version/help, query versi DB read-only, dan API publik/GitHub di atas berhasil kecuali hasil negatif yang disebutkan. Tidak menjalankan full suite atau instalasi baru untuk perubahan dokumentasi ini. Tidak mengubah branch protection, secret, publikasi, push, merge, atau deployment.
+
+Gate fase 0 **belum tertutup sepenuhnya**: F0-02 menunggu minimum Composer/Installer dari acceptance instalasi; F0-05 menunggu akses akun Packagist. Cakupan dokumentasi dan pemeriksaan yang tersedia telah selesai. Jangan mencentang keduanya atau menyebut fase 0 lulus penuh hanya dari inspeksi. Fase berikutnya tetap menunggu permintaan tersendiri.
 
 ### Fase 1 — Instalasi dan isolasi aplikasi
 
@@ -382,7 +403,7 @@ Roadmap dianggap selesai ketika:
 - [ ] Satu aplikasi contoh menyelesaikan rilis independen dan satu siklus adopsi upgrade.
 - [ ] Bukti lokal, hosted CI, publikasi paket, dan acceptance turunan tercatat secara terpisah.
 
-Dokumen ini hanya merencanakan perubahan. Belum ada perubahan kode aplikasi, dependency, database, konfigurasi Release Please, publikasi Packagist, push, merge, atau deployment pada sesi penyusunan roadmap.
+Fase 0 menambahkan kontrak dan bukti pemeriksaan pada README serta roadmap ini. Belum ada perubahan kode aplikasi, dependency, database, konfigurasi Release Please, publikasi Packagist, push, merge, atau deployment.
 
 ## 13. Referensi
 
