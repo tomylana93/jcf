@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Spatie\TemporaryDirectory\TemporaryDirectory;
@@ -32,6 +33,16 @@ describe('Database-free preparation', function (): void {
             app()->useEnvironmentPath($originalPath);
             $directory->delete();
         }
+    });
+
+    it('stops preparation when generating a missing key fails', function (): void {
+        config(['app.key' => null]);
+        DB::shouldReceive('connection')->never();
+        Artisan::command('key:generate', fn (): int => 1);
+
+        artisan('init:prepare')->assertFailed();
+
+        expect(config('app.key'))->toBeNull();
     });
 
     it('rejects automatic installer setup before database and package manager rewrites', function (): void {
@@ -73,18 +84,23 @@ describe('Database-free preparation', function (): void {
     });
     it('requires clearing cached configuration before setup', function (): void {
         $directory = (new TemporaryDirectory)->create();
-        $cachePath = $directory->path('config.php');
-        File::put($cachePath, '<?php return '.var_export(config()->all(), true).';');
-        $process = new Process([PHP_BINARY, 'artisan', 'init:prepare', '--no-interaction'], base_path(), [
-            'APP_CONFIG_CACHE' => $cachePath,
-        ]);
+        $originalPath = app()->bootstrapPath();
+        File::ensureDirectoryExists($directory->path('cache'));
+        File::put($directory->path('cache/config.php'), '<?php return [];');
+        app()->useBootstrapPath($directory->path());
+        app()->forgetInstance('config_loaded_from_cache');
+        $key = config('app.key');
+        DB::shouldReceive('connection')->never();
 
         try {
-            $process->run();
+            artisan('init:prepare')
+                ->expectsOutput('Clear cached configuration with php artisan config:clear before preparing this application.')
+                ->assertFailed();
 
-            expect($process->isSuccessful())->toBeFalse()
-                ->and($process->getOutput())->toContain('Clear cached configuration');
+            expect(config('app.key'))->toBe($key);
         } finally {
+            app()->useBootstrapPath($originalPath);
+            app()->forgetInstance('config_loaded_from_cache');
             $directory->delete();
         }
     });

@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Spatie\TemporaryDirectory\TemporaryDirectory;
-use Symfony\Component\Process\Process;
 
 use function Pest\Laravel\artisan;
 
@@ -115,18 +114,21 @@ describe('Application initialization', function (): void {
     });
     it('requires clearing cached configuration before setup', function (): void {
         $directory = (new TemporaryDirectory)->create();
-        $cachePath = $directory->path('config.php');
-        File::put($cachePath, '<?php return '.var_export(config()->all(), true).';');
-        $process = new Process([PHP_BINARY, 'artisan', 'init:app', '--no-interaction'], base_path(), [
-            'APP_CONFIG_CACHE' => $cachePath,
-        ]);
+        $originalPath = app()->bootstrapPath();
+        File::ensureDirectoryExists($directory->path('cache'));
+        File::put($directory->path('cache/config.php'), '<?php return [];');
+        app()->useBootstrapPath($directory->path());
+        app()->forgetInstance('config_loaded_from_cache');
 
         try {
-            $process->run();
+            artisan('init:app')
+                ->expectsOutput('Clear cached configuration with php artisan config:clear before initializing this application.')
+                ->assertFailed();
 
-            expect($process->isSuccessful())->toBeFalse()
-                ->and($process->getOutput())->toContain('Clear cached configuration');
+            expect(config('setup.calls'))->toBe([]);
         } finally {
+            app()->useBootstrapPath($originalPath);
+            app()->forgetInstance('config_loaded_from_cache');
             $directory->delete();
         }
     });
