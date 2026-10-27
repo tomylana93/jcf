@@ -71,6 +71,19 @@ Archives retain application code, regression tests, project rules, README, lockf
 
 The existing gate is `composer test`: audits, feature build acceptance, SSR build, linting, type checks, type coverage, backend coverage, and browser tests. CI runs it in one Linux job for non-draft PRs targeting `main`, with manual dispatch available. Historical hosted results do not prove that this documentation commit or starter kit installation has passed the full suite.
 
+The realtime browser lifecycle tests replace WebSocket with a test implementation. Their frontend build needs the same non-secret fixture values supplied by CI:
+
+```sh
+VITE_BROADCAST_CONNECTION=reverb \
+VITE_REVERB_APP_KEY=browser-key \
+VITE_REVERB_HOST=127.0.0.1 \
+VITE_REVERB_PORT=8080 \
+VITE_REVERB_SCHEME=http \
+composer test
+```
+
+For containerized Composer, pass these values into the container process environment. Keep the application's own Reverb configuration separate from this test fixture. Local PHP-container tests and host Node tests are bounded evidence; the combined gate still needs the declared runtime, and hosted release/public package acceptance remains separate.
+
 To activate releases in each derived repository:
 
 1. Initialize a new Git repository after finalization, set its own remote, and use `main`. Push application code through its own review process. Keep `.foundation-version` unchanged during application releases.
