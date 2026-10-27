@@ -3,10 +3,24 @@
 declare(strict_types=1);
 
 use App\Support\Jalara;
+use Illuminate\Support\ConfigurationUrlParser;
 use Illuminate\Support\Str;
 use Pdo\Mysql;
 
+$development = (new ConfigurationUrlParser)->parseConfiguration([
+    'driver' => 'pgsql',
+    'url' => env('DB_URL'),
+    'database' => env('DB_DATABASE', ''),
+]);
+$developmentDatabase = $development['database'] ?? '';
+$testingDatabase = env('DB_TEST_DATABASE') ?: ($developmentDatabase !== '' ? $developmentDatabase.'_testing' : '');
+$testing = env('APP_ENV') === 'testing';
+
+throw_if($testing && ($testingDatabase === '' || $testingDatabase === $developmentDatabase), LogicException::class, 'Configure a PostgreSQL DB_TEST_DATABASE distinct from DB_DATABASE before running tests.');
+
 return [
+    'development_database' => $developmentDatabase,
+    'testing_database' => $testingDatabase,
 
     /*
     |--------------------------------------------------------------------------
@@ -20,7 +34,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'sqlite'),
+    'default' => env('DB_CONNECTION', 'pgsql'),
 
     /*
     |--------------------------------------------------------------------------
@@ -101,10 +115,10 @@ return [
 
         'pgsql' => [
             'driver' => 'pgsql',
-            'url' => env('DB_URL'),
+            'url' => $testing ? null : env('DB_URL'),
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '5432'),
-            'database' => env('DB_DATABASE', Jalara::Slug),
+            'database' => $testing ? $testingDatabase : $developmentDatabase,
             'username' => env('DB_USERNAME', 'root'),
             'password' => env('DB_PASSWORD', ''),
             'charset' => env('DB_CHARSET', 'utf8'),
@@ -165,7 +179,7 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', Jalara::Name)).'-database-'),
+            'prefix' => env('REDIS_PREFIX', Str::slug((string) (env('APP_INSTANCE') ?: basename(base_path()))).'-database-'),
             'persistent' => env('REDIS_PERSISTENT', false),
         ],
 

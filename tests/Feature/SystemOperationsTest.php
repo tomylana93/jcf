@@ -61,7 +61,7 @@ describe('System operations authorization', function (): void {
         get(route('master-data.backups.download', 'test.zip'))->assertForbidden();
     });
     it('shows health without leaking archive names or operation status to administrators', function (): void {
-        Storage::fake('backups')->put('jcf/secret.zip', 'data');
+        Storage::fake('backups')->put(config('backup.backup.name').'/secret.zip', 'data');
         $user = User::factory()->create();
         assignRolePermissions($user, Permission::ViewSystem);
         Cache::put('system.backup_status', 'failed');
@@ -70,8 +70,8 @@ describe('System operations authorization', function (): void {
     });
     it('lists valid archives and requires confirmation before downloading', function (): void {
         $disk = Storage::fake('backups');
-        $disk->put('jcf/2026-10-06.zip', 'archive');
-        $disk->put('jcf/readme.txt', 'ignored');
+        $disk->put(config('backup.backup.name').'/2026-10-06.zip', 'archive');
+        $disk->put(config('backup.backup.name').'/readme.txt', 'ignored');
         $user = User::factory()->create();
         $user->syncRoles(Role::SuperAdmin);
         actingAs($user)->get(route('master-data.backups.index'))->assertInertia(fn (Assert $page) => $page
@@ -114,7 +114,7 @@ describe('System readiness checks', function (): void {
         resolve(SystemHeartbeat::class)->handle();
 
         config(['queue.default' => 'database', 'features.backup' => true, 'backup.backup.password' => 'test-secret', 'mail.default' => 'smtp']);
-        Storage::fake('backups')->put('jcf/test.zip', 'backup');
+        Storage::fake('backups')->put(config('backup.backup.name').'/test.zip', 'backup');
         $checks = collect(resolve(GetSystemHealth::class)->handle())->keyBy('name');
 
         expect($checks['queue']['detail'])->toBe('recent')

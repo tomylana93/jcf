@@ -26,7 +26,7 @@ return [
 
     'superadmin' => [
         'name' => env('SUPERADMIN_NAME', 'Super Admin'),
-        'email' => env('SUPERADMIN_EMAIL', 'superadmin@jalara.dev'),
-        'password' => env('SUPERADMIN_PASSWORD', 'superadmin'),
+        'email' => env('SUPERADMIN_EMAIL'),
+        'password' => env('SUPERADMIN_PASSWORD'),
     ],
 ];

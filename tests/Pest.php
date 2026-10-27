@@ -110,8 +110,8 @@ function actingAsWithConfirmedPassword(User $user): void
 function createBackupTestArchive(array $files, ?string $password = null): array
 {
     $disk = Storage::disk('backups');
-    $disk->makeDirectory('jcf');
-    $path = $disk->path('jcf/test.zip');
+    $disk->makeDirectory(config('backup.backup.name'));
+    $path = $disk->path(config('backup.backup.name').'/test.zip');
     $zip = new ZipArchive;
     $zip->open($path, ZipArchive::CREATE | ZipArchive::OVERWRITE);
     foreach ($files as $name => $contents) {
@@ -173,7 +173,7 @@ function isolateBackupOperations(): TemporaryDirectory
 function fakeSafetyBackup(): void
 {
     Artisan::shouldReceive('call')->once()->with('backup:run', Mockery::type('array'))->andReturnUsing(function (string $command, array $arguments): int {
-        Storage::disk('backups')->put('jcf/'.$arguments['--filename'], 'safety-backup');
+        Storage::disk('backups')->put(config('backup.backup.name').'/'.$arguments['--filename'], 'safety-backup');
 
         return 0;
     });

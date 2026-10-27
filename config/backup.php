@@ -16,7 +16,7 @@ use Spatie\Backup\Tasks\Monitor\HealthChecks\MaximumStorageInMegabytes;
 
 return [
     'backup' => [
-        'name' => 'jcf',
+        'name' => env('BACKUP_NAME') ?: (env('APP_INSTANCE') ?: basename(base_path())),
         'source' => [
             'files' => [
                 'include' => [storage_path('app/private'), storage_path('app/public')],
@@ -62,7 +62,7 @@ return [
     ],
     'log_channel' => null,
     'monitor_backups' => [[
-        'name' => 'jcf',
+        'name' => env('BACKUP_NAME') ?: (env('APP_INSTANCE') ?: basename(base_path())),
         'disks' => ['backups'],
         'health_checks' => [MaximumAgeInDays::class => 2, MaximumStorageInMegabytes::class => 5000],
     ]],

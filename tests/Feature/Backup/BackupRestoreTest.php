@@ -57,7 +57,7 @@ describe('Backup archive validation', function (): void {
         expect(fn () => resolve(ExtractBackup::class)->handle($archive['filename'], str_repeat('0', 64)))->toThrow(RuntimeException::class, 'Backup checksum mismatch');
     });
     it('rejects files that are not zip archives', function (): void {
-        Storage::fake('backups')->put('jcf/test.zip', 'not a zip');
+        Storage::fake('backups')->put(config('backup.backup.name').'/test.zip', 'not a zip');
 
         expect(fn () => resolve(ExtractBackup::class)->handle('test.zip', hash('sha256', 'not a zip')))->toThrow(RuntimeException::class, 'Invalid backup archive.');
     });
@@ -76,7 +76,7 @@ describe('Backup archive validation', function (): void {
 
         config(['jalara.operations.restore_max_bytes' => 10000]);
         $zip = new ZipArchive;
-        $path = $disk->path('jcf/test.zip');
+        $path = $disk->path(config('backup.backup.name').'/test.zip');
         $zip->open($path);
         $zip->setExternalAttributesName('storage/app/public/test.txt', ZipArchive::OPSYS_UNIX, 0120777 << 16);
         $zip->close();
