@@ -26,19 +26,19 @@ Permintaan ini menggantikan pengecualian Release Please pada rencana adopsi lama
 
 Temuan di bawah berasal dari inspeksi statis repository dan pembacaan dokumentasi. Keberadaan test tidak berarti test tersebut dijalankan dalam sesi penyusunan roadmap.
 
-| Area | Bukti saat ini | Implikasi |
-| --- | --- | --- |
-| Bentuk distribusi | `composer.json`: `tomylana93/jcf`, `type: project`, lisensi MIT | Sudah cocok sebagai dasar distribusi starter kit; status publikasi paket masih perlu diverifikasi. |
-| Runtime backend | Lockfile: Laravel `v13.38.0`, Inertia Laravel `v3.5.2`, Fortify `v1.41.0`; requirement PHP `^8.5` | Publikasikan matriks dukungan berdasarkan versi yang benar-benar diuji. |
-| Frontend | Vue 3, Inertia 3, pnpm `12.10.1`, Node 26, Vite Plus | Instalasi harus menghormati package manager dan lockfile, termasuk perubahan yang dilakukan installer. |
-| Modul opsional | `FeatureManager`, konfigurasi fitur, provider, middleware, dan roadmap feature flags | Pertahankan model batteries-included dengan hard flag dan soft toggle. |
-| Inisialisasi lokal | `init:app` menjalankan migrasi, permission, superadmin, storage link; hanya local/testing; menjaga APP_KEY existing | Reuse perilaku ini. Jangan menjadikannya installer produksi atau mesin penggantian identitas proyek. |
-| Hook Composer | `post-create-project-cmd` membuat file SQLite dan menjalankan `migrate --graceful` | Tidak selaras dengan kontrak PostgreSQL-only; jalur instalasi perlu dirapikan sebelum rilis. |
-| Default lingkungan | `.env.example` memakai PostgreSQL dengan nama DB `jcf` | Proyek baru perlu DB dan DB testing sendiri; tidak boleh menyentuh DB fondasi. |
-| Identitas operasional | Domain Lerd `jcf`; nama backup `jcf`; fallback branding Jalara | Bedakan fallback branding dari identitas instance yang wajib unik. |
-| Versi dan rilis | Belum ada konfigurasi Release Please; tag lokal dan remote tidak ditemukan saat pemeriksaan | Perlu bootstrap versi, release workflow, dan validasi rilis pertama. |
-| CI | Satu job CI untuk PR ready-for-review dan manual dispatch; menjalankan `composer test` dengan PostgreSQL | Pertahankan gate ini; tambahkan orkestrasi rilis ringan, bukan pengulangan full suite pada setiap push. |
-| Distribusi arsip | `.gitattributes` mengecualikan README/CHANGELOG dan menyebut workflow browser lama | Perlu kebijakan arsip eksplisit agar panduan instalasi ikut tersedia dan dokumen internal tidak diwariskan. |
+| Area                  | Bukti saat ini                                                                                                      | Implikasi                                                                                                   |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Bentuk distribusi     | `composer.json`: `tomylana93/jcf`, `type: project`, lisensi MIT                                                     | Sudah cocok sebagai dasar distribusi starter kit; status publikasi paket masih perlu diverifikasi.          |
+| Runtime backend       | Lockfile: Laravel `v13.38.0`, Inertia Laravel `v3.5.2`, Fortify `v1.41.0`; requirement PHP `^8.5`                   | Publikasikan matriks dukungan berdasarkan versi yang benar-benar diuji.                                     |
+| Frontend              | Vue 3, Inertia 3, pnpm `12.10.1`, Node 26, Vite Plus                                                                | Instalasi harus menghormati package manager dan lockfile, termasuk perubahan yang dilakukan installer.      |
+| Modul opsional        | `FeatureManager`, konfigurasi fitur, provider, middleware, dan roadmap feature flags                                | Pertahankan model batteries-included dengan hard flag dan soft toggle.                                      |
+| Inisialisasi lokal    | `init:app` menjalankan migrasi, permission, superadmin, storage link; hanya local/testing; menjaga APP_KEY existing | Reuse perilaku ini. Jangan menjadikannya installer produksi atau mesin penggantian identitas proyek.        |
+| Hook Composer         | `post-create-project-cmd` membuat file SQLite dan menjalankan `migrate --graceful`                                  | Tidak selaras dengan kontrak PostgreSQL-only; jalur instalasi perlu dirapikan sebelum rilis.                |
+| Default lingkungan    | `.env.example` memakai PostgreSQL dengan nama DB `jcf`                                                              | Proyek baru perlu DB dan DB testing sendiri; tidak boleh menyentuh DB fondasi.                              |
+| Identitas operasional | Domain Lerd `jcf`; nama backup `jcf`; fallback branding Jalara                                                      | Bedakan fallback branding dari identitas instance yang wajib unik.                                          |
+| Versi dan rilis       | Belum ada konfigurasi Release Please; tag lokal dan remote tidak ditemukan saat pemeriksaan                         | Perlu bootstrap versi, release workflow, dan validasi rilis pertama.                                        |
+| CI                    | Satu job CI untuk PR ready-for-review dan manual dispatch; menjalankan `composer test` dengan PostgreSQL            | Pertahankan gate ini; tambahkan orkestrasi rilis ringan, bukan pengulangan full suite pada setiap push.     |
+| Distribusi arsip      | `.gitattributes` mengecualikan README/CHANGELOG dan menyebut workflow browser lama                                  | Perlu kebijakan arsip eksplisit agar panduan instalasi ikut tersedia dan dokumen internal tidak diwariskan. |
 
 JCF sudah mempunyai banyak kemampuan produk: identitas dan keamanan akun, permission, pengaturan, user management, audit, notifikasi, search, serta CMS/chat/documentation/backup opsional. Fokus roadmap ini adalah kesiapan distribusi, batas kepemilikan, versi, dan pembuktian aplikasi turunan.
 
@@ -66,11 +66,11 @@ Setelah scaffold, `composer update` memperbarui dependency aplikasi. Perintah it
 
 ### 3.2 Core dan modul opsional
 
-| Kelompok | Cakupan |
-| --- | --- |
-| Core | Auth/account, user/permission, shell, locale/timezone, settings dasar, audit, notifikasi, dan infrastruktur generik yang sudah ada. |
-| Opsional | Website/CMS, chat, documentation, backup melalui mekanisme feature flag existing. |
-| Milik turunan | Alur bisnis, model domain, permission domain, navigasi domain, integrasi eksternal, deployment, dan branding aplikasi. |
+| Kelompok      | Cakupan                                                                                                                             |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Core          | Auth/account, user/permission, shell, locale/timezone, settings dasar, audit, notifikasi, dan infrastruktur generik yang sudah ada. |
+| Opsional      | Website/CMS, chat, documentation, backup melalui mekanisme feature flag existing.                                                   |
+| Milik turunan | Alur bisnis, model domain, permission domain, navigasi domain, integrasi eksternal, deployment, dan branding aplikasi.              |
 
 Kontrak yang tetap berlaku:
 
@@ -95,14 +95,14 @@ Kontrak yang tetap berlaku:
 
 Gunakan strategi Release Please `simple` dengan `version.txt` sebagai versi repository saat ini. File konfigurasi Release Please adalah kebutuhan otomasi rilis, bukan metadata arsitektur fondasi.
 
-| File | Repository fondasi | Repository turunan |
-| --- | --- | --- |
-| `version.txt` | Versi JCF, misalnya `1.0.0` | Versi aplikasi, misalnya `0.1.0` |
-| `.foundation-version` | Tidak diperlukan sebagai penanda dirinya sendiri | Satu baris, misalnya `jcf@1.0.0` |
-| `release-please-config.json` | Konfigurasi rilis JCF | Konfigurasi rilis aplikasi sendiri |
-| `.release-please-manifest.json` | State versi rilis JCF | State versi rilis aplikasi sendiri |
-| `CHANGELOG.md` | Riwayat rilis JCF | Riwayat rilis aplikasi sendiri |
-| `.github/workflows/release-please.yml` | Otomasi rilis JCF | Otomasi rilis aplikasi sendiri |
+| File                                   | Repository fondasi                               | Repository turunan                 |
+| -------------------------------------- | ------------------------------------------------ | ---------------------------------- |
+| `version.txt`                          | Versi JCF, misalnya `1.0.0`                      | Versi aplikasi, misalnya `0.1.0`   |
+| `.foundation-version`                  | Tidak diperlukan sebagai penanda dirinya sendiri | Satu baris, misalnya `jcf@1.0.0`   |
+| `release-please-config.json`           | Konfigurasi rilis JCF                            | Konfigurasi rilis aplikasi sendiri |
+| `.release-please-manifest.json`        | State versi rilis JCF                            | State versi rilis aplikasi sendiri |
+| `CHANGELOG.md`                         | Riwayat rilis JCF                                | Riwayat rilis aplikasi sendiri     |
+| `.github/workflows/release-please.yml` | Otomasi rilis JCF                                | Otomasi rilis aplikasi sendiri     |
 
 Tidak ada kebutuhan menambahkan `project.json`, foundation registry, daftar capability, inventory file, salinan source SHA di banyak tempat, atau manifest sinkronisasi modul.
 
@@ -110,13 +110,13 @@ Penanda `.foundation-version` merekam baseline fondasi terakhir yang diadopsi pe
 
 ### 4.2 Aturan versi
 
-| Perubahan | Versi JCF | Versi aplikasi |
-| --- | --- | --- |
-| Perbaikan kompatibel fondasi | Patch | Berubah ketika aplikasi mengadopsi dan merilisnya. |
-| Kemampuan fondasi kompatibel | Minor | Independen; mengikuti dampaknya ke aplikasi. |
-| Perubahan kontrak atau requirement yang memutus dukungan | Major | Dinilai berdasarkan dampak ke pengguna aplikasi; tidak harus sama dengan major JCF. |
-| Fitur bisnis aplikasi | Tidak berubah | Mengikuti SemVer aplikasi. |
-| Perubahan dependency | Dinilai dari dampak kompatibilitas | Jangan otomatis menganggap semua dependency update sebagai patch. |
+| Perubahan                                                | Versi JCF                          | Versi aplikasi                                                                      |
+| -------------------------------------------------------- | ---------------------------------- | ----------------------------------------------------------------------------------- |
+| Perbaikan kompatibel fondasi                             | Patch                              | Berubah ketika aplikasi mengadopsi dan merilisnya.                                  |
+| Kemampuan fondasi kompatibel                             | Minor                              | Independen; mengikuti dampaknya ke aplikasi.                                        |
+| Perubahan kontrak atau requirement yang memutus dukungan | Major                              | Dinilai berdasarkan dampak ke pengguna aplikasi; tidak harus sama dengan major JCF. |
+| Fitur bisnis aplikasi                                    | Tidak berubah                      | Mengikuti SemVer aplikasi.                                                          |
+| Perubahan dependency                                     | Dinilai dari dampak kompatibilitas | Jangan otomatis menganggap semua dependency update sebagai patch.                   |
 
 Contoh: aplikasi `v2.4.0` boleh memakai baseline `jcf@1.3.2`. Merilis aplikasi `v2.4.1` tidak mengubah `.foundation-version`.
 
@@ -213,16 +213,16 @@ Pertahankan satu full CI pada PR ready-for-review. Acceptance instalasi arsip di
 
 ## 7. Kebijakan isi aplikasi turunan
 
-| Ikut ke turunan | Tetap pada fondasi / tidak ikut arsip |
-| --- | --- |
-| Kode aplikasi dan komponen reusable | Roadmap internal fondasi dan laporan audit historis |
-| Migrasi dan test reusable | Catatan rollout dan bukti acceptance internal JCF |
-| Composer/pnpm lockfile | `.git` dan riwayat rilis JCF |
-| `.env.example` dengan nilai aman | `.env`, `.lerd.local.yaml`, secret, upload, backup, log/cache |
-| README instalasi yang relevan | Konfigurasi mesin/domain instance JCF |
-| `version.txt`, CI dan Release Please generik | Changelog rilis fondasi sebagai changelog aplikasi |
-| Aturan coding yang berlaku untuk aplikasi | Metadata registry/discovery/katalog fondasi |
-| LICENSE dan atribusi yang diperlukan | Dokumen yang mengacu workflow atau struktur yang sudah dihapus |
+| Ikut ke turunan                              | Tetap pada fondasi / tidak ikut arsip                          |
+| -------------------------------------------- | -------------------------------------------------------------- |
+| Kode aplikasi dan komponen reusable          | Roadmap internal fondasi dan laporan audit historis            |
+| Migrasi dan test reusable                    | Catatan rollout dan bukti acceptance internal JCF              |
+| Composer/pnpm lockfile                       | `.git` dan riwayat rilis JCF                                   |
+| `.env.example` dengan nilai aman             | `.env`, `.lerd.local.yaml`, secret, upload, backup, log/cache  |
+| README instalasi yang relevan                | Konfigurasi mesin/domain instance JCF                          |
+| `version.txt`, CI dan Release Please generik | Changelog rilis fondasi sebagai changelog aplikasi             |
+| Aturan coding yang berlaku untuk aplikasi    | Metadata registry/discovery/katalog fondasi                    |
+| LICENSE dan atribusi yang diperlukan         | Dokumen yang mengacu workflow atau struktur yang sudah dihapus |
 
 Gunakan `.gitattributes` dengan pola berjangkar root agar pengecualian `/README.md` atau dokumen root lain tidak tanpa sengaja menghapus README package/subdirektori. Jangan mengecualikan semua Markdown atau seluruh `.github` karena turunan membutuhkan panduan, CI, dan release workflow.
 
@@ -248,16 +248,16 @@ Gate: baseline jelas; pilihan hosting paket dan credential tercatat tanpa secret
 
 Baseline implementasi: `72d78bc1c8114afddc30f66e6790ab336784d037`, branch `docs/reusable-foundation-roadmap`, working tree bersih sebelum pekerjaan. Perubahan fase ini hanya README dan catatan roadmap; tidak mengubah dependency, DB, hook, arsip, atau workflow.
 
-| Item | Hasil dan bukti | Status |
-| --- | --- | --- |
-| F0-01 | `composer show --direct --format=json` melalui Lerd mengonfirmasi Laravel 13.38.0, Inertia Laravel 3.5.2, Fortify 1.41.0, Reverb 1.12.0, Wayfinder 0.1.23, Pest 5.3.3. Manifest/lockfile menjadi inventaris dependency lengkap. `pnpm list --depth 0 --json`: Vue 3.5.44, Inertia Vue/Vite 3.9.1, Vite Plus 1.3.0, TypeScript 7.0.2, vue-tsc 3.3.13. | Selesai: inventaris aktual. |
-| F0-01 | `InitializeApplication::handle` membatasi local/testing, hanya membuat key jika kosong, memeriksa kegagalan migrate/permission/superadmin/storage. `config/features.php`: website/chat/documentation default true, backup default false (fallback BACKUP_ENABLED). CI `.github/workflows/tests.yml` satu job CI pada PR non-draft/manual, PostgreSQL 18, PHP 8.5, Node 26, pnpm 12.10.1, entry point `composer test`. | Selesai: inspeksi, bukan rerun perilaku. |
-| F0-01 | `composer.json` bertipe project/MIT; hook SQLite dan migrate graceful masih ada. `.gitattributes` masih mengecualikan README/CHANGELOG tanpa jangkar root dan menyebut browser workflow lama. `.env.example`, `.lerd.yaml`, serta backup/branding instance perlu penanganan fase 1–2. Tidak ada tag remote atau file Release Please saat pemeriksaan. | Selesai: masalah dicatat untuk fase berikutnya. |
-| F0-02 | README menetapkan PHP 8.5/Laravel 13/Node 26/pnpm 12.10.1. `SELECT version()` melalui Boost membuktikan PostgreSQL lokal 16.15. Host Composer 2.10.3 dan Installer 5.32.0 lulus version/help; Composer manifest lulus validasi strict. | Parsial: minimum Composer/Installer belum diuji lewat fresh install, tidak disamakan dengan versi terpasang. |
-| F0-03 / F0-04 | README menetapkan PostgreSQL-only/single-tenant, core/modul, source scaffold, SemVer, versi awal 1.0.0/0.1.0, dan satu penanda baseline turunan. Kontrak tidak menciptakan file versi sebelum fase 2–3. | Selesai. |
-| F0-05 | GET `https://packagist.org/packages/tomylana93/jcf.json` menghasilkan HTTP 404. Hosting dipilih Packagist publik dengan source GitHub `tomylana93/jcf` (PUBLIC); akses akun Packagist/kemampuan submit belum dapat diverifikasi dari credential GitHub. 404 tidak membuktikan kepemilikan nama paket. | Terbuka: verifikasi akun/submit pada langkah publikasi yang diotorisasi. |
-| F0-05 | GitHub API: akun `tomylana93` mempunyai admin repository; Actions enabled, allowed_actions all. Proteksi `main`: HTTP 404 Branch not protected; rulesets `[]`. Run tests historis sukses pada SHA `a8ff502ec26a291a4753b6d33a12a35105a6b2cf`. | Inspeksi selesai; required checks/review belum enforced. |
-| F0-05 | Pilihan credential: GitHub App installation token existing, menggunakan variable `RELEASE_APP_ID` dan secret `RELEASE_APP_PRIVATE_KEY` yang namanya terdaftar. Nilai secret tidak dibaca. Izin target contents/pull requests/issues write, cakupan hanya repo tujuan; token tidak diwariskan ke turunan. | Pilihan tercatat; instalasi App, izin efektif, dan pemicu checks harus dibuktikan fase 3. |
+| Item          | Hasil dan bukti                                                                                                                                                                                                                                                                                                                                                                                                       | Status                                                                                                       |
+| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| F0-01         | `composer show --direct --format=json` melalui Lerd mengonfirmasi Laravel 13.38.0, Inertia Laravel 3.5.2, Fortify 1.41.0, Reverb 1.12.0, Wayfinder 0.1.23, Pest 5.3.3. Manifest/lockfile menjadi inventaris dependency lengkap. `pnpm list --depth 0 --json`: Vue 3.5.44, Inertia Vue/Vite 3.9.1, Vite Plus 1.3.0, TypeScript 7.0.2, vue-tsc 3.3.13.                                                                  | Selesai: inventaris aktual.                                                                                  |
+| F0-01         | `InitializeApplication::handle` membatasi local/testing, hanya membuat key jika kosong, memeriksa kegagalan migrate/permission/superadmin/storage. `config/features.php`: website/chat/documentation default true, backup default false (fallback BACKUP_ENABLED). CI `.github/workflows/tests.yml` satu job CI pada PR non-draft/manual, PostgreSQL 18, PHP 8.5, Node 26, pnpm 12.10.1, entry point `composer test`. | Selesai: inspeksi, bukan rerun perilaku.                                                                     |
+| F0-01         | `composer.json` bertipe project/MIT; hook SQLite dan migrate graceful masih ada. `.gitattributes` masih mengecualikan README/CHANGELOG tanpa jangkar root dan menyebut browser workflow lama. `.env.example`, `.lerd.yaml`, serta backup/branding instance perlu penanganan fase 1–2. Tidak ada tag remote atau file Release Please saat pemeriksaan.                                                                 | Selesai: masalah dicatat untuk fase berikutnya.                                                              |
+| F0-02         | README menetapkan PHP 8.5/Laravel 13/Node 26/pnpm 12.10.1. `SELECT version()` melalui Boost membuktikan PostgreSQL lokal 16.15. Host Composer 2.10.3 dan Installer 5.32.0 lulus version/help; Composer manifest lulus validasi strict.                                                                                                                                                                                | Parsial: minimum Composer/Installer belum diuji lewat fresh install, tidak disamakan dengan versi terpasang. |
+| F0-03 / F0-04 | README menetapkan PostgreSQL-only/single-tenant, core/modul, source scaffold, SemVer, versi awal 1.0.0/0.1.0, dan satu penanda baseline turunan. Kontrak tidak menciptakan file versi sebelum fase 2–3.                                                                                                                                                                                                               | Selesai.                                                                                                     |
+| F0-05         | GET `https://packagist.org/packages/tomylana93/jcf.json` menghasilkan HTTP 404. Hosting dipilih Packagist publik dengan source GitHub `tomylana93/jcf` (PUBLIC); akses akun Packagist/kemampuan submit belum dapat diverifikasi dari credential GitHub. 404 tidak membuktikan kepemilikan nama paket.                                                                                                                 | Terbuka: verifikasi akun/submit pada langkah publikasi yang diotorisasi.                                     |
+| F0-05         | GitHub API: akun `tomylana93` mempunyai admin repository; Actions enabled, allowed_actions all. Proteksi `main`: HTTP 404 Branch not protected; rulesets `[]`. Run tests historis sukses pada SHA `a8ff502ec26a291a4753b6d33a12a35105a6b2cf`.                                                                                                                                                                         | Inspeksi selesai; required checks/review belum enforced.                                                     |
+| F0-05         | Pilihan credential: GitHub App installation token existing, menggunakan variable `RELEASE_APP_ID` dan secret `RELEASE_APP_PRIVATE_KEY` yang namanya terdaftar. Nilai secret tidak dibaca. Izin target contents/pull requests/issues write, cakupan hanya repo tujuan; token tidak diwariskan ke turunan.                                                                                                              | Pilihan tercatat; instalasi App, izin efektif, dan pemicu checks harus dibuktikan fase 3.                    |
 
 Bukti hosted historis: [tests run 40269601679](https://github.com/tomylana93/jcf/actions/runs/40269601679), bukan run commit fase 0. Versi patch PostgreSQL pada hosted run tidak diketahui; image `postgres:18` belum dipin digest. Tidak ada klaim dukungan seluruh versi PostgreSQL atau rilis stabil.
 
@@ -283,14 +283,14 @@ Gate: instalasi DB-ready sukses; DB belum siap menghasilkan instruksi dan kegaga
 
 Implementasi pada branch yang sama, dimulai dari commit `2827ea3`. Cakupan hanya instalasi dan isolasi; belum membuat versi/provenance atau otomasi rilis fase 2–4.
 
-| Item | Implementasi dan bukti |
-| --- | --- |
-| F1-01 / F1-02 | Hook Composer pembuatan proyek hanya menjalankan `init:prepare`: key baru jika kosong, tanpa akses DB/migrasi/akun. Hook SQLite dan `migrate --graceful` dihapus. `composer setup` menjadi jalur eksplisit: install → prepare → init:app → pnpm frozen → build. Install/update dependency biasa tidak menjalankan creation hook. |
-| F1-03 | `.env.example` tidak menentukan nama DB. Konfigurasi memisahkan DB development efektif (termasuk DB_URL) dan DB_TEST_DATABASE, default `<dev>_testing`. Test tidak memakai DB_URL sebagai target dan menolak nama sama sebelum bootstrap selesai. PHPUnit tidak lagi membawa nama DB JCF atau menimpa informasi URL development. CI dan subprocess test meneruskan target testing secara eksplisit. |
-| F1-04 | Guard local/testing dan key existing dipertahankan. `init:app` memeriksa konfigurasi PostgreSQL dan koneksi sebelum setup; menolak target `jcf`/`jcf_testing` pada checkout yang bukan bernama `jcf`. Kegagalan koneksi tidak mencetak credential. Kegagalan command menghentikan urutan. Default email/password superadmin dihapus; rerun menjaga akun existing. |
-| F1-05 | Sumber Laravel Installer v5.32.0, SHA `6d47ce9f44a42da0d06d50acdfa80f8c9b13c8c3`: hooks dijalankan sebelum rewrite DB, community kit tanpa opsi DB menjadi SQLite, opsi DB eksplisit dapat menjalankan migrasi, pnpm menggunakan `install --ignore-scripts` tanpa frozen, Git/GitHub berjalan sesudah DB. Hook installer kini menolak otomatisasi sebelum langkah-langkah tersebut. Tidak mengklaim dukungan `--using`; membuka jalur ini menunggu integration/acceptance fase 5. |
-| F1-06 | Backup/monitor, cookie, cache, dan Redis namespace memakai APP_INSTANCE atau nama direktori. Override existing tetap didukung. Domain `jcf` dihapus dari konfigurasi Lerd committed; sender contoh menjadi example.com dan Reverb key contoh dikosongkan. Branding Jalara tetap boleh dipakai. Perubahan default cookie menyebabkan login ulang bila SESSION_COOKIE tidak dipin. |
-| F1-07 | Regression tests untuk persiapan tanpa DB/key idempotent, hook Composer nyata tanpa DB, penolakan installer/cache, target tidak aman, koneksi gagal, pemisahan DB_URL/testing, namespace instance, dan setup/rerun pada PostgreSQL disposable. Test permission/superadmin existing dipertahankan. |
+| Item          | Implementasi dan bukti                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| F1-01 / F1-02 | Hook Composer pembuatan proyek hanya menjalankan `init:prepare`: key baru jika kosong, tanpa akses DB/migrasi/akun. Hook SQLite dan `migrate --graceful` dihapus. `composer setup` menjadi jalur eksplisit: install → prepare → init:app → pnpm frozen → build. Install/update dependency biasa tidak menjalankan creation hook.                                                                                                                                                  |
+| F1-03         | `.env.example` tidak menentukan nama DB. Konfigurasi memisahkan DB development efektif (termasuk DB_URL) dan DB_TEST_DATABASE, default `<dev>_testing`. Test tidak memakai DB_URL sebagai target dan menolak nama sama sebelum bootstrap selesai. PHPUnit tidak lagi membawa nama DB JCF atau menimpa informasi URL development. CI dan subprocess test meneruskan target testing secara eksplisit.                                                                               |
+| F1-04         | Guard local/testing dan key existing dipertahankan. `init:app` memeriksa konfigurasi PostgreSQL dan koneksi sebelum setup; menolak target `jcf`/`jcf_testing` pada checkout yang bukan bernama `jcf`. Kegagalan koneksi tidak mencetak credential. Kegagalan command menghentikan urutan. Default email/password superadmin dihapus; rerun menjaga akun existing.                                                                                                                 |
+| F1-05         | Sumber Laravel Installer v5.32.0, SHA `6d47ce9f44a42da0d06d50acdfa80f8c9b13c8c3`: hooks dijalankan sebelum rewrite DB, community kit tanpa opsi DB menjadi SQLite, opsi DB eksplisit dapat menjalankan migrasi, pnpm menggunakan `install --ignore-scripts` tanpa frozen, Git/GitHub berjalan sesudah DB. Hook installer kini menolak otomatisasi sebelum langkah-langkah tersebut. Tidak mengklaim dukungan `--using`; membuka jalur ini menunggu integration/acceptance fase 5. |
+| F1-06         | Backup/monitor, cookie, cache, dan Redis namespace memakai APP_INSTANCE atau nama direktori. Override existing tetap didukung. Domain `jcf` dihapus dari konfigurasi Lerd committed; sender contoh menjadi example.com dan Reverb key contoh dikosongkan. Branding Jalara tetap boleh dipakai. Perubahan default cookie menyebabkan login ulang bila SESSION_COOKIE tidak dipin.                                                                                                  |
+| F1-07         | Regression tests untuk persiapan tanpa DB/key idempotent, hook Composer nyata tanpa DB, penolakan installer/cache, target tidak aman, koneksi gagal, pemisahan DB_URL/testing, namespace instance, dan setup/rerun pada PostgreSQL disposable. Test permission/superadmin existing dipertahankan.                                                                                                                                                                                 |
 
 Validasi lokal:
 
@@ -431,22 +431,22 @@ Gate: reuse terbukti pada repository independen dan satu siklus adopsi upgrade, 
 
 ## 9. Matriks acceptance wajib
 
-| Skenario | Hasil wajib |
-| --- | --- |
-| Instalasi bersih dengan PostgreSQL siap | Setup, migrasi, build, dan boot aplikasi sukses. |
-| DB belum dikonfigurasi/credential salah | Tidak menyentuh DB fondasi; kegagalan langkah wajib terlihat dan dapat ditindaklanjuti. |
-| Re-run setup lokal | APP_KEY, akun existing, versi, dan provenance tidak direset. |
-| Jalur produksi | `init:app` tetap ditolak; tidak ada provisioning akun default implisit. |
-| Default modules | Perilaku fitur mengikuti flags dan toggle existing. |
-| Semua modul hard-off | Core boot/build tanpa schema/query modul nonaktif. |
-| Hard flag diaktifkan belakangan | Migrasi pending dijalankan sebelum traffic/worker modul; data core aman. |
-| Soft toggle off | Tidak menghapus tabel/data; operasi baru ditolak sesuai kontrak existing. |
-| Instalasi non-Lerd | Tidak membutuhkan registry/site/domain mesin pengembang fondasi. |
-| Release fondasi | Release PR, CI, tag, GitHub Release, dan Packagist konsisten. |
-| Release turunan | Versi/changelog/tag aplikasi berubah; baseline fondasi tetap. |
-| Arsip dist | Tidak berisi secret/artefak/internal roadmap; workflow/panduan yang dibutuhkan tersedia. |
-| Upgrade fondasi penuh | PR lolos regresi dan provenance berubah sesudah adopsi lengkap. |
-| Upgrade parsial | PR mencatat patch; penanda baseline tidak dinaikkan secara menyesatkan. |
+| Skenario                                | Hasil wajib                                                                              |
+| --------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Instalasi bersih dengan PostgreSQL siap | Setup, migrasi, build, dan boot aplikasi sukses.                                         |
+| DB belum dikonfigurasi/credential salah | Tidak menyentuh DB fondasi; kegagalan langkah wajib terlihat dan dapat ditindaklanjuti.  |
+| Re-run setup lokal                      | APP_KEY, akun existing, versi, dan provenance tidak direset.                             |
+| Jalur produksi                          | `init:app` tetap ditolak; tidak ada provisioning akun default implisit.                  |
+| Default modules                         | Perilaku fitur mengikuti flags dan toggle existing.                                      |
+| Semua modul hard-off                    | Core boot/build tanpa schema/query modul nonaktif.                                       |
+| Hard flag diaktifkan belakangan         | Migrasi pending dijalankan sebelum traffic/worker modul; data core aman.                 |
+| Soft toggle off                         | Tidak menghapus tabel/data; operasi baru ditolak sesuai kontrak existing.                |
+| Instalasi non-Lerd                      | Tidak membutuhkan registry/site/domain mesin pengembang fondasi.                         |
+| Release fondasi                         | Release PR, CI, tag, GitHub Release, dan Packagist konsisten.                            |
+| Release turunan                         | Versi/changelog/tag aplikasi berubah; baseline fondasi tetap.                            |
+| Arsip dist                              | Tidak berisi secret/artefak/internal roadmap; workflow/panduan yang dibutuhkan tersedia. |
+| Upgrade fondasi penuh                   | PR lolos regresi dan provenance berubah sesudah adopsi lengkap.                          |
+| Upgrade parsial                         | PR mencatat patch; penanda baseline tidak dinaikkan secara menyesatkan.                  |
 
 Test reusable existing tetap disertakan. Tidak perlu menambahkan Vitest, Vue Test Utils, jsdom, atau frontend unit-test pipeline untuk roadmap ini.
 
@@ -468,17 +468,17 @@ Model ini memerlukan review manual dan bisa menimbulkan konflik saat aplikasi me
 
 ## 11. Risiko dan penanganan
 
-| Risiko | Penanganan |
-| --- | --- |
-| Laravel Installer mengubah DB/manager atau menjalankan hook di urutan berbeda | Pin versi dukungan dan uji alur installer nyata. |
-| Aplikasi mewarisi versi/release history JCF | Bootstrap aplikasi atomik dan idempotent; acceptance pada repository baru. |
-| Required checks release PR tidak terpicu | Gunakan credential yang sesuai dan buktikan checks pada SHA yang benar. |
-| Paket publik belum tersedia atau terlambat terindeks | Pisahkan gate kandidat dari gate Packagist; jangan mengklaim instalasi publik sebelum diuji. |
-| Kebijakan arsip terlalu luas | Periksa arsip dist dan source secara terpisah; gunakan pola root yang spesifik. |
-| Domain/DB/backup antar-aplikasi bertabrakan | Identitas instance unik sebelum setup dan migrasi. |
-| Fondasi dan aplikasi saling menimpa saat upgrade | PR adopsi terarah; file versi/changelog aplikasi dimiliki aplikasi. |
-| Snapshot baseline menyesatkan setelah patch parsial | Penanda untuk adopsi penuh; patch parsial cukup di PR/changelog. |
-| Migrasi lama diubah setelah rilis | Terapkan forward-only migration mulai rilis yang dipublikasikan. |
+| Risiko                                                                        | Penanganan                                                                                   |
+| ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| Laravel Installer mengubah DB/manager atau menjalankan hook di urutan berbeda | Pin versi dukungan dan uji alur installer nyata.                                             |
+| Aplikasi mewarisi versi/release history JCF                                   | Bootstrap aplikasi atomik dan idempotent; acceptance pada repository baru.                   |
+| Required checks release PR tidak terpicu                                      | Gunakan credential yang sesuai dan buktikan checks pada SHA yang benar.                      |
+| Paket publik belum tersedia atau terlambat terindeks                          | Pisahkan gate kandidat dari gate Packagist; jangan mengklaim instalasi publik sebelum diuji. |
+| Kebijakan arsip terlalu luas                                                  | Periksa arsip dist dan source secara terpisah; gunakan pola root yang spesifik.              |
+| Domain/DB/backup antar-aplikasi bertabrakan                                   | Identitas instance unik sebelum setup dan migrasi.                                           |
+| Fondasi dan aplikasi saling menimpa saat upgrade                              | PR adopsi terarah; file versi/changelog aplikasi dimiliki aplikasi.                          |
+| Snapshot baseline menyesatkan setelah patch parsial                           | Penanda untuk adopsi penuh; patch parsial cukup di PR/changelog.                             |
+| Migrasi lama diubah setelah rilis                                             | Terapkan forward-only migration mulai rilis yang dipublikasikan.                             |
 
 ## 12. Definisi selesai dan urutan pengerjaan
 
