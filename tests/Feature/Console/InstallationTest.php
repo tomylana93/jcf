@@ -55,11 +55,11 @@ describe('Explicit application installation', function (): void {
             try {
                 $process->run();
 
-                expect($process->isSuccessful())->toBeTrue($process->getOutput().$process->getErrorOutput());
-                expect(json_decode($process->getOutput(), true, flags: JSON_THROW_ON_ERROR))->toBe([
-                    'rerun' => 0, 'same_user' => true, 'same_key' => true,
-                    'migrated' => true, 'same_migrations' => true, 'storage_link' => true,
-                ]);
+                expect($process->isSuccessful())->toBeTrue($process->getOutput().$process->getErrorOutput())
+                    ->and(json_decode($process->getOutput(), true, flags: JSON_THROW_ON_ERROR))->toBe([
+                        'rerun' => 0, 'same_user' => true, 'same_key' => true,
+                        'migrated' => true, 'same_migrations' => true, 'storage_link' => true,
+                    ]);
             } finally {
                 File::delete($directory->path('storage'));
                 $directory->delete();

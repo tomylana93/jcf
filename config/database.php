@@ -16,9 +16,7 @@ $developmentDatabase = $development['database'] ?? '';
 $testingDatabase = env('DB_TEST_DATABASE') ?: ($developmentDatabase !== '' ? $developmentDatabase.'_testing' : '');
 $testing = env('APP_ENV') === 'testing';
 
-if ($testing && ($testingDatabase === '' || $testingDatabase === $developmentDatabase)) {
-    throw new LogicException('Configure a PostgreSQL DB_TEST_DATABASE distinct from DB_DATABASE before running tests.');
-}
+throw_if($testing && ($testingDatabase === '' || $testingDatabase === $developmentDatabase), LogicException::class, 'Configure a PostgreSQL DB_TEST_DATABASE distinct from DB_DATABASE before running tests.');
 
 return [
     'development_database' => $developmentDatabase,

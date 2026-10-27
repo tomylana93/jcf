@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Spatie\TemporaryDirectory\TemporaryDirectory;
+use Symfony\Component\Process\Process;
 
 use function Pest\Laravel\artisan;
 
@@ -65,7 +66,7 @@ describe('Application initialization', function (): void {
         $default = config('database.default');
         config(['database.connections.setup_test' => config('database.connections.pgsql'), 'database.default' => 'setup_test']);
         $key = str_replace('database.connections.pgsql.', 'database.connections.setup_test.', $key);
-        config([$key => $value, 'app.key' => null]);
+        config([$key => $value ?? config('database.development_database'), 'app.key' => null]);
 
         artisan('init:app')->expectsOutput('Configure PostgreSQL DB_DATABASE and a distinct DB_TEST_DATABASE for this application before running init:app. Do not use the JCF foundation database.')->assertFailed();
 
@@ -76,7 +77,7 @@ describe('Application initialization', function (): void {
         'unsupported driver' => ['database.connections.pgsql.driver', 'sqlite'],
         'missing database' => ['database.connections.pgsql.database', ''],
         'missing testing database' => ['database.testing_database', ''],
-        'shared development database' => ['database.testing_database', 'jcf'],
+        'shared development database' => ['database.testing_database', null],
     ]);
 
     it('reports an unreachable database without running setup or exposing credentials', function (): void {
@@ -116,15 +117,15 @@ describe('Application initialization', function (): void {
         $directory = (new TemporaryDirectory)->create();
         $cachePath = $directory->path('config.php');
         File::put($cachePath, '<?php return '.var_export(config()->all(), true).';');
-        $process = new Symfony\Component\Process\Process([PHP_BINARY, 'artisan', 'init:app', '--no-interaction'], base_path(), [
+        $process = new Process([PHP_BINARY, 'artisan', 'init:app', '--no-interaction'], base_path(), [
             'APP_CONFIG_CACHE' => $cachePath,
         ]);
 
         try {
             $process->run();
 
-            expect($process->isSuccessful())->toBeFalse();
-            expect($process->getOutput())->toContain('Clear cached configuration');
+            expect($process->isSuccessful())->toBeFalse()
+                ->and($process->getOutput())->toContain('Clear cached configuration');
         } finally {
             $directory->delete();
         }

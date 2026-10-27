@@ -33,10 +33,10 @@ describe('Installation database configuration', function (): void {
 
         $process->run();
 
-        expect($process->isSuccessful())->toBeTrue();
-        expect(json_decode($process->getOutput(), true, flags: JSON_THROW_ON_ERROR))->toBe([
-            'parcel_testing', null, 'parcel-app', 'parcel-app', 'parcel-app-cache-', 'parcel-app-session', 'parcel-app-database-',
-        ]);
+        expect($process->isSuccessful())->toBeTrue()
+            ->and(json_decode($process->getOutput(), true, flags: JSON_THROW_ON_ERROR))->toBe([
+                'parcel_testing', null, 'parcel-app', 'parcel-app', 'parcel-app-cache-', 'parcel-app-session', 'parcel-app-database-',
+            ]);
     });
 
     it('refuses a testing target that matches the effective development database', function (): void {
@@ -49,7 +49,7 @@ describe('Installation database configuration', function (): void {
 
         $process->run();
 
-        expect($process->isSuccessful())->toBeFalse();
-        expect($process->getOutput())->toContain('DB_TEST_DATABASE distinct from DB_DATABASE');
+        expect($process->isSuccessful())->toBeFalse()
+            ->and($process->getOutput())->toContain('DB_TEST_DATABASE distinct from DB_DATABASE');
     });
 });
