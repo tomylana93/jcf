@@ -58,12 +58,12 @@ describe('Backup dialogs', function (): void {
             ->assertSee(__('backup.dialog.delete'))
             ->assertSee(__('backup.helper.delete', ['filename' => 'test.zip']))
             ->click(__('common.button.cancel'));
-        $disk->assertExists('jcf/test.zip');
+        $disk->assertExists(config('backup.backup.name').'/test.zip');
         $browser->click('tr:has-text("test.zip") button[aria-label="Actions"]')
             ->click(__('common.button.delete'))
             ->click('[role="alertdialog"] button[type="submit"]')
             ->assertSee(__('backup.status.deleted'))
             ->assertNoJavaScriptErrors();
-        $disk->assertMissing('jcf/test.zip');
+        $disk->assertMissing(config('backup.backup.name').'/test.zip');
     });
 });
