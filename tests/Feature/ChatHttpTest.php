@@ -163,7 +163,7 @@ describe('Chat HTTP', function (): void {
         assertDatabaseHas('chat_participants', ['conversation_id' => $conversation->id, 'user_id' => $recipient->id, 'last_read_sequence' => 2]);
     });
 
-    it('shares an unread summary that excludes own messages and users without chat access', function (): void {
+    it('shares an unread summary that excludes own messages and actors without chat access', function (): void {
         [$actor, $recipient] = createChatUsers();
         $conversation = resolve(StartDirectConversation::class)->handle($actor, $recipient);
         $send = resolve(SendChatMessage::class);

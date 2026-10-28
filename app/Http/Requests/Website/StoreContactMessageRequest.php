@@ -10,11 +10,6 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 
 final class StoreContactMessageRequest extends FormRequest
 {
-    public function authorize(): bool
-    {
-        return true;
-    }
-
     /** @return array<string, list<string>> */
     public function rules(): array
     {
