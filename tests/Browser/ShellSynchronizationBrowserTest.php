@@ -15,12 +15,23 @@ describe('Shell synchronization', function (): void {
         actingAs(User::factory()->create());
 
         $page = visit(route('dashboard'));
+        $page->script(<<<'JS_WRAP'
+            () => {
+                window.localeReloadFinished = false;
+                document.addEventListener('inertia:success', event => {
+                    if (event.detail.page.props.locale?.current === 'id') {
+                        window.localeReloadFinished = true;
+                    }
+                });
+            }
+        JS_WRAP);
 
         $page->click('[data-test="sidebar-menu-button"]')
             ->click('a[href="'.route('profile.edit', absolute: false).'"]')
             ->assertPathIs('/account/profile')
             ->click('[aria-label="'.__('locale.label.change').'"]')
             ->click('[role="menuitemradio"][aria-label="Indonesian"]')
+            ->assertScript('window.localeReloadFinished', true)
             ->assertScript('document.documentElement.lang', 'id');
         $page->back()->assertPathIs('/dashboard')->assertScript('document.documentElement.lang', 'en')
             ->assertSee('Dashboard');
