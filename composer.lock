@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "120e9371c052602f6551c5e5c17bbddc",
+    "content-hash": "c7070c34defed4334cdb06f64d783b28",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -7152,16 +7152,16 @@
         },
         {
             "name": "symfony/mime",
-            "version": "v8.1.7",
+            "version": "v8.1.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/mime.git",
-                "reference": "773ac57f20e2795bdadb65b5b1b5f4850d498283"
+                "reference": "8d1232052c9cdef170ed9608b3147bca4f61ff69"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/mime/zipball/773ac57f20e2795bdadb65b5b1b5f4850d498283",
-                "reference": "773ac57f20e2795bdadb65b5b1b5f4850d498283",
+                "url": "https://api.github.com/repos/symfony/mime/zipball/8d1232052c9cdef170ed9608b3147bca4f61ff69",
+                "reference": "8d1232052c9cdef170ed9608b3147bca4f61ff69",
                 "shasum": ""
             },
             "require": {
@@ -7214,7 +7214,7 @@
                 "mime-type"
             ],
             "support": {
-                "source": "https://github.com/symfony/mime/tree/v8.1.7"
+                "source": "https://github.com/symfony/mime/tree/v8.1.10"
             },
             "funding": [
                 {
@@ -7234,7 +7234,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-09-04T11:02:17+00:00"
+            "time": "2026-10-28T17:58:38+00:00"
         },
         {
             "name": "symfony/polyfill-ctype",
@@ -11794,6 +11794,63 @@
                 "source": "https://github.com/laravel/boost"
             },
             "time": "2026-10-07T19:07:19+00:00"
+        },
+        {
+            "name": "laravel/installer",
+            "version": "v5.32.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laravel/installer.git",
+                "reference": "6d47ce9f44a42da0d06d50acdfa80f8c9b13c8c3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/laravel/installer/zipball/6d47ce9f44a42da0d06d50acdfa80f8c9b13c8c3",
+                "reference": "6d47ce9f44a42da0d06d50acdfa80f8c9b13c8c3",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/filesystem": "^10.20|^11.0|^12.0|^13.0",
+                "illuminate/support": "^10.20|^11.0|^12.0|^13.0",
+                "laravel/agent-detector": "^2.0.0",
+                "laravel/prompts": "^0.3.21",
+                "php": "^8.2",
+                "symfony/console": "^6.2|^7.0|^8.0",
+                "symfony/polyfill-mbstring": "^1.31",
+                "symfony/process": "^6.2|^7.0|^8.0"
+            },
+            "require-dev": {
+                "phpstan/phpstan": "^2.1",
+                "phpunit/phpunit": "^10.4"
+            },
+            "bin": [
+                "bin/laravel"
+            ],
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Laravel\\Installer\\Console\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Taylor Otwell",
+                    "email": "taylor@laravel.com"
+                }
+            ],
+            "description": "Laravel application installer.",
+            "keywords": [
+                "laravel"
+            ],
+            "support": {
+                "issues": "https://github.com/laravel/installer/issues",
+                "source": "https://github.com/laravel/installer/tree/v5.32.0"
+            },
+            "time": "2026-08-25T14:35:49+00:00"
         },
         {
             "name": "laravel/mcp",

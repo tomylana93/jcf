@@ -2,7 +2,7 @@
 
 Tanggal: 26 Oktober 2026
 
-Status: fase 0–4 memiliki implementasi dan bukti lokal; minimum Installer/Composer serta akses publik tetap terbuka. Fase 5 memiliki acceptance kandidat default/core-only lokal dan gate lengkap PHP 8.5/Node 26 lulus pada 28 Oktober 2026, setelah update backend. Dukungan Laravel Installer, hosted Release Please/tag/release dan publikasi Packagist masih terbuka; sandbox tetap gagal karena billing GitHub Actions. Fase 6 belum dimulai.
+Status: fase 0–4 memiliki implementasi dan bukti lokal; minimum Composer serta akses publik tetap terbuka. Fase 5 memiliki acceptance kandidat default/core-only dan gate lengkap PHP 8.5/Node 26/pnpm 12.16.1 lulus pada 29 Oktober 2026. F5-03 selesai lokal melalui adapter Installer 5.32.0 yang dibatasi ke direktori baru; direct named-directory tidak didukung. Hosted Release Please/tag/release serta publikasi Packagist masih terbuka karena gate sandbox/billing. Fase 6 belum dimulai.
 
 Baseline analisis: `5424c54e603cc9b567e1d3cfb0b99538d87b54f5`
 
@@ -30,7 +30,7 @@ Temuan di bawah berasal dari inspeksi statis repository dan pembacaan dokumentas
 | --------------------- | ------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | Bentuk distribusi     | `composer.json`: `tomylana93/jcf`, `type: project`, lisensi MIT                                                     | Sudah cocok sebagai dasar distribusi starter kit; status publikasi paket masih perlu diverifikasi.          |
 | Runtime backend       | Lockfile: Laravel `v13.38.0`, Inertia Laravel `v3.5.2`, Fortify `v1.41.0`; requirement PHP `^8.5`                   | Publikasikan matriks dukungan berdasarkan versi yang benar-benar diuji.                                     |
-| Frontend              | Vue 3, Inertia 3, pnpm `12.10.1`, Node 26, Vite Plus                                                                | Instalasi harus menghormati package manager dan lockfile, termasuk perubahan yang dilakukan installer.      |
+| Frontend              | Vue 3, Inertia 3, pnpm `12.16.1`, Node 26, Vite Plus                                                                | Instalasi harus menghormati package manager dan lockfile, termasuk perubahan yang dilakukan installer.      |
 | Modul opsional        | `FeatureManager`, konfigurasi fitur, provider, middleware, dan roadmap feature flags                                | Pertahankan model batteries-included dengan hard flag dan soft toggle.                                      |
 | Inisialisasi lokal    | `init:app` menjalankan migrasi, permission, superadmin, storage link; hanya local/testing; menjaga APP_KEY existing | Reuse perilaku ini. Jangan menjadikannya installer produksi atau mesin penggantian identitas proyek.        |
 | Hook Composer         | `post-create-project-cmd` membuat file SQLite dan menjalankan `migrate --graceful`                                  | Tidak selaras dengan kontrak PostgreSQL-only; jalur instalasi perlu dirapikan sebelum rilis.                |
@@ -235,7 +235,7 @@ Setiap item diselesaikan dengan perubahan terfokus dan bukti validasi. Mulai han
 ### Fase 0 — Kontrak dukungan dan baseline
 
 - [x] **F0-01** Inventaris runtime/dependency, inisialisasi, feature flags, CI, dan file distribusi pada commit implementasi.
-- [ ] **F0-02** Tetapkan matriks: PHP 8.5, Laravel 13, PostgreSQL dengan versi yang diuji, Node 26, pnpm 12.10.1; catat versi minimum Laravel Installer dan Composer dari pengujian.
+- [ ] **F0-02** Tetapkan matriks: PHP 8.5, Laravel 13, PostgreSQL dengan versi yang diuji, Node 26, pnpm 12.16.1; catat versi minimum Laravel Installer dan Composer dari pengujian.
 - [x] **F0-03** Tegaskan PostgreSQL-only/single-tenant, core/modul opsional, dan model source scaffold.
 - [x] **F0-04** Tetapkan kontrak `version.txt`, `.foundation-version`, versi awal, dan SemVer.
 - [ ] **F0-05** Verifikasi akses Packagist, status nama paket, GitHub Actions, branch protection, dan pilihan credential release.
@@ -387,7 +387,7 @@ Fase 3 sudah commit lokal `513825e`. Implementasi JCF fase 4 disimpan sebagai co
 
 - [x] **F5-01** Bangun arsip kandidat dari commit tetap dan periksa isinya.
 - [x] **F5-02** Instal kandidat melalui Composer di direktori dan PostgreSQL disposable; jangan menyalin `vendor`/`node_modules` fondasi sebagai bukti instalasi bersih.
-- [ ] **F5-03** Uji Laravel Installer versi dukungan, termasuk interaksi hook DB, Git, dan package manager.
+- [x] **F5-03** Uji Laravel Installer versi dukungan, termasuk interaksi hook DB, Git, dan package manager — jalur adapter current-directory 5.32.0; direct named-directory tidak didukung.
 - [x] **F5-04** Uji profil default serta core-only; gunakan acceptance feature existing dan hindari matrix penuh yang tidak perlu.
 - [x] **F5-05** Jalankan focused tests, checks relevan, lalu gate `composer test` sesuai lingkungan proyek.
 - [ ] **F5-06** Buktikan jalur hosted Release Please dan checks pada sandbox.
@@ -431,6 +431,18 @@ Status berikut memperbarui catatan historis 26–27 Oktober di atas; fase belum 
 - **F5-06 tetap terbuka:** kedua run sandbox diulang sebagai attempt **3**. Run CI `40295211504`, head `4cf2a01065a6000299d6fc75b592a7d4b61aa181`, check `122733492685`; orkestrasi `40295105031`, check `122733503846`. Keduanya gagal sebelum step berjalan karena pembayaran/spending limit GitHub. Tidak merge PR sandbox atau membuat tag/release untuk melewati checks gagal.
 - **F5-07/F5-08 tetap terbuka:** metadata Packagist masih HTTP **404**; repository JCF belum mempunyai GitHub Release dan `main` belum protected (HTTP 404). Tidak mengubah billing/protection/credential, mengaktifkan workflow, memublikasikan paket, push, merge, atau deploy.
 - Artefak dan log kelanjutan berada di `/home/tomylana93/.cache/jcf-f5-20261028/`; direktori dibatasi ke pemilik dan credential tidak dicatat ke repository/chat. Worklog menggunakan task stabil `reusable-starterkit-phase-5`.
+
+### F5-03 — Integrasi Installer dan pnpm, 29 Oktober 2026
+
+- Baseline `cc7901f`; implementasi tetap pada branch lokal `test/starterkit-phase-5-followup`. Fase ini tidak mengaktifkan workflow/rilis publik atau melewati gate hosted.
+- Probe native Installer 5.32.0 menemukan bahwa `new .` juga ditolak oleh `verifyApplicationDoesntExist()` sebelum hook. Adapter `bootstrap/install-project.php` menggunakan dependency dev **laravel/installer 5.32.0** yang disetujui pengguna; tidak memodifikasi CLI global atau vendor. Satu override hanya menerima `.` ketika direktori kerja baru benar-benar kosong. Input dipatok ke current-directory, no-node, no-boost, non-interactive, dengan opsi Git lokal saja. Direct named-directory Installer tetap ditolak oleh hook tanpa konteks adapter.
+- Konteks sementara privat mengikat nonce dan direktori; preparation tetap tanpa DB. Hash `.env`, `.env.example`, manifest/lockfile dan metadata rilis dibandingkan setelah Installer selesai. Exit code preparation/Installer/Git diteruskan; existing destination, opsi unsafe, perubahan scaffold, serta konteks yang tidak cocok ditolak. Setelah scaffold, PostgreSQL serta admin harus dikonfigurasi sebelum `composer setup` yang menjalankan pnpm frozen. Ini instalasi local/testing bertahap, bukan dukungan produksi atau paket publik.
+- **pnpm 12.16.1** dipilih dari registry resmi pada 29 Oktober; pin SCP yang diperiksa masih 12.11.2. JCF `packageManager`, paket executable di lockfile, dan workflow CI diselaraskan ke 12.16.1. Dependency frontend aplikasi tidak di-upgrade. Frozen install, audit pnpm, frontend check dan TypeScript checks lulus; bukti lama pnpm 12.10.1 tetap dipertahankan sebagai historis.
+- Advisory baru **CVE-2026-45070** ditutup lewat update transitive `symfony/mime` **8.1.7 → 8.1.10**, tanpa perubahan constraint. Composer audit kembali bersih; paket abandoned existing tetap report-only.
+- Regresi terfokus: **32 tests / 115 assertions** lulus, menggunakan class Installer asli dengan fixture hanya pada Composer/Git. Pint, Rector test dan PHPStan level 7 untuk script mandiri lulus. Diagnostics test bersih; PHPantom masih belum mengindeks class dependency Installer yang baru dipasang, sementara PHPStan dan runtime dapat me-resolve class tersebut. **Acceptance nyata lulus:** dua fresh install dari arsip kandidat melalui package Installer 5.32.0 dan adapter, default dengan Git serta core-only tanpa Git, masing-masing exit **0**. Sebelum setup, tidak ada SQLite atau node_modules dan DB_CONNECTION tetap pgsql. Probe direct named-directory dengan `--database=pgsql --pnpm --git` exit **1** sebelum DB/Git/frontend. Kedua profil kemudian lulus `composer setup` pada PHP 8.5/Node 26.12.1/pnpm 12.16.1, dengan development/testing PostgreSQL 18.6 disposable terpisah. Default **23 migrasi / 1 admin / 131 route**; core-only **14 migrasi / 1 admin / 85 route**, tanpa tabel/route modul. Rerun `init:app` exit **0**, hash key/env, provenance, release identity, lockfiles dan fingerprint admin unchanged.
+
+- **Gate final `composer test --no-interaction` exit 0:** audit Composer/pnpm, 10 matrix build tests / 91 assertions, client/SSR build, Pint/Rector, frontend check, PHPStan dan TypeScript checks lulus; type coverage **100%**; **1.011 backend passed + 4 skipped / 5.606 assertions**, code coverage tepat **100%**; **104 browser passed / 2.104 assertions**. Bukti menggunakan PHP container dengan nested Node 26.12.1 dan pnpm 12.16.1, Chromium serta fixture WebSocket CI. Bukan bukti hosted CI, provider realtime produksi, atau instalasi dari paket publik.
+- Kandidat immutable tree `925b21dfabaaaebe7121cac0fd129cd46e66b642`, arsip SHA-256 `0ee830d44d37b0d6c3678789221dfe13f34fc2be7ab8680d80fd812d8633fc63`, **1.471 entri** (dua file tambahan: adapter dan regression test). Lockfile hasil default/core install identik dengan arsip; provenance `jcf@0.1.0`, versi aplikasi `0.1.0`, metadata rilis turunan tanpa bootstrap SHA fondasi. Commit Git awal default tersedia, `.env` tidak tracked. Artefak/log berada pada `/home/tomylana93/.cache/jcf-f503-20261029/`; credential tidak disalin ke repository/chat. F5-03 selesai **lokal melalui adapter**; F5-06/F5-07/F5-08 tetap terbuka.
 
 ### Fase 6 — Bukti reuse dan pembaruan fondasi
 
