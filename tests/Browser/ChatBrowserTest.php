@@ -124,7 +124,7 @@ describe('Chat browser', function (): void {
             ->assertNoJavaScriptErrors();
         $page->script('() => { const viewport = document.querySelector("[data-slot=message-scroller-viewport]"); viewport.scrollTop = viewport.scrollHeight; viewport.dispatchEvent(new Event("scroll")); }');
         $page->wait(0.5)->assertMissing('button[aria-pressed] [data-slot=badge]');
-        expect($conversation->participants()->where('user_id', $actor->id)->firstOrFail()->last_read_sequence)->toBe(127);
+        expect($conversation->participants()->where('user_id', $actor->id)->firstOrFail()->last_read_sequence)->toBe(126);
     });
 
     it('supports Indonesian copy, dark mode and message length validation on small screens', function (): void {
@@ -317,6 +317,115 @@ describe('Chat browser', function (): void {
             ->assertSeeIn('a[href="/chat"] [data-slot=badge]', '1')
             ->assertScript('() => window.chatSummaryReloads === 0')
             ->assertNoJavaScriptErrors();
+    });
+
+    it('updates recipient read receipts without reloading unchanged unread counts', function (): void {
+        config(['broadcasting.default' => 'reverb', 'broadcasting.connections.reverb.key' => 'browser-key', 'broadcasting.connections.reverb.secret' => 'browser-secret', 'broadcasting.connections.reverb.app_id' => 'browser-app']);
+        require base_path('routes/channels.php');
+        [$actor, $recipient] = createChatUsers();
+        $recipient->update(['name' => 'Read Receipt Recipient']);
+        $conversation = resolve(StartDirectConversation::class)->handle($actor, $recipient);
+        $message = resolve(SendChatMessage::class)->handle($actor, $conversation, ['body' => 'Read receipt probe', 'client_message_id' => (string) Str::uuid()]);
+
+        actingAs($actor);
+        $page = visit(route('chat.index'));
+        $page->page()->context()->addInitScript(chatRealtimeSocketScript());
+        $page->page()->context()->addInitScript('Object.defineProperty(document, "hasFocus", { configurable: true, value: () => false });');
+        $page->navigate(route('chat.index'))->assertScript('() => Boolean(window.chatSocket?.channel)')
+            ->click('button[aria-pressed]:has-text("Read Receipt Recipient")')->assertSee('Read receipt probe');
+        $page->wait(0.5);
+        $page->script(<<<'JS_WRAP'
+            () => {
+                window.chatInboxRequests = 0;
+                const open = XMLHttpRequest.prototype.open;
+                XMLHttpRequest.prototype.open = function(method, url, ...args) {
+                    if (method.toUpperCase() === 'GET' && new URL(url, location.origin).pathname === '/chat/inbox') {
+                        window.chatInboxRequests++;
+                    }
+                    return open.call(this, method, url, ...args);
+                };
+            }
+        JS_WRAP);
+
+        resolve(MarkChatConversationRead::class)->handle($recipient, $conversation, $message->sequence);
+        $event = new ChatReadUpdated($conversation->id, $recipient->id, $message->sequence, [$actor->id, $recipient->id]);
+        $delivery = '() => window.chatSocket.deliver('.json_encode(ChatReadUpdated::class).', '.json_encode($event->broadcastWith()).')';
+        $page->script($delivery);
+        $page->assertSee(__('chat.status.read'));
+        $page->script($delivery);
+        $page->wait(0.5)->assertScript('() => window.chatInboxRequests === 0')->assertNoJavaScriptErrors();
+    });
+
+    it('acknowledges visible incoming messages without sending read requests for own messages', function (): void {
+        config(['broadcasting.default' => 'reverb', 'broadcasting.connections.reverb.key' => 'browser-key', 'broadcasting.connections.reverb.secret' => 'browser-secret', 'broadcasting.connections.reverb.app_id' => 'browser-app']);
+        require base_path('routes/channels.php');
+        [$actor, $recipient] = createChatUsers();
+        $recipient->update(['name' => 'Visible Recipient']);
+        $conversation = resolve(StartDirectConversation::class)->handle($actor, $recipient);
+        resolve(SendChatMessage::class)->handle($actor, $conversation, ['body' => 'Own visible message', 'client_message_id' => (string) Str::uuid()]);
+
+        actingAs($actor);
+        $page = visit(route('chat.index'));
+        $page->page()->context()->addInitScript(chatRealtimeSocketScript());
+        $page->page()->context()->addInitScript(<<<'JS_WRAP'
+            Object.defineProperty(document, "hasFocus", { configurable: true, value: () => true });
+            window.chatReadRequests = 0;
+            const open = XMLHttpRequest.prototype.open;
+            XMLHttpRequest.prototype.open = function(method, url, ...args) {
+                if (method.toUpperCase() === 'PATCH' && new URL(url, location.origin).pathname.endsWith('/read')) {
+                    window.chatReadRequests++;
+                }
+                return open.call(this, method, url, ...args);
+            };
+        JS_WRAP);
+        $page->navigate(route('chat.index'))->assertScript('() => Boolean(window.chatSocket?.channel)')
+            ->click('button[aria-pressed]:has-text("Visible Recipient")')->assertSee('Own visible message');
+        $page->wait(0.5)->assertScript('() => window.chatReadRequests === 0');
+        expect($conversation->participants()->where('user_id', $actor->id)->firstOrFail()->last_read_sequence)->toBe(0);
+
+        $incoming = resolve(SendChatMessage::class)->handle($recipient, $conversation, ['body' => 'Incoming visible message', 'client_message_id' => (string) Str::uuid()]);
+        $page->script('() => window.chatSocket.deliver('.json_encode(ChatMessageCreated::class).', '.json_encode(new ChatMessageCreated($incoming, [$actor->id, $recipient->id])->broadcastWith()).')');
+        $page->assertSee('Incoming visible message')->assertScript('() => window.chatReadRequests === 1');
+        $page->wait(0.5)->assertNoJavaScriptErrors();
+        expect($conversation->participants()->where('user_id', $actor->id)->firstOrFail()->last_read_sequence)->toBe(2);
+    });
+
+    it('coalesces a burst of realtime messages into one canonical inbox refresh', function (): void {
+        config(['broadcasting.default' => 'reverb', 'broadcasting.connections.reverb.key' => 'browser-key', 'broadcasting.connections.reverb.secret' => 'browser-secret', 'broadcasting.connections.reverb.app_id' => 'browser-app']);
+        require base_path('routes/channels.php');
+        [$actor, $recipient] = createChatUsers();
+        $recipient->update(['name' => 'Burst Recipient']);
+        $conversation = resolve(StartDirectConversation::class)->handle($actor, $recipient);
+
+        actingAs($actor);
+        $page = visit(route('chat.index'));
+        $page->page()->context()->addInitScript(chatRealtimeSocketScript());
+        $page->page()->context()->addInitScript('Object.defineProperty(document, "hasFocus", { configurable: true, value: () => false });');
+        $page->navigate(route('chat.index'))->assertScript('() => Boolean(window.chatSocket?.channel)')
+            ->click('button[aria-pressed]:has-text("Burst Recipient")')->assertVisible('#chat-body');
+        $page->wait(0.5);
+        $page->script(<<<'JS_WRAP'
+            () => {
+                window.chatInboxRequests = 0;
+                const open = XMLHttpRequest.prototype.open;
+                XMLHttpRequest.prototype.open = function(method, url, ...args) {
+                    if (method.toUpperCase() === 'GET' && new URL(url, location.origin).pathname === '/chat/inbox') {
+                        window.chatInboxRequests++;
+                    }
+                    return open.call(this, method, url, ...args);
+                };
+            }
+        JS_WRAP);
+        $payloads = [];
+        foreach (range(1, 3) as $sequence) {
+            $message = resolve(SendChatMessage::class)->handle($recipient, $conversation, ['body' => 'Burst incoming '.$sequence, 'client_message_id' => (string) Str::uuid()]);
+            $payloads[] = new ChatMessageCreated($message, [$actor->id, $recipient->id])->broadcastWith();
+        }
+        $page->script('async () => { for (const message of '.json_encode($payloads).') { window.chatSocket.deliver('.json_encode(ChatMessageCreated::class).', message); await new Promise(resolve => setTimeout(resolve, 200)); } }');
+        $page->assertScript('() => window.chatInboxRequests === 0')
+            ->assertScript('() => window.chatInboxRequests === 1')
+            ->assertScript('() => document.querySelectorAll("[data-test=chat-message-body]").length === 3')
+            ->assertSeeIn('a[href="/chat"] [data-slot=badge]', '3')->assertNoJavaScriptErrors();
     });
 
     it('releases chat listeners after soft disabling while notifications keep working', function (): void {

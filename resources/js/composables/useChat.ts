@@ -399,7 +399,12 @@ export function useChat() {
 
     async function markRead(sequence?: number): Promise<void> {
         const conversation = selected.value;
-        const target = sequence ?? messages.value.at(-1)?.sequence;
+        const visibleThrough = sequence ?? messages.value.at(-1)?.sequence;
+        const target = messages.value.findLast(
+            (message) =>
+                message.sender_id !== actorId.value &&
+                message.sequence <= (visibleThrough ?? 0),
+        )?.sequence;
         if (
             !conversation ||
             !target ||
@@ -427,7 +432,7 @@ export function useChat() {
         inboxTimer = setTimeout(() => {
             inboxTimer = undefined;
             void loadInbox();
-        }, 150);
+        }, 1000);
     }
 
     function scheduleHistoryCatchUp(): void {
@@ -504,7 +509,7 @@ export function useChat() {
                     event.last_read_sequence;
             }
         }
-        scheduleInboxRefresh();
+        if (event.user_id === actorId.value) scheduleInboxRefresh();
     }
 
     function receiveTyping(event: ChatTypingEvent): void {
