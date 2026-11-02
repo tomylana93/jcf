@@ -9,7 +9,7 @@
 <h1 align="center">Jalara Core Foundation (JCF)</h1>
 
 <p align="center">
-  A modular foundation for single-tenant Laravel applications on PostgreSQL.
+  A modern, modular starterkit for building simple, purposeful applications.
 </p>
 
 <p align="center">
