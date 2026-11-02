@@ -135,6 +135,7 @@ export default defineConfig({
         ignorePatterns: [
             '.github/**',
             '.impeccable/**',
+            'CHANGELOG.md',
             '.lerd.yaml',
             'composer.json',
             'resources/js/components/ui/**',
