@@ -533,7 +533,6 @@ Fase 0 menambahkan kontrak dan bukti pemeriksaan. Fase 1 mengubah jalur setup, k
 - [Release Please: manifest configuration](https://github.com/googleapis/release-please/blob/main/docs/manifest-releaser.md) — konfigurasi per repository.
 - [Release Please: simple strategy](https://github.com/googleapis/release-please/blob/main/src/strategies/simple.ts) — versi melalui `version.txt`.
 - [Release Please Action](https://github.com/googleapis/release-please-action) — workflow, permission, dan batas `GITHUB_TOKEN`.
-- [Feature Flags Roadmap](FEATURE_FLAGS_ROADMAP.md) — kontrak core, modul, PostgreSQL, dan bukti historis validasi.
 - [Project Rules](.ai/rules/index.md) — aturan path, implementasi, dan validasi.
 
 ## Pembaruan gate rilis — 2 November 2026
