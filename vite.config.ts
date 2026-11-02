@@ -136,6 +136,7 @@ export default defineConfig({
             '.github/**',
             '.impeccable/**',
             'CHANGELOG.md',
+            'README.md',
             '.lerd.yaml',
             'composer.json',
             'resources/js/components/ui/**',
