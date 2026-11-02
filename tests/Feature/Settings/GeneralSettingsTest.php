@@ -72,7 +72,7 @@ describe('General settings', function (): void {
         actingAs($user)->get(route('settings.general.edit'))->assertInertia(fn (Assert $page): Assert => $page
             ->component('settings/General')
             ->where('settings.site_name', $name)
-            ->where('settings.site_description', 'A modern, modular starterkit for building simple, purposeful applications.')
+            ->where('settings.site_description', config('app.description'))
             ->where('settings.support_email', resolve(GeneralSettings::class)->support_email)
             ->missing('settings.public_pages_enabled')
             ->missing('general.public_pages_enabled')
@@ -155,7 +155,7 @@ describe('General settings', function (): void {
         ])->assertSuccessfulPrecognition();
 
         expect(resolve(GeneralSettings::class)->refresh()->site_name)->toBe($name);
-        assertDatabaseHas('settings', ['group' => 'general', 'name' => 'site_description', 'payload' => '"A modern, modular starterkit for building simple, purposeful applications."']);
+        assertDatabaseHas('settings', ['group' => 'general', 'name' => 'site_description', 'payload' => json_encode(config('app.description'))]);
     });
 
     it('returns precognition errors without changing settings', function (): void {
