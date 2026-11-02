@@ -2,9 +2,9 @@
 
 Tanggal: 26 Oktober 2026
 
-Status: diperbarui 2 November 2026. Fase 0–4 selesai dengan bukti aktual; F0-02, F0-05, dan F3-06 ditutup pada pembaruan gate di bagian akhir. Fase 5 selesai: F5-07 menerbitkan rilis JCF pertama `v1.0.0` (tag, GitHub Release, Packagist tersinkron) dan F5-08 memasang paket publik tersebut melalui Composer serta adapter Installer 5.32.0. Fase 6 belum dimulai.
+Status: diperbarui 2 November 2026. Fase 0–4 selesai dengan bukti aktual; F0-02, F0-05, dan F3-06 ditutup pada pembaruan gate di bagian akhir. Fase 5 selesai: F5-07 menerbitkan rilis JCF pertama `v1.0.0` (tag, GitHub Release, Packagist tersinkron) dan F5-08 memasang paket publik tersebut melalui Composer serta adapter Installer 5.32.0. Fase 6 selesai: aplikasi contoh independen dirilis melalui Release Please miliknya dan mengadopsi rilis fondasi `v1.0.1`; bukti di bagian terakhir.
 
-Cakupan aktif 2 November 2026: Website/CMS dibatalkan dan dihapus pada PR #43 (`86bb1e7`). Modul opsional hanya chat, documentation, dan backup. Bukti fase bertanggal sebelum penghapusan dipertahankan sebagai histori; jumlah migrasi/route lama bukan acceptance kandidat terkini. CI PR memakai `composer test:ci`; `composer test` dan `composer test:feature-build` tetap gate prarilis. Fase 6 terpisah dan belum dimulai.
+Cakupan aktif 2 November 2026: Website/CMS dibatalkan dan dihapus pada PR #43 (`86bb1e7`). Modul opsional hanya chat, documentation, dan backup. Bukti fase bertanggal sebelum penghapusan dipertahankan sebagai histori; jumlah migrasi/route lama bukan acceptance kandidat terkini. CI PR memakai `composer test:ci`; `composer test` dan `composer test:feature-build` tetap gate prarilis.
 
 Baseline analisis: `5424c54e603cc9b567e1d3cfb0b99538d87b54f5`
 
@@ -448,13 +448,13 @@ Status berikut memperbarui catatan historis 26–27 Oktober di atas; fase belum 
 
 ### Fase 6 — Bukti reuse dan pembaruan fondasi
 
-- [ ] **F6-01** Buat satu aplikasi contoh disposable dari rilis, dengan nama/domain/DB/branding sendiri.
-- [ ] **F6-02** Tambahkan satu fitur bisnis kecil memakai permission, route, navigasi, dan action existing untuk membuktikan seam perluasan.
-- [ ] **F6-03** Rilis aplikasi contoh melalui Release Please miliknya.
-- [ ] **F6-04** Simulasikan patch fondasi berikutnya, lalu adopsi dengan PR terarah pada aplikasi contoh.
-- [ ] **F6-05** Pastikan kode domain, branding, release config, versi/changelog aplikasi tidak tertimpa.
-- [ ] **F6-06** Naikkan `.foundation-version` hanya jika seluruh baseline target telah diadopsi dan lolos gate; adopsi parsial dicatat di PR.
-- [ ] **F6-07** Dokumentasikan upgrade/rollback singkat, termasuk konsekuensi migrasi dan kebutuhan backup.
+- [x] **F6-01** Buat satu aplikasi contoh disposable dari rilis, dengan nama/domain/DB/branding sendiri.
+- [x] **F6-02** Tambahkan satu fitur bisnis kecil memakai permission, route, navigasi, dan action existing untuk membuktikan seam perluasan.
+- [x] **F6-03** Rilis aplikasi contoh melalui Release Please miliknya.
+- [x] **F6-04** Simulasikan patch fondasi berikutnya, lalu adopsi dengan PR terarah pada aplikasi contoh.
+- [x] **F6-05** Pastikan kode domain, branding, release config, versi/changelog aplikasi tidak tertimpa.
+- [x] **F6-06** Naikkan `.foundation-version` hanya jika seluruh baseline target telah diadopsi dan lolos gate; adopsi parsial dicatat di PR.
+- [x] **F6-07** Dokumentasikan upgrade/rollback singkat, termasuk konsekuensi migrasi dan kebutuhan backup.
 
 Gate: reuse terbukti pada repository independen dan satu siklus adopsi upgrade, bukan sekadar clone dengan nama berbeda.
 
@@ -515,14 +515,14 @@ Urutan dependensi: **Fase 0 → 1 → 2 → 3 → 4 → 5 → 6**. Release autom
 
 Roadmap dianggap selesai ketika:
 
-- [ ] JCF memiliki rilis berversi yang tersedia sebagai starter kit melalui jalur Laravel Installer yang diuji.
-- [ ] Fresh install didukung dengan PostgreSQL dan pnpm tanpa ketergantungan konfigurasi mesin JCF.
-- [ ] Aplikasi turunan mempunyai versi, changelog, dan Release Please independen.
-- [ ] Metadata khusus asal fondasi pada turunan cukup satu file.
-- [ ] Arsip distribusi bersih dan README yang relevan tersedia.
-- [ ] Core dan modul opsional mempertahankan kontrak existing.
-- [ ] Satu aplikasi contoh menyelesaikan rilis independen dan satu siklus adopsi upgrade.
-- [ ] Bukti lokal, hosted CI, publikasi paket, dan acceptance turunan tercatat secara terpisah.
+- [x] JCF memiliki rilis berversi yang tersedia sebagai starter kit melalui jalur Laravel Installer yang diuji.
+- [x] Fresh install didukung dengan PostgreSQL dan pnpm tanpa ketergantungan konfigurasi mesin JCF.
+- [x] Aplikasi turunan mempunyai versi, changelog, dan Release Please independen.
+- [x] Metadata khusus asal fondasi pada turunan cukup satu file.
+- [x] Arsip distribusi bersih dan README yang relevan tersedia.
+- [x] Core dan modul opsional mempertahankan kontrak existing.
+- [x] Satu aplikasi contoh menyelesaikan rilis independen dan satu siklus adopsi upgrade.
+- [x] Bukti lokal, hosted CI, publikasi paket, dan acceptance turunan tercatat secara terpisah.
 
 Fase 0 menambahkan kontrak dan bukti pemeriksaan. Fase 1 mengubah jalur setup, konfigurasi instance/database, dan regression tests sebagaimana dicatat di atas. Fase 2 menambahkan distribusi bersih dan finalisasi provenance/versi aplikasi. Fase 3 menambahkan konfigurasi Release Please dan bukti PR/check trigger sandbox; gate CI sukses serta tag/release hosted sandbox terbukti pada 2 November 2026 setelah hambatan billing tidak berlaku lagi. Versi dependency aplikasi tidak berubah; tidak ada publikasi Packagist, push/merge/rilis JCF atau deployment pada implementasi fase 3.
 
@@ -533,7 +533,6 @@ Fase 0 menambahkan kontrak dan bukti pemeriksaan. Fase 1 mengubah jalur setup, k
 - [Release Please: manifest configuration](https://github.com/googleapis/release-please/blob/main/docs/manifest-releaser.md) — konfigurasi per repository.
 - [Release Please: simple strategy](https://github.com/googleapis/release-please/blob/main/src/strategies/simple.ts) — versi melalui `version.txt`.
 - [Release Please Action](https://github.com/googleapis/release-please-action) — workflow, permission, dan batas `GITHUB_TOKEN`.
-- [Feature Flags Roadmap](FEATURE_FLAGS_ROADMAP.md) — kontrak core, modul, PostgreSQL, dan bukti historis validasi.
 - [Project Rules](.ai/rules/index.md) — aturan path, implementasi, dan validasi.
 
 ## Pembaruan gate rilis — 2 November 2026
@@ -572,3 +571,25 @@ Diverifikasi melalui GitHub API, metadata publik Packagist, dan instalasi nyata.
 - **Setup dan build:** masing-masing jalur memakai pasangan DB development/testing terpisah pada PostgreSQL **18.6** (`jcf_f508_composer_20261102`, `jcf_f508_installer_20261102`, beserta `_testing`). `composer setup --no-interaction` exit **0** dengan PHP 8.5.12, nested Node **26.12.1**, dan pnpm **12.16.1** frozen lockfile. Hasilnya **20 migrasi, satu admin, 100 route** (16 route chat/documentation) dan DB testing tidak disentuh. `composer build:ssr` exit **0** pada kedua jalur: **132 file** `public/build` dan **126 file** `bootstrap/ssr`. Kedua direktori build identik antarjalur; SHA-256 `manifest.json` `78453ba7b2051a882d5cd42e40adb4c651d8294a4f2832f1e54a26b727da4c88`, `bootstrap/ssr/app.js` `a6f697e504651e25f797614f52ad2778575d66b244e5941929185db1669ffb4c`. Working tree Git hasil Installer tetap bersih sesudah setup/build.
 - Batas bukti: runtime memakai container PHP Lerd dengan Node 26.12.1 nested dari cache disposable, bukan host non-Lerd mandiri. Run ini tidak menjalankan ulang full `composer test` atau browser suite pada instalasi publik. Direct `laravel new <dir> --using=...` tetap tidak didukung; dukungan Installer hanya melalui adapter.
 - Keempat DB disposable dihapus sesudah verifikasi. Artefak/log (zipball, checkout instalasi, log setup/build, `f508-verification.json`, `database-cleanup.json`) berada di `/home/tomylana93/.cache/jcf-f508-20261102/`; direktori dibatasi ke pemilik dan credential tidak dicatat ke repository/chat.
+
+### Bukti Fase 6 — 2 November 2026
+
+Aplikasi contoh disposable **Nusa Katalog** di repository private independen `tomylana93/jcf-example-20261102`. Repository ini boleh dihapus sesudah review; SHA, run, dan tag di bawah adalah catatan permanen. Tidak ada secret yang dibaca atau disalin.
+
+| Item  | Bukti                                                                                                                                                                                                                                                                                                                                                                                                                                     | Status   |
+| ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| F6-01 | `composer create-project tomylana93/jcf jcf-example 1.0.0` dari Packagist (Composer 2.11.1, PHP 8.5.12): `.foundation-version` = `jcf@1.0.0`, versi aplikasi `0.1.0`. Identitas sendiri: `APP_NAME="Nusa Katalog"`, `APP_INSTANCE=jcf_example`, site Lerd `jcf-example.test`, DB `jcf_example`/`jcf_example_testing`. `composer setup` exit 0 (20 migrasi, admin, build). Riwayat Git baru (`caae824`, 1.103 file), tanpa commit/tag JCF. | Selesai. |
+| F6-02 | PR #1 → `003c1cd`: katalog produk (UUID, SKU unik, harga IDR) hanya memakai seam existing: enum `Permission` (`products.view`/`products.manage`), policy, `Table`, `JsonResource`, Actions + audit log, route Master Data, navigasi, datatable/form sheet. Lokal `composer test:ci` lulus (820 passed, coverage backend 100%, 7 browser smoke); CI hosted run `41429409533` sukses.                                                       | Selesai. |
+| F6-03 | Release Please aplikasi dengan GitHub App milik pemilik: release PR #2 dibuat `app/jalara-release-bot`, CI run `41430027169` sukses pada head `e7c8e91`, squash merge `bcd4c3d`; tag/GitHub Release `v0.2.0` (bukan draft/prerelease) menunjuk `bcd4c3d`. Diff hanya `version.txt`, manifest, changelog.                                                                                                                                  | Selesai. |
+| F6-04 | Patch fondasi nyata, bukan simulasi: JCF release PR #50 di-merge (`466bceb`), tag/GitHub Release `v1.0.1`, Packagist menyajikan `v1.0.1` pada ref `466bceb`. Diff `v1.0.0..v1.0.1` tanpa file rilis/roadmap (`.env.example`, `config/features.php`, `README.md`) diterapkan dengan `git apply --3way` tanpa konflik di PR #3; CI run `41430812237` sukses; merge `958dcdc`.                                                               | Selesai. |
+| F6-05 | PR #3 tidak menyentuh kode produk, branding, `version.txt`, `CHANGELOG.md`, atau config Release Please aplikasi. `.env` aplikasi tetap mengaktifkan chat/documentation secara eksplisit (`config:show features`: chat/documentation `true`, backup `false`); `composer test:feature` 820 passed.                                                                                                                                          | Selesai. |
+| F6-06 | Adopsi penuh `v1.0.1`, sehingga `.foundation-version` naik ke `jcf@1.0.1` dalam PR #3 yang sama. Release PR #4 (CI run `41431511696`, merge `0c47598`) menerbitkan `v0.2.1` dan tidak mengubah `.foundation-version`.                                                                                                                                                                                                                     | Selesai. |
+| F6-07 | README bagian "Upgrading a derived application": diff antar-tag, file milik aplikasi, `.env` vs default baru, migrasi forward-only pada DB disposable, kriteria penanda baseline, serta rollback (backup sebelum deploy, revert kode tidak membatalkan migrasi).                                                                                                                                                                          | Selesai. |
+
+Temuan reuse yang diperbaiki di fondasi pada branch Fase 6 (masuk rilis JCF berikutnya, bukan `v1.0.1`):
+
+- `GeneralSettingsTest` mengunci deskripsi default Jalara, sehingga gagal di turunan yang mengisi `APP_DESCRIPTION`; kini membaca `config('app.description')`. Aplikasi contoh menerapkan perbaikan yang sama sebagai kode miliknya.
+- `bootstrap/finalize-project.php` menulis changelog awal dengan kalimat pembuka; Release Please `v0.2.0` mengubahnya menjadi heading `## Changelog` ganda. Changelog awal kini hanya `# Changelog`.
+- `.env.example` masih memuat `WEBSITE_CONTACT_NOTIFICATION_EMAIL` sisa CMS yang tidak dipakai; dihapus.
+
+Batas bukti: repository contoh private pada akun gratis, sehingga branch protection/ruleset tidak tersedia (HTTP 403). Required check digantikan disiplin manual: setiap merge memakai `--match-head-commit` pada head yang CI-nya sukses. Tidak ada deployment. Perubahan default modul `v1.0.1` hanya berdampak pada environment yang tidak mengisi `FEATURE_*`.

@@ -53,7 +53,7 @@ $files = [
     'version.txt' => "0.1.0\n",
     '.release-please-manifest.json' => "{\n    \".\": \"0.1.0\"\n}\n",
     'release-please-config.json' => json_encode($releaseConfig, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR)."\n",
-    'CHANGELOG.md' => "# Changelog\n\nApplication release history starts here.\n",
+    'CHANGELOG.md' => "# Changelog\n",
     '.foundation-version' => 'jcf@'.$source."\n",
 ];
 foreach (array_keys($files) as $name) {

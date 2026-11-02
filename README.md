@@ -20,7 +20,7 @@ These targets do not imply that every patch or minor version has been tested. Po
 
 ## Core and modules
 
-Core includes authentication and accounts, users and permissions, the application shell, locale and timezone, basic settings, audit, notifications, and existing generic infrastructure. Chat, documentation, and backup are optional modules. Chat and documentation are enabled by default through hard flags; backup is opt-in. Website/CMS was removed before the first stable release.
+Core includes authentication and accounts, users and permissions, the application shell, locale and timezone, basic settings, audit, notifications, and existing generic infrastructure. Chat, documentation, and backup are optional modules. Since 1.0.1, all three hard flags default to off; enable each module explicitly with `FEATURE_CHAT`, `FEATURE_DOCUMENTATION`, or `FEATURE_BACKUP`. Website/CMS was removed before the first stable release.
 
 Hard flags control module availability and migration registration. A module disabled through its hard flag must not access its settings or schema. Soft toggles control usage without deleting schema or data. When enabling a hard flag later, run migrations before allowing module traffic or workers. Core realtime notifications remain separate from the chat module. Derived applications own their business workflows, domain permissions, domain navigation, integrations, deployment, and instance identity. Jalara branding may remain as a fallback.
 
@@ -88,6 +88,20 @@ The source `version.txt` contains the foundation release version, currently `1.0
 For a source archive installed with `--no-scripts`, run `php bootstrap/finalize-project.php` explicitly before initializing Git. It needs only PHP and local files, with no registry, discovery service, Git executable, or connection to JCF. Finalization replaces the foundation release config with a generic root package and keeps the generic, repository-scoped workflow. It removes the foundation bootstrap SHA, initial release override, component and other inherited config. The workflow must be present in the archive. No foundation owner/repository or credential is embedded. The application manifest starts at `0.1.0`; with no existing application tag, the first `fix:` release is `0.1.1`, the first `feat:` release is `0.2.0`, and a breaking change is `1.0.0`. The first public release is therefore not automatically `0.1.0`. Only the new application Git history is scanned; initialize a new repository after finalization, without importing foundation commits or tags.
 
 Archives retain application code, regression tests, project rules, README, lockfiles, and CI. Root roadmap files and machine-specific Lerd/editor/agent state are excluded. The public 1.0.0 archive passed this content check. No frontend unit-test tooling is required.
+
+### Upgrading a derived application
+
+JCF is a source scaffold, so `composer update` never brings in foundation application code. Adopt a foundation release by hand, in one focused pull request per target version:
+
+1. Read `.foundation-version` (for example `jcf@1.0.0`) and pick an immutable target tag. Read the foundation changelog between the two tags, including breaking changes.
+2. Produce the foundation diff between the two tags, not between the application tree and the foundation tree, for example `git diff v1.0.0 v1.0.1 -- . ':!CHANGELOG.md' ':!version.txt' ':!.release-please-manifest.json'` in a foundation checkout. Never import foundation commits or tags into the application history.
+3. Apply the relevant hunks with `git apply --3way` or by hand. Resolve conflicts in favor of application business code and branding. Never copy the foundation's `version.txt`, `CHANGELOG.md`, `.release-please-manifest.json`, or `release-please-config.json`; they belong to the application.
+4. Review `.env.example` and `config/` changes and update each environment's `.env` explicitly. A changed default does not alter values already set in an existing `.env`.
+5. Run new migrations against a disposable copy of the database first, then run the application's own test gate. Foundation migrations are forward-only; a released migration is never edited.
+6. Advance `.foundation-version` in the same pull request only when every relevant change of the target version has been adopted. When some changes are deliberately skipped or adapted, keep the old marker and list the exceptions in the pull request.
+7. Merge with a conventional commit message, for example `chore(foundation): adopt jcf 1.0.1`. The application's own Release Please then decides the application version; the foundation version does not dictate it.
+
+**Rollback.** Before deploying an adoption that contains migrations, take a database backup (for example with the backup module, `php artisan backup:run`, or the platform's own snapshot). Rolling back code is a revert of the adoption pull request. Rolling back data is a restore of that backup: reverting code does not undo migrations or data changes, and `migrate:rollback` is only safe when every migration in the batch has a lossless `down()`. Restore `.foundation-version` together with the code so the marker always matches the adopted baseline.
 
 ## Validation and releases
 
