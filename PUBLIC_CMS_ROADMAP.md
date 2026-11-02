@@ -1,6 +1,8 @@
-# Public CMS roadmap
+# Public CMS roadmap — archived
 
-Status: Scopes 01–08 complete locally. Automated acceptance passes; human accessibility/device sign-off remains pending. No deployment is implied.
+Status: cancelled and removed from JCF on November 2, 2026, in PR #43 (`86bb1e7`). Website/CMS code, routes, permissions, settings, schema, and tests were removed. There is no remaining CMS implementation or human sign-off gate for the starter kit.
+
+The sections below preserve historical scope and evidence from before removal. They are not current requirements or a backlog.
 
 ## Objective and agreed scope
 

@@ -3,6 +3,8 @@
 Tanggal: 20 Oktober 2026  
 Status: Scope 01–04 selesai secara lokal dan teruji. Validasi Scope 05 selesai dengan gate fungsional lulus. Perbaikan performa 29 Oktober 2026 memenuhi target latensi lokal ≤2 detik pada pengukuran ulang; bukti dan batas lingkungan tercatat di bagian terakhir. Scope 06–07 belum dikerjakan.
 
+Catatan 2 November 2026: Website/CMS dihapus pada PR #43 (`86bb1e7`). Penyebutan public CMS SSR, preset, dan `PublicSeoBrowserTest` pada bukti lama bersifat historis; bukan gate aktif chat. Scope 06–07 tetap opsional.
+
 ## Tujuan dan batas awal
 
 Membangun chat internal antar-user aktif pada aplikasi JCF, memakai Laravel Reverb dan komponen UI yang sudah tersedia. Asumsi produk awal adalah percakapan pribadi 1:1; chat publik, customer eksternal, dan multi-tenant tidak termasuk. Jika kebutuhan produk berbeda, revisi batas akses sebelum Scope 01.
