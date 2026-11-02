@@ -36,7 +36,7 @@ if ($module !== 'all' && $features->available($module)) {
 $state = $features->state();
 $queries = [];
 DB::listen(function (QueryExecuted $event) use (&$queries, $state): void {
-    foreach (['website' => 'website_', 'chat' => 'chat_', 'documentation' => 'documentations'] as $name => $table) {
+    foreach (['chat' => 'chat_', 'documentation' => 'documentations'] as $name => $table) {
         if (! $state[$name]['enabled'] && str_contains($event->sql, '"'.$table)) {
             $queries[] = $event->sql;
         }
@@ -54,7 +54,7 @@ foreach (['/dashboard', '/settings', '/permissions', '/search?query=manual', '/s
     }
     $kernel->terminate($request, $response);
 }
-$paths = ['website' => '/website/settings', 'chat' => '/chat', 'documentation' => '/documentation', 'backup' => '/master-data/backups', 'all' => '/settings/modules'];
+$paths = ['chat' => '/chat', 'documentation' => '/documentation', 'backup' => '/master-data/backups', 'all' => '/settings/modules'];
 $request = Request::create($paths[$module], 'GET', server: ['HTTP_ACCEPT' => 'text/html']);
 $response = $kernel->handle($request);
 $kernel->terminate($request, $response);

@@ -8,7 +8,6 @@ use App\Actions\MasterData\Backup\CreateBackup;
 use App\Actions\MasterData\Backup\GetBackupLock;
 use App\Actions\MasterData\Backup\RestoreActiveBackup;
 use App\Actions\System\GetSystemHealth;
-use App\Actions\Website\BuildPublicHome;
 use App\Events\ChatMessageCreated;
 use App\Events\ChatReadUpdated;
 use App\Events\ChatTypingUpdated;
@@ -19,7 +18,6 @@ use App\Models\ChatMessage;
 use App\Models\User;
 use App\Settings\BackupSettings;
 use App\Settings\ChatSettings;
-use App\Settings\WebsiteSettings;
 use App\Support\FeatureManager;
 use Illuminate\Broadcasting\BroadcastEvent;
 use Illuminate\Console\Scheduling\Schedule;
@@ -34,7 +32,6 @@ use Spatie\TemporaryDirectory\TemporaryDirectory;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Process\Process;
 
-use function Pest\Laravel\actingAs;
 use function Pest\Laravel\artisan;
 use function Pest\Laravel\get;
 use function Pest\Laravel\post;
@@ -52,36 +49,11 @@ describe('Backend feature gates', function (): void {
 
         get($path)->assertNotFound();
     })->with([
-        ['website', '/website/pages/home'],
-        ['website', '/articles'],
-        ['website', '/sitemap.xml'],
         ['chat', '/chat'],
         ['chat', '/chat/00000000-0000-4000-8000-000000000000/messages'],
         ['documentation', '/documentation/missing-document'],
         ['backup', '/master-data/backups'],
     ])->with([true, false]);
-
-    it('redirects root and serves robots without resolving CMS while hard off', function (): void {
-        config(['features.website' => false]);
-        app()->beforeResolving(WebsiteSettings::class, fn () => throw new LogicException('CMS settings resolved'));
-        app()->beforeResolving(BuildPublicHome::class, fn () => throw new LogicException('CMS action resolved'));
-
-        get('/')->assertRedirect(route('login'));
-        get('/robots.txt')->assertOk()->assertSee("Disallow: /\n")->assertDontSee('Sitemap:');
-        actingAs(User::factory()->create());
-        get('/')->assertRedirect(route('dashboard'));
-    });
-
-    it('keeps CMS administration available when only public pages are off', function (): void {
-        actingAsSuperAdmin();
-        resolve(WebsiteSettings::class)->fill(['public_pages_enabled' => false])->save();
-
-        get('/website/settings')->assertOk();
-        get('/articles')->assertNotFound();
-        get('/')->assertRedirect(route('dashboard'));
-        resolve(WebsiteSettings::class)->fill(['enabled' => false])->save();
-        get('/website/settings')->assertNotFound();
-    });
 
     it('rejects direct chat mutations before touching domain data', function (bool $hard): void {
         if ($hard) {
@@ -212,14 +184,14 @@ describe('Backend feature gates', function (): void {
                 'DB_HOST' => $db->getConfig('host'), 'DB_PORT' => (string) $db->getConfig('port'),
                 'DB_USERNAME' => $db->getConfig('username'), 'DB_PASSWORD' => $db->getConfig('password'),
                 'APP_CONFIG_CACHE' => $directory->path('config.php'), 'APP_ROUTES_CACHE' => $directory->path('routes.php'),
-                'FEATURE_WEBSITE' => 'false', 'FEATURE_CHAT' => 'false',
+                'FEATURE_CHAT' => 'false',
                 'FEATURE_DOCUMENTATION' => 'false', 'FEATURE_BACKUP' => 'false',
             ];
             try {
                 new Process([PHP_BINARY, 'artisan', 'migrate', '--force', '--no-interaction'], base_path(), $environment)->mustRun();
                 new Process([PHP_BINARY, 'artisan', 'wayfinder:catalog', '--with-form', '--path='.$directory->path('generated')], base_path(), $environment)->mustRun();
                 expect($db->table('settings')->whereIn('group', array_keys(FeatureManager::SETTINGS))->count())->toBe(0);
-                foreach (['chat_messages', 'website_contents', 'documentations'] as $table) {
+                foreach (['chat_messages', 'documentations'] as $table) {
                     expect($db->getSchemaBuilder()->hasTable($table))->toBeFalse();
                 }
                 expect($directory->path('generated/routes/chat/index.ts'))->toBeFile();
@@ -235,7 +207,7 @@ describe('Backend feature gates', function (): void {
         $environment = [
             'APP_CONFIG_CACHE' => $directory->path('config.php'),
             'APP_ROUTES_CACHE' => $directory->path('routes.php'),
-            'FEATURE_WEBSITE' => 'true', 'FEATURE_CHAT' => 'true',
+            'FEATURE_CHAT' => 'true',
             'FEATURE_DOCUMENTATION' => 'true', 'FEATURE_BACKUP' => 'true',
         ];
         foreach ($disabled === 'all' ? array_keys(FeatureManager::SETTINGS) : [$disabled] as $module) {
@@ -247,12 +219,12 @@ describe('Backend feature gates', function (): void {
             $run(['route:cache']);
             $routes = json_decode($run(['route:list', '--json'])->getOutput(), true, flags: JSON_THROW_ON_ERROR);
             $names = array_column($routes, 'name');
-            foreach (['website' => 'website.settings.edit', 'chat' => 'chat.index', 'documentation' => 'documentation.index', 'backup' => 'master-data.backups.index'] as $module => $name) {
+            foreach (['chat' => 'chat.index', 'documentation' => 'documentation.index', 'backup' => 'master-data.backups.index'] as $module => $name) {
                 expect(in_array($name, $names, true))->toBe($disabled !== 'all' && $disabled !== $module);
             }
             $hash = hash_file('sha256', $directory->path('routes.php'));
             $run(['wayfinder:catalog', '--with-form', '--path='.$directory->path('generated')]);
-            foreach (['website/settings', 'chat', 'documentation', 'master-data/backups'] as $route) {
+            foreach (['chat', 'documentation', 'master-data/backups'] as $route) {
                 expect($directory->path('generated/routes/'.$route.'/index.ts'))->toBeFile();
             }
             expect(hash_file('sha256', $directory->path('routes.php')))->toBe($hash)
@@ -260,5 +232,5 @@ describe('Backend feature gates', function (): void {
         } finally {
             $directory->delete();
         }
-    })->with(['website', 'chat', 'documentation', 'backup', 'all']);
+    })->with(['chat', 'documentation', 'backup', 'all']);
 });

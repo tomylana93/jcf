@@ -21,7 +21,7 @@ final class FeatureConfiguration extends LoadConfiguration
         $app->make(Repository::class)->set('features', $features);
         unset($files['features']);
 
-        foreach (['backup', 'website'] as $module) {
+        foreach (['backup'] as $module) {
             if (! $features[$module]) {
                 unset($files[$module]);
             }

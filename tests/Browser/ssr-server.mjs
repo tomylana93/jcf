@@ -19,4 +19,4 @@ const server = createServer(async (request, response) => {
         response.end(JSON.stringify({ error: String(error) }));
     }
 });
-server.listen(13719, '127.0.0.1', () => console.log('PUBLIC_SEO_SSR_READY'));
+server.listen(13719, '127.0.0.1', () => console.log('APP_SSR_READY'));

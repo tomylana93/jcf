@@ -64,7 +64,6 @@ defineProps<{
                     class="mx-auto flex w-full max-w-sm flex-col justify-center gap-6"
                 >
                     <Link
-                        v-if="page.props.features.website.public"
                         :href="home()"
                         class="flex items-center justify-center gap-2 rounded-md text-sm font-medium wrap-anywhere lg:hidden"
                     >

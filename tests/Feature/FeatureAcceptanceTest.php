@@ -19,7 +19,7 @@ describe('Feature deployment acceptance', function (): void {
                 'DB_HOST' => $db->getConfig('host'), 'DB_PORT' => (string) $db->getConfig('port'),
                 'DB_USERNAME' => $db->getConfig('username'), 'DB_PASSWORD' => $db->getConfig('password'),
                 'APP_CONFIG_CACHE' => $directory->path('config.php'), 'APP_ROUTES_CACHE' => $directory->path('routes.php'),
-                'FEATURE_WEBSITE' => 'false', 'FEATURE_CHAT' => 'false', 'FEATURE_DOCUMENTATION' => 'false', 'FEATURE_BACKUP' => 'false',
+                'FEATURE_CHAT' => 'false', 'FEATURE_DOCUMENTATION' => 'false', 'FEATURE_BACKUP' => 'false',
                 'CACHE_STORE' => 'array', 'SESSION_DRIVER' => 'array', 'QUEUE_CONNECTION' => 'sync',
             ];
             if ($module !== 'all') {
@@ -49,10 +49,6 @@ describe('Feature deployment acceptance', function (): void {
             }
         });
     })->with([
-        'website hard=1 soft=1' => ['website', true, true],
-        'website hard=1 soft=0' => ['website', true, false],
-        'website hard=0 soft=1' => ['website', false, true],
-        'website hard=0 soft=0' => ['website', false, false],
         'chat hard=1 soft=1' => ['chat', true, true],
         'chat hard=1 soft=0' => ['chat', true, false],
         'chat hard=0 soft=1' => ['chat', false, true],

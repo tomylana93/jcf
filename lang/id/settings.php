@@ -12,9 +12,8 @@ return [
     'modules' => [
         'title' => 'Modul',
         'card' => ['title' => 'Modul', 'description' => 'Aktifkan atau nonaktifkan modul aplikasi yang terpasang.'],
-        'label' => ['website' => 'Website / CMS', 'chat' => 'Chat', 'documentation' => 'Documentation', 'backup' => 'Backup'],
+        'label' => ['chat' => 'Chat', 'documentation' => 'Documentation', 'backup' => 'Backup'],
         'helper' => [
-            'website' => 'Kelola konten website dan halaman publik.',
             'chat' => 'Percakapan internal dan pesan realtime.',
             'documentation' => 'Dokumentasi dan panduan aplikasi.',
             'backup' => 'Operasi backup dan restore sistem.',
@@ -29,13 +28,11 @@ return [
             'description' => 'Identitas aplikasi dan kontak bantuan.',
         ],
         'label' => [
-            'public_pages_enabled' => 'Aktifkan halaman publik',
             'site_name' => 'Nama aplikasi',
             'site_description' => 'Deskripsi aplikasi',
             'support_email' => 'Email bantuan',
         ],
         'helper' => [
-            'public_pages_enabled' => 'Tampilkan halaman beranda publik pada URL root. Saat dinonaktifkan, URL root mengarah ke login atau dashboard.',
         ],
         'status' => [
             'updated' => 'Pengaturan umum berhasil diperbarui.',

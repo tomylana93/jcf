@@ -2,10 +2,6 @@ export function formatPageTitle(
     title: string,
     page: { props: Record<string, unknown> },
 ): string {
-    if (page.props.website) {
-        return title;
-    }
-
     const general = page.props.general;
 
     const name =

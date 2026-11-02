@@ -7,13 +7,11 @@ namespace App\Support;
 use App\Settings\BackupSettings;
 use App\Settings\ChatSettings;
 use App\Settings\DocumentationSettings;
-use App\Settings\WebsiteSettings;
 
 final class FeatureManager
 {
-    /** @var array<string, class-string<BackupSettings|ChatSettings|DocumentationSettings|WebsiteSettings>> */
+    /** @var array<string, class-string<BackupSettings|ChatSettings|DocumentationSettings>> */
     public const array SETTINGS = [
-        'website' => WebsiteSettings::class,
         'chat' => ChatSettings::class,
         'documentation' => DocumentationSettings::class,
         'backup' => BackupSettings::class,
@@ -56,7 +54,6 @@ final class FeatureManager
 
     /**
      * @return array{
-     *     website: array{available: bool, enabled: bool, public: bool},
      *     chat: array{available: bool, enabled: bool},
      *     documentation: array{available: bool, enabled: bool},
      *     backup: array{available: bool, enabled: bool},
@@ -66,11 +63,6 @@ final class FeatureManager
     public function state(): array
     {
         return [
-            'website' => [
-                'available' => $this->available('website'),
-                'enabled' => $this->enabled('website'),
-                'public' => $this->publicWebsiteEnabled(),
-            ],
             'chat' => [
                 'available' => $this->available('chat'),
                 'enabled' => $this->enabled('chat'),
@@ -85,11 +77,6 @@ final class FeatureManager
             ],
             'realtime' => ! in_array(config('broadcasting.default'), [null, 'null'], true),
         ];
-    }
-
-    public function publicWebsiteEnabled(): bool
-    {
-        return $this->enabled('website') && resolve(WebsiteSettings::class)->public_pages_enabled;
     }
 
     public function reset(): void

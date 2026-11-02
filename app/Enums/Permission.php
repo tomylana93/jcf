@@ -22,10 +22,6 @@ enum Permission: string
     case AssignUserPermissions = 'users.permissions.assign';
     case ViewDocumentation = 'documentation.view';
     case ManageDocumentation = 'documentation.manage';
-    case EditWebsiteContent = 'website.content.edit';
-    case PublishWebsiteContent = 'website.content.publish';
-    case ConfigureWebsite = 'website.configure';
-    case ViewContactInbox = 'website.inbox.view';
 
     public function module(): ?string
     {
@@ -33,7 +29,6 @@ enum Permission: string
             self::UseChat => 'chat',
             self::ManageBackups => 'backup',
             self::ViewDocumentation, self::ManageDocumentation => 'documentation',
-            self::EditWebsiteContent, self::PublishWebsiteContent, self::ConfigureWebsite, self::ViewContactInbox => 'website',
             default => null,
         };
     }

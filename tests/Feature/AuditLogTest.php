@@ -144,7 +144,7 @@ describe('Sensitive change recording', function (): void {
         $before = $settings->site_name;
         DB::beginTransaction();
 
-        resolve(UpdateGeneralSettings::class)->handle(['site_name' => 'Rolled back', 'site_description' => '', 'support_email' => null, 'public_pages_enabled' => false]);
+        resolve(UpdateGeneralSettings::class)->handle(['site_name' => 'Rolled back', 'site_description' => '', 'support_email' => null]);
 
         DB::rollBack();
 

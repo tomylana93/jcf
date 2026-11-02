@@ -15,7 +15,6 @@ describe('Feature flags with production SSR', function (): void {
     it('hydrates core pages without the schemas of disabled modules', function (string $disabled): void {
         actingAsSuperAdmin();
         $tables = [
-            'website' => ['website_contents', 'website_slugs', 'contact_messages'],
             'chat' => ['chat_conversations', 'chat_participants', 'chat_messages'],
             'documentation' => ['documentations'],
             'backup' => [],
@@ -29,9 +28,9 @@ describe('Feature flags with production SSR', function (): void {
         }
         resolve(FeatureManager::class)->reset();
         Http::allowStrayRequests(['http://127.0.0.1:13719/*']);
-        $server = Process::path(base_path())->start(['node', 'tests/Browser/public-seo-server.mjs']);
+        $server = Process::path(base_path())->start(['node', 'tests/Browser/ssr-server.mjs']);
         try {
-            $server->waitUntil(fn (string $type, string $output): bool => str_contains($output, 'PUBLIC_SEO_SSR_READY'));
+            $server->waitUntil(fn (string $type, string $output): bool => str_contains($output, 'APP_SSR_READY'));
             Inertia::disableSsr(false);
             config(['inertia.ssr.url' => 'http://127.0.0.1:13719', 'inertia.ssr.throw_on_error' => true]);
             foreach (['/dashboard', '/settings'] as $path) {
@@ -39,19 +38,14 @@ describe('Feature flags with production SSR', function (): void {
                 get($path)->assertOk()->assertSeeHtml('data-server-rendered="true"');
                 $page = visit($path)->assertNoJavaScriptErrors()->assertNoConsoleLogs();
                 expect($page->script("Boolean(document.querySelector('#app').__vue_app__)"))->toBeTrue();
-                foreach (['website' => '/website', 'chat' => '/chat', 'documentation' => '/documentation', 'backup' => '/master-data/backups'] as $module => $link) {
+                foreach (['chat' => '/chat', 'documentation' => '/documentation', 'backup' => '/master-data/backups'] as $module => $link) {
                     if ($disabled === 'all' || $disabled === $module) {
                         $page->assertMissing('a[href="'.$link.'"]');
                     }
                 }
             }
-            if ($disabled !== 'all' && $disabled !== 'website') {
-                app()->forgetInstance(SsrState::class);
-                get('/')->assertOk()->assertSeeHtml('data-server-rendered="true"');
-                visit('/')->assertNoJavaScriptErrors()->assertNoConsoleLogs();
-            }
         } finally {
             $server->stop();
         }
-    })->with(['website', 'chat', 'documentation', 'backup', 'all']);
+    })->with(['chat', 'documentation', 'backup', 'all']);
 });

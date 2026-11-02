@@ -2,7 +2,6 @@ import {
     Activity,
     BookOpen,
     FilePenLine,
-    Globe,
     LayoutGrid,
     MessagesSquare,
     ScrollText,
@@ -20,7 +19,6 @@ import { index as masterDataIndex } from '@/routes/master-data';
 import { index as permissionsIndex } from '@/routes/permissions';
 import { index as settingsIndex } from '@/routes/settings';
 import { index as systemIndex } from '@/routes/system';
-import { index as websiteIndex } from '@/routes/website';
 import type {
     EditorLinkOption,
     Features,
@@ -33,7 +31,6 @@ export type NavigationAccess = {
     canViewSettings: boolean;
     canViewUsers: boolean;
     canViewUserPermissions: boolean;
-    canViewWebsite: boolean;
     canViewDocumentation: boolean;
     canManageDocumentation: boolean;
     canViewAudit: boolean;
@@ -57,11 +54,6 @@ export function navigationAccess(
         canViewUsers: permissions.includes('users.view'),
         canViewUserPermissions:
             superAdmin && permissions.includes('users.permissions.assign'),
-        canViewWebsite:
-            permissions.includes('website.content.edit') ||
-            permissions.includes('website.content.publish') ||
-            permissions.includes('website.configure') ||
-            permissions.includes('website.inbox.view'),
         canViewDocumentation: permissions.includes('documentation.view'),
         canManageDocumentation: permissions.includes('documentation.manage'),
         canViewAudit: permissions.includes('audit.view'),
@@ -110,13 +102,11 @@ export function createManagementNavigationGroups(
         access.canManageDocumentation && features.documentation.enabled;
     const canViewAudit = access.canViewAudit;
     const canViewSystem = access.canViewSystem;
-    const canViewWebsite = access.canViewWebsite && features.website.enabled;
 
     if (
         !canViewSettings &&
         !canViewUsers &&
         !canViewUserPermissions &&
-        !canViewWebsite &&
         !canManageDocumentation &&
         !canViewAudit &&
         !canViewSystem &&
@@ -185,20 +175,6 @@ export function createManagementNavigationGroups(
                     : []),
             ],
         },
-        ...(canViewWebsite
-            ? [
-                  {
-                      title: t('navigation.link.website'),
-                      items: [
-                          {
-                              title: t('navigation.link.website'),
-                              href: websiteIndex(),
-                              icon: Globe,
-                          },
-                      ],
-                  },
-              ]
-            : []),
     ].filter((group) => group.items.length > 0);
 }
 

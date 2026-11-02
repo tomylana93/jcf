@@ -12,9 +12,8 @@ return [
     'modules' => [
         'title' => 'Modules',
         'card' => ['title' => 'Modules', 'description' => 'Enable or disable installed application modules.'],
-        'label' => ['website' => 'Website / CMS', 'chat' => 'Chat', 'documentation' => 'Documentation', 'backup' => 'Backup'],
+        'label' => ['chat' => 'Chat', 'documentation' => 'Documentation', 'backup' => 'Backup'],
         'helper' => [
-            'website' => 'Manage website content and public pages.',
             'chat' => 'Internal conversations and realtime messages.',
             'documentation' => 'Application documentation and guides.',
             'backup' => 'System backup and restore operations.',
@@ -29,13 +28,11 @@ return [
             'description' => 'Application identity and support contact.',
         ],
         'label' => [
-            'public_pages_enabled' => 'Enable public pages',
             'site_name' => 'Application name',
             'site_description' => 'Application description',
             'support_email' => 'Support email',
         ],
         'helper' => [
-            'public_pages_enabled' => 'Show a public home page at the root URL. When disabled, the root URL redirects to login or the dashboard.',
         ],
         'status' => [
             'updated' => 'General settings updated.',

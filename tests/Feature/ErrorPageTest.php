@@ -37,11 +37,11 @@ describe('Safe web error pages', function (): void {
             ->assertInertia(fn (Assert $page) => $page->component('ErrorPage')->where('status', 404));
     });
 
-    it('renders a server error when home settings fail', function (): void {
+    it('renders a server error when login settings fail', function (): void {
         app()->bind(GeneralSettings::class, fn () => throw new RuntimeException('Database unavailable'));
         app()->bind(BrandSettings::class, fn () => throw new RuntimeException('Database unavailable'));
 
-        get('/')->assertInternalServerError()
+        get(route('login'))->assertInternalServerError()
             ->assertInertia(fn (Assert $page) => $page->component('ErrorPage')->where('status', 500))
             ->assertDontSee('Database unavailable');
     });

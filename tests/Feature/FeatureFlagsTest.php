@@ -2,13 +2,9 @@
 
 declare(strict_types=1);
 
-use App\Actions\Website\UpdateWebsiteSettings;
-use App\Enums\Permission;
 use App\Models\User;
 use App\Providers\FeatureServiceProvider;
 use App\Settings\ChatSettings;
-use App\Settings\GeneralSettings;
-use App\Settings\WebsiteSettings;
 use App\Support\FeatureConfiguration;
 use App\Support\FeatureManager;
 use App\Support\FeaturePackageManifest;
@@ -23,7 +19,6 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Validation\ValidationException;
 use Spatie\Backup\BackupServiceProvider;
 use Spatie\LaravelSettings\SettingsContainer;
 use Spatie\LaravelSettings\SettingsEventSubscriber;
@@ -34,7 +29,6 @@ use Symfony\Component\Process\Process;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
-use function Pest\Laravel\patch;
 
 describe('Feature flags', function (): void {
     it('loads only available domain config before evaluating its contents', function (bool $hard): void {
@@ -42,8 +36,8 @@ describe('Feature flags', function (): void {
         $directory->create();
         try {
             $path = $directory->path();
-            file_put_contents($path.'/features.php', '<?php return '.var_export(['website' => $hard, 'backup' => $hard], true).';');
-            foreach (['backup', 'website'] as $module) {
+            file_put_contents($path.'/features.php', '<?php return '.var_export(['backup' => $hard], true).';');
+            foreach (['backup'] as $module) {
                 file_put_contents($path.'/'.$module.'.php', $hard ? '<?php return ["loaded" => true];' : '<?php throw new LogicException("Disabled config must not load");');
             }
             $originalApplication = app();
@@ -53,9 +47,8 @@ describe('Feature flags', function (): void {
 
             (new FeatureConfiguration)->bootstrap($application);
 
-            expect($application->make(ConfigRepository::class)->has('website'))->toBe($hard)
-                ->and($application->make(ConfigRepository::class)->has('backup'))->toBe($hard)
-                ->and($application->make(ConfigRepository::class)->get('features.website'))->toBe($hard);
+            expect($application->make(ConfigRepository::class)->has('backup'))->toBe($hard)
+                ->and($application->make(ConfigRepository::class)->get('features.backup'))->toBe($hard);
         } finally {
             Container::setInstance($originalApplication);
             $directory->delete();
@@ -76,7 +69,7 @@ describe('Feature flags', function (): void {
 
         expect(resolve(FeatureManager::class)->envEnabled($module))->toBe($hard)
             ->and(resolve(FeatureManager::class)->enabled($module))->toBe($hard && $soft);
-    })->with(['website', 'chat', 'documentation', 'backup'])->with([true, false])->with([true, false]);
+    })->with(['chat', 'documentation', 'backup'])->with([true, false])->with([true, false]);
 
     it('never resolves module settings or queries their groups while hard off', function (bool $cache): void {
         config(['settings.cache.enabled' => $cache]);
@@ -96,8 +89,7 @@ describe('Feature flags', function (): void {
         foreach (array_keys(FeatureManager::SETTINGS) as $module) {
             expect($features->enabled($module))->toBeFalse();
         }
-        expect($features->publicWebsiteEnabled())->toBeFalse()
-            ->and($features->enabled('unknown'))->toBeFalse()
+        expect($features->enabled('unknown'))->toBeFalse()
             ->and($resolved)->toBeEmpty()
             ->and($queries)->toBeEmpty();
     })->with([true, false]);
@@ -112,7 +104,7 @@ describe('Feature flags', function (): void {
 
         (new $class)->fill(['enabled' => true])->save();
         expect($features->enabled($module))->toBeTrue();
-    })->with(['website', 'chat', 'documentation', 'backup']);
+    })->with(['chat', 'documentation', 'backup']);
 
     it('memoizes HTTP state until a settings save or new request scope', function (bool $cache): void {
         config(['settings.cache.enabled' => $cache, 'settings.cache.memo' => true]);
@@ -174,32 +166,13 @@ describe('Feature flags', function (): void {
 
     });
 
-    it('saves public visibility through Website settings while General stays core', function (): void {
-        $actor = actingAsUserWithPermissions(Permission::ConfigureWebsite);
-        patch(route('website.settings.update'), ['public_pages_enabled' => false])->assertSessionHasNoErrors();
-        expect(resolve(WebsiteSettings::class)->public_pages_enabled)->toBeFalse()
-            ->and(resolve(GeneralSettings::class)->toArray())->not->toHaveKey('public_pages_enabled');
-        get('/')->assertRedirect();
-        expect(fn () => resolve(UpdateWebsiteSettings::class)->handle($actor, ['public_pages_enabled' => 'invalid']))
-            ->toThrow(ValidationException::class);
-    });
-
     it('gates middleware using effective state', function (bool $hard, bool $soft): void {
-        resolve(WebsiteSettings::class)->fill(['enabled' => $soft])->save();
-        config(['features.website' => $hard]);
-        Route::middleware('feature:website')->get('/feature-probe', fn (): string => 'enabled');
+        resolve(ChatSettings::class)->fill(['enabled' => $soft])->save();
+        config(['features.chat' => $hard]);
+        Route::middleware('feature:chat')->get('/feature-probe', fn (): string => 'enabled');
 
         get('/feature-probe')->assertStatus($hard && $soft ? 200 : 404);
     })->with([true, false])->with([true, false]);
-
-    it('keeps CMS public state out of core settings', function (): void {
-        expect(resolve(GeneralSettings::class)->toArray())->not->toHaveKey('public_pages_enabled')
-            ->and(resolve(WebsiteSettings::class)->enabled)->toBeTrue()
-            ->and(resolve(WebsiteSettings::class)->public_pages_enabled)->toBeTrue();
-
-        get(route('login'))->assertInertia(fn ($page) => $page
-            ->missing('general.public_pages_enabled')->where('features.website.public', true));
-    });
 
     it('installs only hard on modules and preserves core data when enabling pending migrations', function (string $module): void {
         withIsolatedRestoreDatabase(function (string $connection) use ($module): void {
@@ -208,7 +181,7 @@ describe('Feature flags', function (): void {
                 'APP_ENV' => 'testing', 'DB_CONNECTION' => 'pgsql', 'DB_DATABASE' => $db->getDatabaseName().'_development', 'DB_TEST_DATABASE' => $db->getDatabaseName(),
                 'DB_HOST' => $db->getConfig('host'), 'DB_PORT' => (string) $db->getConfig('port'),
                 'DB_USERNAME' => $db->getConfig('username'), 'DB_PASSWORD' => $db->getConfig('password'), 'DB_URL' => '',
-                'FEATURE_WEBSITE' => 'false', 'FEATURE_CHAT' => 'false',
+                'FEATURE_CHAT' => 'false',
                 'FEATURE_DOCUMENTATION' => 'false', 'FEATURE_BACKUP' => 'false',
                 'APP_CONFIG_CACHE' => storage_path('framework/testing/feature-config-'.getmypid().'.php'),
             ];
@@ -217,7 +190,7 @@ describe('Feature flags', function (): void {
             };
             $migrate();
             expect($db->table('settings')->whereIn('group', array_keys(FeatureManager::SETTINGS))->count())->toBe(0);
-            $tables = ['website' => ['website_contents', 'website_slugs', 'contact_messages'], 'chat' => ['chat_conversations', 'chat_participants', 'chat_messages'], 'documentation' => ['documentations'], 'backup' => []];
+            $tables = ['chat' => ['chat_conversations', 'chat_participants', 'chat_messages'], 'documentation' => ['documentations'], 'backup' => []];
             foreach ($tables as $names) {
                 foreach ($names as $table) {
                     expect($db->getSchemaBuilder()->hasTable($table))->toBeFalse();
@@ -281,13 +254,12 @@ describe('Feature flags', function (): void {
             }
 
         });
-    })->with(['website', 'chat', 'documentation', 'backup']);
+    })->with(['chat', 'documentation', 'backup']);
 
     it('shares complete effective feature state with the frontend', function (?string $broadcasting): void {
         config(['broadcasting.default' => $broadcasting]);
 
         get(route('login'))->assertInertia(fn ($page) => $page
-            ->where('features.website', ['available' => true, 'enabled' => true, 'public' => true])
             ->where('features.chat', ['available' => true, 'enabled' => true])
             ->where('features.documentation', ['available' => true, 'enabled' => true])
             ->where('features.backup', ['available' => true, 'enabled' => true])
@@ -304,7 +276,6 @@ describe('Feature flags', function (): void {
         }
 
         get(route('login'))->assertInertia(fn ($page) => $page
-            ->where('features.website', ['available' => false, 'enabled' => false, 'public' => false])
             ->where('features.chat', ['available' => false, 'enabled' => false])
             ->where('features.documentation', ['available' => false, 'enabled' => false])
             ->where('features.backup', ['available' => false, 'enabled' => false]));
