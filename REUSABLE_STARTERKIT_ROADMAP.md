@@ -2,7 +2,9 @@
 
 Tanggal: 26 Oktober 2026
 
-Status: fase 0–4 memiliki implementasi dan bukti lokal; minimum Composer serta akses publik tetap terbuka. Fase 5 memiliki acceptance kandidat default/core-only dan gate lengkap PHP 8.5/Node 26/pnpm 12.16.1 lulus pada 29 Oktober 2026. F5-03 selesai lokal melalui adapter Installer 5.32.0 yang dibatasi ke direktori baru; direct named-directory tidak didukung. Hosted Release Please/tag/release serta publikasi Packagist masih terbuka karena gate sandbox/billing. Fase 6 belum dimulai.
+Status: diperbarui 2 November 2026. Fase 0–4 selesai dengan bukti aktual; F0-02, F0-05, dan F3-06 ditutup pada pembaruan gate di bagian akhir. Fase 5 tinggal F5-07 (rilis JCF pertama, menunggu otorisasi publikasi) dan F5-08 (instalasi dari paket publik sesudah rilis). Paket `tomylana93/jcf` sudah terdaftar di Packagist, tetapi belum memiliki versi bertag. Fase 6 belum dimulai.
+
+Cakupan aktif 2 November 2026: Website/CMS dibatalkan dan dihapus pada PR #43 (`86bb1e7`). Modul opsional hanya chat, documentation, dan backup. Bukti fase bertanggal sebelum penghapusan dipertahankan sebagai histori; jumlah migrasi/route lama bukan acceptance kandidat terkini. CI PR memakai `composer test:ci`; `composer test` dan `composer test:feature-build` tetap gate prarilis. Fase 6 terpisah dan belum dimulai.
 
 Baseline analisis: `5424c54e603cc9b567e1d3cfb0b99538d87b54f5`
 
@@ -16,15 +18,15 @@ Keputusan berdasarkan permintaan terbaru:
 2. Setiap aplikasi turunan menggunakan Release Please miliknya sendiri.
 3. Versi fondasi dan versi aplikasi turunan independen.
 4. Aplikasi turunan membawa satu penanda kecil untuk versi asal fondasi, bukan katalog atau manifest arsitektur fondasi.
-5. Instalasi utama ditargetkan melalui `laravel new nama-aplikasi --using=tomylana93/jcf` setelah paket tersedia di Packagist dan jalurnya lulus acceptance.
+5. Instalasi didukung melalui adapter `bootstrap/install-project.php` dengan Laravel Installer 5.32.0 dan setup PostgreSQL eksplisit. Direct named-directory `laravel new nama-aplikasi --using=tomylana93/jcf` tetap tidak didukung; publikasi paket tidak mengubah batas ini.
 6. JCF tetap berupa proyek Laravel yang kodenya dimiliki aplikasi setelah instalasi. Belum diubah menjadi package runtime yang harus di-update melalui Composer.
 7. Pembaruan fondasi ke aplikasi berjalan melalui PR adopsi yang ditinjau dan diuji, bukan penimpaan otomatis seluruh proyek.
 
 Permintaan ini menggantikan pengecualian Release Please pada rencana adopsi lama. Ini tidak berarti perlu mengadopsi seluruh tooling foundation/discovery/initializer dari proyek lain atau menambahkan frontend unit-test tooling.
 
-## 2. Hasil analisis repository saat ini
+## 2. Baseline historis analisis — 26 Oktober 2026
 
-Temuan di bawah berasal dari inspeksi statis repository dan pembacaan dokumentasi. Keberadaan test tidak berarti test tersebut dijalankan dalam sesi penyusunan roadmap.
+Bagian ini mempertahankan baseline sebelum implementasi dan penghapusan CMS pada PR #43; bukan inventaris kode saat ini. Temuan di bawah berasal dari inspeksi statis repository dan pembacaan dokumentasi. Keberadaan test tidak berarti test tersebut dijalankan dalam sesi penyusunan roadmap.
 
 | Area                  | Bukti saat ini                                                                                                      | Implikasi                                                                                                   |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
@@ -69,7 +71,7 @@ Setelah scaffold, `composer update` memperbarui dependency aplikasi. Perintah it
 | Kelompok      | Cakupan                                                                                                                             |
 | ------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | Core          | Auth/account, user/permission, shell, locale/timezone, settings dasar, audit, notifikasi, dan infrastruktur generik yang sudah ada. |
-| Opsional      | Website/CMS, chat, documentation, backup melalui mekanisme feature flag existing.                                                   |
+| Opsional      | Chat, documentation, backup melalui mekanisme feature flag existing.                                                                |
 | Milik turunan | Alur bisnis, model domain, permission domain, navigasi domain, integrasi eksternal, deployment, dan branding aplikasi.              |
 
 Kontrak yang tetap berlaku:
@@ -235,10 +237,10 @@ Setiap item diselesaikan dengan perubahan terfokus dan bukti validasi. Mulai han
 ### Fase 0 — Kontrak dukungan dan baseline
 
 - [x] **F0-01** Inventaris runtime/dependency, inisialisasi, feature flags, CI, dan file distribusi pada commit implementasi.
-- [ ] **F0-02** Tetapkan matriks: PHP 8.5, Laravel 13, PostgreSQL dengan versi yang diuji, Node 26, pnpm 12.16.1; catat versi minimum Laravel Installer dan Composer dari pengujian.
+- [x] **F0-02** Tetapkan matriks: PHP 8.5, Laravel 13, PostgreSQL dengan versi yang diuji, Node 26, pnpm 12.16.1; catat versi minimum Laravel Installer dan Composer dari pengujian.
 - [x] **F0-03** Tegaskan PostgreSQL-only/single-tenant, core/modul opsional, dan model source scaffold.
 - [x] **F0-04** Tetapkan kontrak `version.txt`, `.foundation-version`, versi awal, dan SemVer.
-- [ ] **F0-05** Verifikasi akses Packagist, status nama paket, GitHub Actions, branch protection, dan pilihan credential release.
+- [x] **F0-05** Verifikasi akses Packagist, status nama paket, GitHub Actions, branch protection, dan pilihan credential release.
 
 File terkait: `composer.json`, `composer.lock`, `package.json`, `pnpm-lock.yaml`, `.php-version`, `.node-version`, aturan CI, dan README yang akan dibuat.
 
@@ -335,7 +337,7 @@ Batas bukti: tidak menjalankan full `composer test`, fresh dependency installati
 - [x] **F3-03** Tambahkan pengecualian orkestrasi rilis ringan ke aturan CI.
 - [x] **F3-04** Pasang credential release yang dapat memicu checks release PR.
 - [x] **F3-05** Verifikasi bump patch/minor/major, changelog, tag, dan root package dari konfigurasi.
-- [ ] **F3-06** Uji alur pada repository sandbox; rilis publik JCF menunggu Fase 5.
+- [x] **F3-06** Uji alur pada repository sandbox; rilis publik JCF menunggu Fase 5.
 
 Gate: release PR memperoleh checks pada head yang benar; merge menghasilkan tag/release sesuai versi; tidak ada auto-merge atau deployment implisit. Validasi lokal config saja belum memenuhi gate hosted.
 
@@ -390,7 +392,7 @@ Fase 3 sudah commit lokal `513825e`. Implementasi JCF fase 4 disimpan sebagai co
 - [x] **F5-03** Uji Laravel Installer versi dukungan, termasuk interaksi hook DB, Git, dan package manager — jalur adapter current-directory 5.32.0; direct named-directory tidak didukung.
 - [x] **F5-04** Uji profil default serta core-only; gunakan acceptance feature existing dan hindari matrix penuh yang tidak perlu.
 - [x] **F5-05** Jalankan focused tests, checks relevan, lalu gate `composer test` sesuai lingkungan proyek.
-- [ ] **F5-06** Buktikan jalur hosted Release Please dan checks pada sandbox.
+- [x] **F5-06** Buktikan jalur hosted Release Please dan checks pada sandbox.
 - [ ] **F5-07** Publikasikan rilis JCF pertama dan daftarkan/sinkronkan Packagist pada langkah publikasi yang diotorisasi.
 - [ ] **F5-08** Ulangi instalasi lewat paket publik dan tag sebenarnya; cocokkan versi, provenance, arsip, dan hasil build.
 
@@ -522,7 +524,7 @@ Roadmap dianggap selesai ketika:
 - [ ] Satu aplikasi contoh menyelesaikan rilis independen dan satu siklus adopsi upgrade.
 - [ ] Bukti lokal, hosted CI, publikasi paket, dan acceptance turunan tercatat secara terpisah.
 
-Fase 0 menambahkan kontrak dan bukti pemeriksaan. Fase 1 mengubah jalur setup, konfigurasi instance/database, dan regression tests sebagaimana dicatat di atas. Fase 2 menambahkan distribusi bersih dan finalisasi provenance/versi aplikasi. Fase 3 menambahkan konfigurasi Release Please dan bukti PR/check trigger sandbox; gate CI sukses serta tag/release hosted masih tertahan billing. Versi dependency aplikasi tidak berubah; tidak ada publikasi Packagist, push/merge/rilis JCF atau deployment pada implementasi fase 3.
+Fase 0 menambahkan kontrak dan bukti pemeriksaan. Fase 1 mengubah jalur setup, konfigurasi instance/database, dan regression tests sebagaimana dicatat di atas. Fase 2 menambahkan distribusi bersih dan finalisasi provenance/versi aplikasi. Fase 3 menambahkan konfigurasi Release Please dan bukti PR/check trigger sandbox; gate CI sukses serta tag/release hosted sandbox terbukti pada 2 November 2026 setelah hambatan billing tidak berlaku lagi. Versi dependency aplikasi tidak berubah; tidak ada publikasi Packagist, push/merge/rilis JCF atau deployment pada implementasi fase 3.
 
 ## 13. Referensi
 
@@ -533,3 +535,32 @@ Fase 0 menambahkan kontrak dan bukti pemeriksaan. Fase 1 mengubah jalur setup, k
 - [Release Please Action](https://github.com/googleapis/release-please-action) — workflow, permission, dan batas `GITHUB_TOKEN`.
 - [Feature Flags Roadmap](FEATURE_FLAGS_ROADMAP.md) — kontrak core, modul, PostgreSQL, dan bukti historis validasi.
 - [Project Rules](.ai/rules/index.md) — aturan path, implementasi, dan validasi.
+
+## Pembaruan gate rilis — 2 November 2026
+
+- Baseline kandidat tanpa CMS: `86bb1e7fd8f711ace28fb2c0997678b1b7f17179` (PR #43). CMS bukan modul opsional atau backlog aktif.
+- `bootstrap-sha` lama `8da70c9` tidak reachable dari main setelah squash merge. Config menggunakan `5424c54e603cc9b567e1d3cfb0b99538d87b54f5`, commit main sebelum implementasi distribusi/rilis. Batas changelog perdana kini berada dalam riwayat main.
+- Hambatan billing historis tidak lagi berlaku pada percobaan ini. Orkestrasi sandbox fondasi run `40295105031` sukses pada attempt terbaru; bot memperbarui release PR #1 ke head `48ee828cf3c42c8e731e9698c70f95179fb82e4a`. CI run `41417814463` sukses pada head tersebut. Diff hanya version, manifest, changelog; tidak ada review/comment tertunda. Squash merge menghasilkan `922a8c98e14921df8b926c3c8129449c218e12ca`.
+- Workflow push run `41418008008` sukses dan menerbitkan tag serta GitHub Release `v1.0.0` pada SHA merge tersebut: https://github.com/tomylana93/jcf-release-sandbox-20261026/releases/tag/v1.0.0. Ini bukti orkestrasi sandbox, bukan rilis JCF atau acceptance aplikasi.
+- Pemilik akun mendaftarkan `tomylana93/jcf` di Packagist. Metadata API publik HTTP 200 menunjuk source `https://github.com/tomylana93/jcf`; tidak membaca atau menyalin token Packagist.
+- `lerd composer test` pada kode tanpa CMS lulus: audit, build client/SSR, format/lint, PHPStan, Vue/TypeScript, type coverage 100%, backend coverage 100%, serta 61 browser tests / 508 assertions. Log lokal: `/tmp/jcf-release-full-20261102.log`.
+
+### Status gate sesudah verifikasi — 2 November 2026
+
+Diverifikasi ulang melalui GitHub API dan API publik Packagist pada 2 November 2026. Tidak ada secret yang dibaca; tidak ada push ke main, merge, tag, rilis JCF, atau deployment.
+
+| Item  | Bukti                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | Status                                     |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------ |
+| F0-02 | Matriks dari pengujian: PHP 8.5.12, Laravel 13, PostgreSQL 18 (CI `postgres:18`; instalasi disposable 18.6) dengan 16.15 sebagai lingkungan dev lokal, Node 26.12.1, pnpm 12.16.1. Versi minimum yang diuji dan didukung: Composer 2.10.3 (`create-project --prefer-dist` bersih) dan Laravel Installer 5.32.0 melalui adapter terkontrol. Versi lebih lama tidak diklaim.                                                                                                                                   | Selesai.                                   |
+| F0-05 | Packagist: paket `tomylana93/jcf` terdaftar oleh pemilik akun (metadata publik `time` 2026-11-02T09:07:34Z, source GitHub `tomylana93/jcf`); hanya `dev-main`, belum ada versi bertag. GitHub: repository publik, Actions enabled, squash-only. Proteksi `main`: required check `CI` strict, review wajib dengan stale approval di-dismiss, conversation resolution, enforce admins, tanpa force push/deletion. Credential rilis: GitHub App (`RELEASE_APP_ID`, secret `RELEASE_APP_PRIVATE_KEY`) terdaftar. | Selesai.                                   |
+| F3-06 | Sandbox `tomylana93/jcf-release-sandbox-20261026`: release PR #1 head `48ee828` CI run `41417814463` sukses; squash merge `922a8c9`; workflow push run `41418008008` menerbitkan tag/GitHub Release `v1.0.0`.                                                                                                                                                                                                                                                                                                | Selesai (sandbox).                         |
+| F5-06 | Bukti hosted yang sama dengan F3-06: release PR memicu checks pada head yang benar melalui token GitHub App, lalu merge menghasilkan tag/release tanpa auto-merge atau deployment.                                                                                                                                                                                                                                                                                                                           | Selesai (sandbox).                         |
+| F5-07 | `tomylana93/jcf` belum memiliki tag atau GitHub Release; `.release-please-manifest.json` masih `0.0.0`. Variable `RELEASE_ENABLED` belum diset sehingga workflow `release-please` di JCF masih nonaktif.                                                                                                                                                                                                                                                                                                     | Terbuka: menunggu otorisasi publikasi.     |
+| F5-08 | Bergantung pada F5-07: Packagist baru memiliki versi rilis setelah tag pertama tersinkron.                                                                                                                                                                                                                                                                                                                                                                                                                   | Terbuka: dijalankan setelah rilis pertama. |
+
+Langkah publikasi yang tersisa, hanya setelah otorisasi eksplisit:
+
+1. Merge PR penyelarasan ini setelah CI lulus pada head terbaru.
+2. Set repository variable `RELEASE_ENABLED=true` pada `tomylana93/jcf`; push berikutnya ke main (atau `workflow_dispatch`) membuat release PR.
+3. Tinjau diff release PR (version, manifest, changelog saja), pastikan `CI` lulus pada head release PR, lalu squash merge. Pastikan versi yang dihasilkan sesuai target rilis stabil pertama `1.0.0` sebelum merge.
+4. Verifikasi tag/GitHub Release dan sinkronisasi Packagist, lalu jalankan F5-08 pada direktori dan PostgreSQL disposable melalui adapter Installer 5.32.0 serta `composer create-project tomylana93/jcf <dir> <versi>`.

@@ -1,7 +1,25 @@
 # Feature Flags dan Modul Batteries-Included
 
 Tanggal: 21 Oktober 2026
-Status: Fase 1–5 selesai dan tervalidasi lokal. Validasi hosted CI dan deployment tetap terpisah.
+Status: Fase 1–5 selesai. Cakupan aktif diperbarui 2 November 2026 setelah penghapusan Website/CMS melalui PR #43 (`86bb1e7`).
+
+## Kontrak aktif — 2 November 2026
+
+Modul opsional saat ini hanya chat, documentation, dan backup. Website/CMS telah dibatalkan dan dihapus, bukan dinonaktifkan sementara. `FEATURE_WEBSITE`, settings, permission, route, migrasi, UI, dan test CMS tidak lagi menjadi kontrak JCF. Root memakai `StartController`.
+
+| Modul         | Hard flag               | Soft toggle             | Default hard flag                  |
+| ------------- | ----------------------- | ----------------------- | ---------------------------------- |
+| Chat          | `FEATURE_CHAT`          | `chat.enabled`          | `true`                             |
+| Documentation | `FEATURE_DOCUMENTATION` | `documentation.enabled` | `true`                             |
+| Backup        | `FEATURE_BACKUP`        | `backup.enabled`        | `false`, fallback `BACKUP_ENABLED` |
+
+State efektif tetap `env_flag && settings_toggle`. Hard-off tidak mendaftarkan route/migrasi atau me-resolve settings modul; soft-off menjaga schema/data dan menolak operasi. Permission/navigasi mengikuti state efektif. Realtime notifikasi core terpisah dari chat.
+
+Fase 1–5 tidak mempunyai implementasi tertunda. CI PR memakai `composer test:ci`; gate lengkap memakai `composer test`, sedangkan matriks build bersih memakai `composer test:feature-build`. Acceptance aktif mencakup tiga modul di atas dengan cache aktif/nonaktif serta core-only. Hasil historis yang mencakup Website/CMS tidak menggantikan acceptance versi tanpa CMS.
+
+## Arsip rancangan dan bukti sebelum penghapusan CMS
+
+Seluruh bagian di bawah adalah catatan historis 21–26 Oktober 2026. Penyebutan Website/CMS, empat modul, sepuluh build, public SSR, dan file yang sudah dihapus tidak berlaku pada cakupan aktif. Catatan dipertahankan untuk menelusuri keputusan dan bukti sebelumnya.
 
 ## Ringkasan
 
