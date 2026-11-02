@@ -11,11 +11,18 @@ supportedArchitectures:
         - musl
 
 overrides:
+    '@eslint/config-array>minimatch': 11.0.4
     'concurrently>shell-quote': 1.11.0
+    'eslint>minimatch': 11.0.4
     'exceljs>uuid': 11.1.1
     'source-map-resolve>decode-uri-component': 0.5.0
     vite@*: 'catalog:'
     vitest@*: 'catalog:'
+
+audit:
+    # exceljs/archiver still resolve minimatch 3/5, which lack the vulnerable v10 preprocessing code.
+    ignore:
+        - GHSA-g3hv-75wg-m249
 
 publicHoistPattern:
     - '@inertiajs/core'
@@ -38,3 +45,5 @@ peerDependencyRules:
     allowedVersions:
         vite: '*'
         vitest: '*'
+minimumReleaseAgeExclude:
+    - minimatch@11.0.4
