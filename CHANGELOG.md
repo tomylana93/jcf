@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/tomylana93/jcf/compare/v1.0.0...v1.0.1) (2026-11-02)
+
+
+### Bug Fixes
+
+* **config:** disable optional modules by default ([#49](https://github.com/tomylana93/jcf/issues/49)) ([54f98de](https://github.com/tomylana93/jcf/commit/54f98ded21444176db86b77ae49885d8e8bdebc8))
+
 ## 1.0.0 (2026-11-02)
 
 
