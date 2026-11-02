@@ -1,6 +1,15 @@
 name: tests
 
 on:
+  push:
+    branches: [main]
+    # Release Please commits only touch these files and were tested on the release PR.
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+      - LICENSE
+      - version.txt
+      - .release-please-manifest.json
   pull_request:
     branches: [main]
     types: [opened, synchronize, reopened, ready_for_review, converted_to_draft, closed]
@@ -26,6 +35,7 @@ jobs:
     name: CI
     if: >-
       github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
       (github.event.pull_request.state == 'open' && github.event.pull_request.draft == false)
 
     runs-on: ubuntu-latest
