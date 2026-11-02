@@ -37,25 +37,8 @@ return [
         'SuperAdmin' => 'Super Admin',
     ],
 
-    'website_page' => [
-        'Home' => 'Home',
-        'About' => 'About',
-        'Contact' => 'Contact',
-        'ArticleIndex' => 'Article index',
-    ],
-
-    'website_preset' => [
-        'Corporate' => 'Corporate',
-        'Editorial' => 'Editorial',
-        'Minimal' => 'Minimal',
-    ],
-
     'permission' => [
         'UseChat' => 'Use chat',
-        'EditWebsiteContent' => 'Edit website content',
-        'PublishWebsiteContent' => 'Publish website content',
-        'ConfigureWebsite' => 'Configure website',
-        'ViewContactInbox' => 'View contact inbox',
         'ViewDocumentation' => 'View documentation',
         'ManageDocumentation' => 'Manage documentation',
         'ViewSystem' => 'View system health',

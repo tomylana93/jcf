@@ -33,7 +33,7 @@ describe('Backup dialogs', function (): void {
                         && buttons[1].top >= buttons[0].bottom;
                 })()
                 JS, true)
-            ->screenshot(filename: 'backup-toolbar-mobile')
+
             ->resize(1440, 900)
             ->click(__('backup.button.upload'))
             ->assertVisible('[role="dialog"] #backup-archive')

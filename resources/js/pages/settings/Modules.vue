@@ -18,9 +18,7 @@ import { index } from '@/routes/settings';
 import { edit } from '@/routes/settings/modules';
 
 const props = defineProps<{
-    modules: Partial<
-        Record<'website' | 'chat' | 'documentation' | 'backup', boolean>
-    >;
+    modules: Partial<Record<'chat' | 'documentation' | 'backup', boolean>>;
 }>();
 const { t } = useTranslations();
 const page = usePage();

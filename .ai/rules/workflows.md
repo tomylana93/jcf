@@ -6,7 +6,10 @@ paths:
 # Workflows
 
 ## Conserve GitHub Actions minutes
-Run CI in one Linux job for ready-for-review pull requests targeting main, with manual dispatch available. Avoid duplicate push/post-merge runs, detection-only runners, and unnecessary matrices; cancel superseded runs through concurrency. Reuse the current Composer test entry point, including its frontend build, rather than duplicating checks or referencing removed scripts. Keep dependency caches and install only the browser required by the test suite.
+Run CI in one Linux job for ready-for-review pull requests targeting main, with manual dispatch available. Avoid duplicate push/post-merge runs, detection-only runners, and unnecessary matrices; cancel superseded runs through concurrency. Use `composer test:ci` for pull requests: audit, one client/SSR build, lint, types, full backend coverage, and browser smoke. Keep full browser and type coverage in `composer test`; run clean-build acceptance separately with `composer test:feature-build`. Run both locally or manually before a release or after broad framework/runtime changes. Manual dispatch selects `ci`, `full`, or `acceptance`. Each entry point builds client and SSR once; never invoke standalone build/browser preparation again inside the same pipeline. Keep dependency caches, install only the browser required by the test suite, and collect backend coverage with PCOV instead of Xdebug.
+
+## Documentation-only pull requests
+Detect the changed files before installing dependencies. Skip the PHP, Node and browser setup and the test suite only when every changed file is documentation (`docs/**`, a Markdown file, or `LICENSE`), and still report success so the required `CI` check completes. Run the standard PR suite when the file list is empty or detection fails. Manual dispatch always runs its selected suite. Dependency and release metadata files, including Dependabot and Release Please changes, always run the standard PR suite; Dependabot commits use the `build` prefix so Release Please does not treat them as a feature or fix.
 
 ## Release orchestration exception
 

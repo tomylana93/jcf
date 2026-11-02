@@ -18,6 +18,4 @@ return [
     'permission' => 'Permission',
     'master_data' => 'Master Data',
     'user' => 'Users',
-    'website' => 'Website',
-    'website_settings' => 'Website settings',
 ];

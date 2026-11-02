@@ -5,9 +5,17 @@ on:
     branches: [main]
     types: [opened, synchronize, reopened, ready_for_review, converted_to_draft, closed]
   workflow_dispatch:
+    inputs:
+      suite:
+        description: Test suite to run
+        type: choice
+        options: [ci, full, acceptance]
+        default: full
+        required: true
 
 permissions:
   contents: read
+  pull-requests: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -21,7 +29,7 @@ jobs:
       (github.event.pull_request.state == 'open' && github.event.pull_request.draft == false)
 
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
 
     services:
       postgres:
@@ -73,15 +81,48 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Detect change scope
+        id: scope
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPOSITORY: ${{ github.repository }}
+          REQUESTED_SUITE: ${{ inputs.suite }}
+        run: |
+          set -euo pipefail
+
+          mode=ci
+
+          if [ "$GITHUB_EVENT_NAME" = 'workflow_dispatch' ]; then
+            case "$REQUESTED_SUITE" in
+              ci|full|acceptance) mode="$REQUESTED_SUITE" ;;
+              *) echo 'Unsupported test suite' >&2; exit 1 ;;
+            esac
+          fi
+
+          if [ -n "${PR_NUMBER:-}" ]; then
+            if files="$(gh api --paginate "repos/$REPOSITORY/pulls/$PR_NUMBER/files" --jq '.[].filename')" && [ -n "$files" ]; then
+              if ! grep -Evq '^(docs/|LICENSE$)|\.md$' <<<"$files"; then
+                mode=docs
+              fi
+            fi
+          fi
+
+          echo "mode=$mode" >> "$GITHUB_OUTPUT"
+          echo "Change scope: $mode" >> "$GITHUB_STEP_SUMMARY"
+
       - name: Setup PHP
+        if: steps.scope.outputs.mode != 'docs'
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.5'
           extensions: mbstring, pdo_pgsql, pgsql, zip
           tools: composer:v2
-          coverage: xdebug
+          coverage: pcov
+          ini-values: pcov.directory=app, pcov.enabled=0
 
       - name: Setup Node.js and pnpm
+        if: steps.scope.outputs.mode != 'docs'
         uses: pnpm/setup@v3
         with:
           version: 12.16.1
@@ -90,11 +131,13 @@ jobs:
           require-lockfile: true
 
       - name: Get Composer cache directory
+        if: steps.scope.outputs.mode != 'docs'
         id: composer-cache
         run: |
           echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
 
       - name: Cache Composer
+        if: steps.scope.outputs.mode != 'docs'
         uses: actions/cache@v6
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
@@ -103,6 +146,7 @@ jobs:
             ${{ runner.os }}-php85-composer-
 
       - name: Install PHP dependencies
+        if: steps.scope.outputs.mode != 'docs'
         run: |
           composer install \
             --no-interaction \
@@ -110,6 +154,7 @@ jobs:
             --no-progress
 
       - name: Prepare PostgreSQL backup tools
+        if: steps.scope.outputs.mode != 'docs'
         env:
           POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
         run: |
@@ -120,13 +165,60 @@ jobs:
           echo "$RUNNER_TEMP/pg-tools" >> "$GITHUB_PATH"
 
       - name: Prepare Laravel
+        if: steps.scope.outputs.mode != 'docs'
         run: |
           cp .env.example .env
           php artisan key:generate
           php artisan migrate --force
 
-      - name: Install browser dependencies
-        run: pnpm exec playwright install --with-deps chromium
+      - name: Resolve Playwright version
+        if: steps.scope.outputs.mode == 'ci' || steps.scope.outputs.mode == 'full'
+        id: playwright
+        run: node -p "'version=' + require('playwright/package.json').version" >> "$GITHUB_OUTPUT"
 
-      - name: Run full test suite
-        run: composer test
+      - name: Cache Playwright browsers
+        if: steps.scope.outputs.mode == 'ci' || steps.scope.outputs.mode == 'full'
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-${{ runner.arch }}-playwright-shell-${{ steps.playwright.outputs.version }}
+
+      - name: Install browser dependencies
+        if: steps.scope.outputs.mode == 'ci' || steps.scope.outputs.mode == 'full'
+        run: pnpm exec playwright install --with-deps --only-shell chromium
+
+      - name: Run selected test suite
+        if: steps.scope.outputs.mode != 'docs'
+        env:
+          TEST_SUITE: ${{ steps.scope.outputs.mode }}
+        run: |
+          case "$TEST_SUITE" in
+            ci) composer test:ci ;;
+            full) composer test ;;
+            acceptance) composer test:feature-build ;;
+            *) echo 'Unsupported test suite' >&2; exit 1 ;;
+          esac
+
+      - name: Summarize test timings
+        if: always() && steps.scope.outputs.mode != 'docs'
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
+              summary.write('\n### Test timings\n\n')
+              for path in sorted(Path('storage/framework/testing').glob('*.xml')):
+                  root = ET.parse(path).getroot()
+                  cases = list(root.iter('testcase'))
+                  summary.write(f'\n**{path.stem}**: {len(cases)} tests\n\n')
+                  summary.write('| Slowest tests | Seconds |\n| --- | ---: |\n')
+                  for case in sorted(cases, key=lambda case: float(case.get('time', '0')), reverse=True)[:10]:
+                      name = f"{case.get('class', '')}: {case.get('name', '')}".replace('|', '\\|').replace('\n', ' ')
+                      summary.write(f"| {name} | {float(case.get('time', '0')):.2f} |\n")
+          PY
+
+      - name: Confirm documentation-only change
+        if: steps.scope.outputs.mode == 'docs'
+        run: echo "Only documentation files changed; the test suite was skipped." >> "$GITHUB_STEP_SUMMARY"

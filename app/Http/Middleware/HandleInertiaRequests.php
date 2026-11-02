@@ -13,7 +13,6 @@ use App\Actions\Settings\GetGeneralSettings;
 use App\Actions\Settings\GetLayoutSettings;
 use App\Enums\Locale;
 use App\Enums\Role;
-use App\Settings\AuthSettings;
 use App\Support\FeatureManager;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -64,11 +63,7 @@ final class HandleInertiaRequests extends Middleware
                 'super_admin' => fn (): bool => $request->user()?->hasRole(Role::SuperAdmin) ?? false,
                 'permissions' => fn (): array => resolve(GetUserPermissions::class)->handle($request->user()),
             ],
-            'publicContext' => [
-                'canAccessDashboard' => $request->user() !== null
-                    && (! resolve(AuthSettings::class)->email_verification_required || $request->user()->hasVerifiedEmail()),
-                'year' => now()->year,
-            ],
+            'currentYear' => now()->year,
             'notificationSummary' => fn (): array => resolve(GetNotificationSummary::class)->handle($request->user()),
             'chatSummary' => fn (): array => resolve(FeatureManager::class)->enabled('chat')
                 ? resolve(GetChatSummary::class)->handle($request->user())

@@ -47,9 +47,9 @@ describe('Chat browser', function (): void {
         expect(ChatMessage::query()->sole()->body)->toBe("First line\nSecond line");
         $page->navigate(route('chat.index'))->click('button[aria-pressed]:has-text("Chat Recipient")')->assertSee('Second line')
             ->resize(390, 844)->assertVisible('#chat-body')->assertScript('() => document.documentElement.scrollWidth <= innerWidth')
-            ->screenshot(false, 'chat-mobile')->click('button[aria-label="'.__('chat.button.back').'"]')->assertSee('Other Recipient')
+            ->click('button[aria-label="'.__('chat.button.back').'"]')->assertSee('Other Recipient')
             ->assertNoJavaScriptErrors();
-    })->with([AppLayout::Sidebar, AppLayout::Header]);
+    })->with([AppLayout::Sidebar, AppLayout::Header])->group('smoke');
 
     it('retries a lost response with the original token without storing a second message', function (): void {
         [$actor, $recipient] = createChatUsers();
@@ -111,7 +111,7 @@ describe('Chat browser', function (): void {
         $page->click('button[aria-label="'.__('chat.button.refresh_history').'"]')->assertSee($body)
             ->assertScript('() => !window.chatXss && document.querySelectorAll("[data-slot=bubble-content] img").length === 0')
             ->assertScript('() => document.documentElement.scrollWidth <= innerWidth')
-            ->screenshot(false, 'chat-desktop')->resize(390, 844)->assertScript('() => document.documentElement.scrollWidth <= innerWidth')
+            ->resize(390, 844)->assertScript('() => document.documentElement.scrollWidth <= innerWidth')
             ->assertNoJavaScriptErrors();
         foreach (range(67, 126) as $sequence) {
             ChatMessage::factory()->create(['conversation_id' => $conversation->id, 'sender_id' => $recipient->id, 'sequence' => $sequence, 'body' => 'Catch-up message '.$sequence]);
@@ -141,7 +141,7 @@ describe('Chat browser', function (): void {
         $page->fill('#chat-body', 'Pesan singkat')->keys('#chat-body', 'Enter')->assertSee(__('chat.status.saved'))
             ->assertScript('() => document.querySelector("#chat-body").getBoundingClientRect().bottom < innerHeight')
             ->assertScript('() => document.documentElement.scrollWidth <= innerWidth')
-            ->screenshot(false, 'chat-mobile-dark-id')->assertNoJavaScriptErrors();
+            ->assertNoJavaScriptErrors();
     });
 
     it('hides chat navigation without permission', function (): void {
@@ -472,11 +472,11 @@ describe('Chat browser', function (): void {
 
         $installReloadSpy();
         $page->script($notification);
-        $page->wait(0.5)->assertScript('() => window.notificationSummaryReloads > 0');
+        $page->assertScript('() => window.notificationSummaryReloads > 0');
 
         $page->script('() => { window.chatSummaryReloads = 0; }');
         $page->script($delivery);
-        $page->wait(0.5)->assertScript('() => window.chatSummaryReloads > 0');
+        $page->assertScript('() => window.chatSummaryReloads > 0');
 
         resolve(ChatSettings::class)->fill(['enabled' => false])->save();
         $page->navigate(route('dashboard'))
@@ -489,8 +489,7 @@ describe('Chat browser', function (): void {
 
         $page->script('() => { window.notificationSummaryReloads = 0; }');
         $page->script($notification);
-        $page->wait(0.5)
-            ->assertScript('() => window.notificationSummaryReloads > 0')
+        $page->assertScript('() => window.notificationSummaryReloads > 0')
             ->assertNoJavaScriptErrors();
 
         resolve(ChatSettings::class)->fill(['enabled' => true])->save();

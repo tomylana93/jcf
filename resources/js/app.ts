@@ -6,7 +6,6 @@ import { initializeTheme } from '@/composables/useAppearance';
 import AccountLayout from '@/layouts/account/Layout.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import AuthLayout from '@/layouts/AuthLayout.vue';
-import PublicLayout from '@/layouts/PublicLayout.vue';
 import { initializeFlashToast } from '@/lib/flashToast';
 import { createTranslationPlugin } from '@/lib/i18n';
 import { formatPageTitle } from '@/lib/pageTitle';
@@ -39,8 +38,6 @@ void createInertiaApp<{
         switch (true) {
             case name === 'ErrorPage':
                 return undefined;
-            case name.startsWith('public/'):
-                return PublicLayout;
             case name.startsWith('auth/'):
                 return AuthLayout;
             case name.startsWith('account/'):

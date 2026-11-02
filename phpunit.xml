@@ -21,7 +21,6 @@
         </include>
     </source>
     <php>
-        <env name="FEATURE_WEBSITE" value="true"/>
         <env name="FEATURE_CHAT" value="true"/>
         <env name="FEATURE_DOCUMENTATION" value="true"/>
         <env name="FEATURE_BACKUP" value="true"/>

@@ -21,14 +21,13 @@ describe('Responsive breadcrumbs', function (): void {
             ->assertVisible('nav[aria-label="breadcrumb"] a')
             ->assertScript('document.querySelector("nav[aria-label=breadcrumb] button").getClientRects().length === 0', true)
             ->assertAttribute('[aria-current="page"]:visible', 'title', $document->title)
-            ->assertScript('document.documentElement.scrollWidth <= window.innerWidth', true)
-            ->screenshot(filename: 'breadcrumb-'.$layout->value.'-desktop');
+            ->assertScript('document.documentElement.scrollWidth <= window.innerWidth', true);
 
         $page->resize(320, 844)
             ->assertVisible('[aria-label="'.__('navigation.label.breadcrumb_ancestors').'"]')
             ->assertScript('[...document.querySelectorAll("[aria-current=page]")].some(item => item.getBoundingClientRect().width >= 48)', true)
             ->assertScript('document.documentElement.scrollWidth <= window.innerWidth', true)
-            ->screenshot(filename: 'breadcrumb-'.$layout->value.'-mobile-title')
+
             ->assertScript('Math.abs(document.querySelector("[data-sidebar=trigger]").getBoundingClientRect().top - document.querySelector("[data-test=header-preferences]").getBoundingClientRect().top) < 12', true)
             ->click('@header-preferences')
             ->click('@header-theme-dark')
@@ -45,8 +44,7 @@ describe('Responsive breadcrumbs', function (): void {
             ->assertVisible('[role="menu"] a')
             ->click('[role="menu"] a')
             ->assertPathIs('/documentation')
-            ->assertNoJavaScriptErrors()
-            ->screenshot(filename: 'breadcrumb-'.$layout->value.'-mobile');
+            ->assertNoJavaScriptErrors();
     })->with([AppLayout::Sidebar, AppLayout::Header]);
 });
 
@@ -69,6 +67,5 @@ describe('Datatable toolbar sizing', function (): void {
                 ->assertNoJavaScriptErrors();
         }
 
-        $page->screenshot(filename: 'datatable-toolbar-mobile');
     });
 });

@@ -2,13 +2,11 @@
 import { usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
-import type { PublicContext } from '@/types';
-
-const page = usePage<{ publicContext: PublicContext }>();
+const page = usePage<{ currentYear: number }>();
 
 const credit = { owner: 'tomylana93', since: 2026 };
 
-const currentYear = computed(() => page.props.publicContext.year);
+const currentYear = computed(() => page.props.currentYear);
 
 const years = computed(() =>
     currentYear.value > credit.since

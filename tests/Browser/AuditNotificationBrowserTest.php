@@ -36,7 +36,6 @@ describe('Audit and notification browser flows', function (): void {
             ->assertSee('Audit browser target')
             ->click(__('audit.button.detail'))
             ->assertSee('Previous name')->assertSee('Updated name')
-            ->assertNoJavaScriptErrors()
-            ->screenshot(filename: 'stage-five-audit-mobile');
+            ->assertNoJavaScriptErrors();
     });
 });

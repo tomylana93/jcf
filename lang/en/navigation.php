@@ -29,7 +29,6 @@ return [
         'permission' => 'Permission',
         'account' => 'Account',
         'master_data' => 'Master Data',
-        'website' => 'Website',
         'manage_documentation' => 'Manage Documentation',
         'documentation' => 'Documentation',
     ],

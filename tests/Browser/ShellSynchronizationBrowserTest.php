@@ -37,7 +37,7 @@ describe('Shell synchronization', function (): void {
             ->assertSee('Dashboard');
         $page->forward()->assertPathIs('/account/profile')->assertScript('document.documentElement.lang', 'id')
             ->assertSee('Profil')->assertNoJavaScriptErrors();
-    });
+    })->group('smoke');
 
     it('updates favicon and restores the default without duplicate icons across navigation and history', function (): void {
         $user = User::factory()->create();

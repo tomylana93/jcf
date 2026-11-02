@@ -37,25 +37,8 @@ return [
         'SuperAdmin' => 'Super Admin',
     ],
 
-    'website_page' => [
-        'Home' => 'Beranda',
-        'About' => 'Tentang',
-        'Contact' => 'Kontak',
-        'ArticleIndex' => 'Indeks artikel',
-    ],
-
-    'website_preset' => [
-        'Corporate' => 'Corporate',
-        'Editorial' => 'Editorial',
-        'Minimal' => 'Minimal',
-    ],
-
     'permission' => [
         'UseChat' => 'Gunakan chat',
-        'EditWebsiteContent' => 'Edit konten website',
-        'PublishWebsiteContent' => 'Publikasikan konten website',
-        'ConfigureWebsite' => 'Konfigurasi website',
-        'ViewContactInbox' => 'Lihat inbox kontak',
         'ViewDocumentation' => 'Lihat dokumentasi',
         'ManageDocumentation' => 'Kelola dokumentasi',
         'ViewSystem' => 'Lihat kesehatan sistem',

@@ -29,7 +29,6 @@ return [
         'permission' => 'Permission',
         'account' => 'Akun',
         'master_data' => 'Master Data',
-        'website' => 'Website',
         'manage_documentation' => 'Kelola Dokumentasi',
         'documentation' => 'Dokumentasi',
     ],

@@ -42,28 +42,7 @@
 
         @vite(['resources/css/app.css', 'resources/js/app.ts', "resources/js/pages/{$page['component']}.vue"])
         <x-inertia::head>
-            <title>{{ $page['props']['website']['page']['seo']['title'] ?? $page['props']['general']['site_name'] }}</title>
-            @if (isset($page['props']['website']['page']['seo']))
-                @php($seo = $page['props']['website']['page']['seo'])
-                <meta name="description" content="{{ $seo['description'] }}" data-inertia="description">
-                <meta name="robots" content="{{ $seo['robots'] }}" data-inertia="robots">
-                <link rel="canonical" href="{{ $seo['canonicalUrl'] }}" data-inertia="canonical">
-                @foreach (['type' => $seo['type'], 'title' => $seo['title'], 'description' => $seo['description'], 'url' => $seo['canonicalUrl'], 'site_name' => $seo['siteName'], 'locale' => str_replace('-', '_', $seo['locale'])] as $key => $value)
-                    <meta property="og:{{ $key }}" content="{{ $value }}" data-inertia="og:{{ $key }}">
-                @endforeach
-                @foreach (['card' => $seo['image'] ? 'summary_large_image' : 'summary', 'title' => $seo['title'], 'description' => $seo['description']] as $key => $value)
-                    <meta name="twitter:{{ $key }}" content="{{ $value }}" data-inertia="twitter:{{ $key }}">
-                @endforeach
-                @if ($seo['image'])
-                    <meta property="og:image" content="{{ $seo['image']['url'] }}" data-inertia="og:image">
-                    <meta property="og:image:alt" content="{{ $seo['image']['alt'] }}" data-inertia="og:image:alt">
-                    <meta name="twitter:image" content="{{ $seo['image']['url'] }}" data-inertia="twitter:image">
-                    <meta name="twitter:image:alt" content="{{ $seo['image']['alt'] }}" data-inertia="twitter:image:alt">
-                @endif
-                @if ($seo['structuredData'])
-                    <script type="application/ld+json" data-inertia="public-schema">{!! $seo['structuredData'] !!}</script>
-                @endif
-            @endif
+            <title>{{ $page['props']['general']['site_name'] }}</title>
         </x-inertia::head>
     </head>
     <body class="font-sans antialiased">

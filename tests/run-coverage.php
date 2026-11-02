@@ -6,7 +6,18 @@ use Symfony\Component\Process\Process;
 
 require __DIR__.'/../vendor/autoload.php';
 
-$phpArguments = extension_loaded('xdebug') ? [] : ['-d', 'zend_extension=xdebug'];
+$usingPcov = extension_loaded('pcov');
+
+$phpArguments = match (true) {
+    $usingPcov => ['-d', 'pcov.enabled=1'],
+    extension_loaded('xdebug') => [],
+    default => ['-d', 'zend_extension=xdebug'],
+};
+
+$environment = $usingPcov
+    ? ['XDEBUG_MODE' => 'off']
+    : ['XDEBUG_MODE' => 'coverage'];
+
 $process = new Process([
     PHP_BINARY,
     ...$phpArguments,
@@ -16,8 +27,9 @@ $process = new Process([
     '--passthru-php='.implode(' ', $phpArguments),
     '--coverage',
     '--exactly=100.0',
+    '--log-junit=storage/framework/testing/backend.xml',
     ...array_slice($argv, 1),
-], dirname(__DIR__), ['XDEBUG_MODE' => 'coverage'], timeout: null);
+], dirname(__DIR__), $environment, timeout: null);
 
 exit($process->run(function (string $type, string $buffer): void {
     fwrite($type === Process::ERR ? STDERR : STDOUT, $buffer);
