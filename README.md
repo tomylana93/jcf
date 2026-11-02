@@ -78,4 +78,4 @@ To publish releases from a derived repository, configure a GitHub App (`RELEASE_
 
 ## License
 
-[MIT](https://opensource.org/licenses/MIT)
+[MIT](LICENSE) © 2026 tomylana93
