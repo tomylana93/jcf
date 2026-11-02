@@ -9,8 +9,8 @@ Modul opsional saat ini hanya chat, documentation, dan backup. Website/CMS telah
 
 | Modul         | Hard flag               | Soft toggle             | Default hard flag                  |
 | ------------- | ----------------------- | ----------------------- | ---------------------------------- |
-| Chat          | `FEATURE_CHAT`          | `chat.enabled`          | `true`                             |
-| Documentation | `FEATURE_DOCUMENTATION` | `documentation.enabled` | `true`                             |
+| Chat          | `FEATURE_CHAT`          | `chat.enabled`          | `false`                            |
+| Documentation | `FEATURE_DOCUMENTATION` | `documentation.enabled` | `false`                            |
 | Backup        | `FEATURE_BACKUP`        | `backup.enabled`        | `false`, fallback `BACKUP_ENABLED` |
 
 State efektif tetap `env_flag && settings_toggle`. Hard-off tidak mendaftarkan route/migrasi atau me-resolve settings modul; soft-off menjaga schema/data dan menolak operasi. Permission/navigasi mengikuti state efektif. Realtime notifikasi core terpisah dari chat.
