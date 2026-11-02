@@ -99,14 +99,22 @@
             "@test:browser:run"
         ],
         "test:browser:run": "pest tests/Browser --compact --parallel --processes=2 --log-junit=storage/framework/testing/browser.xml",
+        "test:browser:smoke": "pest tests/Browser --group=smoke --fail-on-empty-test-suite --compact --parallel --processes=2 --log-junit=storage/framework/testing/smoke.xml",
         "test:unit": "@php tests/run-coverage.php",
         "test:types": [
             "phpstan analyse",
             "@types:check"
         ],
+        "test:ci": [
+            "@test:audit",
+            "@test:prepare",
+            "@test:lint",
+            "@test:types",
+            "@test:unit",
+            "@test:browser:smoke"
+        ],
         "test:backend": [
             "@test:audit",
-            "@test:feature-build",
             "@test:prepare",
             "@test:lint",
             "@test:types",

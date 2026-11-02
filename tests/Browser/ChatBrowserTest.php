@@ -49,7 +49,7 @@ describe('Chat browser', function (): void {
             ->resize(390, 844)->assertVisible('#chat-body')->assertScript('() => document.documentElement.scrollWidth <= innerWidth')
             ->click('button[aria-label="'.__('chat.button.back').'"]')->assertSee('Other Recipient')
             ->assertNoJavaScriptErrors();
-    })->with([AppLayout::Sidebar, AppLayout::Header]);
+    })->with([AppLayout::Sidebar, AppLayout::Header])->group('smoke');
 
     it('retries a lost response with the original token without storing a second message', function (): void {
         [$actor, $recipient] = createChatUsers();

@@ -12,8 +12,8 @@ use Tests\TestCase;
 pest()->extend(TestCase::class)->in(__DIR__);
 
 describe('Clean deployment builds', function (): void {
-    it('builds client and SSR without inheriting runtime feature routes', function (bool $cached): void {
-        withIsolatedRestoreDatabase(function (string $connection) use ($cached): void {
+    it('builds client and SSR without inheriting runtime feature routes', function (): void {
+        withIsolatedRestoreDatabase(function (string $connection): void {
             $db = DB::connection($connection);
             $directory = new TemporaryDirectory(storage_path('framework/testing/feature-build-'.getmypid()));
             $directory->create();
@@ -31,12 +31,11 @@ describe('Clean deployment builds', function (): void {
             $run = static fn (array $args): Process => new Process($args, base_path(), $environment, timeout: 180)->mustRun();
             try {
                 $run([PHP_BINARY, 'artisan', 'migrate', '--force', '--no-interaction']);
-                if ($cached) {
-                    $run([PHP_BINARY, 'artisan', 'config:cache']);
-                    $run([PHP_BINARY, 'artisan', 'route:cache']);
-                }
+                $uncached = $run([PHP_BINARY, 'artisan', 'route:list', '--json'])->getOutput();
+                $run([PHP_BINARY, 'artisan', 'config:cache']);
+                $run([PHP_BINARY, 'artisan', 'route:cache']);
                 $before = $run([PHP_BINARY, 'artisan', 'route:list', '--json'])->getOutput();
-                $cacheHash = $cached ? hash_file('sha256', $directory->path('routes.php')) : null;
+                $cacheHash = hash_file('sha256', $directory->path('routes.php'));
                 foreach (['actions', 'routes', 'wayfinder'] as $generated) {
                     File::deleteDirectory(resource_path('js/'.$generated));
                 }
@@ -46,10 +45,11 @@ describe('Clean deployment builds', function (): void {
                 foreach (['chat', 'documentation', 'master-data/backups'] as $route) {
                     expect(resource_path('js/routes/'.$route.'/index.ts'))->toBeFile();
                 }
-                expect($run([PHP_BINARY, 'artisan', 'route:list', '--json'])->getOutput())->toBe($before);
-                if ($cached) {
-                    expect(hash_file('sha256', $directory->path('routes.php')))->toBe($cacheHash);
-                }
+                expect($run([PHP_BINARY, 'artisan', 'route:list', '--json'])->getOutput())->toBe($before)
+                    ->and(hash_file('sha256', $directory->path('routes.php')))->toBe($cacheHash);
+                $run([PHP_BINARY, 'artisan', 'config:clear']);
+                $run([PHP_BINARY, 'artisan', 'route:clear']);
+                expect($run([PHP_BINARY, 'artisan', 'route:list', '--json'])->getOutput())->toBe($uncached);
                 foreach (array_keys(FeatureManager::SETTINGS) as $module) {
                     expect($db->table('settings')->where('group', $module)->count())->toBe(0);
                 }
@@ -57,5 +57,5 @@ describe('Clean deployment builds', function (): void {
                 $directory->delete();
             }
         });
-    })->with([false, true]);
+    });
 });

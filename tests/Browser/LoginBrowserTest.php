@@ -15,7 +15,7 @@ describe('Browser login flows', function (): void {
             ->assertNoJavaScriptErrors();
 
         assertGuest();
-    });
+    })->group('smoke');
 
     it('signs in with valid credentials and renders the dashboard', function (): void {
         $user = User::factory()->create();
@@ -32,7 +32,7 @@ describe('Browser login flows', function (): void {
             ->assertNoJavaScriptErrors();
 
         assertAuthenticatedAs($user);
-    });
+    })->group('smoke');
 
     it('displays a validation error for an incorrect password', function (): void {
         $user = User::factory()->create();
@@ -47,5 +47,5 @@ describe('Browser login flows', function (): void {
             ->assertNoJavaScriptErrors();
 
         assertGuest();
-    });
+    })->group('smoke');
 });

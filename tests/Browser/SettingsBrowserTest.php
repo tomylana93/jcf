@@ -117,5 +117,5 @@ describe('Module settings in the browser', function (): void {
             ->assertNoJavaScriptErrors();
 
         expect(resolve(ChatSettings::class)->refresh()->enabled)->toBeTrue();
-    });
+    })->group('smoke');
 });
