@@ -39,8 +39,7 @@ describe('User permission browser flows', function (): void {
             ->assertSee(__('permission.status.updated'))
             ->assertChecked('[id="permission-users.view"]')
             ->assertDisabled('@save-permissions')
-            ->assertNoJavaScriptErrors()
-            ->screenshot(filename: 'session-one-permissions-desktop');
+            ->assertNoJavaScriptErrors();
 
         expect($target->fresh()->getDirectPermissions()->pluck('name')->all())->toBe(['users.view'])
             ->and($target->fresh()->can(Permission::ViewSettings))->toBeTrue();
@@ -67,8 +66,7 @@ describe('User permission browser flows', function (): void {
             ->click('[id="permission-users.view"]')
             ->click('@save-permissions')
             ->assertSee(__('permission.status.updated'))
-            ->assertNoJavaScriptErrors()
-            ->screenshot(filename: 'session-one-permissions-mobile');
+            ->assertNoJavaScriptErrors();
 
         expect($target->fresh()->can(Permission::ViewUsers))->toBeTrue();
 

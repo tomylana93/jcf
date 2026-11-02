@@ -17,8 +17,7 @@ describe('Basic settings and account browser flows', function (): void {
             ->fill('#site_description', 'Application settings')
             ->click('@save-general-settings')
             ->assertSee(__('settings.general.status.updated'))
-            ->assertNoJavaScriptErrors()
-            ->screenshot(filename: 'stage-two-settings-desktop');
+            ->assertNoJavaScriptErrors();
 
         expect(resolve(GeneralSettings::class)->refresh()->site_name)->toBe('JCF Browser');
     });
@@ -29,8 +28,7 @@ describe('Basic settings and account browser flows', function (): void {
         visit(route('profile.edit', absolute: false))->on()->mobile()
             ->assertSee(__('account.profile.title'))
             ->assertVisible('#name')
-            ->assertNoJavaScriptErrors()
-            ->screenshot(filename: 'stage-two-account-mobile');
+            ->assertNoJavaScriptErrors();
     });
 
     it('persists the selected locale through navigation', function (): void {

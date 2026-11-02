@@ -88,7 +88,7 @@
             "pnpm audit"
         ],
         "test:feature": "pest --compact --parallel --exclude-testsuite=Browser",
-        "test:feature-build": "pest tests/Acceptance/FeatureBuildTest.php --compact",
+        "test:feature-build": "pest tests/Acceptance/FeatureBuildTest.php --compact --log-junit=storage/framework/testing/build.xml",
         "test:lint": [
             "pint --parallel --test",
             "rector --dry-run",
@@ -98,7 +98,7 @@
             "@test:prepare",
             "@test:browser:run"
         ],
-        "test:browser:run": "pest tests/Browser --compact",
+        "test:browser:run": "pest tests/Browser --compact --parallel --processes=2 --log-junit=storage/framework/testing/browser.xml",
         "test:unit": "@php tests/run-coverage.php",
         "test:types": [
             "phpstan analyse",

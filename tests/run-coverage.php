@@ -27,6 +27,7 @@ $process = new Process([
     '--passthru-php='.implode(' ', $phpArguments),
     '--coverage',
     '--exactly=100.0',
+    '--log-junit=storage/framework/testing/backend.xml',
     ...array_slice($argv, 1),
 ], dirname(__DIR__), $environment, timeout: null);
 

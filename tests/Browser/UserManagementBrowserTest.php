@@ -52,8 +52,7 @@ describe('User management browser flows', function (): void {
             ->click('[role="dialog"] button[type="submit"]')
             ->assertSee('Browser Updated')
             ->assertDontSee($actor->email)
-            ->assertNoJavaScriptErrors()
-            ->screenshot(filename: 'stage-three-users-desktop');
+            ->assertNoJavaScriptErrors();
 
         expect(User::query()->where('email', 'browser-created@example.test')->sole()->name)->toBe('Browser Updated');
     });
@@ -69,8 +68,7 @@ describe('User management browser flows', function (): void {
             ->click('[data-sidebar="trigger"]')
             ->assertSee(__('navigation.group.admin'))
             ->assertMissing('[data-sidebar="menu-sub"]')
-            ->assertNoJavaScriptErrors()
-            ->screenshot(filename: 'stage-three-users-mobile');
+            ->assertNoJavaScriptErrors();
     });
 
     it('hides unavailable admin navigation from ordinary accounts', function (): void {

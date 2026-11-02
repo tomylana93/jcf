@@ -104,7 +104,7 @@ jobs:
           extensions: mbstring, pdo_pgsql, pgsql, zip
           tools: composer:v2
           coverage: pcov
-          ini-values: pcov.directory=app
+          ini-values: pcov.directory=app, pcov.enabled=0
 
       - name: Setup Node.js and pnpm
         if: steps.scope.outputs.mode == 'full'
@@ -156,22 +156,45 @@ jobs:
           php artisan key:generate
           php artisan migrate --force
 
+      - name: Resolve Playwright version
+        if: steps.scope.outputs.mode == 'full'
+        id: playwright
+        run: node -p "'version=' + require('playwright/package.json').version" >> "$GITHUB_OUTPUT"
+
       - name: Cache Playwright browsers
         if: steps.scope.outputs.mode == 'full'
         uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-playwright-
+          key: ${{ runner.os }}-${{ runner.arch }}-playwright-shell-${{ steps.playwright.outputs.version }}
 
       - name: Install browser dependencies
         if: steps.scope.outputs.mode == 'full'
-        run: pnpm exec playwright install --with-deps chromium
+        run: pnpm exec playwright install --with-deps --only-shell chromium
 
       - name: Run full test suite
         if: steps.scope.outputs.mode == 'full'
         run: composer test
+
+      - name: Summarize test timings
+        if: always() && steps.scope.outputs.mode == 'full'
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
+              summary.write('\n### Test timings\n\n')
+              for path in sorted(Path('storage/framework/testing').glob('*.xml')):
+                  root = ET.parse(path).getroot()
+                  cases = list(root.iter('testcase'))
+                  summary.write(f'\n**{path.stem}**: {len(cases)} tests\n\n')
+                  summary.write('| Slowest tests | Seconds |\n| --- | ---: |\n')
+                  for case in sorted(cases, key=lambda case: float(case.get('time', '0')), reverse=True)[:10]:
+                      name = f"{case.get('class', '')}: {case.get('name', '')}".replace('|', '\\|').replace('\n', ' ')
+                      summary.write(f"| {name} | {float(case.get('time', '0')):.2f} |\n")
+          PY
 
       - name: Confirm documentation-only change
         if: steps.scope.outputs.mode == 'docs'
