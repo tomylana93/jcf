@@ -63,7 +63,7 @@ describe('Application release identity', function (): void {
                 ->and(file_get_contents($directory->path('.foundation-version')))->toBe("jcf@1.2.3\n")
                 ->and(file_get_contents($directory->path('version.txt')))->toBe("0.1.0\n")
                 ->and(json_decode((string) file_get_contents($directory->path('.release-please-manifest.json')), true))->toBe(['.' => '0.1.0'])
-                ->and(file_get_contents($directory->path('CHANGELOG.md')))->not->toContain('Foundation history');
+                ->and(file_get_contents($directory->path('CHANGELOG.md')))->toBe("# Changelog\n");
         } finally {
             $directory->delete();
         }
