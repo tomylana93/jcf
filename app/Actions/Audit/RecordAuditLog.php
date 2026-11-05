@@ -45,7 +45,7 @@ final class RecordAuditLog
     private function redact(array $values): array
     {
         foreach ($values as $key => $value) {
-            if (! in_array($key, ['smtp_password_changed', 'password_min_length'], true) && preg_match('/password|secret|token|credential|authorization|cookie|(?:^|_)key(?:$|_)/i', (string) $key) === 1) {
+            if (! $this->isNonSecret((string) $key) && preg_match('/password|secret|token|credential|authorization|cookie|(?:^|_)key(?:$|_)/i', (string) $key) === 1) {
                 unset($values[$key]);
             } elseif (is_array($value)) {
                 $values[$key] = $this->redact($value);
@@ -53,5 +53,13 @@ final class RecordAuditLog
         }
 
         return $values;
+    }
+
+    /**
+     * Change flags and numeric policy values whose names only resemble credentials.
+     */
+    private function isNonSecret(string $key): bool
+    {
+        return str_ends_with($key, '_changed') || $key === 'password_min_length';
     }
 }
