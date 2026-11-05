@@ -25,11 +25,11 @@ enum Permission: string
     case ViewApiClients = 'api-clients.view';
     case ManageApiClients = 'api-clients.manage';
 
-    public function module(): ?string
+    public function module(): ?Module
     {
         foreach (Module::cases() as $module) {
             if (in_array($this, $module->permissions(), true)) {
-                return $module->value;
+                return $module;
             }
         }
 

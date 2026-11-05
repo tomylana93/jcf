@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Chat;
 
+use App\Enums\Module;
 use App\Models\ChatConversation;
 use App\Models\User;
 use App\Support\FeatureManager;
@@ -15,7 +16,7 @@ final class StartDirectConversation
 {
     public function handle(User $actor, User $recipient): ChatConversation
     {
-        abort_unless(resolve(FeatureManager::class)->enabled('chat'), 404);
+        abort_unless(resolve(FeatureManager::class)->enabled(Module::Chat), 404);
 
         return DB::transaction(function () use ($actor, $recipient): ChatConversation {
             $ids = [$actor->id, $recipient->id];

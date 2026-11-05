@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Operations\Backup;
 
+use App\Enums\Module;
 use App\Support\FeatureManager;
 use RuntimeException;
 
@@ -13,7 +14,7 @@ final readonly class CreateBackup
 
     public function handle(): string
     {
-        if (! resolve(FeatureManager::class)->enabled('backup') || ! config('backup.backup.password')) {
+        if (! resolve(FeatureManager::class)->enabled(Module::Backup) || ! config('backup.backup.password')) {
             throw new RuntimeException(__('backup.error.not_configured'));
         }
 

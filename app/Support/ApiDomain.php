@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Support;
 
+use App\Enums\Module;
 use Illuminate\Http\Request;
 
 final class ApiDomain
 {
     public static function enabled(): bool
     {
-        return config('features.api') === true && self::domain() !== null;
+        return Module::Api->available();
     }
 
     public static function domain(): ?string

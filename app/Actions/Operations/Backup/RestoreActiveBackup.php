@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Operations\Backup;
 
+use App\Enums\Module;
 use App\Support\FeatureManager;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -18,9 +19,9 @@ final readonly class RestoreActiveBackup
 
     public function handle(string $filename, string $checksum): void
     {
-        throw_unless(resolve(FeatureManager::class)->envEnabled('backup'), RuntimeException::class, __('backup.error.not_configured'));
+        throw_unless(resolve(FeatureManager::class)->available(Module::Backup), RuntimeException::class, __('backup.error.not_configured'));
         throw_if(DB::connection()->getDriverName() !== 'pgsql' || DB::connection()->getConfig('search_path') !== 'public', RuntimeException::class, 'Active restore requires PostgreSQL with the public schema.');
-        throw_unless(resolve(FeatureManager::class)->enabled('backup') && config('backup.backup.password'), RuntimeException::class, __('backup.error.not_configured'));
+        throw_unless(resolve(FeatureManager::class)->enabled(Module::Backup) && config('backup.backup.password'), RuntimeException::class, __('backup.error.not_configured'));
         $lock = $this->getBackupLock->handle();
         throw_unless($lock->get(), RuntimeException::class, __('backup.error.busy'));
         try {

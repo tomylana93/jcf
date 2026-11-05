@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Chat;
 
+use App\Enums\Module;
 use App\Events\ChatMessageCreated;
 use App\Models\ChatConversation;
 use App\Models\ChatMessage;
@@ -20,7 +21,7 @@ final readonly class SendChatMessage
     /** @param array<string, mixed> $data */
     public function handle(User $actor, ChatConversation $conversation, array $data): ChatMessage
     {
-        abort_unless(resolve(FeatureManager::class)->enabled('chat'), 404);
+        abort_unless(resolve(FeatureManager::class)->enabled(Module::Chat), 404);
 
         return DB::transaction(function () use ($actor, $conversation, $data): ChatMessage {
             $ids = $conversation->participants()->pluck('user_id')->push($actor->id)->unique()->sort()->values();

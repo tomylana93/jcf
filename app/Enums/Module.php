@@ -10,6 +10,7 @@ use App\Settings\ApiSettings;
 use App\Settings\BackupSettings;
 use App\Settings\ChatSettings;
 use App\Settings\DocumentationSettings;
+use App\Support\ApiDomain;
 use Illuminate\Support\ServiceProvider;
 
 enum Module: string
@@ -28,6 +29,25 @@ enum Module: string
         }
 
         return $classes;
+    }
+
+    /**
+     * Whether the environment hard flag enables this module's schema, settings and routes.
+     */
+    public function flagged(): bool
+    {
+        return config('features.'.$this->value) === true;
+    }
+
+    /**
+     * Whether the module is flagged and its runtime requirements are met.
+     */
+    public function available(): bool
+    {
+        return $this->flagged() && match ($this) {
+            self::Api => ApiDomain::domain() !== null,
+            default => true,
+        };
     }
 
     /** @return class-string<ApiSettings|BackupSettings|ChatSettings|DocumentationSettings> */

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Chat;
 
+use App\Enums\Module;
 use App\Events\ChatReadUpdated;
 use App\Models\ChatConversation;
 use App\Models\ChatParticipant;
@@ -27,7 +28,7 @@ final class MarkChatConversationRead
 
     public function handle(User $actor, ChatConversation $conversation, int $sequence): ChatParticipant
     {
-        abort_unless(resolve(FeatureManager::class)->enabled('chat'), 404);
+        abort_unless(resolve(FeatureManager::class)->enabled(Module::Chat), 404);
 
         return DB::transaction(function () use ($actor, $conversation, $sequence): ChatParticipant {
             $user = User::query()->lockForUpdate()->findOrFail($actor->id);

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Events;
 
 use App\Actions\Chat\GetChatBroadcastChannels;
+use App\Enums\Module;
 use App\Models\ChatMessage;
 use App\Support\FeatureManager;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -27,7 +28,7 @@ final class ChatMessageCreated implements ShouldBroadcast, ShouldDispatchAfterCo
 
     public function broadcastWhen(): bool
     {
-        return resolve(FeatureManager::class)->enabled('chat');
+        return resolve(FeatureManager::class)->enabled(Module::Chat);
     }
 
     /**

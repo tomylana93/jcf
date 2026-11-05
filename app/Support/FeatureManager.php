@@ -11,35 +11,31 @@ final class FeatureManager
     /** @var array<string, bool> */
     private array $enabled = [];
 
-    public function available(string $module): bool
+    public function available(Module|string $module): bool
     {
-        return Module::tryFrom($module) !== null && config('features.'.$module) === true
-            && ($module !== 'api' || ApiDomain::domain() !== null);
+        return $this->resolveModule($module)?->available() ?? false;
     }
 
-    public function envEnabled(string $module): bool
+    public function enabled(Module|string $module): bool
     {
-        return $this->available($module);
-    }
+        $module = $this->resolveModule($module);
 
-    public function enabled(string $module): bool
-    {
-        if (! $this->available($module)) {
+        if ($module === null || ! $module->available()) {
             return false;
         }
 
         // Console services may survive multiple jobs or scheduler evaluations.
         if (app()->runningInConsole()) {
-            $settings = resolve(Module::settingsClasses()[$module]);
+            $settings = resolve($module->settingsClass());
             $settings->refresh();
 
             return $settings->enabled;
         }
 
-        return $this->enabled[$module] ??= resolve(Module::settingsClasses()[$module])->enabled;
+        return $this->enabled[$module->value] ??= resolve($module->settingsClass())->enabled;
     }
 
-    public function moduleEnabled(?string $module): bool
+    public function moduleEnabled(?Module $module): bool
     {
         return $module === null || $this->enabled($module);
     }
@@ -50,8 +46,8 @@ final class FeatureManager
         $state = [];
         foreach (Module::cases() as $module) {
             $state[$module->value] = [
-                'available' => $this->available($module->value),
-                'enabled' => $this->enabled($module->value),
+                'available' => $module->available(),
+                'enabled' => $this->enabled($module),
             ];
         }
         $state['realtime'] = ! in_array(config('broadcasting.default'), [null, 'null'], true);
@@ -69,5 +65,10 @@ final class FeatureManager
         $store = config('settings.cache.store');
         $store ??= config('cache.default');
         app()->forgetInstance('cache.__memoized:'.$store);
+    }
+
+    private function resolveModule(Module|string $module): ?Module
+    {
+        return $module instanceof Module ? $module : Module::tryFrom($module);
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Chat;
 
+use App\Enums\Module;
 use App\Events\ChatTypingUpdated;
 use App\Models\ChatConversation;
 use App\Models\User;
@@ -14,7 +15,7 @@ final class SendChatTyping
 {
     public function handle(User $actor, ChatConversation $conversation, bool $typing): void
     {
-        abort_unless(resolve(FeatureManager::class)->enabled('chat'), 404);
+        abort_unless(resolve(FeatureManager::class)->enabled(Module::Chat), 404);
 
         Gate::forUser($actor)->authorize('sendMessage', $conversation);
 

@@ -9,6 +9,7 @@ use App\Actions\Search\SearchGlobal;
 use App\Enums\Module;
 use App\Support\FeatureManager;
 use App\Support\SearchProvider;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Queue\Events\JobProcessing;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
@@ -27,17 +28,17 @@ final class FeatureServiceProvider extends ServiceProvider
             }
         }
         $this->app->tag(SearchUsers::class, SearchProvider::class);
-        $this->app->bind(SearchGlobal::class, fn ($app): SearchGlobal => new SearchGlobal($app->tagged(SearchProvider::class)));
+        $this->app->bind(SearchGlobal::class, fn (Application $app): SearchGlobal => new SearchGlobal($app->tagged(SearchProvider::class)));
 
         $classes = config('settings.settings');
         $paths = config('settings.migrations_paths');
-        foreach (Module::settingsClasses() as $module => $class) {
-            if (! config('features.'.$module)) {
+        foreach (Module::cases() as $module) {
+            if (! $module->flagged()) {
                 continue;
             }
 
-            $classes[] = $class;
-            $paths[] = Module::from($module)->settingsMigrationsPath();
+            $classes[] = $module->settingsClass();
+            $paths[] = $module->settingsMigrationsPath();
         }
         config([
             'settings.settings' => array_values(array_unique($classes)),
@@ -48,12 +49,13 @@ final class FeatureServiceProvider extends ServiceProvider
         // Explicit registration is authoritative, including after a cached discovery run.
         $container = $this->app->make(SettingsContainer::class);
         $container->clearCache()->registerBindings();
-        foreach (Module::settingsClasses() as $module => $class) {
-            if (! config('features.'.$module)) {
+        foreach (Module::cases() as $module) {
+            $class = $module->settingsClass();
+            if (! $module->flagged()) {
                 app()->offsetUnset($class);
             }
             $this->app->beforeResolving($class, static function () use ($module): void {
-                throw_unless(config('features.'.$module), LogicException::class, 'Settings unavailable for disabled module: '.$module);
+                throw_unless($module->flagged(), LogicException::class, 'Settings unavailable for disabled module: '.$module->value);
             });
         }
     }
@@ -61,7 +63,7 @@ final class FeatureServiceProvider extends ServiceProvider
     public function boot(): void
     {
         foreach (Module::cases() as $module) {
-            if (config('features.'.$module->value) && is_dir($module->migrationsPath())) {
+            if ($module->flagged() && is_dir($module->migrationsPath())) {
                 $this->loadMigrationsFrom($module->migrationsPath());
             }
         }

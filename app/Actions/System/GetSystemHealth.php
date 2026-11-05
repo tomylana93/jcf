@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\System;
 
+use App\Enums\Module;
 use App\Settings\MailSettings;
 use App\Support\FeatureManager;
 use Closure;
@@ -59,7 +60,7 @@ final readonly class GetSystemHealth
             }),
             $this->check('scheduler', fn (): string => $this->heartbeat('system.scheduler_heartbeat')),
             $this->check('backup', function (): string {
-                if (! resolve(FeatureManager::class)->enabled('backup')) {
+                if (! resolve(FeatureManager::class)->enabled(Module::Backup)) {
                     return 'disabled';
                 }
                 if (! config('backup.backup.password')) {
