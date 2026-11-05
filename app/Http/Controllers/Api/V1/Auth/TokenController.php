@@ -6,13 +6,13 @@ namespace App\Http\Controllers\Api\V1\Auth;
 
 use App\Actions\Api\AuthenticateApiUser;
 use App\Actions\Api\IssueDeviceToken;
+use App\Actions\Api\RevokeCurrentToken;
 use App\Actions\Api\StartTwoFactorChallenge;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\IssueTokenRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Laravel\Sanctum\PersonalAccessToken;
 
 final class TokenController extends Controller
 {
@@ -34,12 +34,9 @@ final class TokenController extends Controller
     /**
      * Revoke the token used for the current request, logging the device out.
      */
-    public function destroy(Request $request): Response
+    public function destroy(Request $request, RevokeCurrentToken $revokeCurrentToken): Response
     {
-        $token = $request->user()?->currentAccessToken();
-        if ($token instanceof PersonalAccessToken) {
-            $token->delete();
-        }
+        $revokeCurrentToken->handle($request->user());
 
         return response()->noContent();
     }
