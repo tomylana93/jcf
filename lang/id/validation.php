@@ -171,6 +171,7 @@ return [
         'auth_background' => 'background autentikasi',
         'auth_layout' => 'layout autentikasi',
         'avatar' => 'foto profil',
+        'client_name' => 'nama klien',
         'color' => 'warna utama',
         'content_json' => 'konten',
         'current_password' => 'password saat ini',

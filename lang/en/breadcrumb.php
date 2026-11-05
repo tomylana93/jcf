@@ -18,4 +18,5 @@ return [
     'permission' => 'Permission',
     'master_data' => 'Master Data',
     'user' => 'Users',
+    'api_client' => 'API clients',
 ];

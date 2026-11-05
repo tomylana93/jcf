@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Middleware\EnsureAccountIsActive;
-use App\Http\Middleware\EnsureApiUserIsActive;
+use App\Http\Middleware\EnsureApiTokenOwner;
 use App\Http\Middleware\EnsureEmailIsVerifiedWhenRequired;
 use App\Http\Middleware\EnsureFeatureEnabled;
 use App\Http\Middleware\ForceJsonResponse;
@@ -48,7 +48,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trimStrings(except: ['content_json.*']);
 
-        $middleware->alias(['verified' => EnsureEmailIsVerifiedWhenRequired::class, 'feature' => EnsureFeatureEnabled::class, 'api.active' => EnsureApiUserIsActive::class, 'abilities' => CheckAbilities::class]);
+        $middleware->alias(['verified' => EnsureEmailIsVerifiedWhenRequired::class, 'feature' => EnsureFeatureEnabled::class, 'api.owner' => EnsureApiTokenOwner::class, 'abilities' => CheckAbilities::class]);
 
         $middleware->prependToPriorityList(SubstituteBindings::class, EnsureFeatureEnabled::class);
 

@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace App\Actions\Account;
 
+use App\Models\ApiClient;
 use App\Models\User;
 
 final class RevokeApiToken
 {
     /**
-     * Revoke one of the user's tokens. Tokens of other owners are reported as missing.
+     * Revoke one of the owner's tokens. Tokens of other owners are reported as missing.
      */
-    public function handle(User $user, int $tokenId): void
+    public function handle(User|ApiClient $owner, int $tokenId): void
     {
-        $user->tokens()->whereKey($tokenId)->firstOrFail()->delete();
+        $owner->tokens()->whereKey($tokenId)->firstOrFail()->delete();
     }
 }

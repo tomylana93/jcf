@@ -1,0 +1,68 @@
+import { Link } from '@inertiajs/vue3';
+import { h } from 'vue';
+
+import type { DataTableColumnDef } from '@/components/datatable';
+import { Badge } from '@/components/ui/badge';
+import { formatDateTime } from '@/lib/dateTime';
+import { show } from '@/routes/master-data/api-clients';
+import type { ApiClientRow, TranslationKey } from '@/types';
+
+export function createColumns(
+    t: (key: TranslationKey) => string,
+    locale: string,
+    timezone: string,
+): DataTableColumnDef<ApiClientRow>[] {
+    return [
+        {
+            accessorKey: 'name',
+            header: t('api_client.label.name'),
+            enableSorting: true,
+            cell: ({ row }) =>
+                h(
+                    Link,
+                    {
+                        href: show.url(row.original.id),
+                        class: 'font-medium underline-offset-4 hover:underline',
+                    },
+                    () => row.original.name,
+                ),
+        },
+        {
+            accessorKey: 'description',
+            header: t('api_client.label.description'),
+            enableSorting: false,
+            cell: ({ row }) =>
+                h(
+                    'span',
+                    { class: 'line-clamp-2 text-muted-foreground' },
+                    row.original.description ?? '—',
+                ),
+        },
+        {
+            accessorKey: 'tokens_count',
+            header: t('api_client.label.tokens'),
+            enableSorting: false,
+        },
+        {
+            accessorKey: 'status',
+            exportValue: (client) => client.status_label,
+            header: t('api_client.label.status'),
+            enableSorting: true,
+            cell: ({ row }) =>
+                h(
+                    Badge,
+                    { variant: row.original.status_variant },
+                    () => row.original.status_label,
+                ),
+        },
+        {
+            accessorKey: 'created_at',
+            exportValue: (client) =>
+                formatDateTime(client.created_at, locale, timezone),
+            header: t('api_client.label.created_at'),
+            enableSorting: true,
+            cell: ({ row }) =>
+                formatDateTime(row.original.created_at, locale, timezone),
+        },
+    ];
+}

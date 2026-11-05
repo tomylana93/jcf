@@ -22,6 +22,8 @@ enum Permission: string
     case AssignUserPermissions = 'users.permissions.assign';
     case ViewDocumentation = 'documentation.view';
     case ManageDocumentation = 'documentation.manage';
+    case ViewApiClients = 'api-clients.view';
+    case ManageApiClients = 'api-clients.manage';
 
     public function module(): ?string
     {
@@ -29,6 +31,7 @@ enum Permission: string
             self::UseChat => 'chat',
             self::ManageBackups => 'backup',
             self::ViewDocumentation, self::ManageDocumentation => 'documentation',
+            self::ViewApiClients, self::ManageApiClients => 'api',
             default => null,
         };
     }

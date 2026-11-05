@@ -49,6 +49,13 @@ return [
         'ViewUsers' => 'View users',
         'ManageUsers' => 'Manage users',
         'AssignUserPermissions' => 'Assign user permissions',
+        'ViewApiClients' => 'View API clients',
+        'ManageApiClients' => 'Manage API clients',
+    ],
+
+    'api_client_status' => [
+        'Active' => 'Active',
+        'Disabled' => 'Disabled',
     ],
 
     'api_token_ability' => [

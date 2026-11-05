@@ -6,6 +6,7 @@ namespace App\Actions\Account;
 
 use App\Enums\ApiTokenAbility;
 use App\Enums\ApiTokenExpiration;
+use App\Models\ApiClient;
 use App\Models\User;
 
 final class CreateApiToken
@@ -15,9 +16,9 @@ final class CreateApiToken
      *
      * @param  list<ApiTokenAbility>  $abilities
      */
-    public function handle(User $user, string $name, array $abilities, ApiTokenExpiration $expiration): string
+    public function handle(User|ApiClient $owner, string $name, array $abilities, ApiTokenExpiration $expiration): string
     {
-        return $user->createToken(
+        return $owner->createToken(
             $name,
             array_values(array_unique(array_map(fn (ApiTokenAbility $ability): string => $ability->value, $abilities))),
             now()->addDays($expiration->days()),

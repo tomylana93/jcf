@@ -36,7 +36,7 @@ if ($module !== 'all' && $features->available($module)) {
 $state = $features->state();
 $queries = [];
 DB::listen(function (QueryExecuted $event) use (&$queries, $state): void {
-    foreach (['chat' => 'chat_', 'documentation' => 'documentations'] as $name => $table) {
+    foreach (['chat' => 'chat_', 'documentation' => 'documentations', 'api' => 'api_clients'] as $name => $table) {
         if (! $state[$name]['enabled'] && str_contains($event->sql, '"'.$table)) {
             $queries[] = $event->sql;
         }
