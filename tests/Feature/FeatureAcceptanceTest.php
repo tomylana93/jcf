@@ -19,7 +19,7 @@ describe('Feature deployment acceptance', function (): void {
                 'DB_HOST' => $db->getConfig('host'), 'DB_PORT' => (string) $db->getConfig('port'),
                 'DB_USERNAME' => $db->getConfig('username'), 'DB_PASSWORD' => $db->getConfig('password'),
                 'APP_CONFIG_CACHE' => $directory->path('config.php'), 'APP_ROUTES_CACHE' => $directory->path('routes.php'),
-                'FEATURE_CHAT' => 'false', 'FEATURE_DOCUMENTATION' => 'false', 'FEATURE_BACKUP' => 'false',
+                'FEATURE_CHAT' => 'false', 'FEATURE_DOCUMENTATION' => 'false', 'FEATURE_BACKUP' => 'false', 'FEATURE_API' => 'false', 'API_DOMAIN' => 'api.jcf.test',
                 'CACHE_STORE' => 'array', 'SESSION_DRIVER' => 'array', 'QUEUE_CONNECTION' => 'sync',
             ];
             if ($module !== 'all') {
@@ -61,6 +61,10 @@ describe('Feature deployment acceptance', function (): void {
         'backup hard=1 soft=0' => ['backup', true, false],
         'backup hard=0 soft=1' => ['backup', false, true],
         'backup hard=0 soft=0' => ['backup', false, false],
+        'api hard=1 soft=1' => ['api', true, true],
+        'api hard=1 soft=0' => ['api', true, false],
+        'api hard=0 soft=1' => ['api', false, true],
+        'api hard=0 soft=0' => ['api', false, false],
         'all off' => ['all', false, false],
     ]);
 });

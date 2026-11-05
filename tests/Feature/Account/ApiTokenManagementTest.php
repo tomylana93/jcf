@@ -11,6 +11,7 @@ use App\Enums\ApiTokenAbility;
 use App\Enums\ApiTokenExpiration;
 use App\Enums\UserStatus;
 use App\Models\User;
+use App\Settings\ApiSettings;
 use Inertia\Testing\AssertableInertia as Assert;
 use Laravel\Sanctum\PersonalAccessToken;
 
@@ -43,6 +44,14 @@ describe('API token pages', function (): void {
         post(route('api-tokens.store'), ['name' => 'Script', 'abilities' => ['read'], 'expiration' => '30'])->assertRedirect(route('password.confirm'));
     });
 
+    it('returns 404 when the API module is switched off', function (): void {
+        resolve(ApiSettings::class)->fill(['enabled' => false])->save();
+        actingAsWithConfirmedPassword(User::factory()->create());
+
+        get(route('api-tokens.index'))->assertNotFound();
+        post(route('api-tokens.store'), ['name' => 'Script', 'abilities' => ['read'], 'expiration' => '30'])->assertNotFound();
+    });
+
     it('lists only owned tokens without exposing token hashes', function (): void {
         $user = User::factory()->create();
         issueApiToken($user, ApiTokenAbility::Read, ApiTokenAbility::Write);
@@ -51,7 +60,7 @@ describe('API token pages', function (): void {
 
         get(route('api-tokens.index'))->assertInertia(fn (Assert $page) => $page
             ->component('account/ApiTokens')
-            ->where('features.api', true)
+            ->where('features.api', ['available' => true, 'enabled' => true])
             ->has('tokens', 1)
             ->where('tokens.0.name', 'Script')
             ->where('tokens.0.abilities', ['read', 'write'])

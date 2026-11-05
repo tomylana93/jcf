@@ -29,9 +29,11 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::delete('account/sessions', [SessionController::class, 'destroy'])->middleware('throttle:6,1')->name('sessions.destroy');
 
     if (ApiDomain::enabled()) {
-        Route::get('account/api-tokens', [ApiTokenController::class, 'index'])->middleware(RequirePassword::class)->name('api-tokens.index');
-        Route::post('account/api-tokens', [ApiTokenController::class, 'store'])->middleware(['throttle:6,1', RequirePassword::class])->name('api-tokens.store');
-        Route::delete('account/api-tokens/{token}', [ApiTokenController::class, 'destroy'])->whereNumber('token')->middleware(RequirePassword::class)->name('api-tokens.destroy');
+        Route::middleware('feature:api')->group(function (): void {
+            Route::get('account/api-tokens', [ApiTokenController::class, 'index'])->middleware(RequirePassword::class)->name('api-tokens.index');
+            Route::post('account/api-tokens', [ApiTokenController::class, 'store'])->middleware(['throttle:6,1', RequirePassword::class])->name('api-tokens.store');
+            Route::delete('account/api-tokens/{token}', [ApiTokenController::class, 'destroy'])->whereNumber('token')->middleware(RequirePassword::class)->name('api-tokens.destroy');
+        });
     }
 });
 

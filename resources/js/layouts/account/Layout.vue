@@ -27,7 +27,7 @@ const sidebarNavItems = computed<NavItem[]>(() => [
         href: editSecurity(),
     },
     { title: t('account.sessions.title'), href: sessionsIndex() },
-    ...(page.props.features.api
+    ...(page.props.features.api.enabled
         ? [{ title: t('account.api_tokens.title'), href: apiTokensIndex() }]
         : []),
 ]);

@@ -7,6 +7,6 @@ export type Features = {
     chat: ModuleFeature;
     documentation: ModuleFeature;
     backup: ModuleFeature;
+    api: ModuleFeature;
     realtime: boolean;
-    api: boolean;
 };

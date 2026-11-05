@@ -54,7 +54,7 @@ foreach (['/dashboard', '/settings', '/permissions', '/search?query=manual', '/s
     }
     $kernel->terminate($request, $response);
 }
-$paths = ['chat' => '/chat', 'documentation' => '/documentation', 'backup' => '/master-data/backups', 'all' => '/settings/modules'];
+$paths = ['chat' => '/chat', 'documentation' => '/documentation', 'backup' => '/master-data/backups', 'api' => 'http://api.jcf.test/v1/ping', 'all' => '/settings/modules'];
 $request = Request::create($paths[$module], 'GET', server: ['HTTP_ACCEPT' => 'text/html']);
 $response = $kernel->handle($request);
 $kernel->terminate($request, $response);

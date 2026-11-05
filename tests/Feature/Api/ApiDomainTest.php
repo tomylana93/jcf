@@ -3,7 +3,9 @@
 declare(strict_types=1);
 
 use App\Models\User;
+use App\Settings\ApiSettings;
 use App\Settings\AuthSettings;
+use App\Support\FeatureManager;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Console\Kernel;
 use Laravel\Sanctum\Sanctum;
@@ -54,6 +56,18 @@ describe('API domain routing', function (): void {
             Container::setInstance($originalApplication);
         }
     })->with([['FEATURE_API', 'false'], ['API_DOMAIN', '']]);
+
+    it('returns 404 JSON for API routes when the module is switched off', function (): void {
+        resolve(ApiSettings::class)->fill(['enabled' => false])->save();
+
+        getJson(route('api.v1.ping'))->assertNotFound()->assertHeader('Content-Type', 'application/json');
+    });
+
+    it('reports the module as unavailable without an API domain', function (): void {
+        config(['api.domain' => null]);
+
+        expect(resolve(FeatureManager::class)->state()['api'])->toBe(['available' => false, 'enabled' => false]);
+    });
 
     it('throttles API requests with 429', function (): void {
         config(['api.rate_limit' => 2]);

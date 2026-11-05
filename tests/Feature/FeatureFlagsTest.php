@@ -69,7 +69,7 @@ describe('Feature flags', function (): void {
 
         expect(resolve(FeatureManager::class)->envEnabled($module))->toBe($hard)
             ->and(resolve(FeatureManager::class)->enabled($module))->toBe($hard && $soft);
-    })->with(['chat', 'documentation', 'backup'])->with([true, false])->with([true, false]);
+    })->with(['chat', 'documentation', 'backup', 'api'])->with([true, false])->with([true, false]);
 
     it('never resolves module settings or queries their groups while hard off', function (bool $cache): void {
         config(['settings.cache.enabled' => $cache]);
@@ -104,7 +104,7 @@ describe('Feature flags', function (): void {
 
         (new $class)->fill(['enabled' => true])->save();
         expect($features->enabled($module))->toBeTrue();
-    })->with(['chat', 'documentation', 'backup']);
+    })->with(['chat', 'documentation', 'backup', 'api']);
 
     it('memoizes HTTP state until a settings save or new request scope', function (bool $cache): void {
         config(['settings.cache.enabled' => $cache, 'settings.cache.memo' => true]);
@@ -182,7 +182,7 @@ describe('Feature flags', function (): void {
                 'DB_HOST' => $db->getConfig('host'), 'DB_PORT' => (string) $db->getConfig('port'),
                 'DB_USERNAME' => $db->getConfig('username'), 'DB_PASSWORD' => $db->getConfig('password'), 'DB_URL' => '',
                 'FEATURE_CHAT' => 'false',
-                'FEATURE_DOCUMENTATION' => 'false', 'FEATURE_BACKUP' => 'false',
+                'FEATURE_DOCUMENTATION' => 'false', 'FEATURE_BACKUP' => 'false', 'FEATURE_API' => 'false',
                 'APP_CONFIG_CACHE' => storage_path('framework/testing/feature-config-'.getmypid().'.php'),
             ];
             $migrate = static function (array $overrides = []) use ($environment): void {
@@ -190,7 +190,7 @@ describe('Feature flags', function (): void {
             };
             $migrate();
             expect($db->table('settings')->whereIn('group', array_keys(FeatureManager::SETTINGS))->count())->toBe(0);
-            $tables = ['chat' => ['chat_conversations', 'chat_participants', 'chat_messages'], 'documentation' => ['documentations'], 'backup' => []];
+            $tables = ['chat' => ['chat_conversations', 'chat_participants', 'chat_messages'], 'documentation' => ['documentations'], 'backup' => [], 'api' => []];
             foreach ($tables as $names) {
                 foreach ($names as $table) {
                     expect($db->getSchemaBuilder()->hasTable($table))->toBeFalse();
@@ -254,7 +254,7 @@ describe('Feature flags', function (): void {
             }
 
         });
-    })->with(['chat', 'documentation', 'backup']);
+    })->with(['chat', 'documentation', 'backup', 'api']);
 
     it('shares complete effective feature state with the frontend', function (?string $broadcasting): void {
         config(['broadcasting.default' => $broadcasting]);
@@ -263,6 +263,7 @@ describe('Feature flags', function (): void {
             ->where('features.chat', ['available' => true, 'enabled' => true])
             ->where('features.documentation', ['available' => true, 'enabled' => true])
             ->where('features.backup', ['available' => true, 'enabled' => true])
+            ->where('features.api', ['available' => true, 'enabled' => true])
             ->where('features.realtime', false));
     })->with([null, 'null']);
 
@@ -278,7 +279,8 @@ describe('Feature flags', function (): void {
         get(route('login'))->assertInertia(fn ($page) => $page
             ->where('features.chat', ['available' => false, 'enabled' => false])
             ->where('features.documentation', ['available' => false, 'enabled' => false])
-            ->where('features.backup', ['available' => false, 'enabled' => false]));
+            ->where('features.backup', ['available' => false, 'enabled' => false])
+            ->where('features.api', ['available' => false, 'enabled' => false]));
 
         expect($resolved)->toBeEmpty();
     });
