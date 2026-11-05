@@ -53,6 +53,21 @@ abstract class Table
         return $records;
     }
 
+    /**
+     * Case-insensitive substring search across the given columns, treating `%` and `_` in the term literally.
+     */
+    protected function searchFilter(string ...$columns): AllowedFilter
+    {
+        return AllowedFilter::callback('search', function (Builder $query, mixed $value) use ($columns): void {
+            $pattern = '%'.addcslashes(mb_trim((string) $value), '%_\\').'%';
+            $query->where(function (Builder $query) use ($columns, $pattern): void {
+                foreach ($columns as $column) {
+                    $query->orWhereLike($column, $pattern);
+                }
+            });
+        });
+    }
+
     /** @return array<int, int> */
     protected function perPageOptions(): array
     {

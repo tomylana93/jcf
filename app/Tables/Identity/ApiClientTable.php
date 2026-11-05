@@ -7,7 +7,6 @@ namespace App\Tables\Identity;
 use App\Models\ApiClient;
 use App\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Str;
 use Spatie\QueryBuilder\AllowedFilter;
 
 /** @extends Table<ApiClient> */
@@ -23,12 +22,7 @@ final class ApiClientTable extends Table
     protected function allowedFilters(): array
     {
         return [
-            AllowedFilter::callback('search', function (Builder $query, mixed $value): void {
-                $term = '%'.Str::lower(mb_trim((string) $value)).'%';
-                $query->where(fn (Builder $query): Builder => $query
-                    ->whereRaw('LOWER(name) LIKE ?', [$term])
-                    ->orWhereRaw('LOWER(description) LIKE ?', [$term]));
-            }),
+            $this->searchFilter('name', 'description'),
             AllowedFilter::exact('status'),
         ];
     }

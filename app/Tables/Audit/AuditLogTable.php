@@ -7,7 +7,6 @@ namespace App\Tables\Audit;
 use App\Models\AuditLog;
 use App\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Str;
 use Spatie\QueryBuilder\AllowedFilter;
 
 /** @extends Table<AuditLog> */
@@ -23,12 +22,7 @@ final class AuditLogTable extends Table
     protected function allowedFilters(): array
     {
         return [
-            AllowedFilter::callback('search', function (Builder $query, mixed $value): void {
-                $term = '%'.Str::lower(mb_trim((string) $value)).'%';
-                $query->where(fn (Builder $query): Builder => $query
-                    ->whereRaw('LOWER(actor_name) LIKE ?', [$term])
-                    ->orWhereRaw('LOWER(subject_label) LIKE ?', [$term]));
-            }),
+            $this->searchFilter('actor_name', 'subject_label'),
             AllowedFilter::exact('event'),
         ];
     }

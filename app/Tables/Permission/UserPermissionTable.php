@@ -22,10 +22,7 @@ final class UserPermissionTable extends Table
     /** @return array<int, AllowedFilter|string> */
     protected function allowedFilters(): array
     {
-        return [AllowedFilter::callback('search', function (Builder $query, mixed $value): void {
-            $term = '%'.mb_strtolower(mb_trim((string) $value)).'%';
-            $query->where(fn (Builder $query): Builder => $query->whereRaw('LOWER(name) LIKE ?', [$term])->orWhereRaw('LOWER(email) LIKE ?', [$term]));
-        })];
+        return [$this->searchFilter('name', 'email')];
     }
 
     /** @return array<int, string> */
