@@ -7,6 +7,7 @@ return [
 
     'label' => [
         'open' => 'Open search',
+        'shortcut' => 'Ctrl/⌘ K',
         'query' => 'Search query',
         'pages' => 'Pages',
         'documents' => 'Documentation',

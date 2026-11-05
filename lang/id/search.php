@@ -7,6 +7,7 @@ return [
 
     'label' => [
         'open' => 'Buka pencarian',
+        'shortcut' => 'Ctrl/⌘ K',
         'query' => 'Kata pencarian',
         'pages' => 'Halaman',
         'documents' => 'Dokumentasi',

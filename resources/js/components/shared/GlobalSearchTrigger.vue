@@ -26,6 +26,8 @@ function openSearch(): void {
     >
         <Search />
         <span class="hidden lg:inline">{{ t('search.title') }}</span>
-        <Kbd class="hidden lg:inline-flex">Ctrl/⌘ K</Kbd>
+        <Kbd class="hidden lg:inline-flex">
+            {{ t('search.label.shortcut') }}
+        </Kbd>
     </Button>
 </template>
