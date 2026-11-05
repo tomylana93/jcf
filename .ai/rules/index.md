@@ -16,6 +16,14 @@ Before planning or editing, find the row whose globs match the file's path and r
 | resources/js/components/layout/** | .ai/rules/layout.md |
 | database/migrations/** | .ai/rules/migrations.md |
 | resources/js/pages/** | .ai/rules/pages.md |
+| app/Providers/** | .ai/rules/providers.md |
+| app/Enums/Module.php | .ai/rules/providers.md |
+| app/Support/** | .ai/rules/providers.md |
+| routes/** | .ai/rules/providers.md |
+| bootstrap/app.php | .ai/rules/providers.md |
+| tests/Feature/ModuleBoundariesTest.php | .ai/rules/providers.md |
+| resources/js/types/features.ts | .ai/rules/providers.md |
+| resources/js/types/permission.ts | .ai/rules/providers.md |
 | app/Settings/** | .ai/rules/settings.md |
 | app/Tables/** | .ai/rules/tables.md |
 | tests/** | .ai/rules/tests.md |

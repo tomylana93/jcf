@@ -10,3 +10,9 @@ Keep controllers focused on HTTP orchestration: validated input, authorization, 
 
 ## Resources for tabular HTTP output
 Serialize Table-backed Inertia rows through the matching JsonResource resolved against the request. Reuse the resource collection for exports.
+
+## Code follows domain ownership, not menus
+Place code by owning domain: Identity (users, API clients), Account (own profile, sessions, tokens), Operations (backup and restore), plus Chat, Documentation, Settings, Audit, Notification and System. The master-data route names and pages are menu structure only. App\Jobs\MasterData and App\Notifications\MasterData keep their class names solely for already-serialized queue payloads; rename them to Identity in a release after queues are drained.
+
+## One authorization location per route
+Authorize every route in exactly one primary place: route ->can() for permission-only routes such as settings, Gate::authorize() at the top of the controller method for permission or policy checks, or FormRequest::authorize() for mutation requests that already carry validation. Module availability is enforced by the feature:<module> route middleware, not repeated in controllers.
