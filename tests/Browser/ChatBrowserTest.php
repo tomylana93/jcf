@@ -495,6 +495,30 @@ describe('Chat browser', function (): void {
         resolve(ChatSettings::class)->fill(['enabled' => true])->save();
     });
 
+    it('cancels typing timers and pending work when leaving the chat page', function (): void {
+        [$actor, $recipient] = createChatUsers();
+        $recipient->update(['name' => 'Cleanup Recipient']);
+        resolve(StartDirectConversation::class)->handle($actor, $recipient);
+        actingAs($actor);
+        $page = visit(route('chat.index'))->click('button[aria-pressed]:has-text("Cleanup Recipient")')->assertVisible('#chat-body');
+        $page->script(<<<'JS_WRAP'
+            () => {
+                window.chatRequests = 0;
+                const open = XMLHttpRequest.prototype.open;
+                XMLHttpRequest.prototype.open = function(method, url, ...args) {
+                    if (new URL(url, location.origin).pathname.startsWith('/chat/')) window.chatRequests++;
+                    return open.call(this, method, url, ...args);
+                };
+            }
+        JS_WRAP);
+        $page->fill('#chat-body', 'Unsaved draft')->assertScript('() => window.chatRequests > 0')
+            ->click('a[href="/dashboard"][data-size="default"]')->assertMissing('#chat-body');
+        $page->script('() => { window.requestsAfterLeavingChat = window.chatRequests; }');
+        $page->wait(2.5)->assertScript('() => typeof window.chatRequests === "number" && window.chatRequests === window.requestsAfterLeavingChat')
+            ->click('a[href="/chat"]')->click('button[aria-pressed]:has-text("Cleanup Recipient")')
+            ->assertValue('#chat-body', '')->assertNoJavaScriptErrors();
+    });
+
     it('does not open realtime connections when broadcasting is disabled', function (): void {
         config(['broadcasting.default' => null]);
         actingAs(User::factory()->create());
