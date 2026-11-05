@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Operations\Backup;
 
-use App\Jobs\CreateSystemBackup;
+use App\Jobs\Operations\CreateSystemBackup;
 use App\Models\User;
 use Illuminate\Validation\ValidationException;
 

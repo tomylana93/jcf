@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Operations\Backup;
 
-use App\Jobs\RestoreSystemBackup;
+use App\Jobs\Operations\RestoreSystemBackup;
 use App\Models\User;
 use Illuminate\Database\RecordsNotFoundException;
 use Illuminate\Validation\ValidationException;

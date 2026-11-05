@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Jobs;
+namespace App\Jobs\Operations;
 
-use App\Actions\Operations\Backup\CreateBackup;
+use App\Actions\Operations\Backup\RestoreActiveBackup;
 use App\Enums\BackupOperation;
 use App\Enums\Module;
 use App\Enums\OperationStatus;
@@ -22,30 +22,31 @@ use Throwable;
 #[Timeout(1800)]
 #[Tries(1)]
 #[UniqueFor(1900)]
-final class CreateSystemBackup implements ShouldBeUnique, ShouldQueue
+final class RestoreSystemBackup implements ShouldBeUnique, ShouldQueue
 {
     use Queueable;
 
-    public function __construct(public string $actorId)
+    public function __construct(public string $filename, public string $checksum, public string $actorId)
     {
         $this->onConnection('backups');
     }
 
-    public function handle(CreateBackup $createBackup): void
+    public function handle(RestoreActiveBackup $restoreBackup): void
     {
         if (! resolve(FeatureManager::class)->enabled(Module::Backup)) {
-            BackupOperation::Backup->mark(OperationStatus::Skipped);
+            BackupOperation::Restore->mark(OperationStatus::Skipped);
 
             return;
         }
 
-        $filename = $createBackup->handle();
-        User::query()->find($this->actorId)?->notify(new ApplicationNotification('backup_ready', $filename));
+        $restoreBackup->handle($this->filename, $this->checksum);
+        $this->delete();
+        User::query()->find($this->actorId)?->notify(new ApplicationNotification('restore_ready', $this->filename));
     }
 
     public function failed(?Throwable $exception): void
     {
-        BackupOperation::Backup->mark(OperationStatus::Failed);
-        User::query()->find($this->actorId)?->notify(new ApplicationNotification('backup_failed'));
+        BackupOperation::Restore->mark(OperationStatus::Failed);
+        User::query()->find($this->actorId)?->notify(new ApplicationNotification('restore_failed'));
     }
 }

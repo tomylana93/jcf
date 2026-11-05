@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use App\Enums\Role;
-use App\Jobs\RestoreSystemBackup;
+use App\Jobs\Operations\RestoreSystemBackup;
 use App\Models\User;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
