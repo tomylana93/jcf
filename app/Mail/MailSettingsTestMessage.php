@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Settings;
+namespace App\Mail;
 
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;

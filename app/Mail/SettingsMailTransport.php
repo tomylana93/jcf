@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Settings;
+namespace App\Mail;
 
+use App\Settings\MailSettings;
 use Illuminate\Mail\MailManager;
 use Symfony\Component\Mailer\Envelope;
 use Symfony\Component\Mailer\SentMessage;

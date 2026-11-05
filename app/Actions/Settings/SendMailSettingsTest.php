@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Settings;
 
-use App\Settings\MailSettingsTestMessage;
+use App\Mail\MailSettingsTestMessage;
 use Illuminate\Support\Facades\Mail;
 
 final class SendMailSettingsTest
