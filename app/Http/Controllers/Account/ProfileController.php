@@ -25,10 +25,10 @@ final class ProfileController extends Controller
     /**
      * Show the user's profile settings page.
      */
-    public function edit(Request $request, GetAvatarSettings $getAvatarSettings, GetTimezoneOptions $getTimezoneOptions): Response
+    public function edit(Request $request, AuthSettings $authSettings, GetAvatarSettings $getAvatarSettings, GetTimezoneOptions $getTimezoneOptions): Response
     {
         return Inertia::render('account/Profile', [
-            'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail && resolve(AuthSettings::class)->email_verification_required,
+            'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail && $authSettings->email_verification_required,
             'status' => $request->session()->get('status'),
             'canDisableAccount' => ! $request->user()->hasRole(Role::SuperAdmin),
             'avatarSettings' => $getAvatarSettings->handle($request->user()),

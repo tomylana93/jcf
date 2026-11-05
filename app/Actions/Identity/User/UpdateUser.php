@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Identity\User;
 
+use App\Actions\Account\PrepareEmailChange;
 use App\Actions\Account\TerminateUserRealtimeConnections;
 use App\Actions\Audit\GetUserAuditValues;
 use App\Actions\Audit\RecordAuditLog;
@@ -12,7 +13,6 @@ use App\Enums\UserStatus;
 use App\Models\User;
 use App\Notifications\ApplicationNotification;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Password;
 
 final class UpdateUser
 {
@@ -20,6 +20,7 @@ final class UpdateUser
         public RecordAuditLog $recordAuditLog,
         public GetUserAuditValues $getAuditValues,
         private readonly TerminateUserRealtimeConnections $terminateRealtimeConnections,
+        private readonly PrepareEmailChange $prepareEmailChange,
     ) {}
 
     /** @param array{name: string, email: string, role?: ?string, status: string} $data */
@@ -33,12 +34,7 @@ final class UpdateUser
             $user->fill(['name' => $data['name'], 'email' => $data['email']]);
             $user->status = UserStatus::from($data['status']);
 
-            if ($user->isDirty('email')) {
-                $previousIdentity = clone $user;
-                $previousIdentity->email = $user->getOriginal('email');
-                Password::broker()->deleteToken($previousIdentity);
-                $user->email_verified_at = null;
-            }
+            $this->prepareEmailChange->handle($user);
 
             $user->save();
             $user->syncRoles(isset($data['role']) ? [$data['role']] : []);
