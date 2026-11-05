@@ -81,7 +81,11 @@ const submit = () => {
                         name="site_name"
                         :readonly="!canManage"
                         :aria-invalid="!!form.errors.site_name"
-                        aria-describedby="site_name_error"
+                        :aria-describedby="
+                            form.errors.site_name
+                                ? 'site_name_error'
+                                : undefined
+                        "
                         @blur="canManage && form.validate('site_name')"
                     />
                     <FieldError
@@ -99,7 +103,11 @@ const submit = () => {
                         name="site_description"
                         :readonly="!canManage"
                         :aria-invalid="!!form.errors.site_description"
-                        aria-describedby="site_description_error"
+                        :aria-describedby="
+                            form.errors.site_description
+                                ? 'site_description_error'
+                                : undefined
+                        "
                         @blur="canManage && form.validate('site_description')"
                     />
                     <FieldError
@@ -117,7 +125,11 @@ const submit = () => {
                         name="support_email"
                         :readonly="!canManage"
                         :aria-invalid="!!form.errors.support_email"
-                        aria-describedby="support_email_error"
+                        :aria-describedby="
+                            form.errors.support_email
+                                ? 'support_email_error'
+                                : undefined
+                        "
                         @blur="canManage && form.validate('support_email')"
                     />
                     <FieldError

@@ -35,6 +35,7 @@ function submit() {
 <template>
     <div class="flex flex-col gap-6">
         <Head :title="t('account.sessions.title')" />
+
         <Heading
             variant="small"
             :title="t('account.sessions.title')"
@@ -90,7 +91,9 @@ function submit() {
                 :aria-label="t('user.label.current_password')"
                 :placeholder="t('user.placeholder.current_password')"
                 :aria-invalid="!!form.errors.password"
-                aria-describedby="session-password-error"
+                :aria-describedby="
+                    form.errors.password ? 'session-password-error' : undefined
+                "
             />
             <FieldError
                 id="session-password-error"

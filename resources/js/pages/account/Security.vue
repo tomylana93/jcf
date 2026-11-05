@@ -58,8 +58,6 @@ const submit = () => {
     <div class="flex flex-col gap-8">
         <Head :title="t('account.security.title')" />
 
-        <h1 class="sr-only">{{ t('account.security.title') }}</h1>
-
         <div class="flex flex-col gap-6">
             <Heading
                 variant="small"

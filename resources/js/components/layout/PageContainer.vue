@@ -10,6 +10,7 @@ defineProps<{
 <template>
     <div class="flex w-full min-w-0 flex-1 flex-col gap-6 p-4 md:p-6">
         <Heading
+            :level="1"
             :title="title"
             :description="description"
         />

@@ -86,7 +86,11 @@ const submit = () => {
                         v-model="form.registration_enabled"
                         :disabled="!canManage"
                         :aria-invalid="!!form.errors.registration_enabled"
-                        aria-describedby="registration_enabled_error"
+                        :aria-describedby="
+                            form.errors.registration_enabled
+                                ? 'registration_enabled_error'
+                                : undefined
+                        "
                     />
                 </Field>
 
@@ -122,7 +126,11 @@ const submit = () => {
                         :aria-invalid="
                             !!form.errors.email_verification_required
                         "
-                        aria-describedby="email_verification_required_error"
+                        :aria-describedby="
+                            form.errors.email_verification_required
+                                ? 'email_verification_required_error'
+                                : undefined
+                        "
                     />
                 </Field>
 
@@ -145,7 +153,9 @@ const submit = () => {
                         type="number"
                         :readonly="!canManage"
                         :aria-invalid="!!form.errors[name]"
-                        :aria-describedby="`${name}_error`"
+                        :aria-describedby="
+                            form.errors[name] ? `${name}_error` : undefined
+                        "
                     />
                     <FieldError
                         :id="`${name}_error`"

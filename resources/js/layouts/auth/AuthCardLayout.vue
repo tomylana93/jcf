@@ -8,7 +8,6 @@ import {
     CardContent,
     CardDescription,
     CardHeader,
-    CardTitle,
 } from '@/components/ui/card';
 import { home } from '@/routes';
 
@@ -32,7 +31,12 @@ defineProps<{
                 <div class="flex flex-col gap-6">
                     <Card class="rounded-xl">
                         <CardHeader class="px-10 pt-8 pb-0 text-center">
-                            <CardTitle class="text-xl">{{ title }}</CardTitle>
+                            <h1
+                                data-slot="card-title"
+                                class="text-xl leading-none font-semibold"
+                            >
+                                {{ title }}
+                            </h1>
                             <CardDescription>
                                 {{ description }}
                             </CardDescription>

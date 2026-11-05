@@ -72,8 +72,6 @@ const submit = () => {
     <div>
         <Head :title="t('account.profile.title')" />
 
-        <h1 class="sr-only">{{ t('account.profile.title') }}</h1>
-
         <div class="flex flex-col gap-6">
             <ProfileAvatarForm
                 :settings="avatarSettings"

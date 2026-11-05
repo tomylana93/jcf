@@ -346,7 +346,11 @@ function submit(): void {
                                     type="password"
                                     autocomplete="new-password"
                                     :aria-invalid="!!form.errors.password"
-                                    aria-describedby="user-password-error"
+                                    :aria-describedby="
+                                        form.errors.password
+                                            ? 'user-password-error'
+                                            : undefined
+                                    "
                                 />
                             </InputGroup>
                             <FieldError
@@ -370,7 +374,11 @@ function submit(): void {
                                     :aria-invalid="
                                         !!form.errors.password_confirmation
                                     "
-                                    aria-describedby="user-password-confirmation-error"
+                                    :aria-describedby="
+                                        form.errors.password_confirmation
+                                            ? 'user-password-confirmation-error'
+                                            : undefined
+                                    "
                                 />
                             </InputGroup>
                             <FieldError
