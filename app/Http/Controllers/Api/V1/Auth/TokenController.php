@@ -10,6 +10,8 @@ use App\Actions\Api\RevokeCurrentToken;
 use App\Actions\Api\StartTwoFactorChallenge;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\IssueTokenRequest;
+use App\Http\Resources\Api\V1\DeviceTokenResource;
+use App\Http\Resources\Api\V1\TwoFactorChallengeResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -25,10 +27,10 @@ final class TokenController extends Controller
         $deviceName = $request->string('device_name')->toString();
 
         if ($user->hasEnabledTwoFactorAuthentication()) {
-            return response()->json($startChallenge->handle($user, $deviceName));
+            return new TwoFactorChallengeResource($startChallenge->handle($user, $deviceName))->response();
         }
 
-        return response()->json(['data' => $issueToken->handle($user, $deviceName)], 201);
+        return new DeviceTokenResource($issueToken->handle($user, $deviceName))->response()->setStatusCode(201);
     }
 
     /**

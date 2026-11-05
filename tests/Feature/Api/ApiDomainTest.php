@@ -19,7 +19,7 @@ describe('API domain routing', function (): void {
         expect(parse_url(route('api.v1.ping'), PHP_URL_HOST))->toBe('api.jcf.test')
             ->and(parse_url(route('api.v1.ping'), PHP_URL_PATH))->toBe('/v1/ping');
 
-        getJson(route('api.v1.ping'))->assertOk()->assertExactJson(['status' => 'ok', 'version' => 'v1']);
+        getJson(route('api.v1.ping'))->assertOk()->assertExactJson(['data' => ['status' => 'ok', 'version' => 'v1']]);
     });
 
     it('returns 404 for API routes on the application host', function (): void {

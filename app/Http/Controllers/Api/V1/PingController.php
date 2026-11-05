@@ -11,6 +11,6 @@ final class PingController extends Controller
 {
     public function __invoke(): JsonResponse
     {
-        return response()->json(['status' => 'ok', 'version' => 'v1']);
+        return response()->json(['data' => ['status' => 'ok', 'version' => 'v1']]);
     }
 }
