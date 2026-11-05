@@ -1,8 +1,6 @@
 domains:
   - jcf
   - api.jcf
-env_overrides:
-  API_DOMAIN: "api.{{domain}}"
 php_version: "8.5"
 node_version: "26"
 framework: laravel
@@ -38,3 +36,5 @@ custom_workers:
     command: php artisan queue:work realtime --queue=notifications --tries=3 --timeout=60 --sleep=1
     check:
       file: app/Events/NotificationRead.php
+env_overrides:
+  API_DOMAIN: api.{{domain}}
