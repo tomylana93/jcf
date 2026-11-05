@@ -15,13 +15,13 @@ use Throwable;
 
 final readonly class RestoreActiveBackup
 {
-    public function __construct(private ExtractBackup $extractBackup, private WriteBackup $writeBackup, private ReplaceBackupFiles $replaceBackupFiles, private ImportActiveDatabase $importActiveDatabase, private PermissionRegistrar $permissionRegistrar, private GetBackupLock $getBackupLock) {}
+    public function __construct(private ExtractBackup $extractBackup, private WriteBackup $writeBackup, private ReplaceBackupFiles $replaceBackupFiles, private ImportActiveDatabase $importActiveDatabase, private PermissionRegistrar $permissionRegistrar, private GetBackupLock $getBackupLock, private IsBackupConfigured $isBackupConfigured) {}
 
     public function handle(string $filename, string $checksum): void
     {
         throw_unless(resolve(FeatureManager::class)->available(Module::Backup), RuntimeException::class, __('backup.error.not_configured'));
         throw_if(DB::connection()->getDriverName() !== 'pgsql' || DB::connection()->getConfig('search_path') !== 'public', RuntimeException::class, 'Active restore requires PostgreSQL with the public schema.');
-        throw_unless(resolve(FeatureManager::class)->enabled(Module::Backup) && config('backup.backup.password'), RuntimeException::class, __('backup.error.not_configured'));
+        throw_unless($this->isBackupConfigured->handle(), RuntimeException::class, __('backup.error.not_configured'));
         $lock = $this->getBackupLock->handle();
         throw_unless($lock->get(), RuntimeException::class, __('backup.error.busy'));
         try {

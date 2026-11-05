@@ -7,13 +7,12 @@ namespace App\Http\Controllers\Operations;
 use App\Actions\Operations\Backup\DeleteBackup;
 use App\Actions\Operations\Backup\GetBackupChecksum;
 use App\Actions\Operations\Backup\GetBackupPage;
+use App\Actions\Operations\Backup\IsBackupConfigured;
 use App\Actions\Operations\Backup\UploadBackup;
-use App\Enums\Module;
 use App\Enums\Permission;
 use App\Http\Controllers\Controller;
 use App\Jobs\CreateSystemBackup;
 use App\Jobs\RestoreSystemBackup;
-use App\Support\FeatureManager;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -27,33 +26,33 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class BackupController extends Controller
 {
-    public function index(Request $request, GetBackupPage $getBackupPage): Response
+    public function index(Request $request, GetBackupPage $getBackupPage, IsBackupConfigured $isBackupConfigured): Response
     {
         Gate::authorize(Permission::ManageBackups);
         $request->validate(['filter.search' => ['nullable', 'string', 'max:255'], 'page' => ['nullable', 'integer', 'min:1'], 'per_page' => ['nullable', 'integer', 'in:10,25,50,100'], 'sort' => ['nullable', 'in:filename,-filename,created_at,-created_at,size,-size']]);
 
         return Inertia::render('master-data/backups/Index', [
             'backups' => $getBackupPage->handle($request->string('filter.search')->toString(), $request->string('sort', '-created_at')->toString(), $request->integer('per_page', 10), $request->integer('page', 1)),
-            'backupConfigured' => (bool) resolve(FeatureManager::class)->enabled(Module::Backup) && (bool) config('backup.backup.password'),
+            'backupConfigured' => $isBackupConfigured->handle(),
             'backupStatus' => Cache::get('system.backup_status', 'idle'),
             'restoreStatus' => Cache::store('file')->get('system.restore_status', 'idle'),
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request, IsBackupConfigured $isBackupConfigured): RedirectResponse
     {
         Gate::authorize(Permission::ManageBackups);
-        throw_unless(resolve(FeatureManager::class)->enabled(Module::Backup) && config('backup.backup.password'), ValidationException::withMessages(['backup' => __('backup.error.not_configured')]));
+        throw_unless($isBackupConfigured->handle(), ValidationException::withMessages(['backup' => __('backup.error.not_configured')]));
         dispatch(new CreateSystemBackup($request->user()->id));
         Inertia::flash('toast', ['type' => 'success', 'message' => __('backup.status.queued')]);
 
         return back();
     }
 
-    public function upload(Request $request, UploadBackup $uploadBackup): RedirectResponse
+    public function upload(Request $request, UploadBackup $uploadBackup, IsBackupConfigured $isBackupConfigured): RedirectResponse
     {
         Gate::authorize(Permission::ManageBackups);
-        throw_unless(resolve(FeatureManager::class)->enabled(Module::Backup) && config('backup.backup.password'), ValidationException::withMessages(['archive' => __('backup.error.not_configured')]));
+        throw_unless($isBackupConfigured->handle(), ValidationException::withMessages(['archive' => __('backup.error.not_configured')]));
         $request->validate(['archive' => ['required', 'file', 'mimes:zip', 'extensions:zip', 'max:'.config('jalara.operations.backup_upload_max_kilobytes')]]);
         $archive = $request->file('archive');
         throw_unless($archive instanceof UploadedFile, ValidationException::withMessages(['archive' => __('backup.error.invalid_archive')]));
@@ -63,10 +62,10 @@ final class BackupController extends Controller
         return back();
     }
 
-    public function restore(Request $request, string $backup, GetBackupChecksum $getBackupChecksum): RedirectResponse
+    public function restore(Request $request, string $backup, GetBackupChecksum $getBackupChecksum, IsBackupConfigured $isBackupConfigured): RedirectResponse
     {
         Gate::authorize(Permission::ManageBackups);
-        throw_unless(resolve(FeatureManager::class)->enabled(Module::Backup) && config('backup.backup.password'), ValidationException::withMessages(['backup' => __('backup.error.not_configured')]));
+        throw_unless($isBackupConfigured->handle(), ValidationException::withMessages(['backup' => __('backup.error.not_configured')]));
         $request->validate(['confirmation' => ['required', 'accepted']]);
         abort_unless(Storage::disk('backups')->exists(config('backup.backup.name').'/'.$backup), 404);
         dispatch(new RestoreSystemBackup($backup, $getBackupChecksum->handle($backup), $request->user()->id));

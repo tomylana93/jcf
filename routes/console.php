@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Actions\Operations\Backup\IsBackupConfigured;
 use App\Enums\Module;
 use App\Models\AuditLog;
 use App\Support\FeatureManager;
@@ -19,6 +20,6 @@ Schedule::command('model:prune', ['--model' => [AuditLog::class]])->daily()->wit
 
 Schedule::command('system:heartbeat')->everyMinute()->withoutOverlapping();
 
-Schedule::command('system:backup')->dailyAt('01:30')->withoutOverlapping(40)->when(fn (): bool => (bool) resolve(FeatureManager::class)->enabled(Module::Backup) && (bool) config('backup.backup.password'));
+Schedule::command('system:backup')->dailyAt('01:30')->withoutOverlapping(40)->when(fn (): bool => resolve(IsBackupConfigured::class)->handle());
 Schedule::command('backup:clean')->dailyAt('01:00')->withoutOverlapping()->when(fn (): bool => (bool) resolve(FeatureManager::class)->enabled(Module::Backup));
 Schedule::command('backup:monitor')->dailyAt('10:00')->withoutOverlapping()->when(fn (): bool => (bool) resolve(FeatureManager::class)->enabled(Module::Backup));
