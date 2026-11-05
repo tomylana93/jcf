@@ -14,11 +14,6 @@ use Illuminate\Validation\Rules\File;
 /** @method array{color: string, logo?: UploadedFile|null, favicon?: UploadedFile|null, remove_logo?: bool, remove_favicon?: bool} validated() */
 final class UpdateBrandSettingsRequest extends FormRequest
 {
-    public function authorize(): bool
-    {
-        return $this->user() !== null;
-    }
-
     /** @return array<string, list<mixed>> */
     public function rules(): array
     {

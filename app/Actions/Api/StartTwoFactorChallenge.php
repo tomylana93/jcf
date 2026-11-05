@@ -8,7 +8,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
-final class StartTwoFactorChallenge
+final readonly class StartTwoFactorChallenge
 {
     public const int TTL_SECONDS = 300;
 

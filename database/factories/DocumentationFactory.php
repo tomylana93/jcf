@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Enums\DocumentationStatus;
 use App\Models\Documentation;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -25,13 +26,13 @@ final class DocumentationFactory extends Factory
             'content_json' => ['type' => 'doc', 'content' => [['type' => 'paragraph', 'content' => [['type' => 'text', 'text' => $text]]]]],
             'content_html' => '<p>'.e($text).'</p>',
             'content_text' => $text,
-            'status' => 'draft',
+            'status' => DocumentationStatus::Draft,
             'author_id' => User::factory(),
         ];
     }
 
     public function published(): static
     {
-        return $this->state(fn (): array => ['status' => 'published', 'published_at' => now()]);
+        return $this->state(fn (): array => ['status' => DocumentationStatus::Published, 'published_at' => now()]);
     }
 }

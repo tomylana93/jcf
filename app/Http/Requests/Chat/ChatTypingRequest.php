@@ -22,4 +22,9 @@ final class ChatTypingRequest extends FormRequest
     {
         return ['typing' => ['required', 'boolean']];
     }
+
+    public function typing(): bool
+    {
+        return (bool) $this->validated()['typing'];
+    }
 }

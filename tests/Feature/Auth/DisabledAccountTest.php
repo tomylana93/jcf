@@ -27,8 +27,8 @@ describe('Disabled accounts', function (): void {
         $rememberToken = $user->fresh()->getRememberToken();
 
         match ($path) {
-            'status' => resolve(UpdateUserStatus::class)->handle($user, UserStatus::Disabled),
-            'update' => resolve(UpdateUser::class)->handle($user, [
+            'status' => resolve(UpdateUserStatus::class)->handle(null, $user, UserStatus::Disabled),
+            'update' => resolve(UpdateUser::class)->handle(null, $user, [
                 'name' => $user->name, 'email' => $user->email, 'status' => 'disabled',
             ]),
             'self' => resolve(DisableAccount::class)->handle($user),

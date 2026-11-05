@@ -9,7 +9,7 @@ use App\Models\Role;
 use App\Models\User;
 use Spatie\Permission\Models\Permission;
 
-final class GetAssignableUserRoles
+final readonly class GetAssignableUserRoles
 {
     /** @return list<string> */
     public function handle(User $actor): array

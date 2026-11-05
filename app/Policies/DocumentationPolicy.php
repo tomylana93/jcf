@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Enums\DocumentationStatus;
 use App\Enums\Permission;
 use App\Models\Documentation;
 use App\Models\User;
@@ -17,7 +18,7 @@ final class DocumentationPolicy
 
     public function view(User $user, Documentation $documentation): bool
     {
-        return $user->can(Permission::ManageDocumentation) || ($user->can(Permission::ViewDocumentation) && $documentation->status === 'published');
+        return $user->can(Permission::ManageDocumentation) || ($user->can(Permission::ViewDocumentation) && $documentation->status === DocumentationStatus::Published);
     }
 
     public function create(User $user): bool

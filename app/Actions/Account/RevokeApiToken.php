@@ -7,7 +7,7 @@ namespace App\Actions\Account;
 use App\Models\ApiClient;
 use App\Models\User;
 
-final class RevokeApiToken
+final readonly class RevokeApiToken
 {
     /**
      * Revoke one of the owner's tokens. Tokens of other owners are reported as missing.

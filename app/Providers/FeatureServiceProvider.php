@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use App\Actions\Account\SearchUsers;
+use App\Actions\Identity\User\SearchUsers;
 use App\Actions\Search\SearchGlobal;
 use App\Actions\System\GetSystemHealth;
 use App\Enums\Module;

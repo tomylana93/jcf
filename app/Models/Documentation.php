@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\DocumentationStatus;
 use Database\Factories\DocumentationFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -20,7 +21,7 @@ use Illuminate\Support\Carbon;
  * @property string $content_html
  * @property string $content_text
  * @property int $schema_version
- * @property string $status
+ * @property DocumentationStatus $status
  * @property string|null $author_id
  * @property string|null $updated_by
  * @property Carbon|null $published_at
@@ -34,6 +35,6 @@ final class Documentation extends Model
     /** @return array<string, string> */
     protected function casts(): array
     {
-        return ['content_json' => 'array', 'schema_version' => 'integer', 'published_at' => 'datetime'];
+        return ['content_json' => 'array', 'schema_version' => 'integer', 'status' => DocumentationStatus::class, 'published_at' => 'datetime'];
     }
 }

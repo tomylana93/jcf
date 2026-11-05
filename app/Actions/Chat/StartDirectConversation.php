@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Chat;
 
+use App\Enums\ConversationType;
 use App\Enums\Module;
 use App\Models\ChatConversation;
 use App\Models\User;
@@ -13,11 +14,13 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 
-final class StartDirectConversation
+final readonly class StartDirectConversation
 {
+    public function __construct(private FeatureManager $features) {}
+
     public function handle(User $actor, User $recipient): ChatConversation
     {
-        resolve(FeatureManager::class)->ensureEnabled(Module::Chat);
+        $this->features->ensureEnabled(Module::Chat);
 
         return DB::transaction(function () use ($actor, $recipient): ChatConversation {
             $ids = [$actor->id, $recipient->id];
@@ -35,7 +38,7 @@ final class StartDirectConversation
 
             $conversation = ChatConversation::query()->firstOrCreate(
                 ['direct_pair_key' => implode(':', $ids)],
-                ['type' => 'direct', 'last_message_sequence' => 0],
+                ['type' => ConversationType::Direct->value, 'last_message_sequence' => 0],
             );
 
             foreach ($ids as $id) {

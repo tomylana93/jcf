@@ -10,6 +10,7 @@ use App\Http\Middleware\ForceJsonResponse;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\HandleLocale;
+use App\Http\Middleware\PreventResponseCaching;
 use App\Http\Middleware\RejectApiDomain;
 use App\Support\ApiDomain;
 use App\Support\FeatureConfiguration;
@@ -48,7 +49,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trimStrings(except: ['content_json.*']);
 
-        $middleware->alias(['verified' => EnsureEmailIsVerifiedWhenRequired::class, 'feature' => EnsureFeatureEnabled::class, 'api.owner' => EnsureApiTokenOwner::class, 'abilities' => CheckAbilities::class]);
+        $middleware->alias(['verified' => EnsureEmailIsVerifiedWhenRequired::class, 'feature' => EnsureFeatureEnabled::class, 'api.owner' => EnsureApiTokenOwner::class, 'abilities' => CheckAbilities::class, 'no-store' => PreventResponseCaching::class]);
 
         $middleware->prependToPriorityList(SubstituteBindings::class, EnsureFeatureEnabled::class);
 

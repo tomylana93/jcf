@@ -25,19 +25,6 @@ return [
         'detail' => 'View changes',
     ],
 
-    'event' => [
-        'user' => [
-            'created' => 'User created',
-            'updated' => 'User updated',
-            'status_updated' => 'Account status changed',
-            'permissions_updated' => 'Permissions changed',
-            'invitation_queued' => 'Invitation queued',
-        ],
-        'settings' => [
-            'updated' => 'Settings updated',
-        ],
-    ],
-
     'settings' => [
         'general' => 'General settings',
         'auth' => 'Authentication settings',

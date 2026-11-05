@@ -10,12 +10,12 @@ use App\Settings\GeneralSettings;
 use App\Settings\MailSettings;
 use Illuminate\Support\Facades\Storage;
 
-final class GetMailBrand
+final readonly class GetMailBrand
 {
     public function __construct(
-        public BrandSettings $brandSettings,
-        public GeneralSettings $generalSettings,
-        public MailSettings $mailSettings,
+        private BrandSettings $brandSettings,
+        private GeneralSettings $generalSettings,
+        private MailSettings $mailSettings,
     ) {}
 
     /** @return array{name: string, logo_url: ?string, accent: string, footer_text: string, show_name: bool} */
@@ -38,10 +38,7 @@ final class GetMailBrand
                     ? url(Storage::disk('public')->url($logoPath))
                     : asset($fallback))
                 : null,
-            'accent' => match ($this->brandSettings->color->value) {
-                'blue' => '#2563eb', 'green' => '#198b46', 'purple' => '#7c3aed',
-                'rose' => '#e11d48', 'orange' => '#d96306', default => '#171717',
-            },
+            'accent' => $this->brandSettings->color->mailAccent(),
             'footer_text' => $this->mailSettings->footer_text,
         ];
     }

@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Jobs;
+namespace App\Jobs\Operations;
 
 use App\Actions\Operations\Backup\RestoreActiveBackup;
+use App\Enums\BackupOperation;
 use App\Enums\Module;
+use App\Enums\OperationStatus;
 use App\Models\User;
 use App\Notifications\ApplicationNotification;
 use App\Support\FeatureManager;
@@ -15,7 +17,6 @@ use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\Attributes\Timeout;
 use Illuminate\Queue\Attributes\Tries;
 use Illuminate\Queue\Attributes\UniqueFor;
-use Illuminate\Support\Facades\Cache;
 use Throwable;
 
 #[Timeout(1800)]
@@ -33,7 +34,7 @@ final class RestoreSystemBackup implements ShouldBeUnique, ShouldQueue
     public function handle(RestoreActiveBackup $restoreBackup): void
     {
         if (! resolve(FeatureManager::class)->enabled(Module::Backup)) {
-            Cache::store('file')->put('system.restore_status', 'skipped', 86400);
+            BackupOperation::Restore->mark(OperationStatus::Skipped);
 
             return;
         }
@@ -45,7 +46,7 @@ final class RestoreSystemBackup implements ShouldBeUnique, ShouldQueue
 
     public function failed(?Throwable $exception): void
     {
-        Cache::store('file')->put('system.restore_status', 'failed', 86400);
+        BackupOperation::Restore->mark(OperationStatus::Failed);
         User::query()->find($this->actorId)?->notify(new ApplicationNotification('restore_failed'));
     }
 }

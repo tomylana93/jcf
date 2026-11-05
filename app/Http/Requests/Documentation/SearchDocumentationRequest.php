@@ -13,4 +13,9 @@ final class SearchDocumentationRequest extends FormRequest
     {
         return ['search' => ['nullable', 'string', 'max:200'], 'page' => ['sometimes', 'integer', 'min:1']];
     }
+
+    public function search(): string
+    {
+        return (string) $this->validated('search');
+    }
 }

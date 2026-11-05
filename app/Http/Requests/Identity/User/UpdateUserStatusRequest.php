@@ -24,4 +24,9 @@ final class UpdateUserStatusRequest extends FormRequest
     {
         return ['status' => ['required', Rule::enum(UserStatus::class)]];
     }
+
+    public function status(): UserStatus
+    {
+        return UserStatus::from((string) $this->validated('status'));
+    }
 }

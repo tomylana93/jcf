@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', StartController::class)->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('search', GlobalSearchController::class)->middleware('throttle:60,1')->name('search');
+    Route::get('search', GlobalSearchController::class)->middleware(['throttle:60,1', 'no-store'])->name('search');
     Route::get('permissions', [UserPermissionController::class, 'index'])->name('permissions.index');
     Route::get('permissions/{user}/edit', [UserPermissionController::class, 'edit'])->whereUuid('user')->name('permissions.edit');
     Route::patch('permissions/{user}', [UserPermissionController::class, 'update'])->whereUuid('user')->name('permissions.update');

@@ -91,7 +91,8 @@ describe('Security settings', function (): void {
 
         $response
             ->assertSessionHasNoErrors()
-            ->assertRedirect(route('security.edit'));
+            ->assertRedirect(route('security.edit'))
+            ->assertInertiaFlash('toast.message', 'Password updated.');
 
         expect(Hash::check('new-password', $user->refresh()->password))->toBeTrue();
     });

@@ -49,7 +49,7 @@ describe('Chat delivery boundaries', function (): void {
         $events = [
             new ChatMessageCreated($message, $ids),
             new ChatReadUpdated($conversation->id, $actor->id, 1, $ids),
-            new ChatTypingUpdated($conversation->id, $actor->id, true, now()->addSeconds(4)->toISOString(), $ids),
+            new ChatTypingUpdated($conversation->id, $actor->id, true, now()->addSeconds(4)->toIso8601String(), $ids),
         ];
         foreach ($events as $event) {
             expect($event->broadcastOn())->toHaveCount(2);

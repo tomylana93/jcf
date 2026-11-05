@@ -24,7 +24,7 @@ final class UserPermissionController extends Controller
         Gate::authorize('viewPermissions', User::class);
 
         return Inertia::render('user-permissions/Index', [
-            'users' => $table->paginate($request)->through(fn (User $user): array => new UserPermissionResource($user)->resolve($request)),
+            'users' => $table->paginateResource($request, UserPermissionResource::class),
         ]);
     }
 
@@ -41,13 +41,10 @@ final class UserPermissionController extends Controller
 
     public function update(UpdateUserPermissionsRequest $request, User $user, UpdateUserPermissions $updatePermissions): RedirectResponse
     {
-        $actor = $request->user();
-        abort_unless($actor instanceof User, 403);
-
         /** @var list<string> $permissions */
         $permissions = $request->validated('permissions');
-        $updatePermissions->handle($user, $actor, $permissions);
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('permission.status.updated')]);
+        $updatePermissions->handle($request->user(), $user, $permissions);
+        $this->toastSuccess(__('permission.status.updated'));
 
         return back();
     }

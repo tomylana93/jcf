@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Actions\System\GetSystemHealth;
+use App\Enums\HealthDetail;
 use App\Models\User;
 use App\Support\Contracts\ChatSummary;
 use App\Support\Contracts\HealthCheck;
@@ -55,9 +56,9 @@ describe('Module contributions', function (): void {
                 return 'extra';
             }
 
-            public function handle(): string
+            public function handle(): HealthDetail
             {
-                return 'reachable';
+                return HealthDetail::Reachable;
             }
         });
         app()->instance('test.health.failing', new class implements HealthCheck
@@ -67,7 +68,7 @@ describe('Module contributions', function (): void {
                 return 'broken';
             }
 
-            public function handle(): string
+            public function handle(): HealthDetail
             {
                 throw new RuntimeException('Sensitive detail.');
             }

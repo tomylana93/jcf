@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Actions\Identity\ApiClient;
 
 use App\Actions\Audit\RecordAuditLog;
+use App\Enums\AuditEvent;
 use App\Models\ApiClient;
 use App\Models\User;
 
@@ -15,11 +16,11 @@ final readonly class RevokeApiClientToken
     /**
      * Revoke one of the client's tokens and record it. Tokens of other owners are reported as missing.
      */
-    public function handle(ApiClient $client, User $actor, int $tokenId): void
+    public function handle(User $actor, ApiClient $client, int $tokenId): void
     {
         $token = $client->tokens()->whereKey($tokenId)->firstOrFail();
         $token->delete();
 
-        $this->recordAuditLog->handle($actor, 'api_client.token_revoked', 'api_client', $client->id, $client->name, ['name' => $token->name], []);
+        $this->recordAuditLog->handle($actor, AuditEvent::ApiClientTokenRevoked, 'api_client', $client->id, $client->name, ['name' => $token->name], []);
     }
 }

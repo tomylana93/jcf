@@ -25,19 +25,6 @@ return [
         'detail' => 'Lihat perubahan',
     ],
 
-    'event' => [
-        'user' => [
-            'created' => 'Pengguna dibuat',
-            'updated' => 'Pengguna diperbarui',
-            'status_updated' => 'Status akun diubah',
-            'permissions_updated' => 'Permission diubah',
-            'invitation_queued' => 'Undangan masuk antrean',
-        ],
-        'settings' => [
-            'updated' => 'Pengaturan diperbarui',
-        ],
-    ],
-
     'settings' => [
         'general' => 'Pengaturan umum',
         'auth' => 'Pengaturan autentikasi',

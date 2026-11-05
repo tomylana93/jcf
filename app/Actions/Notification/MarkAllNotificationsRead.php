@@ -7,7 +7,7 @@ namespace App\Actions\Notification;
 use App\Events\NotificationRead;
 use App\Models\User;
 
-final class MarkAllNotificationsRead
+final readonly class MarkAllNotificationsRead
 {
     public function handle(User $user): void
     {

@@ -6,6 +6,7 @@ namespace App\Actions\Identity\User;
 
 use App\Actions\Audit\GetUserAuditValues;
 use App\Actions\Audit\RecordAuditLog;
+use App\Enums\AuditEvent;
 use App\Enums\UserStatus;
 use App\Models\User;
 use App\Notifications\ApplicationNotification;
@@ -13,12 +14,12 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
-final class CreateUser
+final readonly class CreateUser
 {
-    public function __construct(public RecordAuditLog $recordAuditLog, public GetUserAuditValues $getAuditValues) {}
+    public function __construct(private RecordAuditLog $recordAuditLog, private GetUserAuditValues $getAuditValues, private SendUserInvitation $sendInvitation) {}
 
     /** @param array{name: string, email: string, password?: ?string, role?: ?string, send_invitation?: bool} $data */
-    public function handle(array $data, ?User $actor = null): User
+    public function handle(?User $actor, array $data): User
     {
         $invited = $data['send_invitation'] ?? false;
         if (! $invited && blank($data['password'] ?? null)) {
@@ -38,11 +39,11 @@ final class CreateUser
             $user->save();
             $user->syncRoles(isset($data['role']) ? [$data['role']] : []);
 
-            $this->recordAuditLog->handle($actor, 'user.created', 'user', $user->id, $user->name, [], $this->getAuditValues->handle($user));
+            $this->recordAuditLog->handle($actor, AuditEvent::UserCreated, 'user', $user->id, $user->name, [], $this->getAuditValues->handle($user));
             $user->notify(new ApplicationNotification('account_created'));
 
             if ($data['send_invitation'] ?? false) {
-                resolve(SendUserInvitation::class)->handle($user, $actor);
+                $this->sendInvitation->handle($actor, $user);
             }
 
             return $user;

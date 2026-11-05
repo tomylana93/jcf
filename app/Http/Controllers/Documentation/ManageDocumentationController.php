@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Documentation;
 
+use App\Actions\Documentation\DeleteDocumentation;
 use App\Actions\Documentation\SaveDocumentation;
 use App\Actions\Documentation\SearchDocumentation;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Documentation\SaveDocumentationRequest;
 use App\Http\Requests\Documentation\SearchDocumentationRequest;
 use App\Models\Documentation;
-use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
@@ -23,8 +23,8 @@ final class ManageDocumentationController extends Controller
         Gate::authorize('create', Documentation::class);
 
         return Inertia::render('documentation/Index', [
-            'documents' => $search->handle($request->string('search')->toString(), true),
-            'search' => $request->string('search')->toString(),
+            'documents' => $search->handle($request->search(), true),
+            'search' => $request->search(),
             'manage' => true,
         ]);
     }
@@ -38,10 +38,8 @@ final class ManageDocumentationController extends Controller
 
     public function store(SaveDocumentationRequest $request, SaveDocumentation $save): RedirectResponse
     {
-        /** @var User $user */
-        $user = $request->user();
-        $documentation = $save->handle($user, $request->validated());
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('documentation.status.saved')]);
+        $documentation = $save->handle($request->user(), $request->validated());
+        $this->toastSuccess(__('documentation.status.saved'));
 
         return to_route('documentation.manage.edit', $documentation);
     }
@@ -55,19 +53,17 @@ final class ManageDocumentationController extends Controller
 
     public function update(SaveDocumentationRequest $request, Documentation $documentation, SaveDocumentation $save): RedirectResponse
     {
-        /** @var User $user */
-        $user = $request->user();
-        $save->handle($user, $request->validated(), $documentation);
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('documentation.status.saved')]);
+        $save->handle($request->user(), $request->validated(), $documentation);
+        $this->toastSuccess(__('documentation.status.saved'));
 
         return to_route('documentation.manage.edit', $documentation);
     }
 
-    public function destroy(Documentation $documentation): RedirectResponse
+    public function destroy(Documentation $documentation, DeleteDocumentation $deleteDocumentation): RedirectResponse
     {
         Gate::authorize('delete', $documentation);
-        $documentation->delete();
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('documentation.status.deleted')]);
+        $deleteDocumentation->handle($documentation);
+        $this->toastSuccess(__('documentation.status.deleted'));
 
         return to_route('documentation.manage.index');
     }

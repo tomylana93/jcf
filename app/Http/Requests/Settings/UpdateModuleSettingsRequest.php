@@ -6,21 +6,13 @@ namespace App\Http\Requests\Settings;
 
 use App\Actions\Settings\ValidateModuleSettings;
 use App\Enums\Module;
-use App\Enums\Permission;
-use App\Support\FeatureManager;
+use App\Support\Exceptions\ModuleUnavailableException;
 use Closure;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
 
 final class UpdateModuleSettingsRequest extends FormRequest
 {
-    public function authorize(): bool
-    {
-        abort_unless(collect(array_keys(Module::settingsClasses()))->contains(fn (string $module): bool => resolve(FeatureManager::class)->available($module)), 404);
-
-        return $this->user()?->can(Permission::ViewSettings) === true && $this->user()->can(Permission::ManageSettings);
-    }
-
     /** @return array<string, list<string>> */
     public function rules(): array
     {
@@ -35,5 +27,19 @@ final class UpdateModuleSettingsRequest extends FormRequest
                 resolve(ValidateModuleSettings::class)->handle($this->array('modules'));
             }
         }];
+    }
+
+    /** @return array<string, mixed> */
+    public function modules(): array
+    {
+        return (array) $this->validated('modules');
+    }
+
+    /**
+     * Report a missing module as 404 before field validation; permissions are enforced on the route.
+     */
+    protected function prepareForValidation(): void
+    {
+        throw_unless(collect(Module::cases())->contains(fn (Module $module): bool => $module->available()), ModuleUnavailableException::none());
     }
 }

@@ -14,11 +14,19 @@ import {
 import { useDateTime } from '@/composables/useDateTime';
 import { useTranslations } from '@/composables/useTranslations';
 import { index } from '@/routes/audit';
-import type { AuditLogRow, DataTableFilter, TablePaginator } from '@/types';
+import type {
+    AuditLogRow,
+    DataTableFilter,
+    SelectOption,
+    TablePaginator,
+} from '@/types';
 
 import { createColumns } from './columns';
 
-defineProps<{ logs: TablePaginator<AuditLogRow> }>();
+const props = defineProps<{
+    logs: TablePaginator<AuditLogRow>;
+    eventOptions: SelectOption[];
+}>();
 
 const { t } = useTranslations();
 const { formatDateTime } = useDateTime();
@@ -44,26 +52,7 @@ const filters = computed<DataTableFilter[]>(() => [
         key: 'event',
         label: t('audit.label.event'),
         type: 'select',
-        options: [
-            { value: 'user.created', label: t('audit.event.user.created') },
-            { value: 'user.updated', label: t('audit.event.user.updated') },
-            {
-                value: 'user.status_updated',
-                label: t('audit.event.user.status_updated'),
-            },
-            {
-                value: 'user.permissions_updated',
-                label: t('audit.event.user.permissions_updated'),
-            },
-            {
-                value: 'user.invitation_queued',
-                label: t('audit.event.user.invitation_queued'),
-            },
-            {
-                value: 'settings.updated',
-                label: t('audit.event.settings.updated'),
-            },
-        ],
+        options: props.eventOptions,
     },
 ]);
 

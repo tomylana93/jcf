@@ -8,9 +8,10 @@ use App\Console\Commands\VerifyBackup as VerifyBackupCommand;
 use App\Events\ChatMessageCreated;
 use App\Events\ChatReadUpdated;
 use App\Events\ChatTypingUpdated;
+use App\Events\Concerns\BroadcastsToChatParticipants;
 use App\Http\Middleware\EnsureApiTokenOwner;
-use App\Jobs\CreateSystemBackup;
-use App\Jobs\RestoreSystemBackup;
+use App\Jobs\Operations\CreateSystemBackup;
+use App\Jobs\Operations\RestoreSystemBackup;
 use App\Models\ApiClient;
 use App\Models\ChatConversation;
 use App\Models\ChatMessage;
@@ -107,6 +108,7 @@ arch('exposes backup operations only to their transport, jobs, commands and prov
     ->toOnlyBeUsedIn([
         'App\Actions\Operations',
         'App\Http\Controllers\Operations',
+        'App\Http\Requests\Operations',
         CreateSystemBackup::class,
         RestoreSystemBackup::class,
         CreateBackupCommand::class,
@@ -124,6 +126,7 @@ arch('exposes chat actions only to chat transport, events and provider')
         ChatMessageCreated::class,
         ChatReadUpdated::class,
         ChatTypingUpdated::class,
+        BroadcastsToChatParticipants::class,
         ChatServiceProvider::class,
     ]);
 
@@ -134,3 +137,9 @@ arch('exposes documentation actions only to documentation transport and provider
         'App\Http\Controllers\Documentation',
         DocumentationServiceProvider::class,
     ]);
+
+arch('keeps application actions final, readonly and dependency-injected')
+    ->expect('App\Actions')
+    ->classes()
+    ->toBeFinal()
+    ->toBeReadonly();

@@ -8,6 +8,7 @@ use App\Actions\Account\CreateApiToken;
 use App\Actions\Audit\RecordAuditLog;
 use App\Enums\ApiTokenAbility;
 use App\Enums\ApiTokenExpiration;
+use App\Enums\AuditEvent;
 use App\Models\ApiClient;
 use App\Models\User;
 
@@ -20,11 +21,11 @@ final readonly class IssueApiClientToken
      *
      * @param  list<ApiTokenAbility>  $abilities
      */
-    public function handle(ApiClient $client, User $actor, string $name, array $abilities, ApiTokenExpiration $expiration): string
+    public function handle(User $actor, ApiClient $client, string $name, array $abilities, ApiTokenExpiration $expiration): string
     {
         $plainTextToken = $this->createApiToken->handle($client, $name, $abilities, $expiration);
 
-        $this->recordAuditLog->handle($actor, 'api_client.token_issued', 'api_client', $client->id, $client->name, [], [
+        $this->recordAuditLog->handle($actor, AuditEvent::ApiClientTokenIssued, 'api_client', $client->id, $client->name, [], [
             'name' => $name,
             'abilities' => array_map(fn (ApiTokenAbility $ability): string => $ability->value, $abilities),
             'expiration' => $expiration->value,

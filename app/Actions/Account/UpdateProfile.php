@@ -6,10 +6,11 @@ namespace App\Actions\Account;
 
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Password;
 
-final class UpdateProfile
+final readonly class UpdateProfile
 {
+    public function __construct(private PrepareEmailChange $prepareEmailChange) {}
+
     /**
      * @param  array{name: string, email: string, timezone?: string|null}  $data
      */
@@ -18,12 +19,7 @@ final class UpdateProfile
         DB::transaction(function () use ($user, $data): void {
             $user->fill($data);
 
-            if ($user->isDirty('email')) {
-                $previousIdentity = clone $user;
-                $previousIdentity->email = $user->getOriginal('email');
-                Password::broker()->deleteToken($previousIdentity);
-                $user->email_verified_at = null;
-            }
+            $this->prepareEmailChange->handle($user);
 
             $user->save();
         });

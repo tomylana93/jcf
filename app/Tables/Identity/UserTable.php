@@ -8,7 +8,6 @@ use App\Enums\Role;
 use App\Models\User;
 use App\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Str;
 use Spatie\QueryBuilder\AllowedFilter;
 
 /** @extends Table<User> */
@@ -26,14 +25,7 @@ final class UserTable extends Table
     protected function allowedFilters(): array
     {
         return [
-            AllowedFilter::callback('search', function (Builder $query, mixed $value): void {
-                $search = mb_trim((string) $value);
-
-                $term = '%'.Str::lower($search).'%';
-                $query->where(fn (Builder $query): Builder => $query
-                    ->whereRaw('LOWER(name) LIKE ?', [$term])
-                    ->orWhereRaw('LOWER(email) LIKE ?', [$term]));
-            }),
+            $this->searchFilter('name', 'email'),
             AllowedFilter::exact('status'),
             AllowedFilter::exact('role', 'roles.name'),
         ];

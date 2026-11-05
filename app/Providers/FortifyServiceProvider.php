@@ -5,18 +5,16 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Actions\Fortify\CreateNewUser;
+use App\Actions\Fortify\FindUserByCredentials;
 use App\Actions\Fortify\ResetUserPassword;
-use App\Enums\UserStatus;
 use App\Models\User;
 use App\Settings\AuthSettings;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
-use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Laravel\Fortify\Actions\AttemptToAuthenticate;
 use Laravel\Fortify\Actions\CanonicalizeUsername;
@@ -51,23 +49,11 @@ final class FortifyServiceProvider extends ServiceProvider
      */
     private function configureActions(): void
     {
-        Fortify::authenticateUsing(function (Request $request): ?User {
-            $user = User::query()
-                ->where(Fortify::username(), $request->input(Fortify::username()))
-                ->first();
-
-            if (! $user || ! Hash::check($request->input('password'), $user->password)) {
-                return null;
-            }
-
-            if ($user->status === UserStatus::Disabled) {
-                throw ValidationException::withMessages([
-                    Fortify::username() => __('auth.disabled'),
-                ]);
-            }
-
-            return $user;
-        });
+        Fortify::authenticateUsing(fn (Request $request): ?User => resolve(FindUserByCredentials::class)->handle(
+            $request->string(Fortify::username())->toString(),
+            $request->string('password')->toString(),
+            Fortify::username(),
+        ));
 
         Fortify::authenticateThrough(function (Request $request): array {
             $request->merge(['remember' => true]);

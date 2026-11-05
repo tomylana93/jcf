@@ -7,7 +7,7 @@ namespace App\Actions\Operations\Backup;
 use Generator;
 use Illuminate\Support\Facades\File;
 
-final class GetDatabaseDumpInput
+final readonly class GetDatabaseDumpInput
 {
     /** @return Generator<int, string, void, void> */
     public function handle(string $sqlPath, bool $supportsTransactionTimeout): Generator

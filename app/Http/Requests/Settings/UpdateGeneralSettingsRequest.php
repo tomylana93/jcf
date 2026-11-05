@@ -9,11 +9,6 @@ use Illuminate\Foundation\Http\FormRequest;
 /** @method array{site_name: string, site_description: ?string, support_email: ?string} validated() */
 final class UpdateGeneralSettingsRequest extends FormRequest
 {
-    public function authorize(): bool
-    {
-        return $this->user() !== null;
-    }
-
     /** @return array<string, list<string>> */
     public function rules(): array
     {

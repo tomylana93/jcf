@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace App\Actions\Documentation;
 
+use App\Enums\DocumentationStatus;
 use App\Models\Documentation;
 use Illuminate\Pagination\LengthAwarePaginator;
 
-final class SearchDocumentation
+final readonly class SearchDocumentation
 {
     /** @return LengthAwarePaginator<int, Documentation> */
     public function handle(string $search, bool $manage = false): LengthAwarePaginator
     {
         $query = Documentation::query()->select(['id', 'title', 'slug', 'summary', 'status', 'published_at', 'updated_at']);
         if (! $manage) {
-            $query->where('status', 'published');
+            $query->where('status', DocumentationStatus::Published);
         }
         $search = mb_trim($search);
         if ($search !== '') {

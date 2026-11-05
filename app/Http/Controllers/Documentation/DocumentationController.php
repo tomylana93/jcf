@@ -19,8 +19,8 @@ final class DocumentationController extends Controller
         Gate::authorize('viewAny', Documentation::class);
 
         return Inertia::render('documentation/Index', [
-            'documents' => $search->handle($request->string('search')->toString()),
-            'search' => $request->string('search')->toString(),
+            'documents' => $search->handle($request->search()),
+            'search' => $request->search(),
             'manage' => false,
         ]);
     }

@@ -11,7 +11,7 @@ use Illuminate\Validation\ValidationException;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Throwable;
 
-final class PrepareAvatar
+final readonly class PrepareAvatar
 {
     public function handle(User $user, UploadedFile|string $file, string $collection, string $errorField = 'avatar'): Media
     {

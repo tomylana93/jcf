@@ -6,9 +6,9 @@ namespace App\Actions\Settings;
 
 use App\Settings\GeneralSettings;
 
-final class GetGeneralSettings
+final readonly class GetGeneralSettings
 {
-    public function __construct(public GeneralSettings $settings) {}
+    public function __construct(private GeneralSettings $settings) {}
 
     /** @return array{site_name: string, site_description: string, support_email: ?string} */
     public function handle(): array

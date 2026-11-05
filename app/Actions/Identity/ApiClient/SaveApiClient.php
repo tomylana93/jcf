@@ -6,6 +6,7 @@ namespace App\Actions\Identity\ApiClient;
 
 use App\Actions\Audit\RecordAuditLog;
 use App\Enums\ApiClientStatus;
+use App\Enums\AuditEvent;
 use App\Models\ApiClient;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -19,7 +20,7 @@ final readonly class SaveApiClient
      *
      * @param  array{name: string, description?: string|null, status: string}  $data
      */
-    public function handle(array $data, User $actor, ?ApiClient $client = null): ApiClient
+    public function handle(User $actor, array $data, ?ApiClient $client = null): ApiClient
     {
         return DB::transaction(function () use ($data, $actor, $client): ApiClient {
             $creating = $client === null;
@@ -36,7 +37,7 @@ final readonly class SaveApiClient
             }
             $client->save();
 
-            $this->recordAuditLog->handle($actor, $creating ? 'api_client.created' : 'api_client.updated', 'api_client', $client->id, $client->name, $before, $this->auditValues($client));
+            $this->recordAuditLog->handle($actor, $creating ? AuditEvent::ApiClientCreated : AuditEvent::ApiClientUpdated, 'api_client', $client->id, $client->name, $before, $this->auditValues($client));
 
             return $client;
         });

@@ -6,13 +6,15 @@ namespace App\Http\Controllers\Api\V1\Auth;
 
 use App\Actions\Api\AuthenticateApiUser;
 use App\Actions\Api\IssueDeviceToken;
+use App\Actions\Api\RevokeCurrentToken;
 use App\Actions\Api\StartTwoFactorChallenge;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\IssueTokenRequest;
+use App\Http\Resources\Api\V1\DeviceTokenResource;
+use App\Http\Resources\Api\V1\TwoFactorChallengeResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Laravel\Sanctum\PersonalAccessToken;
 
 final class TokenController extends Controller
 {
@@ -21,25 +23,23 @@ final class TokenController extends Controller
      */
     public function store(IssueTokenRequest $request, AuthenticateApiUser $authenticate, StartTwoFactorChallenge $startChallenge, IssueDeviceToken $issueToken): JsonResponse
     {
-        $user = $authenticate->handle($request->string('email')->toString(), $request->string('password')->toString());
-        $deviceName = $request->string('device_name')->toString();
+        $credentials = $request->validated();
+        $user = $authenticate->handle($credentials['email'], $credentials['password']);
+        $deviceName = $credentials['device_name'];
 
         if ($user->hasEnabledTwoFactorAuthentication()) {
-            return response()->json($startChallenge->handle($user, $deviceName));
+            return new TwoFactorChallengeResource($startChallenge->handle($user, $deviceName))->response();
         }
 
-        return response()->json(['data' => $issueToken->handle($user, $deviceName)], 201);
+        return new DeviceTokenResource($issueToken->handle($user, $deviceName))->response()->setStatusCode(201);
     }
 
     /**
      * Revoke the token used for the current request, logging the device out.
      */
-    public function destroy(Request $request): Response
+    public function destroy(Request $request, RevokeCurrentToken $revokeCurrentToken): Response
     {
-        $token = $request->user()?->currentAccessToken();
-        if ($token instanceof PersonalAccessToken) {
-            $token->delete();
-        }
+        $revokeCurrentToken->handle($request->user());
 
         return response()->noContent();
     }

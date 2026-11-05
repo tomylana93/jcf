@@ -27,9 +27,9 @@ final class LayoutSettingsController extends Controller
 
     public function update(UpdateLayoutSettingsRequest $request, UpdateLayoutSettings $updateSettings): RedirectResponse
     {
-        $updateSettings->handle($request->validated(), $request->user());
+        $updateSettings->handle($request->user(), $request->validated());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('settings.layout.status.updated')]);
+        $this->toastSuccess(__('settings.layout.status.updated'));
 
         return to_route('settings.layout.edit');
     }

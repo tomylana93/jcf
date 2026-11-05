@@ -18,17 +18,6 @@ enum BrandColor: string
     case Rose = 'rose';
     case Orange = 'orange';
 
-    /** @return list<array{value: string, label: string, name: string, swatch: string}> */
-    public static function presets(): array
-    {
-        return array_map(fn (self $color): array => [
-            'value' => $color->value,
-            'label' => $color->label(),
-            'name' => $color->name,
-            'swatch' => $color->swatch(),
-        ], self::cases());
-    }
-
     public function swatch(): string
     {
         return match ($this) {
@@ -39,5 +28,26 @@ enum BrandColor: string
             self::Rose => 'hsl(346 77% 50%)',
             self::Orange => 'hsl(25 95% 43%)',
         };
+    }
+
+    /**
+     * Accent used in outgoing mail, where CSS color functions are not reliably supported.
+     */
+    public function mailAccent(): string
+    {
+        return match ($this) {
+            self::Neutral => '#171717',
+            self::Blue => '#2563eb',
+            self::Green => '#198b46',
+            self::Purple => '#7c3aed',
+            self::Rose => '#e11d48',
+            self::Orange => '#d96306',
+        };
+    }
+
+    /** @return array{swatch: string} */
+    private function optionAttributes(): array
+    {
+        return ['swatch' => $this->swatch()];
     }
 }

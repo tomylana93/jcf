@@ -9,11 +9,6 @@ use Illuminate\Foundation\Http\FormRequest;
 /** @method array{registration_enabled: bool, email_verification_required: bool, password_min_length: int, login_max_attempts: int, login_lockout_minutes: int} validated() */
 final class UpdateAuthSettingsRequest extends FormRequest
 {
-    public function authorize(): bool
-    {
-        return $this->user() !== null;
-    }
-
     /** @return array<string, list<string>> */
     public function rules(): array
     {

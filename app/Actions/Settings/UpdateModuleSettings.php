@@ -16,7 +16,11 @@ final readonly class UpdateModuleSettings
 {
     public function __construct(private ValidateModuleSettings $validate, private RecordSettingsChange $audit, private FeatureManager $features) {}
 
-    /** @param array<string, mixed> $data */
+    /**
+     * Toggle modules for the actor; it re-authorizes and re-validates because it is also called outside HTTP.
+     *
+     * @param  array<string, mixed>  $data
+     */
     public function handle(User $actor, array $data): void
     {
         Gate::forUser($actor)->authorize(Permission::ViewSettings->value);
@@ -27,7 +31,7 @@ final readonly class UpdateModuleSettings
                 DB::table('settings')->where('group', $module)->orderBy('id')->lockForUpdate()->get();
                 $settings = resolve(Module::settingsClasses()[$module]);
                 $settings->refresh();
-                $this->audit->handle($settings, $actor, function () use ($settings, $enabled): void {
+                $this->audit->handle($actor, $settings, function () use ($settings, $enabled): void {
                     $settings->enabled = $enabled;
                     $settings->save();
                 });

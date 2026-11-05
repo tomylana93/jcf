@@ -4,16 +4,17 @@ declare(strict_types=1);
 
 namespace App\Actions\Audit;
 
+use App\Enums\AuditEvent;
 use App\Models\AuditLog;
 use App\Models\User;
 
-final class RecordAuditLog
+final readonly class RecordAuditLog
 {
     /**
      * @param  array<string, mixed>  $before
      * @param  array<string, mixed>  $after
      */
-    public function handle(?User $actor, string $event, string $subjectType, string $subjectId, string $subjectLabel, array $before, array $after): ?AuditLog
+    public function handle(?User $actor, AuditEvent $event, string $subjectType, string $subjectId, string $subjectLabel, array $before, array $after): ?AuditLog
     {
         $before = $this->redact($before);
         $after = $this->redact($after);
@@ -28,7 +29,7 @@ final class RecordAuditLog
         return AuditLog::query()->create([
             'actor_id' => $actor?->id,
             'actor_name' => $actor->name ?? 'System',
-            'event' => $event,
+            'event' => $event->value,
             'subject_type' => $subjectType,
             'subject_id' => $subjectId,
             'subject_label' => $subjectLabel,
@@ -44,7 +45,7 @@ final class RecordAuditLog
     private function redact(array $values): array
     {
         foreach ($values as $key => $value) {
-            if (! in_array($key, ['smtp_password_changed', 'password_min_length'], true) && preg_match('/password|secret|token|credential|authorization|cookie|(?:^|_)key(?:$|_)/i', (string) $key) === 1) {
+            if (! $this->isNonSecret((string) $key) && preg_match('/password|secret|token|credential|authorization|cookie|(?:^|_)key(?:$|_)/i', (string) $key) === 1) {
                 unset($values[$key]);
             } elseif (is_array($value)) {
                 $values[$key] = $this->redact($value);
@@ -52,5 +53,13 @@ final class RecordAuditLog
         }
 
         return $values;
+    }
+
+    /**
+     * Change flags and numeric policy values whose names only resemble credentials.
+     */
+    private function isNonSecret(string $key): bool
+    {
+        return str_ends_with($key, '_changed') || $key === 'password_min_length';
     }
 }

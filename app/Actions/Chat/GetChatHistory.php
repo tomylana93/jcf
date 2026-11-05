@@ -10,7 +10,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Gate;
 
-final class GetChatHistory
+final readonly class GetChatHistory
 {
     /** @return array{messages: Collection<int, ChatMessage>, has_more: bool} */
     public function handle(User $actor, ChatConversation $conversation, ?int $before, ?int $after): array

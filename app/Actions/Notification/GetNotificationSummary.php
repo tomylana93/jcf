@@ -6,7 +6,7 @@ namespace App\Actions\Notification;
 
 use App\Models\User;
 
-final class GetNotificationSummary
+final readonly class GetNotificationSummary
 {
     /** @return array{unread_count: int} */
     public function handle(?User $user): array

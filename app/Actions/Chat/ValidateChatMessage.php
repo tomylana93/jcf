@@ -6,7 +6,7 @@ namespace App\Actions\Chat;
 
 use Illuminate\Support\Facades\Validator;
 
-final class ValidateChatMessage
+final readonly class ValidateChatMessage
 {
     /** @return array<string, list<string>> */
     public static function rules(): array

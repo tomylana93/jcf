@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Actions\Operations\Backup;
 
+use App\Enums\BackupOperation;
 use App\Enums\Module;
+use App\Enums\OperationStatus;
 use App\Support\FeatureManager;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -31,16 +33,16 @@ final readonly class RestoreActiveBackup
                 $sqlPath = $directory->path('db-dumps/postgresql-'.config('database.default').'.sql');
                 throw_unless(is_file($sqlPath), RuntimeException::class, 'The source database dump is missing.');
                 app()->maintenanceMode()->activate(['time' => now()->timestamp, 'retry' => 60, 'status' => 503]);
-                Cache::store('file')->put('system.restore_status', 'running', 86400);
+                BackupOperation::Restore->mark(OperationStatus::Running);
                 $this->writeBackup->handle();
                 $this->replaceBackupFiles->handle($directory, fn () => $this->importActiveDatabase->handle($sqlPath));
                 Cache::flush();
                 $this->permissionRegistrar->forgetCachedPermissions();
-                Cache::store('file')->put('system.restore_status', 'completed', 86400);
+                BackupOperation::Restore->mark(OperationStatus::Completed);
                 app()->maintenanceMode()->deactivate();
                 $directory->delete();
             } catch (Throwable $exception) {
-                Cache::store('file')->put('system.restore_status', 'failed', 86400);
+                BackupOperation::Restore->mark(OperationStatus::Failed);
                 if (! File::isDirectory($directory->path().'/previous/private') && ! File::isDirectory($directory->path().'/previous/public')) {
                     $directory->delete();
                 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Actions\Permission;
 
 use App\Actions\Audit\RecordAuditLog;
+use App\Enums\AuditEvent;
 use App\Enums\Permission;
 use App\Models\User;
 use App\Notifications\ApplicationNotification;
@@ -15,10 +16,10 @@ use Illuminate\Validation\ValidationException;
 
 final readonly class UpdateUserPermissions
 {
-    public function __construct(public RecordAuditLog $recordAuditLog, private FeatureManager $features) {}
+    public function __construct(private RecordAuditLog $recordAuditLog, private FeatureManager $features) {}
 
     /** @param list<string> $permissions */
-    public function handle(User $user, User $actor, array $permissions): void
+    public function handle(User $actor, User $user, array $permissions): void
     {
         $this->ensureAvailable($permissions);
 
@@ -35,7 +36,7 @@ final readonly class UpdateUserPermissions
             $target->syncPermissions($permissions);
 
             if ($before !== $permissions) {
-                $this->recordAuditLog->handle($actor, 'user.permissions_updated', 'user', $target->id, $target->name, ['permissions' => $before], ['permissions' => $permissions]);
+                $this->recordAuditLog->handle($actor, AuditEvent::UserPermissionsUpdated, 'user', $target->id, $target->name, ['permissions' => $before], ['permissions' => $permissions]);
                 $target->notify(new ApplicationNotification('permissions_updated'));
                 Log::info('User direct permissions updated', [
                     'actor_id' => $actor->id,

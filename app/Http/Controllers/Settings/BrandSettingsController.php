@@ -21,15 +21,15 @@ final class BrandSettingsController extends Controller
         return Inertia::render('settings/Brand', [
             'settings' => $getSettings->handle(),
             'logoTypeOptions' => LogoType::options(),
-            'colorPresets' => BrandColor::presets(),
+            'colorPresets' => BrandColor::options(),
         ]);
     }
 
     public function update(UpdateBrandSettingsRequest $request, UpdateBrandSettings $updateSettings): RedirectResponse
     {
-        $updateSettings->handle($request->validated(), $request->user());
+        $updateSettings->handle($request->user(), $request->validated());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('settings.brand.status.updated')]);
+        $this->toastSuccess(__('settings.brand.status.updated'));
 
         return to_route('settings.brand.edit');
     }

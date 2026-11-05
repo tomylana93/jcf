@@ -8,6 +8,7 @@ use App\Concerns\HasSingleRole;
 use App\Enums\UserStatus;
 use Carbon\CarbonImmutable;
 use Database\Factories\UserFactory;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -54,6 +55,16 @@ final class User extends Authenticatable implements HasApiTokensContract, HasMed
 {
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, HasSingleRole, HasUuids, InteractsWithMedia, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
+
+    /**
+     * Prefix of the private channel each user receives notifications and chat events on.
+     */
+    public const string BroadcastChannel = 'App.Models.User';
+
+    public static function privateChannel(string $userId): PrivateChannel
+    {
+        return new PrivateChannel(self::BroadcastChannel.'.'.$userId);
+    }
 
     public function registerMediaCollections(): void
     {

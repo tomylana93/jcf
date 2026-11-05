@@ -7,7 +7,7 @@ namespace App\Actions\Account;
 use App\Models\User;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-final class GetTemporaryAvatar
+final readonly class GetTemporaryAvatar
 {
     public function handle(User $user, string $uuid): Media
     {

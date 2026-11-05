@@ -9,7 +9,7 @@ use App\Enums\ApiTokenExpiration;
 use App\Models\ApiClient;
 use App\Models\User;
 
-final class CreateApiToken
+final readonly class CreateApiToken
 {
     /**
      * Issue a personal access token and return its plain-text value, which is only available once.

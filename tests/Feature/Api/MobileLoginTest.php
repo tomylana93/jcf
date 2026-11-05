@@ -31,7 +31,7 @@ function acceptTwoFactorCode(bool $valid): void
 
 function startChallenge(User $user): string
 {
-    return postJson(route('api.v1.auth.token.store'), mobileLogin($user))->assertOk()->json('challenge');
+    return postJson(route('api.v1.auth.token.store'), mobileLogin($user))->assertOk()->json('data.challenge');
 }
 
 describe('Mobile login', function (): void {
@@ -114,8 +114,8 @@ describe('Mobile two-factor login', function (): void {
 
         postJson(route('api.v1.auth.token.store'), mobileLogin($user))
             ->assertOk()
-            ->assertJsonPath('two_factor', true)
-            ->assertJsonPath('expires_in', 300)
+            ->assertJsonPath('data.two_factor', true)
+            ->assertJsonPath('data.expires_in', 300)
             ->assertJsonMissingPath('data.token');
 
         expect($user->tokens()->count())->toBe(0);

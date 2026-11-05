@@ -30,9 +30,9 @@ final class MailSettingsController extends Controller
 
     public function update(UpdateMailSettingsRequest $request, UpdateMailSettings $updateSettings): RedirectResponse
     {
-        $updateSettings->handle($request->validated(), $request->user());
+        $updateSettings->handle($request->user(), $request->validated());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('settings.mail.status.updated')]);
+        $this->toastSuccess(__('settings.mail.status.updated'));
 
         return to_route('settings.mail.edit');
     }
@@ -54,7 +54,7 @@ final class MailSettingsController extends Controller
             throw ValidationException::withMessages(['test_email' => __('settings.mail.status.test_failed')]);
         }
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('settings.mail.status.test_sent')]);
+        $this->toastSuccess(__('settings.mail.status.test_sent'));
 
         return to_route('settings.mail.edit');
     }

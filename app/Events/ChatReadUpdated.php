@@ -4,21 +4,15 @@ declare(strict_types=1);
 
 namespace App\Events;
 
-use App\Actions\Chat\GetChatBroadcastChannels;
-use App\Enums\Module;
-use App\Support\FeatureManager;
-use Illuminate\Broadcasting\PrivateChannel;
+use App\Events\Concerns\BroadcastsToChatParticipants;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Contracts\Events\ShouldDispatchAfterCommit;
 use Illuminate\Foundation\Events\Dispatchable;
 
 final class ChatReadUpdated implements ShouldBroadcast, ShouldDispatchAfterCommit
 {
+    use BroadcastsToChatParticipants;
     use Dispatchable;
-
-    public string $connection = 'realtime';
-
-    public string $queue = 'chat';
 
     /** @param list<string> $userIds */
     public function __construct(
@@ -28,24 +22,6 @@ final class ChatReadUpdated implements ShouldBroadcast, ShouldDispatchAfterCommi
         public array $userIds,
     ) {}
 
-    public function broadcastWhen(): bool
-    {
-        return resolve(FeatureManager::class)->enabled(Module::Chat);
-    }
-
-    /**
-     * Get the channels the event should broadcast on.
-     *
-     * @return list<PrivateChannel>
-     */
-    public function broadcastOn(): array
-    {
-        return resolve(GetChatBroadcastChannels::class)->handle(
-            $this->conversationId,
-            $this->userIds,
-        );
-    }
-
     /** @return array<string, mixed> */
     public function broadcastWith(): array
     {
@@ -54,5 +30,10 @@ final class ChatReadUpdated implements ShouldBroadcast, ShouldDispatchAfterCommi
             'user_id' => $this->userId,
             'last_read_sequence' => $this->sequence,
         ];
+    }
+
+    protected function broadcastConversationId(): string
+    {
+        return $this->conversationId;
     }
 }

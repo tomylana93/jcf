@@ -166,7 +166,7 @@ describe('Automatic token revocation', function (): void {
 
         match ($path) {
             'self' => resolve(DisableAccount::class)->handle($user),
-            'status' => resolve(UpdateUserStatus::class)->handle($user, UserStatus::Disabled),
+            'status' => resolve(UpdateUserStatus::class)->handle(null, $user, UserStatus::Disabled),
         };
 
         expect($user->tokens()->count())->toBe(0);

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Enums\ConversationType;
 use App\Enums\Permission;
 use App\Enums\UserStatus;
 use App\Models\ChatConversation;
@@ -29,7 +30,7 @@ final class ChatConversationPolicy
 
     public function sendMessage(User $user, ChatConversation $conversation): bool
     {
-        if (! $this->view($user, $conversation) || $conversation->type !== 'direct') {
+        if (! $this->view($user, $conversation) || $conversation->type !== ConversationType::Direct->value) {
             return false;
         }
 

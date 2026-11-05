@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Validation\ValidationException;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -42,6 +43,17 @@ abstract class Table
         return $this->filteredQuery($request)->paginate($perPage)->withQueryString();
     }
 
+    /**
+     * Paginate and serialize each row through the table's JsonResource, as Inertia table pages expect.
+     *
+     * @param  class-string<JsonResource>  $resource
+     * @return LengthAwarePaginator<int, array<mixed>>
+     */
+    final public function paginateResource(Request $request, string $resource): LengthAwarePaginator
+    {
+        return $this->paginate($request)->through(fn (Model $record): array => new $resource($record)->resolve($request));
+    }
+
     /** @return Collection<int, TModel> */
     final public function exportRecords(Request $request): Collection
     {
@@ -51,6 +63,21 @@ abstract class Table
         }
 
         return $records;
+    }
+
+    /**
+     * Case-insensitive substring search across the given columns, treating `%` and `_` in the term literally.
+     */
+    protected function searchFilter(string ...$columns): AllowedFilter
+    {
+        return AllowedFilter::callback('search', function (Builder $query, mixed $value) use ($columns): void {
+            $pattern = '%'.addcslashes(mb_trim((string) $value), '%_\\').'%';
+            $query->where(function (Builder $query) use ($columns, $pattern): void {
+                foreach ($columns as $column) {
+                    $query->orWhereLike($column, $pattern);
+                }
+            });
+        });
     }
 
     /** @return array<int, int> */

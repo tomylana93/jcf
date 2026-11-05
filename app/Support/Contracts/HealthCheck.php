@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Support\Contracts;
 
+use App\Enums\HealthDetail;
+
 interface HealthCheck
 {
     /**
@@ -12,7 +14,7 @@ interface HealthCheck
     public function name(): string;
 
     /**
-     * Probe the dependency and return its detail; ok details are reachable, writable, recent and configured, and unavailable marks a failure.
+     * Probe the dependency; HealthDetail::status() maps the detail to ok, warning or failed.
      */
-    public function handle(): string;
+    public function handle(): HealthDetail;
 }

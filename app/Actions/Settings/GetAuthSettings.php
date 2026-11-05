@@ -6,9 +6,9 @@ namespace App\Actions\Settings;
 
 use App\Settings\AuthSettings;
 
-final class GetAuthSettings
+final readonly class GetAuthSettings
 {
-    public function __construct(public AuthSettings $settings) {}
+    public function __construct(private AuthSettings $settings) {}
 
     /** @return array{registration_enabled: bool, email_verification_required: bool, password_min_length: int, login_max_attempts: int, login_lockout_minutes: int} */
     public function handle(): array

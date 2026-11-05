@@ -11,7 +11,7 @@ use App\Settings\AuthSettings;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
 
-final class CreateNewUser implements CreatesNewUsers
+final readonly class CreateNewUser implements CreatesNewUsers
 {
     use PasswordValidationRules, ProfileValidationRules;
 

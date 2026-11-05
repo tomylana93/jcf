@@ -5,15 +5,18 @@ declare(strict_types=1);
 namespace App\Http\Requests\Identity\User;
 
 use App\Actions\Identity\User\GetAssignableUserRoles;
+use App\Concerns\NormalizesEmail;
+use App\Concerns\ProfileValidationRules;
 use App\Enums\UserStatus;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
-/** @method array{name: string, email: string, role?: ?string, status: string, password?: ?string} validated() */
+/** @method array{name: string, email: string, role?: ?string, status: string} validated() */
 final class UpdateUserRequest extends FormRequest
 {
+    use NormalizesEmail, ProfileValidationRules;
+
     public function authorize(): bool
     {
         $target = $this->route('user');
@@ -26,17 +29,16 @@ final class UpdateUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($this->route('user'))],
+            ...$this->profileRules($this->targetUserId()),
             'role' => ['nullable', 'string', Rule::in(resolve(GetAssignableUserRoles::class)->handle($this->user()))],
             'status' => ['required', Rule::enum(UserStatus::class)],
         ];
     }
 
-    protected function prepareForValidation(): void
+    private function targetUserId(): ?string
     {
-        if (is_string($this->input('email'))) {
-            $this->merge(['email' => Str::lower($this->input('email'))]);
-        }
+        $target = $this->route('user');
+
+        return $target instanceof User ? $target->id : null;
     }
 }

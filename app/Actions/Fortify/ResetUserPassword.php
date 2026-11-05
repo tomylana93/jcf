@@ -11,7 +11,7 @@ use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Fortify\Contracts\ResetsUserPasswords;
 
-final class ResetUserPassword implements ResetsUserPasswords
+final readonly class ResetUserPassword implements ResetsUserPasswords
 {
     use PasswordValidationRules;
 

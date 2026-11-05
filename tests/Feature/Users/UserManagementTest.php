@@ -45,6 +45,16 @@ describe('User management', function (): void {
         get(route('master-data.index'))->assertOk();
     });
 
+    it('treats like wildcards in the search term literally', function (string $term): void {
+        $actor = User::factory()->create(['name' => 'Searching actor']);
+        assignRolePermissions($actor, Permission::ViewUsers);
+        $literal = User::factory()->create(['name' => 'Discount 100%_off']);
+        User::factory()->create(['name' => 'Discount 1000 off']);
+
+        actingAs($actor)->get(route('master-data.users.index', ['filter' => ['search' => $term]]))
+            ->assertInertia(fn (Assert $page): Assert => $page->has('users.data', 1)->where('users.data.0.id', $literal->id));
+    })->with(['percent' => '100%', 'underscore' => '%_off']);
+
     it('filters by role and status and shares the same query for export', function (): void {
         $actor = User::factory()->create();
         assignRolePermissions($actor, Permission::ViewUsers);

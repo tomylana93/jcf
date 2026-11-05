@@ -23,9 +23,9 @@ final class GeneralSettingsController extends Controller
 
     public function update(UpdateGeneralSettingsRequest $request, UpdateGeneralSettings $updateSettings): RedirectResponse
     {
-        $updateSettings->handle($request->validated(), $request->user());
+        $updateSettings->handle($request->user(), $request->validated());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('settings.general.status.updated')]);
+        $this->toastSuccess(__('settings.general.status.updated'));
 
         return to_route('settings.general.edit');
     }

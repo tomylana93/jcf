@@ -43,58 +43,56 @@ final class ChatController extends Controller
             'data' => ChatConversationResource::collection($page->items())->resolve($request),
             'next_cursor' => $page->nextCursor()?->encode(),
             'summary' => $summary->handle($request->user()),
-        ])->header('Cache-Control', 'no-store, private');
+        ]);
     }
 
     public function recipients(ChatQueryRequest $request, GetChatRecipients $getRecipients): JsonResponse
     {
-        $page = $getRecipients->handle($request->user(), $request->string('search')->toString());
+        $page = $getRecipients->handle($request->user(), $request->search());
 
         return response()->json([
             'data' => ChatUserResource::collection($page->items())->resolve($request),
             'next_cursor' => $page->nextCursor()?->encode(),
-        ])->header('Cache-Control', 'no-store, private');
+        ]);
     }
 
     public function store(StartDirectConversationRequest $request, StartDirectConversation $start, QueryChatConversations $query): JsonResponse
     {
         $conversation = $start->handle($request->user(), User::query()->findOrFail($request->validated()['recipient_id']));
 
-        return response()->json(['data' => new ChatConversationResource($query->handle($request->user())->findOrFail($conversation->id))])
-            ->header('Cache-Control', 'no-store, private');
+        return response()->json(['data' => new ChatConversationResource($query->handle($request->user())->findOrFail($conversation->id))]);
     }
 
     public function history(ChatHistoryRequest $request, ChatConversation $conversation, GetChatHistory $getHistory): JsonResponse
     {
         $result = $getHistory->handle($request->user(), $conversation,
-            $request->filled('before') ? $request->integer('before') : null,
-            $request->filled('after') ? $request->integer('after') : null);
+            $request->beforeSequence(), $request->afterSequence());
 
         return response()->json([
             'data' => ChatMessageResource::collection($result['messages'])->resolve($request),
             'has_more' => $result['has_more'],
-        ])->header('Cache-Control', 'no-store, private');
+        ]);
     }
 
     public function send(SendChatMessageRequest $request, ChatConversation $conversation, SendChatMessage $send): JsonResponse
     {
         $message = $send->handle($request->user(), $conversation, $request->validated());
 
-        return response()->json(['data' => new ChatMessageResource($message)])->header('Cache-Control', 'no-store, private');
+        return response()->json(['data' => new ChatMessageResource($message)]);
     }
 
     public function read(MarkChatConversationReadRequest $request, ChatConversation $conversation, MarkChatConversationRead $markRead): JsonResponse
     {
-        $participant = $markRead->handle($request->user(), $conversation, (int) $request->validated()['sequence']);
+        $participant = $markRead->handle($request->user(), $conversation, $request->sequence());
 
-        return response()->json(['last_read_sequence' => $participant->last_read_sequence])->header('Cache-Control', 'no-store, private');
+        return response()->json(['last_read_sequence' => $participant->last_read_sequence]);
     }
 
     public function typing(ChatTypingRequest $request, ChatConversation $conversation, SendChatTyping $sendTyping): JsonResponse
     {
-        $typing = (bool) $request->validated()['typing'];
+        $typing = $request->typing();
         $sendTyping->handle($request->user(), $conversation, $typing);
 
-        return response()->json(['typing' => $typing])->header('Cache-Control', 'no-store, private');
+        return response()->json(['typing' => $typing]);
     }
 }

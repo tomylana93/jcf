@@ -14,18 +14,18 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Throwable;
 
-final class UpdateBrandSettings
+final readonly class UpdateBrandSettings
 {
-    public function __construct(public BrandSettings $settings, public RecordSettingsChange $recordSettingsChange) {}
+    public function __construct(private BrandSettings $settings, private RecordSettingsChange $recordSettingsChange) {}
 
     /** @param array{color: string, logo_type?: string, logo_text?: UploadedFile|null, remove_logo_text?: bool, logo?: UploadedFile|null, favicon?: UploadedFile|null, auth_background?: UploadedFile|null, remove_logo?: bool, remove_favicon?: bool, remove_auth_background?: bool} $data */
-    public function handle(array $data, ?User $actor = null): void
+    public function handle(?User $actor, array $data): void
     {
         $oldPaths = [];
         $newPaths = [];
 
         try {
-            $this->recordSettingsChange->handle($this->settings, $actor, function () use ($data, &$oldPaths, &$newPaths): void {
+            $this->recordSettingsChange->handle($actor, $this->settings, function () use ($data, &$oldPaths, &$newPaths): void {
 
                 foreach (['logo', 'logo_text', 'favicon', 'auth_background'] as $field) {
                     $property = $field.'_path';

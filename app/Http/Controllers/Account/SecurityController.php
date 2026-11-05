@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Account;
 
+use App\Actions\Account\GetPasskeys;
+use App\Actions\Account\UpdatePassword;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Account\PasswordUpdateRequest;
 use App\Http\Requests\Account\TwoFactorAuthenticationRequest;
@@ -12,34 +14,18 @@ use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
 use Inertia\Response;
 use Laravel\Fortify\Features;
-use Laravel\Passkeys\Passkey;
 
 final class SecurityController extends Controller
 {
     /**
      * Show the user's security settings page.
      */
-    public function edit(TwoFactorAuthenticationRequest $request): Response
+    public function edit(TwoFactorAuthenticationRequest $request, GetPasskeys $getPasskeys): Response
     {
         $props = [
             'canManageTwoFactor' => Features::canManageTwoFactorAuthentication(),
             'canManagePasskeys' => Features::canManagePasskeys(),
-            'passkeys' => Features::canManagePasskeys()
-                ? $request->user()
-                    ->passkeys()
-                    ->select(['id', 'name', 'credential', 'created_at', 'last_used_at'])
-                    ->latest()
-                    ->get()
-                    ->map(fn (Passkey $passkey): array => [
-                        'id' => $passkey->id,
-                        'name' => $passkey->name,
-                        'authenticator' => $passkey->authenticator,
-                        'created_at_diff' => $passkey->created_at->diffForHumans(),
-                        'last_used_at_diff' => $passkey->last_used_at?->diffForHumans(),
-                    ])
-                    ->values()
-                    ->all()
-                : [],
+            'passkeys' => Features::canManagePasskeys() ? $getPasskeys->handle($request->user()) : [],
             'passwordRules' => Password::defaults()->toPasswordRulesString(),
         ];
 
@@ -56,13 +42,11 @@ final class SecurityController extends Controller
     /**
      * Update the user's password.
      */
-    public function update(PasswordUpdateRequest $request): RedirectResponse
+    public function update(PasswordUpdateRequest $request, UpdatePassword $updatePassword): RedirectResponse
     {
-        $request->user()->update([
-            'password' => $request->password,
-        ]);
+        $updatePassword->handle($request->user(), (string) $request->validated('password'));
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('Password updated.')]);
+        $this->toastSuccess(__('account.security.status.password_updated'));
 
         return back();
     }

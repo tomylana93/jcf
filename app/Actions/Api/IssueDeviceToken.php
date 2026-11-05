@@ -8,7 +8,7 @@ use App\Enums\ApiTokenAbility;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
-final class IssueDeviceToken
+final readonly class IssueDeviceToken
 {
     /**
      * Issue a mobile token for the device, replacing an earlier token with the same device name.

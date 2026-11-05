@@ -4,31 +4,38 @@ declare(strict_types=1);
 
 namespace App\Actions\Audit;
 
+use App\Enums\AuditEvent;
 use App\Models\User;
 use Closure;
 use Illuminate\Support\Facades\DB;
 use Spatie\LaravelSettings\Settings;
 
-final class RecordSettingsChange
+final readonly class RecordSettingsChange
 {
-    public function __construct(public RecordAuditLog $recordAuditLog) {}
+    public function __construct(private RecordAuditLog $recordAuditLog) {}
 
-    /** @param Closure(): void $update */
-    public function handle(Settings $settings, ?User $actor, Closure $update): void
+    /**
+     * Run the update and audit the changed values; encrypted properties are recorded only as `<name>_changed` flags.
+     *
+     * @param  Closure(): void  $update
+     */
+    public function handle(?User $actor, Settings $settings, Closure $update): void
     {
         DB::transaction(function () use ($settings, $actor, $update): void {
             $before = $settings->toArray();
             $update();
             $after = $settings->toArray();
 
-            if (($before['smtp_password'] ?? null) !== ($after['smtp_password'] ?? null)) {
-                $before['smtp_password_changed'] = false;
-                $after['smtp_password_changed'] = true;
+            foreach ($settings::encrypted() as $secret) {
+                if (($before[$secret] ?? null) !== ($after[$secret] ?? null)) {
+                    $before[$secret.'_changed'] = false;
+                    $after[$secret.'_changed'] = true;
+                }
+
+                unset($before[$secret], $after[$secret]);
             }
 
-            unset($before['smtp_password'], $after['smtp_password']);
-
-            $this->recordAuditLog->handle($actor, 'settings.updated', 'settings', $settings::group(), $settings::group(), $before, $after);
+            $this->recordAuditLog->handle($actor, AuditEvent::SettingsUpdated, 'settings', $settings::group(), $settings::group(), $before, $after);
         });
     }
 }

@@ -19,4 +19,9 @@ final class ChatQueryRequest extends FormRequest
     {
         return ['search' => ['nullable', 'string', 'max:100'], 'cursor' => ['nullable', 'string', 'max:1024']];
     }
+
+    public function search(): string
+    {
+        return (string) $this->validated('search');
+    }
 }

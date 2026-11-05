@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\Chat\ChatController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth', 'verified'])->prefix('chat')->name('chat.')->group(function (): void {
+Route::middleware(['auth', 'verified', 'no-store'])->prefix('chat')->name('chat.')->group(function (): void {
     Route::get('/', [ChatController::class, 'index'])->name('index');
     Route::get('inbox', [ChatController::class, 'inbox'])->name('inbox');
     Route::get('recipients', [ChatController::class, 'recipients'])->middleware('throttle:30,1,chat-recipients')->name('recipients');

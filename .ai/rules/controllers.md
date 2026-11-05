@@ -12,7 +12,13 @@ Keep controllers focused on HTTP orchestration: validated input, authorization, 
 Serialize Table-backed Inertia rows through the matching JsonResource resolved against the request. Reuse the resource collection for exports.
 
 ## Code follows domain ownership, not menus
-Place code by owning domain: Identity (users, API clients), Account (own profile, sessions, tokens), Operations (backup and restore), plus Chat, Documentation, Settings, Audit, Notification and System. The master-data route names and pages are menu structure only. App\Jobs\MasterData and App\Notifications\MasterData keep their class names solely for already-serialized queue payloads; rename them to Identity in a release after queues are drained.
+Place code by owning domain: Identity (users, API clients), Account (own profile, sessions, tokens), Operations (backup and restore), plus Chat, Documentation, Settings, Audit, Notification and System. The master-data route names and pages are menu structure only. App\Jobs\MasterData and App\Notifications\MasterData keep their class names solely for already-serialized queue payloads; rename them to Identity in a release after queues are drained. Other jobs live in App\Jobs\<Domain>, such as App\Jobs\Operations; moving a job class requires draining its queue before the deploy.
 
 ## One authorization location per route
-Authorize every route in exactly one primary place: route ->can() for permission-only routes such as settings, Gate::authorize() at the top of the controller method for permission or policy checks, or FormRequest::authorize() for mutation requests that already carry validation. Module availability is enforced by the feature:<module> route middleware, not repeated in controllers.
+Authorize every route in exactly one primary place: route ->can() for permission-only routes such as settings, Gate::authorize() at the top of the controller method for permission or policy checks, or FormRequest::authorize() for mutation requests that already carry validation. Module availability is enforced by the feature:<module> route middleware, not repeated in controllers. When a route uses ->can(), its FormRequest omits authorize(). An Action may re-authorize only when it is also called outside HTTP or must re-check inside a lock; document why on the Action.
+
+## Shared HTTP helpers
+Flash success toasts with $this->toastSuccess(), mark private per-user responses with the no-store route middleware instead of Cache-Control headers in controllers, and serialize Table pages with $table->paginateResource($request, Resource::class).
+
+## Reading validated input
+Read input in controllers through validated(), declaring its array shape with an @method docblock on the FormRequest. When a value needs conversion (enum, integer, optional string, default), add a typed helper on the FormRequest, such as UpdateUserStatusRequest::status(); do not call $request->string(), integer() or array() in controllers. Avoid helper names that FormRequest already uses, such as after().

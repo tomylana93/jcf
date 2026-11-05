@@ -7,7 +7,7 @@ namespace App\Actions\Settings;
 use App\Mail\MailSettingsTestMessage;
 use Illuminate\Support\Facades\Mail;
 
-final class SendMailSettingsTest
+final readonly class SendMailSettingsTest
 {
     public function handle(string $recipient): void
     {

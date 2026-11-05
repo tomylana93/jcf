@@ -15,8 +15,10 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
-final class MarkChatConversationRead
+final readonly class MarkChatConversationRead
 {
+    public function __construct(private FeatureManager $features) {}
+
     /** @return array<string, array<int, mixed>> */
     public static function rules(ChatConversation $conversation): array
     {
@@ -28,7 +30,7 @@ final class MarkChatConversationRead
 
     public function handle(User $actor, ChatConversation $conversation, int $sequence): ChatParticipant
     {
-        resolve(FeatureManager::class)->ensureEnabled(Module::Chat);
+        $this->features->ensureEnabled(Module::Chat);
 
         return DB::transaction(function () use ($actor, $conversation, $sequence): ChatParticipant {
             $user = User::query()->lockForUpdate()->findOrFail($actor->id);

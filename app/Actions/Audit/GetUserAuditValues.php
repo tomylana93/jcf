@@ -7,7 +7,7 @@ namespace App\Actions\Audit;
 use App\Models\Role;
 use App\Models\User;
 
-final class GetUserAuditValues
+final readonly class GetUserAuditValues
 {
     /** @return array{name: string, email: string, status: string, role: list<string>} */
     public function handle(User $user): array

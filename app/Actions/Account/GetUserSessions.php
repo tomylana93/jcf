@@ -8,7 +8,7 @@ use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 
-final class GetUserSessions
+final readonly class GetUserSessions
 {
     /** @return list<array{device: string, ip_address: string|null, last_active_at: string, current: bool}> */
     public function handle(User $user, string $currentSessionId): array
