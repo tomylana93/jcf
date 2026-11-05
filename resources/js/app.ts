@@ -2,10 +2,10 @@ import { createInertiaApp, usePage } from '@inertiajs/vue3';
 import { createApp, watch } from 'vue';
 
 import { Toaster } from '@/components/ui/sonner';
-import { initializeTheme } from '@/composables/useAppearance';
 import AccountLayout from '@/layouts/account/Layout.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import AuthLayout from '@/layouts/AuthLayout.vue';
+import { initializeTheme } from '@/lib/appearance';
 import { applyBrand } from '@/lib/brand';
 import { initializeFlashToast } from '@/lib/flashToast';
 import { createTranslationPlugin } from '@/lib/i18n';
