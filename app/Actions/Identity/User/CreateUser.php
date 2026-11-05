@@ -14,9 +14,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
-final class CreateUser
+final readonly class CreateUser
 {
-    public function __construct(public RecordAuditLog $recordAuditLog, public GetUserAuditValues $getAuditValues, private readonly SendUserInvitation $sendInvitation) {}
+    public function __construct(private RecordAuditLog $recordAuditLog, private GetUserAuditValues $getAuditValues, private SendUserInvitation $sendInvitation) {}
 
     /** @param array{name: string, email: string, password?: ?string, role?: ?string, send_invitation?: bool} $data */
     public function handle(array $data, ?User $actor = null): User

@@ -8,7 +8,7 @@ use App\Enums\DocumentationStatus;
 use App\Models\Documentation;
 use Illuminate\Pagination\LengthAwarePaginator;
 
-final class SearchDocumentation
+final readonly class SearchDocumentation
 {
     /** @return LengthAwarePaginator<int, Documentation> */
     public function handle(string $search, bool $manage = false): LengthAwarePaginator

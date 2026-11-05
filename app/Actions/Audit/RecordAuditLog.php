@@ -8,7 +8,7 @@ use App\Enums\AuditEvent;
 use App\Models\AuditLog;
 use App\Models\User;
 
-final class RecordAuditLog
+final readonly class RecordAuditLog
 {
     /**
      * @param  array<string, mixed>  $before

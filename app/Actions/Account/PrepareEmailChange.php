@@ -7,7 +7,7 @@ namespace App\Actions\Account;
 use App\Models\User;
 use Illuminate\Support\Facades\Password;
 
-final class PrepareEmailChange
+final readonly class PrepareEmailChange
 {
     /**
      * Before saving a changed email, drop reset tokens issued to the old address and require verification again.

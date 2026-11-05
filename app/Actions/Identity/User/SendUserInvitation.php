@@ -14,9 +14,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 
-final class SendUserInvitation
+final readonly class SendUserInvitation
 {
-    public function __construct(public RecordAuditLog $recordAuditLog) {}
+    public function __construct(private RecordAuditLog $recordAuditLog) {}
 
     public function handle(User $user, ?User $actor = null): void
     {

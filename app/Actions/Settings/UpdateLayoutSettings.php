@@ -10,9 +10,9 @@ use App\Enums\AuthLayout;
 use App\Models\User;
 use App\Settings\LayoutSettings;
 
-final class UpdateLayoutSettings
+final readonly class UpdateLayoutSettings
 {
-    public function __construct(public LayoutSettings $settings, public RecordSettingsChange $recordSettingsChange) {}
+    public function __construct(private LayoutSettings $settings, private RecordSettingsChange $recordSettingsChange) {}
 
     /** @param array{app_layout: string, auth_layout: string} $data */
     public function handle(array $data, ?User $actor = null): void

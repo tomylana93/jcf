@@ -14,14 +14,14 @@ use App\Models\User;
 use App\Notifications\ApplicationNotification;
 use Illuminate\Support\Facades\DB;
 
-final class UpdateUser
+final readonly class UpdateUser
 {
     public function __construct(
-        public RecordAuditLog $recordAuditLog,
-        public GetUserAuditValues $getAuditValues,
-        private readonly TerminateUserRealtimeConnections $terminateRealtimeConnections,
-        private readonly PrepareEmailChange $prepareEmailChange,
-        private readonly SendUserInvitation $sendInvitation,
+        private RecordAuditLog $recordAuditLog,
+        private GetUserAuditValues $getAuditValues,
+        private TerminateUserRealtimeConnections $terminateRealtimeConnections,
+        private PrepareEmailChange $prepareEmailChange,
+        private SendUserInvitation $sendInvitation,
     ) {}
 
     /** @param array{name: string, email: string, role?: ?string, status: string} $data */

@@ -7,7 +7,7 @@ namespace App\Actions\Operations\Backup;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Storage;
 
-final class GetBackups
+final readonly class GetBackups
 {
     /** @return list<array{filename: string, size: int, created_at: string}> */
     public function handle(): array

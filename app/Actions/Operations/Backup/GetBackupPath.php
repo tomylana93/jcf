@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Storage;
 /**
  * Resolve an archive filename to its path on the backups disk, rejecting names outside the archive pattern.
  */
-final class GetBackupPath
+final readonly class GetBackupPath
 {
     public const string FILENAME_PATTERN = '[A-Za-z0-9-]+\.zip';
 

@@ -7,7 +7,7 @@ namespace App\Actions\Documentation;
 use Illuminate\Validation\ValidationException;
 use JsonException;
 
-final class RenderEditorContent
+final readonly class RenderEditorContent
 {
     /**
      * @param  array<string, mixed>  $document

@@ -6,7 +6,7 @@ namespace App\Actions\Account;
 
 use App\Models\User;
 
-final class GetAvatarSettings
+final readonly class GetAvatarSettings
 {
     /** @return array{current_url: string, temporary: array{id: string, url: string}|null} */
     public function handle(User $user): array

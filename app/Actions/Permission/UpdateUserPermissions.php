@@ -16,7 +16,7 @@ use Illuminate\Validation\ValidationException;
 
 final readonly class UpdateUserPermissions
 {
-    public function __construct(public RecordAuditLog $recordAuditLog, private FeatureManager $features) {}
+    public function __construct(private RecordAuditLog $recordAuditLog, private FeatureManager $features) {}
 
     /** @param list<string> $permissions */
     public function handle(User $user, User $actor, array $permissions): void

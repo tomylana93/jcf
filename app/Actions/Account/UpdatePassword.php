@@ -6,7 +6,7 @@ namespace App\Actions\Account;
 
 use App\Models\User;
 
-final class UpdatePassword
+final readonly class UpdatePassword
 {
     /**
      * Replace the password; the User model revokes the account's API tokens when it changes.

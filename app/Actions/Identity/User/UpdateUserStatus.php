@@ -12,11 +12,11 @@ use App\Models\User;
 use App\Notifications\ApplicationNotification;
 use Illuminate\Support\Facades\DB;
 
-final class UpdateUserStatus
+final readonly class UpdateUserStatus
 {
     public function __construct(
-        public RecordAuditLog $recordAuditLog,
-        private readonly TerminateUserRealtimeConnections $terminateRealtimeConnections,
+        private RecordAuditLog $recordAuditLog,
+        private TerminateUserRealtimeConnections $terminateRealtimeConnections,
     ) {}
 
     public function handle(User $user, UserStatus $status, ?User $actor = null): void

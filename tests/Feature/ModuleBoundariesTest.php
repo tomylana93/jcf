@@ -137,3 +137,9 @@ arch('exposes documentation actions only to documentation transport and provider
         'App\Http\Controllers\Documentation',
         DocumentationServiceProvider::class,
     ]);
+
+arch('keeps application actions final, readonly and dependency-injected')
+    ->expect('App\Actions')
+    ->classes()
+    ->toBeFinal()
+    ->toBeReadonly();

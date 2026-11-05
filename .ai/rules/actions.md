@@ -10,3 +10,6 @@ Application Actions expose a public handle() method with explicit parameter and 
 
 ## Actions stay transport-neutral
 Actions run from controllers, jobs, console commands and the API, so they never call abort(), abort_if() or abort_unless() or throw Symfony HTTP exceptions. Throw domain or framework exceptions that the handler already renders: AuthorizationException (or Gate::authorize) for 403, RecordsNotFoundException or ModelNotFoundException for 404, ValidationException for 422. Gate module operations with FeatureManager::ensureEnabled(Module::X), which throws ModuleUnavailableException (rendered as 404). Fortify contract actions, FormRequests and controllers remain HTTP code and may abort.
+
+## Readonly Actions with injected dependencies
+Declare Actions as final readonly classes and inject collaborators through private constructor promotion; reserve resolve() for framework-created objects such as events, resources and FormRequests. Name the acting user $actor. tests/Feature/ModuleBoundariesTest.php enforces final readonly Actions.

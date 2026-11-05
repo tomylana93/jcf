@@ -7,9 +7,9 @@ namespace App\Actions\Settings;
 use App\Settings\BrandSettings;
 use Illuminate\Support\Facades\Storage;
 
-final class GetBrandSettings
+final readonly class GetBrandSettings
 {
-    public function __construct(public BrandSettings $settings) {}
+    public function __construct(private BrandSettings $settings) {}
 
     /** @return array{logo_type: string, logo_text_url: ?string, logo_url: ?string, favicon_url: ?string, auth_background_url: ?string, color: string} */
     public function handle(): array

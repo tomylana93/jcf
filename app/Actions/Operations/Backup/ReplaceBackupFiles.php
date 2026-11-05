@@ -10,7 +10,7 @@ use RuntimeException;
 use Spatie\TemporaryDirectory\TemporaryDirectory;
 use Throwable;
 
-final class ReplaceBackupFiles
+final readonly class ReplaceBackupFiles
 {
     public function handle(TemporaryDirectory $directory, Closure $importDatabase): void
     {

@@ -8,7 +8,7 @@ use Illuminate\Cache\FileStore;
 use Illuminate\Contracts\Cache\Lock;
 use Illuminate\Filesystem\Filesystem;
 
-final class GetBackupLock
+final readonly class GetBackupLock
 {
     public function handle(): Lock
     {

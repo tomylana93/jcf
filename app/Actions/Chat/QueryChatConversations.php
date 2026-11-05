@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Gate;
 
-final class QueryChatConversations
+final readonly class QueryChatConversations
 {
     /** @return Builder<ChatConversation> */
     public function handle(User $actor): Builder

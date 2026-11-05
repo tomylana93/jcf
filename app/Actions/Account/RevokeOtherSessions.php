@@ -7,7 +7,7 @@ namespace App\Actions\Account;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
-final class RevokeOtherSessions
+final readonly class RevokeOtherSessions
 {
     public function handle(User $user, string $currentSessionId): void
     {

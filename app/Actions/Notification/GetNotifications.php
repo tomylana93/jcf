@@ -9,7 +9,7 @@ use App\Models\User;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Pagination\LengthAwarePaginator;
 
-final class GetNotifications
+final readonly class GetNotifications
 {
     /** @return LengthAwarePaginator<int, DatabaseNotification> */
     public function handle(User $user, NotificationFilter $filter): LengthAwarePaginator

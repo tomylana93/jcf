@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\CursorPaginator;
 use Illuminate\Support\Facades\Gate;
 
-final class GetChatRecipients
+final readonly class GetChatRecipients
 {
     /** @return CursorPaginator<int, User> */
     public function handle(User $actor, string $search): CursorPaginator

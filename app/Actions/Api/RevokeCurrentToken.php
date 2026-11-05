@@ -7,7 +7,7 @@ namespace App\Actions\Api;
 use Laravel\Sanctum\Contracts\HasApiTokens;
 use Laravel\Sanctum\PersonalAccessToken;
 
-final class RevokeCurrentToken
+final readonly class RevokeCurrentToken
 {
     /**
      * Revoke the token that authenticated the current request, logging that device out.

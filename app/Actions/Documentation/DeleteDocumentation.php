@@ -6,7 +6,7 @@ namespace App\Actions\Documentation;
 
 use App\Models\Documentation;
 
-final class DeleteDocumentation
+final readonly class DeleteDocumentation
 {
     public function handle(Documentation $documentation): void
     {

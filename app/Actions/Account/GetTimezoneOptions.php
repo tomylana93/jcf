@@ -6,7 +6,7 @@ namespace App\Actions\Account;
 
 use DateTimeZone;
 
-final class GetTimezoneOptions
+final readonly class GetTimezoneOptions
 {
     /** @return list<string> */
     public function handle(): array

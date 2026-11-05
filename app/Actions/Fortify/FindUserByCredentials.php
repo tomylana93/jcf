@@ -13,7 +13,7 @@ use Illuminate\Validation\ValidationException;
 /**
  * Login rules shared by the web and mobile logins: matching credentials of an account that is not disabled.
  */
-final class FindUserByCredentials
+final readonly class FindUserByCredentials
 {
     /**
      * Return null for unknown credentials so the caller applies its own failure handling and throttling.

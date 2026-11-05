@@ -9,7 +9,7 @@ use App\Models\User;
 use App\Support\Contracts\SearchProvider;
 use Illuminate\Database\Eloquent\Builder;
 
-final class SearchUsers implements SearchProvider
+final readonly class SearchUsers implements SearchProvider
 {
     public function key(): string
     {

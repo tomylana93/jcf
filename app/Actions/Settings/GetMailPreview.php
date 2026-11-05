@@ -6,7 +6,7 @@ namespace App\Actions\Settings;
 
 use Illuminate\Notifications\Messages\MailMessage;
 
-final class GetMailPreview
+final readonly class GetMailPreview
 {
     public function handle(): MailMessage
     {

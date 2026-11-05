@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Storage;
 use RuntimeException;
 use Throwable;
 
-final class WriteBackup
+final readonly class WriteBackup
 {
     public function handle(): string
     {

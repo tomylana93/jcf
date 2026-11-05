@@ -7,7 +7,7 @@ namespace App\Actions\Account;
 use App\Models\User;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-final class PruneExpiredAvatarUploads
+final readonly class PruneExpiredAvatarUploads
 {
     /**
      * Delete temporary avatar uploads older than a day; saved avatars and recent drafts are kept.

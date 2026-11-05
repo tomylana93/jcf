@@ -8,7 +8,7 @@ use App\Models\ApiClient;
 use App\Models\User;
 use Laravel\Sanctum\PersonalAccessToken;
 
-final class GetApiTokens
+final readonly class GetApiTokens
 {
     /** @return list<array{id: int, name: string, abilities: list<string>, last_used_at: string|null, expires_at: string|null, created_at: string, expired: bool}> */
     public function handle(User|ApiClient $owner): array

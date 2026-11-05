@@ -6,9 +6,9 @@ namespace App\Actions\Settings;
 
 use App\Settings\LayoutSettings;
 
-final class GetLayoutSettings
+final readonly class GetLayoutSettings
 {
-    public function __construct(public LayoutSettings $settings) {}
+    public function __construct(private LayoutSettings $settings) {}
 
     /** @return array{app_layout: string, auth_layout: string} */
     public function handle(): array

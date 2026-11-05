@@ -6,9 +6,9 @@ namespace App\Actions\Settings;
 
 use App\Settings\MailSettings;
 
-final class GetMailSettings
+final readonly class GetMailSettings
 {
-    public function __construct(public MailSettings $settings) {}
+    public function __construct(private MailSettings $settings) {}
 
     /** @return array{mailer: string, smtp_host: string, smtp_port: int, smtp_scheme: string, smtp_username: string, from_address: string, from_name: string, show_logo: bool, footer_text: string, has_smtp_password: bool} */
     public function handle(): array

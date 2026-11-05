@@ -8,9 +8,9 @@ use App\Actions\Audit\RecordSettingsChange;
 use App\Models\User;
 use App\Settings\MailSettings;
 
-final class UpdateMailSettings
+final readonly class UpdateMailSettings
 {
-    public function __construct(public MailSettings $settings, public RecordSettingsChange $recordSettingsChange) {}
+    public function __construct(private MailSettings $settings, private RecordSettingsChange $recordSettingsChange) {}
 
     /** @param array{mailer: string, smtp_host: ?string, smtp_port: ?int, smtp_scheme: ?string, smtp_username: ?string, smtp_password: ?string, from_address: string, from_name: string, show_logo: bool, footer_text: ?string} $data */
     public function handle(array $data, ?User $actor = null): void
