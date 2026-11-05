@@ -32,7 +32,7 @@ final class UserController extends Controller
         Gate::authorize('viewAny', User::class);
 
         return Inertia::render('master-data/users/Index', [
-            'users' => $table->paginate($request)->through(fn (User $user): array => new UserResource($user)->resolve($request)),
+            'users' => $table->paginateResource($request, UserResource::class),
             ...$getUserOptions->handle($request->user()),
         ]);
     }

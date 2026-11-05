@@ -24,7 +24,7 @@ final class UserPermissionController extends Controller
         Gate::authorize('viewPermissions', User::class);
 
         return Inertia::render('user-permissions/Index', [
-            'users' => $table->paginate($request)->through(fn (User $user): array => new UserPermissionResource($user)->resolve($request)),
+            'users' => $table->paginateResource($request, UserPermissionResource::class),
         ]);
     }
 

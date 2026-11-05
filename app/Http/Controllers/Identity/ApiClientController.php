@@ -31,7 +31,7 @@ final class ApiClientController extends Controller
         Gate::authorize('viewAny', ApiClient::class);
 
         return Inertia::render('master-data/api-clients/Index', [
-            'clients' => $table->paginate($request)->through(fn (ApiClient $client): array => new ApiClientResource($client)->resolve($request)),
+            'clients' => $table->paginateResource($request, ApiClientResource::class),
             'statuses' => ApiClientStatus::options(),
         ]);
     }
