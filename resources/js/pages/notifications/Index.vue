@@ -11,6 +11,13 @@ import PageContainer from '@/components/layout/PageContainer.vue';
 import SimplePagination from '@/components/shared/SimplePagination.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button, buttonVariants } from '@/components/ui/button';
+import {
+    Empty,
+    EmptyDescription,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
+} from '@/components/ui/empty';
 import { useDateTime } from '@/composables/useDateTime';
 import { useTranslations } from '@/composables/useTranslations';
 import { index } from '@/routes/notifications';
@@ -161,19 +168,20 @@ function markAllRead(): void {
                 </form>
             </li>
         </ul>
-        <div
+        <Empty
             v-else
-            class="flex flex-col items-center gap-2 rounded-xl border border-dashed py-16 text-center"
+            class="border"
         >
-            <Bell
-                class="size-8 text-muted-foreground"
-                aria-hidden="true"
-            />
-            <p class="font-medium">{{ t('notification.helper.empty') }}</p>
-            <p class="text-sm text-muted-foreground">
-                {{ t('notification.helper.empty_description') }}
-            </p>
-        </div>
+            <EmptyHeader>
+                <EmptyMedia variant="icon">
+                    <Bell />
+                </EmptyMedia>
+                <EmptyTitle>{{ t('notification.helper.empty') }}</EmptyTitle>
+                <EmptyDescription>
+                    {{ t('notification.helper.empty_description') }}
+                </EmptyDescription>
+            </EmptyHeader>
+        </Empty>
         <SimplePagination
             :paginator="notifications"
             :label="t('notification.label.pagination')"

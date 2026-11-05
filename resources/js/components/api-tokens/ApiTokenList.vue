@@ -14,6 +14,12 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
+import {
+    Empty,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
+} from '@/components/ui/empty';
 import { useDateTime } from '@/composables/useDateTime';
 import { useTranslations } from '@/composables/useTranslations';
 import type { ApiToken, SelectOption } from '@/types';
@@ -49,12 +55,19 @@ function revoke(token: ApiToken): void {
 
 <template>
     <div class="flex flex-col gap-4">
-        <p
+        <Empty
             v-if="tokens.length === 0"
-            class="text-sm text-muted-foreground"
+            class="border"
         >
-            {{ t('account.api_tokens.helper.empty') }}
-        </p>
+            <EmptyHeader>
+                <EmptyMedia variant="icon">
+                    <KeyRound />
+                </EmptyMedia>
+                <EmptyTitle>
+                    {{ t('account.api_tokens.helper.empty') }}
+                </EmptyTitle>
+            </EmptyHeader>
+        </Empty>
 
         <ul
             v-else

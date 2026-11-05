@@ -13,6 +13,7 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslations } from '@/composables/useTranslations';
 import { useTwoFactorAuth } from '@/composables/useTwoFactorAuth';
 
@@ -123,11 +124,11 @@ const submit = () => {
                             v-if="!recoveryCodesList.length"
                             class="space-y-2"
                         >
-                            <div
+                            <Skeleton
                                 v-for="n in 8"
                                 :key="n"
-                                class="h-4 animate-pulse rounded bg-muted-foreground/20"
-                            ></div>
+                                class="h-4"
+                            />
                         </div>
                         <div
                             v-else

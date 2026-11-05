@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head, setLayoutProps, useForm } from '@inertiajs/vue3';
+import { MonitorSmartphone } from '@lucide/vue';
 import { watchEffect } from 'vue';
 
 import { destroy } from '@/actions/App/Http/Controllers/Account/SessionController';
@@ -7,6 +8,12 @@ import Heading from '@/components/shared/Heading.vue';
 import PasswordInput from '@/components/shared/PasswordInput.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+    Empty,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
+} from '@/components/ui/empty';
 import { FieldError } from '@/components/ui/field';
 import { useDateTime } from '@/composables/useDateTime';
 import { useTranslations } from '@/composables/useTranslations';
@@ -47,12 +54,19 @@ function submit() {
         >
             {{ t('account.sessions.helper.unsupported') }}
         </p>
-        <p
+        <Empty
             v-else-if="sessions.length === 0"
-            class="text-sm text-muted-foreground"
+            class="border"
         >
-            {{ t('account.sessions.helper.empty') }}
-        </p>
+            <EmptyHeader>
+                <EmptyMedia variant="icon">
+                    <MonitorSmartphone />
+                </EmptyMedia>
+                <EmptyTitle>
+                    {{ t('account.sessions.helper.empty') }}
+                </EmptyTitle>
+            </EmptyHeader>
+        </Empty>
         <ul class="flex flex-col gap-3">
             <li
                 v-for="(session, i) in sessions"

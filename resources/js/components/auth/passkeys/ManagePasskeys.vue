@@ -6,6 +6,13 @@ import { destroy } from '@/actions/Laravel/Passkeys/Http/Controllers/PasskeyRegi
 import PasskeyItem from '@/components/auth/passkeys/PasskeyItem.vue';
 import PasskeyRegister from '@/components/auth/passkeys/PasskeyRegister.vue';
 import Heading from '@/components/shared/Heading.vue';
+import {
+    Empty,
+    EmptyDescription,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
+} from '@/components/ui/empty';
 import { useTranslations } from '@/composables/useTranslations';
 import type { ManagePasskeysProps } from '@/types';
 
@@ -51,22 +58,19 @@ const handleRegisterSuccess = () => {
                 />
             </template>
 
-            <div
-                v-else
-                class="p-8 text-center"
-            >
-                <div
-                    class="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-muted"
-                >
-                    <KeyRound class="size-7 text-muted-foreground" />
-                </div>
-                <p class="font-medium">
-                    {{ t('account.passkey.empty.title') }}
-                </p>
-                <p class="mt-1 text-sm text-muted-foreground">
-                    {{ t('account.passkey.empty.description') }}
-                </p>
-            </div>
+            <Empty v-else>
+                <EmptyHeader>
+                    <EmptyMedia variant="icon">
+                        <KeyRound />
+                    </EmptyMedia>
+                    <EmptyTitle>
+                        {{ t('account.passkey.empty.title') }}
+                    </EmptyTitle>
+                    <EmptyDescription>
+                        {{ t('account.passkey.empty.description') }}
+                    </EmptyDescription>
+                </EmptyHeader>
+            </Empty>
         </div>
 
         <PasskeyRegister @success="handleRegisterSuccess" />

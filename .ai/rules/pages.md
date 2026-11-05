@@ -16,3 +16,6 @@ Use the shared StatusBadge with a translated label and semantic tone for operati
 
 ## Shared pagination and bodiless mutations
 Paginate non-datatable lists with the shared SimplePagination component and the table.pagination translations. Submit bodiless button actions through useForm({}).submit() with a Wayfinder route so processing state is available; reserve useHttp for JSON endpoints that do not perform an Inertia visit.
+
+## Empty and loading states
+Render empty collections with the Empty primitives (EmptyMedia icon, EmptyTitle, optional EmptyDescription) and loading placeholders with Skeleton instead of hand-written text, divs or animate-pulse utilities.

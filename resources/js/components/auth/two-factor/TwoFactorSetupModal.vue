@@ -183,7 +183,7 @@ const submit = () => {
                             >
                                 <div
                                     v-if="!qrCodeSvg"
-                                    class="absolute inset-0 z-10 flex aspect-square h-auto w-full animate-pulse items-center justify-center bg-background"
+                                    class="absolute inset-0 z-10 flex aspect-square h-auto w-full items-center justify-center bg-background"
                                 >
                                     <Spinner class="size-6" />
                                 </div>
