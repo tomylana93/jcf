@@ -32,11 +32,11 @@ Choose exactly one type based on the **primary intent**:
 
 Prefer the affected business domain:
 
-`auth`, `user`, `customer`, `shipment`, `pickup`, `tracking`, `invoice`, `payment`, `report`, `notification`
+`auth`, `account`, `user`, `permission`, `chat`, `documentation`, `backup`, `api`, `settings`, `notification`, `audit`, `search`, `system`
 
 Use technical scopes only for cross-cutting changes:
 
-`api`, `database`, `ui`, `config`, `deps`, `vite`, `actions`
+`database`, `ui`, `config`, `deps`, `vite`, `lang`, `tests`, `actions`
 
 Rules:
 - Use exactly one lowercase scope.
@@ -64,11 +64,11 @@ Rules:
 
 ## Examples
 
-✅ `feat(shipment): add shipment cancellation`
+✅ `feat(chat): send typing indicators to participants`
 
-✅ `fix(payment): prevent duplicate payments`
+✅ `fix(backup): reject archives with invalid checksums`
 
-✅ `refactor(customer): extract address validation`
+✅ `refactor(documentation): extract publication rules`
 
 ✅ `ci(actions): cache composer dependencies`
 
