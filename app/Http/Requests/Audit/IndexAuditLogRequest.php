@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Audit;
 
+use App\Enums\AuditEvent;
 use App\Enums\Permission;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -21,7 +22,7 @@ final class IndexAuditLogRequest extends FormRequest
         return [
             'filter' => ['sometimes', 'array:search,event'],
             'filter.search' => ['nullable', 'string', 'max:200'],
-            'filter.event' => ['nullable', Rule::in(['user.created', 'user.updated', 'user.status_updated', 'user.permissions_updated', 'user.invitation_queued', 'settings.updated'])],
+            'filter.event' => ['nullable', Rule::enum(AuditEvent::class)],
         ];
     }
 }

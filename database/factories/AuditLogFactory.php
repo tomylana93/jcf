@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Enums\AuditEvent;
 use App\Models\AuditLog;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
@@ -17,7 +18,7 @@ final class AuditLogFactory extends Factory
         return [
             'actor_id' => null,
             'actor_name' => 'System',
-            'event' => 'user.updated',
+            'event' => AuditEvent::UserUpdated->value,
             'subject_type' => 'user',
             'subject_id' => (string) Str::uuid(),
             'subject_label' => fake()->name(),

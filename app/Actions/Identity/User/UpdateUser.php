@@ -7,6 +7,7 @@ namespace App\Actions\Identity\User;
 use App\Actions\Account\TerminateUserRealtimeConnections;
 use App\Actions\Audit\GetUserAuditValues;
 use App\Actions\Audit\RecordAuditLog;
+use App\Enums\AuditEvent;
 use App\Enums\UserStatus;
 use App\Models\User;
 use App\Notifications\ApplicationNotification;
@@ -42,7 +43,7 @@ final class UpdateUser
             $user->save();
             $user->syncRoles(isset($data['role']) ? [$data['role']] : []);
 
-            $log = $this->recordAuditLog->handle($actor, 'user.updated', 'user', $user->id, $user->name, $before, $this->getAuditValues->handle($user));
+            $log = $this->recordAuditLog->handle($actor, AuditEvent::UserUpdated, 'user', $user->id, $user->name, $before, $this->getAuditValues->handle($user));
             if ($log !== null) {
                 $user->notify(new ApplicationNotification('account_updated'));
             }

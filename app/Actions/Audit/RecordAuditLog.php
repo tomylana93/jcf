@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Audit;
 
+use App\Enums\AuditEvent;
 use App\Models\AuditLog;
 use App\Models\User;
 
@@ -13,7 +14,7 @@ final class RecordAuditLog
      * @param  array<string, mixed>  $before
      * @param  array<string, mixed>  $after
      */
-    public function handle(?User $actor, string $event, string $subjectType, string $subjectId, string $subjectLabel, array $before, array $after): ?AuditLog
+    public function handle(?User $actor, AuditEvent $event, string $subjectType, string $subjectId, string $subjectLabel, array $before, array $after): ?AuditLog
     {
         $before = $this->redact($before);
         $after = $this->redact($after);
@@ -28,7 +29,7 @@ final class RecordAuditLog
         return AuditLog::query()->create([
             'actor_id' => $actor?->id,
             'actor_name' => $actor->name ?? 'System',
-            'event' => $event,
+            'event' => $event->value,
             'subject_type' => $subjectType,
             'subject_id' => $subjectId,
             'subject_label' => $subjectLabel,

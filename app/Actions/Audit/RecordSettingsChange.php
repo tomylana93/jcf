@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Audit;
 
+use App\Enums\AuditEvent;
 use App\Models\User;
 use Closure;
 use Illuminate\Support\Facades\DB;
@@ -28,7 +29,7 @@ final class RecordSettingsChange
 
             unset($before['smtp_password'], $after['smtp_password']);
 
-            $this->recordAuditLog->handle($actor, 'settings.updated', 'settings', $settings::group(), $settings::group(), $before, $after);
+            $this->recordAuditLog->handle($actor, AuditEvent::SettingsUpdated, 'settings', $settings::group(), $settings::group(), $before, $after);
         });
     }
 }

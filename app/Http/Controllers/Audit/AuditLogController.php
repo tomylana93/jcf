@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Audit;
 
+use App\Enums\AuditEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Audit\IndexAuditLogRequest;
 use App\Http\Resources\Audit\AuditLogResource;
@@ -18,6 +19,7 @@ final class AuditLogController extends Controller
     {
         return Inertia::render('audit/Index', [
             'logs' => $table->paginate($request)->through(fn (AuditLog $log): array => new AuditLogResource($log)->resolve($request)),
+            'eventOptions' => AuditEvent::options(),
         ]);
     }
 }

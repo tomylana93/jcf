@@ -6,6 +6,7 @@ namespace App\Actions\Identity\User;
 
 use App\Actions\Account\TerminateUserRealtimeConnections;
 use App\Actions\Audit\RecordAuditLog;
+use App\Enums\AuditEvent;
 use App\Enums\UserStatus;
 use App\Models\User;
 use App\Notifications\ApplicationNotification;
@@ -26,7 +27,7 @@ final class UpdateUserStatus
             $before = ['status' => $user->status->value];
             $user->status = $status;
             $user->save();
-            $log = $this->recordAuditLog->handle($actor, 'user.status_updated', 'user', $user->id, $user->name, $before, ['status' => $status->value]);
+            $log = $this->recordAuditLog->handle($actor, AuditEvent::UserStatusUpdated, 'user', $user->id, $user->name, $before, ['status' => $status->value]);
             if ($log !== null) {
                 $user->notify(new ApplicationNotification('account_updated'));
             }

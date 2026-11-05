@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Actions\Identity\User;
 
 use App\Actions\Audit\RecordAuditLog;
+use App\Enums\AuditEvent;
 use App\Enums\UserStatus;
 use App\Jobs\MasterData\User\SendUserInvitation as SendUserInvitationJob;
 use App\Models\User;
@@ -26,7 +27,7 @@ final class SendUserInvitation
         $key = 'user-invitation:'.$user->id.':'.hash('sha256', $user->email);
         $sent = RateLimiter::attempt($key, 1, function () use ($user, $actor): void {
             DB::transaction(function () use ($user, $actor): void {
-                $this->recordAuditLog->handle($actor, 'user.invitation_queued', 'user', $user->id, $user->name, [], ['queued' => true]);
+                $this->recordAuditLog->handle($actor, AuditEvent::UserInvitationQueued, 'user', $user->id, $user->name, [], ['queued' => true]);
                 $actor?->notify(new ApplicationNotification('invitation_queued', $user->name));
                 dispatch(new SendUserInvitationJob($user->id, $user->email))->afterCommit();
             });

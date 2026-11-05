@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Actions\Audit\RecordAuditLog;
 use App\Actions\Identity\User\UpdateUser;
 use App\Actions\Settings\UpdateGeneralSettings;
+use App\Enums\AuditEvent;
 use App\Enums\Permission;
 use App\Enums\UserStatus;
 use App\Jobs\MasterData\User\SendUserInvitation;
@@ -42,6 +43,27 @@ describe('Audit access and filtering', function (): void {
         get(route('audit.index', ['filter' => ['event' => 'settings.updated']]))
             ->assertInertia(fn (Assert $page): Assert => $page->where('logs.data.0.subject_label', 'General settings')->where('logs.data.0.actor_name', 'System'));
     });
+
+    it('labels and filters API client events', function (): void {
+        $actor = User::factory()->create();
+        assignRolePermissions($actor, Permission::ViewAuditLogs);
+        AuditLog::factory()->create(['event' => AuditEvent::ApiClientTokenIssued->value, 'subject_type' => 'api_client']);
+        AuditLog::factory()->create();
+
+        actingAs($actor)->get(route('audit.index', ['filter' => ['event' => AuditEvent::ApiClientTokenIssued->value]]))
+            ->assertSessionHasNoErrors()
+            ->assertInertia(fn (Assert $page): Assert => $page->has('logs.data', 1)
+                ->where('logs.data.0.event_label', 'API client token issued')
+                ->where('eventOptions', fn ($options): bool => collect($options)->pluck('value')->contains(AuditEvent::ApiClientTokenIssued->value)));
+    });
+
+    it('translates every audit event in each locale', function (string $locale): void {
+        foreach (AuditEvent::cases() as $event) {
+            $key = 'enums.audit_event.'.$event->name;
+
+            expect(__($key, locale: $locale))->not->toBe($key);
+        }
+    })->with(['en', 'id']);
 
     it('rejects invalid filters', function (array $query, string $error): void {
         $actor = User::factory()->create();
@@ -117,7 +139,7 @@ describe('Sensitive change recording', function (): void {
     });
 
     it('removes nested credentials before storing audit values', function (): void {
-        $log = resolve(RecordAuditLog::class)->handle(null, 'settings.updated', 'settings', 'mail', 'mail', [], [
+        $log = resolve(RecordAuditLog::class)->handle(null, AuditEvent::SettingsUpdated, 'settings', 'mail', 'mail', [], [
             'nested' => ['api_key' => 'private-key', 'token' => 'private-token', 'password' => 'private-password', 'name' => 'Safe'],
             'secret' => 'private-secret',
             'password_min_length' => 12,
@@ -125,7 +147,7 @@ describe('Sensitive change recording', function (): void {
         ]);
 
         expect($log->after)->toBe(['nested' => ['name' => 'Safe'], 'password_min_length' => 12])
-            ->and(resolve(RecordAuditLog::class)->handle(null, 'settings.updated', 'settings', 'mail', 'mail', ['token' => 'old'], ['token' => 'new']))->toBeNull();
+            ->and(resolve(RecordAuditLog::class)->handle(null, AuditEvent::SettingsUpdated, 'settings', 'mail', 'mail', ['token' => 'old'], ['token' => 'new']))->toBeNull();
     });
 
     it('rolls back user audit and notifications together', function (): void {

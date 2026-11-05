@@ -73,4 +73,17 @@ return [
         'English' => 'English',
         'Indonesian' => 'Indonesian',
     ],
+
+    'audit_event' => [
+        'UserCreated' => 'User created',
+        'UserUpdated' => 'User updated',
+        'UserStatusUpdated' => 'Account status changed',
+        'UserPermissionsUpdated' => 'Permissions changed',
+        'UserInvitationQueued' => 'Invitation queued',
+        'SettingsUpdated' => 'Settings updated',
+        'ApiClientCreated' => 'API client created',
+        'ApiClientUpdated' => 'API client updated',
+        'ApiClientTokenIssued' => 'API client token issued',
+        'ApiClientTokenRevoked' => 'API client token revoked',
+    ],
 ];

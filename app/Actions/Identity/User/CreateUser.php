@@ -6,6 +6,7 @@ namespace App\Actions\Identity\User;
 
 use App\Actions\Audit\GetUserAuditValues;
 use App\Actions\Audit\RecordAuditLog;
+use App\Enums\AuditEvent;
 use App\Enums\UserStatus;
 use App\Models\User;
 use App\Notifications\ApplicationNotification;
@@ -38,7 +39,7 @@ final class CreateUser
             $user->save();
             $user->syncRoles(isset($data['role']) ? [$data['role']] : []);
 
-            $this->recordAuditLog->handle($actor, 'user.created', 'user', $user->id, $user->name, [], $this->getAuditValues->handle($user));
+            $this->recordAuditLog->handle($actor, AuditEvent::UserCreated, 'user', $user->id, $user->name, [], $this->getAuditValues->handle($user));
             $user->notify(new ApplicationNotification('account_created'));
 
             if ($data['send_invitation'] ?? false) {

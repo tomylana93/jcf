@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Audit;
 
+use App\Enums\AuditEvent;
 use App\Models\AuditLog;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -18,7 +19,7 @@ final class AuditLogResource extends JsonResource
             'id' => $this->id,
             'actor_name' => $this->actor_name === 'System' && $this->actor_id === null ? __('audit.label.system') : $this->actor_name,
             'event' => $this->event,
-            'event_label' => __('audit.event.'.$this->event),
+            'event_label' => AuditEvent::tryFrom($this->event)?->label() ?? $this->event,
             'subject_label' => $this->subject_type === 'settings' ? __('audit.settings.'.$this->subject_label) : $this->subject_label,
             'before' => $this->before,
             'after' => $this->after,

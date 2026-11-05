@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Actions\Permission;
 
 use App\Actions\Audit\RecordAuditLog;
+use App\Enums\AuditEvent;
 use App\Enums\Permission;
 use App\Models\User;
 use App\Notifications\ApplicationNotification;
@@ -35,7 +36,7 @@ final readonly class UpdateUserPermissions
             $target->syncPermissions($permissions);
 
             if ($before !== $permissions) {
-                $this->recordAuditLog->handle($actor, 'user.permissions_updated', 'user', $target->id, $target->name, ['permissions' => $before], ['permissions' => $permissions]);
+                $this->recordAuditLog->handle($actor, AuditEvent::UserPermissionsUpdated, 'user', $target->id, $target->name, ['permissions' => $before], ['permissions' => $permissions]);
                 $target->notify(new ApplicationNotification('permissions_updated'));
                 Log::info('User direct permissions updated', [
                     'actor_id' => $actor->id,

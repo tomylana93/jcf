@@ -73,4 +73,17 @@ return [
         'English' => 'Bahasa Inggris',
         'Indonesian' => 'Bahasa Indonesia',
     ],
+
+    'audit_event' => [
+        'UserCreated' => 'Pengguna dibuat',
+        'UserUpdated' => 'Pengguna diperbarui',
+        'UserStatusUpdated' => 'Status akun diubah',
+        'UserPermissionsUpdated' => 'Permission diubah',
+        'UserInvitationQueued' => 'Undangan masuk antrean',
+        'SettingsUpdated' => 'Pengaturan diperbarui',
+        'ApiClientCreated' => 'Klien API dibuat',
+        'ApiClientUpdated' => 'Klien API diperbarui',
+        'ApiClientTokenIssued' => 'Token klien API diterbitkan',
+        'ApiClientTokenRevoked' => 'Token klien API dicabut',
+    ],
 ];
