@@ -2,10 +2,15 @@ import { Link } from '@inertiajs/vue3';
 import { h } from 'vue';
 
 import type { DataTableColumnDef } from '@/components/datatable';
-import { Badge } from '@/components/ui/badge';
+import StatusBadge from '@/components/shared/StatusBadge.vue';
 import { formatDateTime } from '@/lib/dateTime';
 import { show } from '@/routes/master-data/api-clients';
-import type { ApiClientRow, TranslationKey } from '@/types';
+import type { ApiClientRow, ApiClientStatus, TranslationKey } from '@/types';
+
+export const apiClientStatusTones = {
+    active: 'success',
+    disabled: 'neutral',
+} as const satisfies Record<ApiClientStatus, 'success' | 'neutral'>;
 
 export function createColumns(
     t: (key: TranslationKey) => string,
@@ -49,11 +54,10 @@ export function createColumns(
             header: t('api_client.label.status'),
             enableSorting: true,
             cell: ({ row }) =>
-                h(
-                    Badge,
-                    { variant: row.original.status_variant },
-                    () => row.original.status_label,
-                ),
+                h(StatusBadge, {
+                    tone: apiClientStatusTones[row.original.status],
+                    label: row.original.status_label,
+                }),
         },
         {
             accessorKey: 'created_at',

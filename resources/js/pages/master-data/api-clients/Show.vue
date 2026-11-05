@@ -12,7 +12,7 @@ import ApiTokenList from '@/components/api-tokens/ApiTokenList.vue';
 import NewApiTokenNotice from '@/components/api-tokens/NewApiTokenNotice.vue';
 import PageContainer from '@/components/layout/PageContainer.vue';
 import Heading from '@/components/shared/Heading.vue';
-import { Badge } from '@/components/ui/badge';
+import StatusBadge from '@/components/shared/StatusBadge.vue';
 import { Button } from '@/components/ui/button';
 import { useTranslations } from '@/composables/useTranslations';
 import { index as masterDataIndex } from '@/routes/master-data';
@@ -20,6 +20,7 @@ import { index, show } from '@/routes/master-data/api-clients';
 import type { ApiClientRow, ApiToken, SelectOption } from '@/types';
 
 import ApiClientFormSheet from './ApiClientFormSheet.vue';
+import { apiClientStatusTones } from './columns';
 
 const props = defineProps<{
     client: ApiClientRow;
@@ -60,9 +61,10 @@ watchEffect(() => {
     >
         <div class="flex max-w-2xl flex-col gap-10">
             <div class="flex flex-wrap items-center gap-3">
-                <Badge :variant="client.status_variant">
-                    {{ client.status_label }}
-                </Badge>
+                <StatusBadge
+                    :tone="apiClientStatusTones[client.status]"
+                    :label="client.status_label"
+                />
                 <Button
                     v-if="canManage"
                     variant="outline"

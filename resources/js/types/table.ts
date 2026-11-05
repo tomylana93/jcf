@@ -1,6 +1,5 @@
 import type { Component } from 'vue';
 
-import type { BadgeVariants } from '@/components/ui/badge';
 import type { ButtonVariants } from '@/components/ui/button';
 
 import type { UserStatus } from './user';
@@ -35,7 +34,6 @@ export type UserRow = {
     email: string;
     status: UserStatus;
     status_label: string;
-    status_variant: BadgeVariants['variant'];
     created_at: string;
     role: { label: string; color: string };
     roles: {

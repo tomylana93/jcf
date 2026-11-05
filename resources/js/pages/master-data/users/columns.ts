@@ -3,6 +3,7 @@ import { h } from 'vue';
 import { DataTableActions } from '@/components/datatable';
 import type { DataTableColumnDef } from '@/components/datatable';
 import RoleBadge from '@/components/shared/RoleBadge.vue';
+import StatusBadge from '@/components/shared/StatusBadge.vue';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -14,7 +15,12 @@ import {
 } from '@/components/ui/tooltip';
 import { getInitials } from '@/composables/useInitials';
 import { formatDateTime } from '@/lib/dateTime';
-import type { TranslationKey, UserRow } from '@/types';
+import type { TranslationKey, UserRow, UserStatus } from '@/types';
+
+const statusTones = {
+    active: 'success',
+    disabled: 'neutral',
+} as const satisfies Record<UserStatus, 'success' | 'neutral'>;
 
 export function createColumns(
     t: (key: TranslationKey) => string,
@@ -58,13 +64,10 @@ export function createColumns(
             header: t('user.label.status'),
             enableSorting: false,
             cell: ({ row }) =>
-                h(
-                    Badge,
-                    {
-                        variant: row.original.status_variant,
-                    },
-                    () => row.original.status_label,
-                ),
+                h(StatusBadge, {
+                    tone: statusTones[row.original.status],
+                    label: row.original.status_label,
+                }),
         },
         {
             accessorKey: 'created_at',

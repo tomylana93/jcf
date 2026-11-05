@@ -3,7 +3,7 @@ import { Head, Link, router, setLayoutProps, usePage } from '@inertiajs/vue3';
 import { ref, watchEffect } from 'vue';
 
 import PageContainer from '@/components/layout/PageContainer.vue';
-import { Badge } from '@/components/ui/badge';
+import StatusBadge from '@/components/shared/StatusBadge.vue';
 import { Button, buttonVariants } from '@/components/ui/button';
 import {
     Card,
@@ -21,7 +21,7 @@ import {
     edit,
     index as manageIndex,
 } from '@/routes/documentation/manage';
-import type { DocumentationPaginator } from '@/types';
+import type { DocumentationPaginator, DocumentationStatus } from '@/types';
 
 const props = defineProps<{
     documents: DocumentationPaginator;
@@ -31,6 +31,11 @@ const props = defineProps<{
 
 const { t } = useTranslations();
 const page = usePage();
+
+const statusTones = {
+    published: 'success',
+    draft: 'neutral',
+} as const satisfies Record<DocumentationStatus, 'success' | 'neutral'>;
 
 const query = ref(props.search);
 
@@ -119,22 +124,13 @@ watchEffect(() =>
                 <CardHeader>
                     <div class="flex items-start justify-between gap-2">
                         <CardTitle>{{ document.title }}</CardTitle>
-                        <Badge
+                        <StatusBadge
                             v-if="manage"
-                            :variant="
-                                document.status === 'published'
-                                    ? 'default'
-                                    : 'secondary'
+                            :tone="statusTones[document.status]"
+                            :label="
+                                t(`documentation.status.${document.status}`)
                             "
-                        >
-                            {{
-                                t(
-                                    document.status === 'published'
-                                        ? 'documentation.status.published'
-                                        : 'documentation.status.draft',
-                                )
-                            }}
-                        </Badge>
+                        />
                     </div>
                     <CardDescription>
                         {{ document.summary }}

@@ -4,7 +4,7 @@ import { watchEffect } from 'vue';
 
 import RichTextContent from '@/components/editor/RichTextContent.vue';
 import PageContainer from '@/components/layout/PageContainer.vue';
-import { Badge } from '@/components/ui/badge';
+import StatusBadge from '@/components/shared/StatusBadge.vue';
 import { buttonVariants } from '@/components/ui/button';
 import { useTranslations } from '@/composables/useTranslations';
 import { index, show } from '@/routes/documentation';
@@ -48,12 +48,10 @@ watchEffect(() =>
             >
                 {{ t('documentation.button.edit') }}
             </Link>
-            <Badge
+            <StatusBadge
                 v-if="document.status === 'draft'"
-                variant="secondary"
-            >
-                {{ t('documentation.status.draft') }}
-            </Badge>
+                :label="t('documentation.status.draft')"
+            />
         </div>
         <article class="w-full min-w-0">
             <RichTextContent :html="document.content_html" />

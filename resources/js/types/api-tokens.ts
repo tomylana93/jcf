@@ -1,5 +1,3 @@
-import type { BadgeVariants } from '@/components/ui/badge';
-
 export type ApiToken = {
     id: number;
     name: string;
@@ -25,7 +23,6 @@ export type ApiClientRow = {
     description: string | null;
     status: ApiClientStatus;
     status_label: string;
-    status_variant: BadgeVariants['variant'];
     tokens_count: number;
     created_at: string;
 };

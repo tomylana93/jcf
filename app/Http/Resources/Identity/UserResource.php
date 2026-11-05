@@ -32,7 +32,6 @@ final class UserResource extends JsonResource
             'avatar' => $this->avatar,
             'status' => $this->status,
             'status_label' => $this->status->label(),
-            'status_variant' => $this->status->badgeVariant(),
             'created_at' => $this->created_at?->toIso8601String(),
             'roles' => $this->roles->map(function (PermissionRole $role): array {
                 $roleEnum = Role::tryFrom($role->name);
