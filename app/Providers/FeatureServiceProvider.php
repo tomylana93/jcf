@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Actions\Account\SearchUsers;
+use App\Actions\Search\SearchGlobal;
+use App\Enums\Module;
 use App\Support\FeatureManager;
+use App\Support\SearchProvider;
 use Illuminate\Queue\Events\JobProcessing;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
@@ -17,16 +21,23 @@ final class FeatureServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->scoped(FeatureManager::class);
+        foreach (Module::cases() as $module) {
+            if ($provider = $module->provider()) {
+                $this->app->register($provider);
+            }
+        }
+        $this->app->tag(SearchUsers::class, SearchProvider::class);
+        $this->app->bind(SearchGlobal::class, fn ($app): SearchGlobal => new SearchGlobal($app->tagged(SearchProvider::class)));
 
         $classes = config('settings.settings');
         $paths = config('settings.migrations_paths');
-        foreach (FeatureManager::SETTINGS as $module => $class) {
+        foreach (Module::settingsClasses() as $module => $class) {
             if (! config('features.'.$module)) {
                 continue;
             }
 
             $classes[] = $class;
-            $paths[] = database_path('settings/'.$module);
+            $paths[] = Module::from($module)->settingsMigrationsPath();
         }
         config([
             'settings.settings' => array_values(array_unique($classes)),
@@ -37,7 +48,7 @@ final class FeatureServiceProvider extends ServiceProvider
         // Explicit registration is authoritative, including after a cached discovery run.
         $container = $this->app->make(SettingsContainer::class);
         $container->clearCache()->registerBindings();
-        foreach (FeatureManager::SETTINGS as $module => $class) {
+        foreach (Module::settingsClasses() as $module => $class) {
             if (! config('features.'.$module)) {
                 app()->offsetUnset($class);
             }
@@ -49,14 +60,14 @@ final class FeatureServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        foreach (array_keys(FeatureManager::SETTINGS) as $module) {
-            if (config('features.'.$module) && is_dir(database_path('migrations/'.$module))) {
-                $this->loadMigrationsFrom(database_path('migrations/'.$module));
+        foreach (Module::cases() as $module) {
+            if (config('features.'.$module->value) && is_dir($module->migrationsPath())) {
+                $this->loadMigrationsFrom($module->migrationsPath());
             }
         }
 
         Event::listen(SettingsSaved::class, function (SettingsSaved $event): void {
-            if (in_array($event->settings::class, FeatureManager::SETTINGS, true)) {
+            if (in_array($event->settings::class, Module::settingsClasses(), true)) {
                 $this->app->make(FeatureManager::class)->reset();
                 $this->app->instance($event->settings::class, $event->settings);
             }

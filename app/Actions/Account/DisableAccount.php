@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Actions\Account;
 
-use App\Actions\Chat\TerminateUserRealtimeConnections;
 use App\Enums\UserStatus;
 use App\Models\User;
 

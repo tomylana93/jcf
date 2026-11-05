@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Http\Controllers\MasterData\BackupController;
+use App\Http\Controllers\Operations\BackupController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified'])->prefix('master-data')->name('master-data.')->group(function (): void {

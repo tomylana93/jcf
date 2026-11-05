@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Actions\System\GetSystemHealth;
+use App\Enums\Module;
 use App\Enums\Role;
 use App\Models\User;
 use App\Support\FeatureManager;
@@ -31,7 +32,7 @@ if ($features->available('backup')) {
 }
 $module = $argv[1];
 if ($module !== 'all' && $features->available($module)) {
-    resolve(FeatureManager::SETTINGS[$module])->fill(['enabled' => $argv[2] === '1'])->save();
+    resolve(Module::settingsClasses()[$module])->fill(['enabled' => $argv[2] === '1'])->save();
 }
 $state = $features->state();
 $queries = [];

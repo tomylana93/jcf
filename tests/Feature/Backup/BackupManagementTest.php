@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-use App\Actions\MasterData\Backup\CreateBackup;
-use App\Actions\MasterData\Backup\DeleteBackup;
-use App\Actions\MasterData\Backup\GetBackupLock;
-use App\Actions\MasterData\Backup\GetDatabaseDumpInput;
-use App\Actions\MasterData\Backup\ImportActiveDatabase;
-use App\Actions\MasterData\Backup\RestoreActiveBackup;
+use App\Actions\Operations\Backup\CreateBackup;
+use App\Actions\Operations\Backup\DeleteBackup;
+use App\Actions\Operations\Backup\GetBackupLock;
+use App\Actions\Operations\Backup\GetDatabaseDumpInput;
+use App\Actions\Operations\Backup\ImportActiveDatabase;
+use App\Actions\Operations\Backup\RestoreActiveBackup;
 use App\Enums\Role;
 use App\Jobs\CreateSystemBackup;
 use App\Jobs\RestoreSystemBackup;

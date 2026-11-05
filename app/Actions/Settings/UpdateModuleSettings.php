@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Actions\Settings;
 
 use App\Actions\Audit\RecordSettingsChange;
+use App\Enums\Module;
 use App\Enums\Permission;
 use App\Models\User;
 use App\Support\FeatureManager;
@@ -24,7 +25,7 @@ final readonly class UpdateModuleSettings
         DB::transaction(function () use ($actor, $validated): void {
             foreach ($validated as $module => $enabled) {
                 DB::table('settings')->where('group', $module)->orderBy('id')->lockForUpdate()->get();
-                $settings = resolve(FeatureManager::SETTINGS[$module]);
+                $settings = resolve(Module::settingsClasses()[$module]);
                 $settings->refresh();
                 $this->audit->handle($settings, $actor, function () use ($settings, $enabled): void {
                     $settings->enabled = $enabled;

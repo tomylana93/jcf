@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use App\Actions\Audit\RecordAuditLog;
-use App\Actions\MasterData\User\UpdateUser;
+use App\Actions\Identity\User\UpdateUser;
 use App\Actions\Settings\UpdateGeneralSettings;
 use App\Enums\Permission;
 use App\Enums\UserStatus;

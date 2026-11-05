@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 use App\Actions\Chat\SendChatMessage;
 use App\Actions\Chat\StartDirectConversation;
-use App\Actions\MasterData\Backup\CreateBackup;
-use App\Actions\MasterData\Backup\GetBackupLock;
-use App\Actions\MasterData\Backup\RestoreActiveBackup;
+use App\Actions\Operations\Backup\CreateBackup;
+use App\Actions\Operations\Backup\GetBackupLock;
+use App\Actions\Operations\Backup\RestoreActiveBackup;
 use App\Actions\System\GetSystemHealth;
+use App\Enums\Module;
 use App\Events\ChatMessageCreated;
 use App\Events\ChatReadUpdated;
 use App\Events\ChatTypingUpdated;
@@ -18,7 +19,6 @@ use App\Models\ChatMessage;
 use App\Models\User;
 use App\Settings\BackupSettings;
 use App\Settings\ChatSettings;
-use App\Support\FeatureManager;
 use Illuminate\Broadcasting\BroadcastEvent;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Broadcasting\Factory;
@@ -41,9 +41,9 @@ describe('Backend feature gates', function (): void {
     it('rejects disabled modules before binding or resolving domain settings', function (string $module, string $path, bool $hard): void {
         if ($hard) {
             config(['features.'.$module => false]);
-            app()->beforeResolving(FeatureManager::SETTINGS[$module], fn () => throw new LogicException('Disabled settings resolved'));
+            app()->beforeResolving(Module::settingsClasses()[$module], fn () => throw new LogicException('Disabled settings resolved'));
         } else {
-            resolve(FeatureManager::SETTINGS[$module])->fill(['enabled' => false])->save();
+            resolve(Module::settingsClasses()[$module])->fill(['enabled' => false])->save();
         }
         actingAsSuperAdmin();
 
@@ -190,7 +190,7 @@ describe('Backend feature gates', function (): void {
             try {
                 new Process([PHP_BINARY, 'artisan', 'migrate', '--force', '--no-interaction'], base_path(), $environment)->mustRun();
                 new Process([PHP_BINARY, 'artisan', 'wayfinder:catalog', '--with-form', '--path='.$directory->path('generated')], base_path(), $environment)->mustRun();
-                expect($db->table('settings')->whereIn('group', array_keys(FeatureManager::SETTINGS))->count())->toBe(0);
+                expect($db->table('settings')->whereIn('group', array_keys(Module::settingsClasses()))->count())->toBe(0);
                 foreach (['chat_messages', 'documentations'] as $table) {
                     expect($db->getSchemaBuilder()->hasTable($table))->toBeFalse();
                 }
@@ -211,7 +211,7 @@ describe('Backend feature gates', function (): void {
             'FEATURE_CHAT' => 'true',
             'FEATURE_DOCUMENTATION' => 'true', 'FEATURE_BACKUP' => 'true',
         ];
-        foreach ($disabled === 'all' ? array_keys(FeatureManager::SETTINGS) : [$disabled] as $module) {
+        foreach ($disabled === 'all' ? array_keys(Module::settingsClasses()) : [$disabled] as $module) {
             $environment['FEATURE_'.mb_strtoupper($module)] = 'false';
         }
         $run = static fn (array $arguments): Process => new Process([PHP_BINARY, 'artisan', ...$arguments], base_path(), $environment)->mustRun();

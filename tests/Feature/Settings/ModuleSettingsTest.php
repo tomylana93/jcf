@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Actions\Settings\UpdateModuleSettings;
+use App\Enums\Module;
 use App\Enums\Permission;
 use App\Models\User;
 use App\Settings\ChatSettings;
@@ -39,7 +40,7 @@ describe('Module settings', function (): void {
     it('hides unavailable modules without resolving their settings', function (): void {
         config(['features.documentation' => false, 'features.backup' => false, 'features.api' => false]);
         foreach (['documentation', 'backup', 'api'] as $module) {
-            app()->bind(FeatureManager::SETTINGS[$module], fn () => throw new RuntimeException('Unavailable settings resolved'));
+            app()->bind(Module::settingsClasses()[$module], fn () => throw new RuntimeException('Unavailable settings resolved'));
         }
         $user = User::factory()->create();
         assignRolePermissions($user, Permission::ViewSettings, Permission::ManageSettings);

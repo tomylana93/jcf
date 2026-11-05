@@ -3,7 +3,7 @@ import { Head, setLayoutProps, useForm, usePage } from '@inertiajs/vue3';
 import { Plus } from '@lucide/vue';
 import { computed, ref, watchEffect } from 'vue';
 
-import { updateStatus } from '@/actions/App/Http/Controllers/MasterData/UserController';
+import { updateStatus } from '@/actions/App/Http/Controllers/Identity/UserController';
 import { DataTable } from '@/components/datatable';
 import PageContainer from '@/components/layout/PageContainer.vue';
 import { useDateTime } from '@/composables/useDateTime';

@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use App\Enums\Permission;
-use App\Http\Controllers\MasterData\ApiClientController;
-use App\Http\Controllers\MasterData\UserController;
+use App\Http\Controllers\Identity\ApiClientController;
+use App\Http\Controllers\Identity\UserController;
 use App\Support\ApiDomain;
 use Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests;
 use Illuminate\Support\Facades\Gate;

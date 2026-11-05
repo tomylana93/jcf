@@ -6,7 +6,7 @@ use App\Actions\Account\CreateApiToken;
 use App\Actions\Account\DisableAccount;
 use App\Actions\Account\UpdateProfile;
 use App\Actions\Fortify\ResetUserPassword;
-use App\Actions\MasterData\User\UpdateUserStatus;
+use App\Actions\Identity\User\UpdateUserStatus;
 use App\Enums\ApiTokenAbility;
 use App\Enums\ApiTokenExpiration;
 use App\Enums\UserStatus;

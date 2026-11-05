@@ -8,7 +8,7 @@ import {
     restore,
     store,
     upload,
-} from '@/actions/App/Http/Controllers/MasterData/BackupController';
+} from '@/actions/App/Http/Controllers/Operations/BackupController';
 import { DataTable } from '@/components/datatable';
 import PageContainer from '@/components/layout/PageContainer.vue';
 import StatusBadge from '@/components/shared/StatusBadge.vue';

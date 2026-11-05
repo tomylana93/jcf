@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Actions\MasterData\User\CreateUser;
+use App\Actions\Identity\User\CreateUser;
 use App\Enums\Permission;
 use App\Enums\Role;
 use App\Jobs\MasterData\User\SendUserInvitation;

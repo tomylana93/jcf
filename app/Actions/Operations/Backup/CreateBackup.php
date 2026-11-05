@@ -1,0 +1,22 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Actions\Operations\Backup;
+
+use App\Support\FeatureManager;
+use RuntimeException;
+
+final readonly class CreateBackup
+{
+    public function __construct(private WriteBackup $writeBackup, private GetBackupLock $getBackupLock) {}
+
+    public function handle(): string
+    {
+        if (! resolve(FeatureManager::class)->enabled('backup') || ! config('backup.backup.password')) {
+            throw new RuntimeException(__('backup.error.not_configured'));
+        }
+
+        return $this->getBackupLock->handle()->get(fn (): string => $this->writeBackup->handle()) ?: throw new RuntimeException(__('backup.error.busy'));
+    }
+}

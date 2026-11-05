@@ -27,12 +27,12 @@ enum Permission: string
 
     public function module(): ?string
     {
-        return match ($this) {
-            self::UseChat => 'chat',
-            self::ManageBackups => 'backup',
-            self::ViewDocumentation, self::ManageDocumentation => 'documentation',
-            self::ViewApiClients, self::ManageApiClients => 'api',
-            default => null,
-        };
+        foreach (Module::cases() as $module) {
+            if (in_array($this, $module->permissions(), true)) {
+                return $module->value;
+            }
+        }
+
+        return null;
     }
 }

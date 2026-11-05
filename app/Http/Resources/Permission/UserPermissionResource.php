@@ -6,7 +6,7 @@ namespace App\Http\Resources\Permission;
 
 use App\Enums\Permission;
 use App\Enums\Role;
-use App\Http\Resources\MasterData\UserResource;
+use App\Http\Resources\Identity\UserResource;
 use App\Models\User;
 use App\Support\FeatureManager;
 use Illuminate\Http\Request;

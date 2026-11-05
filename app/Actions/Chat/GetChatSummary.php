@@ -8,13 +8,17 @@ use App\Enums\Permission;
 use App\Enums\UserStatus;
 use App\Models\ChatMessage;
 use App\Models\User;
+use App\Support\ChatSummary;
+use App\Support\FeatureManager;
 
-final class GetChatSummary
+final readonly class GetChatSummary implements ChatSummary
 {
+    public function __construct(private FeatureManager $features) {}
+
     /** @return array{unread_count: int} */
     public function handle(?User $actor): array
     {
-        if ($actor === null || $actor->status !== UserStatus::Active || ! $actor->can(Permission::UseChat)) {
+        if (! $this->features->enabled('chat') || $actor === null || $actor->status !== UserStatus::Active || ! $actor->can(Permission::UseChat)) {
             return ['unread_count' => 0];
         }
 

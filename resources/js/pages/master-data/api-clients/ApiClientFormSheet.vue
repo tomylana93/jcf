@@ -6,7 +6,7 @@ import { computed, watch } from 'vue';
 import {
     store,
     update,
-} from '@/actions/App/Http/Controllers/MasterData/ApiClientController';
+} from '@/actions/App/Http/Controllers/Identity/ApiClientController';
 import { Button } from '@/components/ui/button';
 import {
     Field,
