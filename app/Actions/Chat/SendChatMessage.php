@@ -17,12 +17,12 @@ use Illuminate\Validation\ValidationException;
 
 final readonly class SendChatMessage
 {
-    public function __construct(private ValidateChatMessage $validateMessage) {}
+    public function __construct(private ValidateChatMessage $validateMessage, private FeatureManager $features) {}
 
     /** @param array<string, mixed> $data */
     public function handle(User $actor, ChatConversation $conversation, array $data): ChatMessage
     {
-        resolve(FeatureManager::class)->ensureEnabled(Module::Chat);
+        $this->features->ensureEnabled(Module::Chat);
 
         return DB::transaction(function () use ($actor, $conversation, $data): ChatMessage {
             $ids = $conversation->participants()->pluck('user_id')->push($actor->id)->unique()->sort()->values();

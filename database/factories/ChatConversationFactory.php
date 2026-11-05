@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Enums\ConversationType;
 use App\Models\ChatConversation;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
@@ -18,7 +19,7 @@ final class ChatConversationFactory extends Factory
         sort($ids, SORT_STRING);
 
         return [
-            'type' => 'direct',
+            'type' => ConversationType::Direct->value,
             'direct_pair_key' => implode(':', $ids),
             'last_message_sequence' => 0,
         ];

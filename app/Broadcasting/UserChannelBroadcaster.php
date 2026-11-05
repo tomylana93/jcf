@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Broadcasting;
 
+use App\Models\User;
 use Illuminate\Broadcasting\Broadcasters\PusherBroadcaster;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -22,7 +23,7 @@ final class UserChannelBroadcaster extends PusherBroadcaster
      */
     public function validAuthenticationResponse(mixed $request, mixed $result): array|JsonResponse
     {
-        if (str_starts_with((string) $request->channel_name, 'private-App.Models.User.')) {
+        if (str_starts_with((string) $request->channel_name, 'private-'.User::BroadcastChannel.'.')) {
             $user = $request->user();
 
             throw_if($user === null, AccessDeniedHttpException::class);

@@ -8,6 +8,7 @@ use App\Console\Commands\VerifyBackup as VerifyBackupCommand;
 use App\Events\ChatMessageCreated;
 use App\Events\ChatReadUpdated;
 use App\Events\ChatTypingUpdated;
+use App\Events\Concerns\BroadcastsToChatParticipants;
 use App\Http\Middleware\EnsureApiTokenOwner;
 use App\Jobs\CreateSystemBackup;
 use App\Jobs\RestoreSystemBackup;
@@ -125,6 +126,7 @@ arch('exposes chat actions only to chat transport, events and provider')
         ChatMessageCreated::class,
         ChatReadUpdated::class,
         ChatTypingUpdated::class,
+        BroadcastsToChatParticipants::class,
         ChatServiceProvider::class,
     ]);
 

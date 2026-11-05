@@ -11,11 +11,13 @@ use App\Models\User;
 use App\Support\FeatureManager;
 use Illuminate\Support\Facades\Gate;
 
-final class SendChatTyping
+final readonly class SendChatTyping
 {
+    public function __construct(private FeatureManager $features) {}
+
     public function handle(User $actor, ChatConversation $conversation, bool $typing): void
     {
-        resolve(FeatureManager::class)->ensureEnabled(Module::Chat);
+        $this->features->ensureEnabled(Module::Chat);
 
         Gate::forUser($actor)->authorize('sendMessage', $conversation);
 
