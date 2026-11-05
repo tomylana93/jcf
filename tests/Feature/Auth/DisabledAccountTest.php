@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use App\Actions\Account\DisableAccount;
-use App\Actions\MasterData\User\UpdateUser;
-use App\Actions\MasterData\User\UpdateUserStatus;
+use App\Actions\Identity\User\UpdateUser;
+use App\Actions\Identity\User\UpdateUserStatus;
 use App\Enums\UserStatus;
 use App\Models\User;
 use Illuminate\Auth\Events\Login;

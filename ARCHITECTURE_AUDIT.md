@@ -21,16 +21,16 @@ Batas modul saat ini belum mandiri: core masih mengetahui implementasi modul ops
 
 ## Struktur saat ini
 
-| Area | Lokasi | Penilaian |
-| --- | --- | --- |
-| HTTP | `app/Http/Controllers`, `Requests`, `Resources`, `Middleware` | Tanggung jawab transport cukup jelas |
-| Operasi aplikasi | `app/Actions/<domain>` | Pengelompokan domain sudah tersedia |
-| Data | `app/Models`, `app/Tables` | Kepemilikan tabel per modul belum menjadi batas eksplisit |
-| Otorisasi | `app/Policies`, `app/Enums/Permission.php` | Policy tersedia; katalog permission masih terpusat |
-| Aktivasi modul | `config/features.php`, `app/Support/FeatureManager.php`, `app/Providers/FeatureServiceProvider.php` | Memisahkan availability dan enabled state |
-| Frontend | `resources/js/pages`, `components`, `composables`, `layouts`, `types` | Dominan berdasarkan lapisan teknis |
-| Migrasi opsional | `database/migrations/chat`, `database/migrations/documentation` | Sudah ada pemisahan sebagian schema berdasarkan modul |
-| Verifikasi | `tests/Feature`, `Browser`, `Acceptance`, `phpstan.neon` | Beragam pemeriksaan perilaku; batas dependensi perlu diperkuat |
+| Area             | Lokasi                                                                                              | Penilaian                                                      |
+| ---------------- | --------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| HTTP             | `app/Http/Controllers`, `Requests`, `Resources`, `Middleware`                                       | Tanggung jawab transport cukup jelas                           |
+| Operasi aplikasi | `app/Actions/<domain>`                                                                              | Pengelompokan domain sudah tersedia                            |
+| Data             | `app/Models`, `app/Tables`                                                                          | Kepemilikan tabel per modul belum menjadi batas eksplisit      |
+| Otorisasi        | `app/Policies`, `app/Enums/Permission.php`                                                          | Policy tersedia; katalog permission masih terpusat             |
+| Aktivasi modul   | `config/features.php`, `app/Support/FeatureManager.php`, `app/Providers/FeatureServiceProvider.php` | Memisahkan availability dan enabled state                      |
+| Frontend         | `resources/js/pages`, `components`, `composables`, `layouts`, `types`                               | Dominan berdasarkan lapisan teknis                             |
+| Migrasi opsional | `database/migrations/chat`, `database/migrations/documentation`                                     | Sudah ada pemisahan sebagian schema berdasarkan modul          |
+| Verifikasi       | `tests/Feature`, `Browser`, `Acceptance`, `phpstan.neon`                                            | Beragam pemeriksaan perilaku; batas dependensi perlu diperkuat |
 
 ## Hasil audit
 
@@ -126,14 +126,14 @@ Pengelolaan user, API client, dan backup berada di bawah `MasterData`. Backup me
 
 ### Usulan batas modul
 
-| Modul/area | Kepemilikan awal | Catatan |
-| --- | --- | --- |
-| Identity & Access | User, role, permission, account, API client/token | Modul lain mengakses identitas melalui kontrak yang sempit |
-| Chat | Conversation, participant, message, realtime chat | Summary dan integrasi shell disediakan lewat kontrak |
-| Documentation | Dokumen, editor, publikasi, pencarian dokumen | Kandidat modul percobaan pertama |
-| Operations | Backup, restore, system health | Restore database memiliki wewenang lintas tabel yang harus eksplisit |
-| Audit & Notifications | Audit trail dan penyampaian notifikasi | Pemisahan lebih lanjut ditentukan oleh kebutuhan, bukan dipaksakan sejak awal |
-| Platform | Bootstrap, konfigurasi, shell, locale, primitive bersama | Bukan tempat penampungan business logic |
+| Modul/area            | Kepemilikan awal                                         | Catatan                                                                       |
+| --------------------- | -------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Identity & Access     | User, role, permission, account, API client/token        | Modul lain mengakses identitas melalui kontrak yang sempit                    |
+| Chat                  | Conversation, participant, message, realtime chat        | Summary dan integrasi shell disediakan lewat kontrak                          |
+| Documentation         | Dokumen, editor, publikasi, pencarian dokumen            | Kandidat modul percobaan pertama                                              |
+| Operations            | Backup, restore, system health                           | Restore database memiliki wewenang lintas tabel yang harus eksplisit          |
+| Audit & Notifications | Audit trail dan penyampaian notifikasi                   | Pemisahan lebih lanjut ditentukan oleh kebutuhan, bukan dipaksakan sejak awal |
+| Platform              | Bootstrap, konfigurasi, shell, locale, primitive bersama | Bukan tempat penampungan business logic                                       |
 
 Batas ini adalah usulan. Penempatan API transport dan persistent settings harus dipastikan berdasarkan pemilik perilakunya; seluruh hal yang memakai API atau settings tidak otomatis menjadi satu domain.
 
@@ -244,3 +244,29 @@ Dokumen ini tidak menjalankan reset database maupun mengubah migrasi.
 4. Rapikan Identity serta integrasi audit/notifikasi berdasarkan hasil fase sebelumnya.
 
 Rekomendasi utama: migrasi bertahap dengan satu modul percobaan. Keberhasilan diukur dari perubahan modul yang tidak membutuhkan akses ke internal modul lain, bukan dari jumlah folder yang dipindahkan.
+
+## Tindak lanjut implementasi — 5 November 2026
+
+Perbaikan A-01–A-05 diterapkan secara bertahap pada branch `refactor/architecture-audit-fixes`. Bagian audit di atas tetap menjelaskan baseline `7d20bd6`; perubahan ini belum merupakan pemindahan seluruh aplikasi ke struktur konseptual `app/Modules`.
+
+### Kontrak dan kepemilikan yang diterapkan
+
+- `SearchProvider` merupakan kontribusi pencarian sinkron: setiap penyedia memiliki key hasil dan menjalankan otorisasi serta feature gate domainnya. `SearchGlobal` hanya menggabungkan hasil penyedia terdaftar. Documentation memiliki query, aturan publikasi, ranking, dan batas hasilnya sendiri; pencarian user dimiliki area Account.
+- `ChatSummary` merupakan kontrak query shell dengan hasil `unread_count`. Provider Chat memasang implementasinya; implementasi memeriksa effective state sebelum mengakses schema Chat. Provider tetap boleh terdaftar saat hard flag off agar bentuk respons HTTP konsisten tanpa mengakses tabel modul.
+- `Module` menjadi registry metadata settings, provider kontribusi, permission, path migrasi, serta sumber enumerasi state backend/frontend. Nilai environment tetap berada dalam `config/features.php`. Route dan komponen navigasi mempertahankan kepemilikan domain serta menggunakan effective state yang sama.
+- Hard flag membatasi ketersediaan schema/settings/routes. Stored toggle hanya mengubah aktivasi modul yang tersedia. State HTTP bersifat scoped; penyimpanan settings mereset memo, dan worker/scheduler membaca ulang toggle serta membersihkan state antar-job. Matriks config/route cache tetap diuji melalui acceptance yang memakai database disposable.
+- `useChat` menjadi koordinator inbox/realtime. History memiliki cursor, urutan, dan pembatalan request; delivery memiliki draft, antrean pending, dan token retry; typing memiliki timer/presence; read state memiliki antrean acknowledgment. API halaman tetap sama dan cleanup koordinator membatalkan pekerjaan setiap pemilik state.
+- Actions, controller, request, resource, dan Table user/API client dimiliki `Identity`; backup/restore dimiliki `Operations`. Route serta nama halaman `master-data` tetap merupakan struktur menu. Pemutusan koneksi realtime user dimiliki Account karena mencabut sesi seluruh akun, termasuk saat Chat off.
+
+| Pemilik               | Tabel/data                                                                                                                                  | Akses lintas area yang diperbolehkan                                                                                                                                                                      |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Identity & Access     | `users`, `roles`, `permissions`, pivot permission, `passkeys`, `password_reset_tokens`, `sessions`, `api_clients`, `personal_access_tokens` | Identitas aktor, policy, dan relasi/FK user tetap dipakai domain lain; ekstraksi kontrak identitas menyeluruh masih bagian fase migrasi lanjutan                                                          |
+| Chat                  | `chat_conversations`, `chat_participants`, `chat_messages`                                                                                  | Shell memakai `ChatSummary`; akses model dibatasi ke Actions/HTTP/policy/event/model Chat dan factory yang disebut eksplisit di architecture test                                                         |
+| Documentation         | `documentations`                                                                                                                            | Core memakai `SearchProvider`; model hanya boleh diakses Actions/HTTP/policy Documentation dan factory-nya                                                                                                |
+| Audit & Notifications | `audit_logs`, `notifications`                                                                                                               | Pencatatan audit serta pengiriman notifikasi memakai operasi yang sudah ada                                                                                                                               |
+| Platform              | `settings`, `media`, `cache`, `cache_locks`, `jobs`, `job_batches`, `failed_jobs`                                                           | Schema persistence bersama; setiap group settings dan pemilik media mempertahankan tanggung jawab domainnya                                                                                               |
+| Operations            | Arsip backup dan proses restore database/storage                                                                                            | Restore secara eksplisit berwenang mengganti schema lintas tabel, membersihkan queue/session historis, dan memulihkan file; locking, checksum, transaksi, maintenance, serta rollback tetap dipertahankan |
+
+Pengecualian transisi: nama class job dan notification undangan di `MasterData` dipertahankan untuk kompatibilitas payload queue yang sudah terserialisasi. Keduanya tetap adapter transport Identity; operasi aplikasinya sudah berpindah. Model bersama, settings group, API transport, audit, dan notifikasi belum dipindahkan secara massal. Architecture tests menegakkan batas yang sudah diterapkan, bukan mengklaim seluruh matriks target fase 4 selesai.
+
+Tidak ada perubahan schema atau reset database development pada perbaikan ini. Migrasi dari kosong, toggle modul, dan restore divalidasi pada database testing/disposable yang terpisah. Bukti lokal tidak membuktikan hosted CI atau penerimaan production.

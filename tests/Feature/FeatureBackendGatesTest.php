@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 use App\Actions\Chat\SendChatMessage;
 use App\Actions\Chat\StartDirectConversation;
-use App\Actions\MasterData\Backup\CreateBackup;
-use App\Actions\MasterData\Backup\GetBackupLock;
-use App\Actions\MasterData\Backup\RestoreActiveBackup;
+use App\Actions\Operations\Backup\CreateBackup;
+use App\Actions\Operations\Backup\GetBackupLock;
+use App\Actions\Operations\Backup\RestoreActiveBackup;
 use App\Actions\System\GetSystemHealth;
 use App\Enums\Module;
 use App\Events\ChatMessageCreated;

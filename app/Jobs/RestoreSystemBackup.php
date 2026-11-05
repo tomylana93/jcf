@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
-use App\Actions\MasterData\Backup\RestoreActiveBackup;
+use App\Actions\Operations\Backup\RestoreActiveBackup;
 use App\Models\User;
 use App\Notifications\ApplicationNotification;
 use App\Support\FeatureManager;

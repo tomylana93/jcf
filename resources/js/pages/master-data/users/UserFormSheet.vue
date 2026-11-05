@@ -15,7 +15,7 @@ import {
     sendInvitation,
     store,
     update,
-} from '@/actions/App/Http/Controllers/MasterData/UserController';
+} from '@/actions/App/Http/Controllers/Identity/UserController';
 import { Button } from '@/components/ui/button';
 import {
     Field,

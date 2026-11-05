@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use App\Actions\MasterData\Backup\CreateBackup;
-use App\Actions\MasterData\Backup\ExtractBackup;
-use App\Actions\MasterData\Backup\GetBackupChecksum;
-use App\Actions\MasterData\Backup\RestoreBackup;
+use App\Actions\Operations\Backup\CreateBackup;
+use App\Actions\Operations\Backup\ExtractBackup;
+use App\Actions\Operations\Backup\GetBackupChecksum;
+use App\Actions\Operations\Backup\RestoreBackup;
 use Illuminate\Process\Factory;
 use Illuminate\Process\PendingProcess;
 use Illuminate\Support\Facades\DB;

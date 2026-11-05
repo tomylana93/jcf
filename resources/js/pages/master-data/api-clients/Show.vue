@@ -6,7 +6,7 @@ import { computed, ref, watchEffect } from 'vue';
 import {
     destroyToken,
     storeToken,
-} from '@/actions/App/Http/Controllers/MasterData/ApiClientController';
+} from '@/actions/App/Http/Controllers/Identity/ApiClientController';
 import ApiTokenCreateForm from '@/components/api-tokens/ApiTokenCreateForm.vue';
 import ApiTokenList from '@/components/api-tokens/ApiTokenList.vue';
 import NewApiTokenNotice from '@/components/api-tokens/NewApiTokenNotice.vue';
