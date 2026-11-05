@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Enums\Module;
 use App\Models\User;
 use App\Providers\FeatureServiceProvider;
 use App\Settings\ChatSettings;
@@ -63,7 +64,7 @@ describe('Feature flags', function (): void {
     })->with([true, false]);
 
     it('requires both the hard flag and the stored toggle', function (string $module, bool $hard, bool $soft): void {
-        $class = FeatureManager::SETTINGS[$module];
+        $class = Module::settingsClasses()[$module];
         resolve($class)->fill(['enabled' => $soft])->save();
         config(['features.'.$module => $hard]);
 
@@ -75,7 +76,7 @@ describe('Feature flags', function (): void {
         config(['settings.cache.enabled' => $cache]);
         $resolved = [];
         $queries = [];
-        foreach (FeatureManager::SETTINGS as $module => $class) {
+        foreach (Module::settingsClasses() as $module => $class) {
             config(['features.'.$module => false]);
             app()->beforeResolving($class, function () use (&$resolved, $module): void {
                 $resolved[] = $module;
@@ -86,7 +87,7 @@ describe('Feature flags', function (): void {
         });
 
         $features = resolve(FeatureManager::class);
-        foreach (array_keys(FeatureManager::SETTINGS) as $module) {
+        foreach (array_keys(Module::settingsClasses()) as $module) {
             expect($features->enabled($module))->toBeFalse();
         }
         expect($features->enabled('unknown'))->toBeFalse()
@@ -96,7 +97,7 @@ describe('Feature flags', function (): void {
 
     it('observes saved toggles in the same long lived process', function (string $module): void {
         $features = resolve(FeatureManager::class);
-        $class = FeatureManager::SETTINGS[$module];
+        $class = Module::settingsClasses()[$module];
         expect($features->enabled($module))->toBeTrue();
 
         (new $class)->fill(['enabled' => false])->save();
@@ -155,11 +156,11 @@ describe('Feature flags', function (): void {
     });
 
     it('prevents container autowiring from bypassing hard off settings registration', function (): void {
-        foreach (FeatureManager::SETTINGS as $module => $class) {
+        foreach (Module::settingsClasses() as $module => $class) {
             config(['features.'.$module => false]);
         }
         new FeatureServiceProvider(app())->register();
-        foreach (FeatureManager::SETTINGS as $module => $class) {
+        foreach (Module::settingsClasses() as $module => $class) {
             expect(app()->bound($class))->toBeFalse()
                 ->and(fn () => resolve($class))->toThrow(LogicException::class, 'Settings unavailable for disabled module: '.$module);
         }
@@ -189,7 +190,7 @@ describe('Feature flags', function (): void {
                 new Process([PHP_BINARY, 'artisan', 'migrate', '--force', '--no-interaction'], base_path(), [...$environment, ...$overrides])->mustRun();
             };
             $migrate();
-            expect($db->table('settings')->whereIn('group', array_keys(FeatureManager::SETTINGS))->count())->toBe(0);
+            expect($db->table('settings')->whereIn('group', array_keys(Module::settingsClasses()))->count())->toBe(0);
             $tables = ['chat' => ['chat_conversations', 'chat_participants', 'chat_messages'], 'documentation' => ['documentations'], 'backup' => [], 'api' => ['api_clients']];
             foreach ($tables as $names) {
                 foreach ($names as $table) {
@@ -220,7 +221,7 @@ describe('Feature flags', function (): void {
                 $app = require "bootstrap/app.php";
                 $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
                 config(["cache.stores.file.path" => getenv("FEATURE_TEST_CACHE"), "cache.stores.file.lock_path" => getenv("FEATURE_TEST_CACHE")]);
-                $class = App\Support\FeatureManager::SETTINGS[$argv[1]];
+                $class = App\Enums\Module::settingsClasses()[$argv[1]];
                 if ($argv[2] === "off") {
                     resolve($class)->fill(["enabled" => false])->save();
                     exit;
@@ -269,7 +270,7 @@ describe('Feature flags', function (): void {
 
     it('shares hard off state without resolving module settings', function (): void {
         $resolved = [];
-        foreach (FeatureManager::SETTINGS as $module => $class) {
+        foreach (Module::settingsClasses() as $module => $class) {
             config(['features.'.$module => false]);
             app()->beforeResolving($class, function () use (&$resolved, $module): void {
                 $resolved[] = $module;

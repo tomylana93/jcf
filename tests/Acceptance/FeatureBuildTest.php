@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Support\FeatureManager;
+use App\Enums\Module;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Spatie\TemporaryDirectory\TemporaryDirectory;
@@ -25,7 +25,7 @@ describe('Clean deployment builds', function (): void {
                 'FEATURE_CHAT' => 'true', 'FEATURE_DOCUMENTATION' => 'true', 'FEATURE_BACKUP' => 'true',
                 'CACHE_STORE' => 'array', 'SESSION_DRIVER' => 'array',
             ];
-            foreach (array_keys(FeatureManager::SETTINGS) as $module) {
+            foreach (array_keys(Module::settingsClasses()) as $module) {
                 $environment['FEATURE_'.mb_strtoupper($module)] = 'false';
             }
             $run = static fn (array $args): Process => new Process($args, base_path(), $environment, timeout: 180)->mustRun();
@@ -50,7 +50,7 @@ describe('Clean deployment builds', function (): void {
                 $run([PHP_BINARY, 'artisan', 'config:clear']);
                 $run([PHP_BINARY, 'artisan', 'route:clear']);
                 expect($run([PHP_BINARY, 'artisan', 'route:list', '--json'])->getOutput())->toBe($uncached);
-                foreach (array_keys(FeatureManager::SETTINGS) as $module) {
+                foreach (array_keys(Module::settingsClasses()) as $module) {
                     expect($db->table('settings')->where('group', $module)->count())->toBe(0);
                 }
             } finally {

@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Enums\Module;
 use App\Enums\Permission;
-use App\Support\FeatureManager;
 use Illuminate\Support\Facades\DB;
 use Spatie\TemporaryDirectory\TemporaryDirectory;
 use Symfony\Component\Process\Process;
@@ -31,7 +31,7 @@ describe('Feature deployment acceptance', function (): void {
                 $process->mustRun();
                 $result = json_decode($process->getOutput(), true, flags: JSON_THROW_ON_ERROR);
                 expect($result['core'])->toBe(['/dashboard' => 200, '/settings' => 200, '/permissions' => 200, '/search?query=manual' => 200, '/system' => 200]);
-                foreach (array_keys(FeatureManager::SETTINGS) as $name) {
+                foreach (array_keys(Module::settingsClasses()) as $name) {
                     expect($result['features'][$name]['enabled'])->toBe($name === $module && $hard && $soft);
                 }
                 expect($result['module_status'])->toBe($module === 'all' || ! $hard || ! $soft ? 404 : 200)

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\Settings;
 
 use App\Actions\Settings\ValidateModuleSettings;
+use App\Enums\Module;
 use App\Enums\Permission;
 use App\Support\FeatureManager;
 use Closure;
@@ -15,7 +16,7 @@ final class UpdateModuleSettingsRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        abort_unless(collect(array_keys(FeatureManager::SETTINGS))->contains(fn (string $module): bool => resolve(FeatureManager::class)->available($module)), 404);
+        abort_unless(collect(array_keys(Module::settingsClasses()))->contains(fn (string $module): bool => resolve(FeatureManager::class)->available($module)), 404);
 
         return $this->user()?->can(Permission::ViewSettings) === true && $this->user()->can(Permission::ManageSettings);
     }
