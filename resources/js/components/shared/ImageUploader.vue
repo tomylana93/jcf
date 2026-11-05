@@ -72,7 +72,7 @@ const uppyLocale = computed(() =>
     locale.value === 'id' ? Indonesian : English,
 );
 
-function selectFile(file: UppyFile<Meta, Record<string, never>>) {
+function selectFile(file: UppyFile<Meta, Record<string, never>>): void {
     if (file.data instanceof Blob) {
         emit(
             'selected',

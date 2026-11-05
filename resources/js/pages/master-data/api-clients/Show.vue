@@ -19,6 +19,7 @@ import { useTranslations } from '@/composables/useTranslations';
 import { index as masterDataIndex } from '@/routes/master-data';
 import { index, show } from '@/routes/master-data/api-clients';
 import type { ApiClientRow, ApiToken, SelectOption } from '@/types';
+import type { RouteDefinition } from '@/wayfinder';
 
 import ApiClientFormSheet from './ApiClientFormSheet.vue';
 import { apiClientStatusTones } from './columns';
@@ -35,8 +36,9 @@ const { can } = usePermissions();
 const { t } = useTranslations();
 const formOpen = ref(false);
 
-const revokeAction = (token: ApiToken) =>
-    destroyToken({ apiClient: props.client.id, token: token.id });
+function revokeAction(token: ApiToken): RouteDefinition<'delete'> {
+    return destroyToken({ apiClient: props.client.id, token: token.id });
+}
 
 const canManage = computed(() => can('api-clients.manage'));
 

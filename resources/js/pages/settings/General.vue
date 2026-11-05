@@ -45,7 +45,7 @@ const form = useForm<UpdateGeneralSettingsForm>({
     support_email: props.settings.support_email ?? '',
 }).withPrecognition(update());
 
-const submit = () => {
+function submit(): void {
     form.submit(update(), {
         preserveScroll: true,
         onSuccess: () => {
@@ -55,7 +55,7 @@ const submit = () => {
             form.defaults();
         },
     });
-};
+}
 </script>
 
 <template>

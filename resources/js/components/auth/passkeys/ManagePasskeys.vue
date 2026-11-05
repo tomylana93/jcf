@@ -25,16 +25,16 @@ withDefaults(defineProps<ManagePasskeysProps>(), {
 
 const deleteForm = useForm({});
 
-const handleDelete = (id: number, onError: () => void) => {
+function handleDelete(id: number, onError: () => void): void {
     deleteForm.submit(destroy(id), {
         preserveScroll: true,
         onError,
     });
-};
+}
 
-const handleRegisterSuccess = () => {
+function handleRegisterSuccess(): void {
     router.reload();
-};
+}
 </script>
 
 <template>

@@ -20,9 +20,9 @@ type Props = {
     user: User;
 };
 
-const handleLogout = () => {
+function handleLogout(): void {
     router.flushAll();
-};
+}
 
 defineProps<Props>();
 </script>

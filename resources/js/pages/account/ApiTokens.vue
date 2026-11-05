@@ -13,6 +13,7 @@ import Heading from '@/components/shared/Heading.vue';
 import { useTranslations } from '@/composables/useTranslations';
 import { index } from '@/routes/api-tokens';
 import type { ApiToken, SelectOption } from '@/types';
+import type { RouteDefinition } from '@/wayfinder';
 
 defineProps<{
     tokens: ApiToken[];
@@ -22,7 +23,9 @@ defineProps<{
 
 const { t } = useTranslations();
 
-const revokeAction = (token: ApiToken) => destroy(token.id);
+function revokeAction(token: ApiToken): RouteDefinition<'delete'> {
+    return destroy(token.id);
+}
 
 watchEffect(() =>
     setLayoutProps({

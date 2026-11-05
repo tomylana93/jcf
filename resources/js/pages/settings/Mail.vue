@@ -57,7 +57,7 @@ const testForm = useForm<SendMailSettingsTestForm>({
     test_email: '',
 });
 
-const submit = () => {
+function submit(): void {
     form.submit(update(), {
         preserveScroll: true,
         onSuccess: () => {
@@ -66,13 +66,13 @@ const submit = () => {
             previewKey.value += 1;
         },
     });
-};
+}
 
-const sendTest = () => {
+function sendTest(): void {
     testForm.submit(test(), {
         preserveScroll: true,
     });
-};
+}
 
 watchEffect(() => {
     setLayoutProps({

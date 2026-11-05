@@ -32,7 +32,7 @@ watchEffect(() =>
     }),
 );
 
-function submit() {
+function submit(): void {
     form.submit(destroy(), {
         preserveScroll: true,
         onFinish: () => form.reset('password'),

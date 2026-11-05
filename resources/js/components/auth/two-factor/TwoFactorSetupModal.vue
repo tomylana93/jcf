@@ -74,7 +74,7 @@ const modalConfig = computed<TwoFactorConfigContent>(() => {
     };
 });
 
-const handleModalNextStep = () => {
+function handleModalNextStep(): void {
     if (props.requiresConfirmation) {
         showVerificationStep.value = true;
 
@@ -87,16 +87,16 @@ const handleModalNextStep = () => {
 
     clearSetupData();
     isOpen.value = false;
-};
+}
 
-const resetModalState = () => {
+function resetModalState(): void {
     if (props.twoFactorEnabled) {
         clearSetupData();
     }
 
     showVerificationStep.value = false;
     form.resetAndClearErrors();
-};
+}
 
 watch(
     () => isOpen.value,
@@ -113,7 +113,7 @@ watch(
     },
 );
 
-const submit = () => {
+function submit(): void {
     form.submit(confirm(), {
         errorBag: 'confirmTwoFactorAuthentication',
         onFinish: () => form.reset(),
@@ -121,7 +121,7 @@ const submit = () => {
             isOpen.value = false;
         },
     });
-};
+}
 </script>
 
 <template>

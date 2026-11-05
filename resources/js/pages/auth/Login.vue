@@ -44,11 +44,11 @@ const form = useForm<LoginForm>({
     password: '',
 });
 
-const submit = () => {
+function submit(): void {
     form.submit(store(), {
         onSuccess: () => form.reset('password'),
     });
-};
+}
 </script>
 
 <template>

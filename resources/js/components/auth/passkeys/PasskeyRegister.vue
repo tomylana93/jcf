@@ -20,7 +20,7 @@ const emit = defineEmits<{
     success: [];
 }>();
 
-const getDefaultPasskeyName = () => {
+function getDefaultPasskeyName(): string {
     const ua = navigator.userAgent;
 
     const browser = [
@@ -49,7 +49,7 @@ const getDefaultPasskeyName = () => {
     }
 
     return parts.join(' ') || '';
-};
+}
 
 const form = useForm<RegisterPasskeyForm>({ name: getDefaultPasskeyName() });
 
@@ -63,18 +63,18 @@ const { register, isLoading, error, isSupported } = usePasskeyRegister({
     },
 });
 
-const handleSubmit = async () => {
+async function handleSubmit(): Promise<void> {
     if (!form.name.trim()) {
         return;
     }
 
     await register(form.name);
-};
+}
 
-const handleCancel = () => {
+function handleCancel(): void {
     showForm.value = false;
     form.name = '';
-};
+}
 </script>
 
 <template>

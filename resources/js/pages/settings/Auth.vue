@@ -44,11 +44,11 @@ const form = useForm<UpdateAuthSettingsForm>({
     ...props.settings,
 }).withPrecognition(update());
 
-const submit = () => {
+function submit(): void {
     form.submit(update(), {
         preserveScroll: true,
     });
-};
+}
 </script>
 
 <template>

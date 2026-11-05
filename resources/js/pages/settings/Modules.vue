@@ -36,7 +36,8 @@ watchEffect(() =>
         ],
     }),
 );
-const submit = () =>
+
+function submit(): void {
     form.submit(update(), {
         preserveScroll: true,
         onSuccess: () => {
@@ -44,6 +45,7 @@ const submit = () =>
             form.defaults();
         },
     });
+}
 </script>
 
 <template>

@@ -45,13 +45,13 @@ const form = useForm<UpdatePasswordForm>({
     password_confirmation: '',
 });
 
-const submit = () => {
+function submit(): void {
     form.submit(update(), {
         preserveScroll: true,
         onSuccess: () => form.reset(),
         onError: () => form.reset(),
     });
-};
+}
 </script>
 
 <template>

@@ -25,13 +25,13 @@ const { t } = useTranslations();
 const passwordInput = useTemplateRef('passwordInput');
 const form = useForm<DisableAccountForm>({ password: '' });
 
-const submit = () => {
+function submit(): void {
     form.submit(disable(), {
         preserveScroll: true,
         onSuccess: () => form.reset(),
         onError: () => passwordInput.value?.focus(),
     });
-};
+}
 </script>
 
 <template>

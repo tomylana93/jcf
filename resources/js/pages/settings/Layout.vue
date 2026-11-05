@@ -47,7 +47,7 @@ const form = useForm<UpdateLayoutSettingsForm>({
     ...props.settings,
 }).withPrecognition(update());
 
-const submit = () => {
+function submit(): void {
     form.submit(update(), {
         preserveScroll: true,
         onSuccess: () => {
@@ -56,7 +56,7 @@ const submit = () => {
             form.defaults();
         },
     });
-};
+}
 </script>
 
 <template>

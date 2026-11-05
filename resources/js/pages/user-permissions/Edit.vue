@@ -113,9 +113,12 @@ const removed = computed(() =>
     ),
 );
 
-const label = (value: string): string =>
-    props.permissions.find((permission) => permission.value === value)?.label ??
-    value;
+function label(value: string): string {
+    return (
+        props.permissions.find((permission) => permission.value === value)
+            ?.label ?? value
+    );
+}
 
 function toggle(value: string, checked: boolean | 'indeterminate'): void {
     form.permissions =

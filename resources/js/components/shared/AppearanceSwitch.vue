@@ -25,7 +25,7 @@ const trigger = useTemplateRef<InstanceType<typeof Button>>('trigger');
 
 const { appearance, updateAppearance } = useAppearance();
 
-function selectAppearance(value: unknown) {
+function selectAppearance(value: unknown): void {
     if (value === 'light' || value === 'dark' || value === 'system') {
         updateAppearance(value);
     }

@@ -25,7 +25,7 @@ const isRecoveryCodesVisible = ref<boolean>(false);
 
 const recoveryCodeSectionRef = useTemplateRef('recoveryCodeSectionRef');
 
-const toggleRecoveryCodesVisibility = async () => {
+async function toggleRecoveryCodesVisibility(): Promise<void> {
     if (!isRecoveryCodesVisible.value && !recoveryCodesList.value.length) {
         await fetchRecoveryCodes();
     }
@@ -36,7 +36,7 @@ const toggleRecoveryCodesVisibility = async () => {
         await nextTick();
         recoveryCodeSectionRef.value?.scrollIntoView({ behavior: 'smooth' });
     }
-};
+}
 
 onMounted(async () => {
     if (!recoveryCodesList.value.length) {
@@ -46,12 +46,12 @@ onMounted(async () => {
 
 const form = useForm({});
 
-const submit = () => {
+function submit(): void {
     form.submit(regenerateRecoveryCodes(), {
         preserveScroll: true,
         onSuccess: () => fetchRecoveryCodes(),
     });
-};
+}
 </script>
 
 <template>

@@ -90,26 +90,26 @@ const form = useForm<UpdateBrandSettingsForm>({
     remove_auth_background: false,
 });
 
-function clearPreview(field: ImageField) {
+function clearPreview(field: ImageField): void {
     if (previews[field]) {
         URL.revokeObjectURL(previews[field]);
         previews[field] = null;
     }
 }
 
-function selectImage(field: ImageField, file: File) {
+function selectImage(field: ImageField, file: File): void {
     clearPreview(field);
     form[field] = file;
     form[`remove_${field}`] = false;
     previews[field] = URL.createObjectURL(file);
 }
 
-function clearImage(field: ImageField) {
+function clearImage(field: ImageField): void {
     clearPreview(field);
     form[field] = null;
 }
 
-function toggleRemoval(field: ImageField) {
+function toggleRemoval(field: ImageField): void {
     const removeField = `remove_${field}` as const;
     form[removeField] = !form[removeField];
     if (form[removeField]) {
@@ -143,7 +143,7 @@ function imageStatus(field: ImageField): string {
     return t('settings.brand.status.default');
 }
 
-function resetSelections() {
+function resetSelections(): void {
     for (const field of [
         'logo',
         'logo_text',

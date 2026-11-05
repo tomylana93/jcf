@@ -33,13 +33,13 @@ const enableForm = useForm({});
 
 const disableForm = useForm({});
 
-const enableTwoFactor = () => {
+function enableTwoFactor(): void {
     enableForm.submit(enable(), {
         onSuccess: () => {
             showSetupModal.value = true;
         },
     });
-};
+}
 </script>
 
 <template>

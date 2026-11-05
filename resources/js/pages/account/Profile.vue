@@ -63,9 +63,9 @@ onMounted(() => {
     deviceTimezone.value = Intl.DateTimeFormat().resolvedOptions().timeZone;
 });
 
-const submit = () => {
+function submit(): void {
     form.submit(update(), {});
-};
+}
 </script>
 
 <template>
