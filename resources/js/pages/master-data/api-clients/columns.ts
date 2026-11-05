@@ -2,16 +2,23 @@ import { Link } from '@inertiajs/vue3';
 import { h } from 'vue';
 
 import type { DataTableColumnDef } from '@/components/datatable';
-import { Badge } from '@/components/ui/badge';
-import { formatDateTime } from '@/lib/dateTime';
+import StatusBadge from '@/components/shared/StatusBadge.vue';
 import { show } from '@/routes/master-data/api-clients';
-import type { ApiClientRow, TranslationKey } from '@/types';
+import type {
+    ApiClientRow,
+    ApiClientStatus,
+    DataTableColumnContext,
+} from '@/types';
 
-export function createColumns(
-    t: (key: TranslationKey) => string,
-    locale: string,
-    timezone: string,
-): DataTableColumnDef<ApiClientRow>[] {
+export const apiClientStatusTones = {
+    active: 'success',
+    disabled: 'neutral',
+} as const satisfies Record<ApiClientStatus, 'success' | 'neutral'>;
+
+export function createColumns({
+    t,
+    formatDateTime,
+}: DataTableColumnContext): DataTableColumnDef<ApiClientRow>[] {
     return [
         {
             accessorKey: 'name',
@@ -49,20 +56,17 @@ export function createColumns(
             header: t('api_client.label.status'),
             enableSorting: true,
             cell: ({ row }) =>
-                h(
-                    Badge,
-                    { variant: row.original.status_variant },
-                    () => row.original.status_label,
-                ),
+                h(StatusBadge, {
+                    tone: apiClientStatusTones[row.original.status],
+                    label: row.original.status_label,
+                }),
         },
         {
             accessorKey: 'created_at',
-            exportValue: (client) =>
-                formatDateTime(client.created_at, locale, timezone),
+            exportValue: (client) => formatDateTime(client.created_at),
             header: t('api_client.label.created_at'),
             enableSorting: true,
-            cell: ({ row }) =>
-                formatDateTime(row.original.created_at, locale, timezone),
+            cell: ({ row }) => formatDateTime(row.original.created_at),
         },
     ];
 }

@@ -3,10 +3,14 @@ import { useForm } from '@inertiajs/vue3';
 import { usePasskeyRegister } from '@laravel/passkeys/vue';
 import { ref } from 'vue';
 
-import InputError from '@/components/shared/InputError.vue';
 import { Button } from '@/components/ui/button';
+import {
+    Field,
+    FieldDescription,
+    FieldError,
+    FieldLabel,
+} from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { useTranslations } from '@/composables/useTranslations';
 import type { RegisterPasskeyForm } from '@/types';
 
@@ -16,7 +20,7 @@ const emit = defineEmits<{
     success: [];
 }>();
 
-const getDefaultPasskeyName = () => {
+function getDefaultPasskeyName(): string {
     const ua = navigator.userAgent;
 
     const browser = [
@@ -45,7 +49,7 @@ const getDefaultPasskeyName = () => {
     }
 
     return parts.join(' ') || '';
-};
+}
 
 const form = useForm<RegisterPasskeyForm>({ name: getDefaultPasskeyName() });
 
@@ -59,18 +63,18 @@ const { register, isLoading, error, isSupported } = usePasskeyRegister({
     },
 });
 
-const handleSubmit = async () => {
+async function handleSubmit(): Promise<void> {
     if (!form.name.trim()) {
         return;
     }
 
     await register(form.name);
-};
+}
 
-const handleCancel = () => {
+function handleCancel(): void {
     showForm.value = false;
     form.name = '';
-};
+}
 </script>
 
 <template>
@@ -94,27 +98,25 @@ const handleCancel = () => {
         @submit.prevent="handleSubmit"
         class="space-y-4 rounded-lg border border-border bg-muted/50 p-4"
     >
-        <div class="grid gap-2">
-            <Label for="passkey-name">
+        <Field :data-invalid="!!error">
+            <FieldLabel for="passkey-name">
                 {{ t('account.passkey.label.name') }}
-            </Label>
+            </FieldLabel>
             <Input
                 id="passkey-name"
                 type="text"
                 v-model="form.name"
                 :placeholder="t('account.passkey.placeholder.name')"
-                class="mt-1 block w-full border-foreground/20"
+                class="border-foreground/20"
+                :aria-invalid="!!error"
+                aria-describedby="passkey-name-description"
                 v-focus
             />
-            <p class="text-xs text-muted-foreground">
+            <FieldDescription id="passkey-name-description">
                 {{ t('account.passkey.helper.name') }}
-            </p>
-        </div>
-
-        <InputError
-            v-if="error"
-            :message="error"
-        />
+            </FieldDescription>
+            <FieldError :errors="[error ?? undefined]" />
+        </Field>
 
         <div class="flex gap-2">
             <Button

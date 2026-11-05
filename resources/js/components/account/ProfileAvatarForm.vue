@@ -76,7 +76,7 @@ const uploadStatus = computed(() =>
 
 watch(busy, (value) => emit('busy', value));
 
-function uploadFile(file: File) {
+function uploadFile(file: File): void {
     if (file.size > 2 * 1024 * 1024) {
         queuedFile.value = null;
         lastFile.value = null;
@@ -114,7 +114,7 @@ function uploadFile(file: File) {
     });
 }
 
-function resetSelection() {
+function resetSelection(): void {
     lastFile.value = null;
     resetKey.value++;
     uploadForm.reset();
@@ -122,7 +122,7 @@ function resetSelection() {
     saveForm.reset();
 }
 
-function savePhoto() {
+function savePhoto(): void {
     saveForm.temporary_avatar = saveForm.remove_avatar
         ? null
         : (props.settings.temporary?.id ?? null);
@@ -132,7 +132,7 @@ function savePhoto() {
     });
 }
 
-function discardPhoto() {
+function discardPhoto(): void {
     saveForm.temporary_avatar = props.settings.temporary?.id ?? null;
     saveForm.remove_avatar = false;
     saveForm.submit(discard(), {
@@ -141,7 +141,7 @@ function discardPhoto() {
     });
 }
 
-function removeSelection() {
+function removeSelection(): void {
     queuedFile.value = null;
     lastFile.value = null;
     if (uploadForm.processing) {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { router } from '@inertiajs/vue3';
+import { useForm } from '@inertiajs/vue3';
 import { KeyRound, Trash2 } from '@lucide/vue';
 import { ref } from 'vue';
 
@@ -14,20 +14,28 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
+import {
+    Empty,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
+} from '@/components/ui/empty';
 import { useDateTime } from '@/composables/useDateTime';
 import { useTranslations } from '@/composables/useTranslations';
 import type { ApiToken, SelectOption } from '@/types';
+import type { RouteDefinition } from '@/wayfinder';
 
 const props = defineProps<{
     tokens: ApiToken[];
     abilityOptions: SelectOption[];
-    revokeUrl: (token: ApiToken) => string;
+    revokeAction: (token: ApiToken) => RouteDefinition<'delete'>;
     canRevoke?: boolean;
 }>();
 
 const { t } = useTranslations();
 const { formatDateTime } = useDateTime();
 const revokingId = ref<number | null>(null);
+const revokeForm = useForm({});
 
 function abilityLabel(value: string): string {
     return (
@@ -36,9 +44,9 @@ function abilityLabel(value: string): string {
     );
 }
 
-function revoke(token: ApiToken) {
+function revoke(token: ApiToken): void {
     revokingId.value = token.id;
-    router.delete(props.revokeUrl(token), {
+    revokeForm.submit(props.revokeAction(token), {
         preserveScroll: true,
         onFinish: () => (revokingId.value = null),
     });
@@ -47,12 +55,19 @@ function revoke(token: ApiToken) {
 
 <template>
     <div class="flex flex-col gap-4">
-        <p
+        <Empty
             v-if="tokens.length === 0"
-            class="text-sm text-muted-foreground"
+            class="border"
         >
-            {{ t('account.api_tokens.helper.empty') }}
-        </p>
+            <EmptyHeader>
+                <EmptyMedia variant="icon">
+                    <KeyRound />
+                </EmptyMedia>
+                <EmptyTitle>
+                    {{ t('account.api_tokens.helper.empty') }}
+                </EmptyTitle>
+            </EmptyHeader>
+        </Empty>
 
         <ul
             v-else

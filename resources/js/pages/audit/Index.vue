@@ -45,7 +45,9 @@ const fields = computed(() =>
         : [],
 );
 
-const columns = computed(() => createColumns(t, formatDateTime, showDetail));
+const columns = computed(() =>
+    createColumns({ t, formatDateTime, onDetail: showDetail }),
+);
 
 const filters = computed<DataTableFilter[]>(() => [
     {

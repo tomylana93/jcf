@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { Head, Link, setLayoutProps, usePage } from '@inertiajs/vue3';
+import { Head, Link, setLayoutProps } from '@inertiajs/vue3';
 import { watchEffect } from 'vue';
 
 import RichTextContent from '@/components/editor/RichTextContent.vue';
 import PageContainer from '@/components/layout/PageContainer.vue';
-import { Badge } from '@/components/ui/badge';
+import StatusBadge from '@/components/shared/StatusBadge.vue';
 import { buttonVariants } from '@/components/ui/button';
+import { usePermissions } from '@/composables/usePermissions';
 import { useTranslations } from '@/composables/useTranslations';
 import { index, show } from '@/routes/documentation';
 import { edit } from '@/routes/documentation/manage';
@@ -13,7 +14,7 @@ import type { ReadableDocumentation } from '@/types';
 
 const props = defineProps<{ document: ReadableDocumentation }>();
 
-const page = usePage();
+const { can } = usePermissions();
 const { t } = useTranslations();
 
 watchEffect(() =>
@@ -40,20 +41,16 @@ watchEffect(() =>
                 {{ t('documentation.button.back') }}
             </Link>
             <Link
-                v-if="
-                    page.props.auth.permissions.includes('documentation.manage')
-                "
+                v-if="can('documentation.manage')"
                 :href="edit(document.id)"
                 :class="buttonVariants()"
             >
                 {{ t('documentation.button.edit') }}
             </Link>
-            <Badge
+            <StatusBadge
                 v-if="document.status === 'draft'"
-                variant="secondary"
-            >
-                {{ t('documentation.status.draft') }}
-            </Badge>
+                :label="t('documentation.status.draft')"
+            />
         </div>
         <article class="w-full min-w-0">
             <RichTextContent :html="document.content_html" />

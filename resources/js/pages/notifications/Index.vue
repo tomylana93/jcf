@@ -8,18 +8,32 @@ import {
     update,
 } from '@/actions/App/Http/Controllers/Notification/NotificationController';
 import PageContainer from '@/components/layout/PageContainer.vue';
+import SimplePagination from '@/components/shared/SimplePagination.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button, buttonVariants } from '@/components/ui/button';
+import {
+    Empty,
+    EmptyDescription,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
+} from '@/components/ui/empty';
 import { useDateTime } from '@/composables/useDateTime';
 import { useTranslations } from '@/composables/useTranslations';
 import { index } from '@/routes/notifications';
 import { edit as profileEdit } from '@/routes/profile';
-import type { NotificationRow, TablePaginator } from '@/types';
+import type {
+    NotificationFilter,
+    NotificationRow,
+    TablePaginator,
+} from '@/types';
 
 const props = defineProps<{
     notifications: TablePaginator<NotificationRow>;
-    status: string;
+    status: NotificationFilter;
 }>();
+
+const filters: NotificationFilter[] = ['all', 'unread', 'read'];
 
 const { t } = useTranslations();
 const { formatDateTime } = useDateTime();
@@ -54,7 +68,7 @@ function markAllRead(): void {
                 :aria-label="t('notification.label.filter')"
             >
                 <Link
-                    v-for="filter in ['all', 'unread', 'read'] as const"
+                    v-for="filter in filters"
                     :key="filter"
                     :href="index({ query: { status: filter } })"
                     :class="
@@ -154,69 +168,24 @@ function markAllRead(): void {
                 </form>
             </li>
         </ul>
-        <div
+        <Empty
             v-else
-            class="flex flex-col items-center gap-2 rounded-xl border border-dashed py-16 text-center"
+            class="border"
         >
-            <Bell
-                class="size-8 text-muted-foreground"
-                aria-hidden="true"
-            />
-            <p class="font-medium">{{ t('notification.helper.empty') }}</p>
-            <p class="text-sm text-muted-foreground">
-                {{ t('notification.helper.empty_description') }}
-            </p>
-        </div>
-        <nav
-            class="flex items-center justify-between gap-3"
-            :aria-label="t('notification.label.pagination')"
-        >
-            <Link
-                v-if="notifications.current_page > 1"
-                :href="
-                    index({
-                        query: {
-                            status,
-                            page: notifications.current_page - 1,
-                        },
-                    })
-                "
-                :class="buttonVariants({ variant: 'outline', size: 'sm' })"
-            >
-                {{ t('table.pagination.button.previous') }}
-            </Link>
-            <span v-else />
-            <p class="text-sm text-muted-foreground">
-                {{
-                    t('table.pagination.helper.page_status', {
-                        current: notifications.current_page,
-                        total: Math.max(
-                            1,
-                            Math.ceil(
-                                notifications.total / notifications.per_page,
-                            ),
-                        ),
-                    })
-                }}
-            </p>
-            <Link
-                v-if="
-                    notifications.current_page * notifications.per_page <
-                    notifications.total
-                "
-                :href="
-                    index({
-                        query: {
-                            status,
-                            page: notifications.current_page + 1,
-                        },
-                    })
-                "
-                :class="buttonVariants({ variant: 'outline', size: 'sm' })"
-            >
-                {{ t('table.pagination.button.next') }}
-            </Link>
-            <span v-else />
-        </nav>
+            <EmptyHeader>
+                <EmptyMedia variant="icon">
+                    <Bell />
+                </EmptyMedia>
+                <EmptyTitle>{{ t('notification.helper.empty') }}</EmptyTitle>
+                <EmptyDescription>
+                    {{ t('notification.helper.empty_description') }}
+                </EmptyDescription>
+            </EmptyHeader>
+        </Empty>
+        <SimplePagination
+            :paginator="notifications"
+            :label="t('notification.label.pagination')"
+            :page-href="(page) => index({ query: { status, page } })"
+        />
     </PageContainer>
 </template>

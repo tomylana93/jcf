@@ -20,7 +20,6 @@ final class ApiClientResource extends JsonResource
             'description' => $this->description,
             'status' => $this->status,
             'status_label' => $this->status->label(),
-            'status_variant' => $this->status->badgeVariant(),
             'tokens_count' => (int) ($this->tokens_count ?? $this->tokens()->count()),
             'created_at' => $this->created_at?->toIso8601String(),
         ];

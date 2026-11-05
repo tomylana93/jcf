@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 return [
     'label' => [
-        'skip_content' => 'Lewati ke konten',
         'open' => 'Buka menu navigasi',
         'main' => 'Navigasi utama',
         'preferences' => 'Preferensi bahasa dan tema',
@@ -20,8 +19,6 @@ return [
     ],
 
     'link' => [
-        'explore' => 'Jelajahi konten',
-        'home' => 'Beranda',
         'system' => 'Kesehatan sistem',
         'audit' => 'Audit log',
         'dashboard' => 'Dashboard',

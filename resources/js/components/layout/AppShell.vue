@@ -2,10 +2,10 @@
 import { usePage } from '@inertiajs/vue3';
 
 import { SidebarProvider } from '@/components/ui/sidebar';
-import type { AppVariant } from '@/types';
+import type { AppLayoutVariant } from '@/types';
 
 type Props = {
-    variant?: AppVariant;
+    variant?: AppLayoutVariant;
 };
 
 withDefaults(defineProps<Props>(), {

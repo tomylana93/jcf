@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 return [
     'label' => [
-        'skip_content' => 'Skip to content',
         'open' => 'Open navigation menu',
         'main' => 'Main navigation',
         'preferences' => 'Language and theme preferences',
@@ -20,8 +19,6 @@ return [
     ],
 
     'link' => [
-        'explore' => 'Explore content',
-        'home' => 'Home',
         'system' => 'System health',
         'audit' => 'Audit log',
         'dashboard' => 'Dashboard',

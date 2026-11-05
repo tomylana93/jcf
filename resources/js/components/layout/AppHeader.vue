@@ -28,8 +28,8 @@ import {
 } from '@/components/ui/navigation-menu';
 import { SidebarTrigger, useSidebar } from '@/components/ui/sidebar';
 import { useCurrentUrl } from '@/composables/useCurrentUrl';
-import { getInitials } from '@/composables/useInitials';
 import { useTranslations } from '@/composables/useTranslations';
+import { getInitials } from '@/lib/initials';
 import {
     createFooterNavigationItems,
     createMainNavigationItems,

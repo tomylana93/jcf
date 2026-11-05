@@ -3,7 +3,7 @@ import { Head, setLayoutProps, useForm } from '@inertiajs/vue3';
 import { Save } from '@lucide/vue';
 import { watchEffect } from 'vue';
 
-import SecurityController from '@/actions/App/Http/Controllers/Account/SecurityController';
+import { update } from '@/actions/App/Http/Controllers/Account/SecurityController';
 import ManagePasskeys from '@/components/auth/passkeys/ManagePasskeys.vue';
 import ManageTwoFactor from '@/components/auth/two-factor/ManageTwoFactor.vue';
 import Heading from '@/components/shared/Heading.vue';
@@ -45,20 +45,18 @@ const form = useForm<UpdatePasswordForm>({
     password_confirmation: '',
 });
 
-const submit = () => {
-    form.submit(SecurityController.update(), {
+function submit(): void {
+    form.submit(update(), {
         preserveScroll: true,
         onSuccess: () => form.reset(),
         onError: () => form.reset(),
     });
-};
+}
 </script>
 
 <template>
     <div class="flex flex-col gap-8">
         <Head :title="t('account.security.title')" />
-
-        <h1 class="sr-only">{{ t('account.security.title') }}</h1>
 
         <div class="flex flex-col gap-6">
             <Heading

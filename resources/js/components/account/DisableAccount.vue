@@ -2,9 +2,8 @@
 import { useForm } from '@inertiajs/vue3';
 import { useTemplateRef } from 'vue';
 
-import ProfileController from '@/actions/App/Http/Controllers/Account/ProfileController';
+import { disable } from '@/actions/App/Http/Controllers/Account/ProfileController';
 import Heading from '@/components/shared/Heading.vue';
-import InputError from '@/components/shared/InputError.vue';
 import PasswordInput from '@/components/shared/PasswordInput.vue';
 import { Button } from '@/components/ui/button';
 import {
@@ -17,7 +16,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { useTranslations } from '@/composables/useTranslations';
 import type { DisableAccountForm } from '@/types';
 
@@ -26,13 +25,13 @@ const { t } = useTranslations();
 const passwordInput = useTemplateRef('passwordInput');
 const form = useForm<DisableAccountForm>({ password: '' });
 
-const submit = () => {
-    form.submit(ProfileController.disable(), {
+function submit(): void {
+    form.submit(disable(), {
         preserveScroll: true,
         onSuccess: () => form.reset(),
         onError: () => passwordInput.value?.focus(),
     });
-};
+}
 </script>
 
 <template>
@@ -81,19 +80,28 @@ const submit = () => {
                             </DialogDescription>
                         </DialogHeader>
 
-                        <div class="grid gap-2">
-                            <Label for="password">
+                        <Field :data-invalid="!!form.errors.password">
+                            <FieldLabel for="password">
                                 {{ t('user.label.password') }}
-                            </Label>
+                            </FieldLabel>
                             <PasswordInput
                                 id="password"
                                 name="password"
                                 v-model="form.password"
                                 ref="passwordInput"
                                 :placeholder="t('user.placeholder.password')"
+                                :aria-invalid="!!form.errors.password"
+                                :aria-describedby="
+                                    form.errors.password
+                                        ? 'disable-account-password-error'
+                                        : undefined
+                                "
                             />
-                            <InputError :message="form.errors.password" />
-                        </div>
+                            <FieldError
+                                id="disable-account-password-error"
+                                :errors="[form.errors.password]"
+                            />
+                        </Field>
 
                         <DialogFooter class="gap-2">
                             <DialogClose as-child>

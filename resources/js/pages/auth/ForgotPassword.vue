@@ -34,9 +34,9 @@ const form = useForm<ForgotPasswordForm>({
     email: '',
 });
 
-const submit = () => {
+function submit(): void {
     form.submit(email(), {});
-};
+}
 </script>
 
 <template>

@@ -95,14 +95,14 @@ const actions = computed<DataTableAction[]>(() => [
 ]);
 
 const columns = computed(() =>
-    createColumns(
+    createColumns({
         t,
         formatDateTime,
-        !props.backupConfigured || busy.value,
-        busy.value || deleteForm.processing,
-        showDelete,
-        showRestore,
-    ),
+        disabled: !props.backupConfigured || busy.value,
+        deleteDisabled: busy.value || deleteForm.processing,
+        onDelete: showDelete,
+        onRestore: showRestore,
+    }),
 );
 
 function showDelete(backup: BackupArchive): void {

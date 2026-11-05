@@ -1,3 +1,17 @@
+/** Mirrors App\Enums\HealthDetail; tests/Feature/Enums/FrontendEnumMirrorTest.php keeps it in sync. */
+export type HealthDetail =
+    | 'reachable'
+    | 'writable'
+    | 'recent'
+    | 'configured'
+    | 'synchronous'
+    | 'stale'
+    | 'not_configured'
+    | 'disabled'
+    | 'unavailable';
+
+export type HealthStatus = 'ok' | 'warning' | 'failed';
+
 export type SystemHealthCheck = {
     name:
         | 'database'
@@ -7,15 +21,7 @@ export type SystemHealthCheck = {
         | 'scheduler'
         | 'mail'
         | 'backup';
-    status: 'ok' | 'warning' | 'failed';
-    detail:
-        | 'reachable'
-        | 'writable'
-        | 'recent'
-        | 'configured'
-        | 'unavailable'
-        | 'synchronous'
-        | 'stale'
-        | 'not_configured';
+    status: HealthStatus;
+    detail: HealthDetail;
 };
 export type SystemPageProps = { checks: SystemHealthCheck[] };

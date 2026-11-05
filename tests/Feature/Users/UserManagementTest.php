@@ -67,7 +67,7 @@ describe('User management', function (): void {
 
         actingAs($actor)->get(route('master-data.users.index', $query))->assertInertia(fn (Assert $page): Assert => $page
             ->has('users.data', 1)->where('users.data.0.id', $target->id)
-            ->where('users.data.0.status_label', 'Disabled')->where('users.data.0.status_variant', 'secondary'));
+            ->where('users.data.0.status', 'disabled')->where('users.data.0.status_label', 'Disabled'));
         getJson(route('master-data.users.export', $query))->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.id', $target->id);
     });
 

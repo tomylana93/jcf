@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, setLayoutProps, useForm, usePage } from '@inertiajs/vue3';
+import { Head, setLayoutProps, useForm } from '@inertiajs/vue3';
 import { ImageIcon, Palette, Save, Trash2, Undo2 } from '@lucide/vue';
 import { computed, onBeforeUnmount, reactive, watchEffect } from 'vue';
 
@@ -27,6 +27,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Spinner } from '@/components/ui/spinner';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useAppearance } from '@/composables/useAppearance';
+import { usePermissions } from '@/composables/usePermissions';
 import { useTranslations } from '@/composables/useTranslations';
 import { index } from '@/routes/settings';
 import { edit } from '@/routes/settings/brand';
@@ -46,11 +47,9 @@ const props = defineProps<{
 const { t } = useTranslations();
 const { resolvedAppearance } = useAppearance();
 
-const page = usePage();
+const { can } = usePermissions();
 
-const canManage = computed(() =>
-    page.props.auth.permissions.includes('settings.manage'),
-);
+const canManage = computed(() => can('settings.manage'));
 
 type ImageField = 'logo' | 'logo_text' | 'favicon' | 'auth_background';
 
@@ -91,26 +90,26 @@ const form = useForm<UpdateBrandSettingsForm>({
     remove_auth_background: false,
 });
 
-function clearPreview(field: ImageField) {
+function clearPreview(field: ImageField): void {
     if (previews[field]) {
         URL.revokeObjectURL(previews[field]);
         previews[field] = null;
     }
 }
 
-function selectImage(field: ImageField, file: File) {
+function selectImage(field: ImageField, file: File): void {
     clearPreview(field);
     form[field] = file;
     form[`remove_${field}`] = false;
     previews[field] = URL.createObjectURL(file);
 }
 
-function clearImage(field: ImageField) {
+function clearImage(field: ImageField): void {
     clearPreview(field);
     form[field] = null;
 }
 
-function toggleRemoval(field: ImageField) {
+function toggleRemoval(field: ImageField): void {
     const removeField = `remove_${field}` as const;
     form[removeField] = !form[removeField];
     if (form[removeField]) {
@@ -144,7 +143,7 @@ function imageStatus(field: ImageField): string {
     return t('settings.brand.status.default');
 }
 
-function resetSelections() {
+function resetSelections(): void {
     for (const field of [
         'logo',
         'logo_text',
@@ -176,7 +175,10 @@ onBeforeUnmount(() => {
     clearPreview('auth_background');
 });
 
-function submit() {
+/**
+ * Submits as POST with `_method: patch` because file uploads cannot be sent with a native PATCH request.
+ */
+function submit(): void {
     form.post(update().url, {
         preserveScroll: true,
         onSuccess: resetSelections,

@@ -15,13 +15,10 @@ export * from './features';
 export * from './documentation';
 export * from './audit';
 export * from './notification';
-export * from './dashboard';
-
 export * from './sessions';
+export * from './api-client';
 export * from './api-tokens';
-
 export * from './system';
-
 export * from './backup';
 export * from './search';
 export * from './timezone';

@@ -13,12 +13,4 @@ enum UserStatus: string
 
     case Active = 'active';
     case Disabled = 'disabled';
-
-    public function badgeVariant(): string
-    {
-        return match ($this) {
-            self::Active => 'default',
-            self::Disabled => 'secondary',
-        };
-    }
 }

@@ -3,6 +3,7 @@ import { h } from 'vue';
 import { DataTableActions } from '@/components/datatable';
 import type { DataTableColumnDef } from '@/components/datatable';
 import RoleBadge from '@/components/shared/RoleBadge.vue';
+import StatusBadge from '@/components/shared/StatusBadge.vue';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -12,19 +13,32 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { getInitials } from '@/composables/useInitials';
-import { formatDateTime } from '@/lib/dateTime';
-import type { TranslationKey, UserRow } from '@/types';
+import { getInitials } from '@/lib/initials';
+import type {
+    DataTableColumnContext,
+    TranslationKey,
+    UserRow,
+    UserStatus,
+} from '@/types';
 
-export function createColumns(
-    t: (key: TranslationKey) => string,
-    locale: string,
-    timezone: string,
-    canManage: boolean,
-    currentUserId: string,
-    onEdit: (user: UserRow) => void,
-    onChangeStatus: (user: UserRow) => void,
-): DataTableColumnDef<UserRow>[] {
+const statusTones = {
+    active: 'success',
+    disabled: 'neutral',
+} as const satisfies Record<UserStatus, 'success' | 'neutral'>;
+
+export function createColumns({
+    t,
+    formatDateTime,
+    canManage,
+    currentUserId,
+    onEdit,
+    onChangeStatus,
+}: DataTableColumnContext & {
+    canManage: boolean;
+    currentUserId: string;
+    onEdit: (user: UserRow) => void;
+    onChangeStatus: (user: UserRow) => void;
+}): DataTableColumnDef<UserRow>[] {
     return [
         {
             id: 'select',
@@ -58,22 +72,17 @@ export function createColumns(
             header: t('user.label.status'),
             enableSorting: false,
             cell: ({ row }) =>
-                h(
-                    Badge,
-                    {
-                        variant: row.original.status_variant,
-                    },
-                    () => row.original.status_label,
-                ),
+                h(StatusBadge, {
+                    tone: statusTones[row.original.status],
+                    label: row.original.status_label,
+                }),
         },
         {
             accessorKey: 'created_at',
-            exportValue: (user) =>
-                formatDateTime(user.created_at, locale, timezone),
+            exportValue: (user) => formatDateTime(user.created_at),
             header: t('user.label.created_at'),
             enableSorting: true,
-            cell: ({ row }) =>
-                formatDateTime(row.original.created_at, locale, timezone),
+            cell: ({ row }) => formatDateTime(row.original.created_at),
         },
         ...(canManage
             ? [

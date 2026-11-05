@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head, setLayoutProps, useForm } from '@inertiajs/vue3';
+import { MonitorSmartphone } from '@lucide/vue';
 import { watchEffect } from 'vue';
 
 import { destroy } from '@/actions/App/Http/Controllers/Account/SessionController';
@@ -7,6 +8,12 @@ import Heading from '@/components/shared/Heading.vue';
 import PasswordInput from '@/components/shared/PasswordInput.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+    Empty,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
+} from '@/components/ui/empty';
 import { FieldError } from '@/components/ui/field';
 import { useDateTime } from '@/composables/useDateTime';
 import { useTranslations } from '@/composables/useTranslations';
@@ -21,11 +28,11 @@ const form = useForm<ConfirmPasswordForm>({ password: '' });
 
 watchEffect(() =>
     setLayoutProps({
-        breadcrumbs: [{ title: t('account.sessions.title'), href: index() }],
+        breadcrumbs: [{ title: t('breadcrumb.sessions'), href: index() }],
     }),
 );
 
-function submit() {
+function submit(): void {
     form.submit(destroy(), {
         preserveScroll: true,
         onFinish: () => form.reset('password'),
@@ -35,6 +42,7 @@ function submit() {
 <template>
     <div class="flex flex-col gap-6">
         <Head :title="t('account.sessions.title')" />
+
         <Heading
             variant="small"
             :title="t('account.sessions.title')"
@@ -46,12 +54,19 @@ function submit() {
         >
             {{ t('account.sessions.helper.unsupported') }}
         </p>
-        <p
+        <Empty
             v-else-if="sessions.length === 0"
-            class="text-sm text-muted-foreground"
+            class="border"
         >
-            {{ t('account.sessions.helper.empty') }}
-        </p>
+            <EmptyHeader>
+                <EmptyMedia variant="icon">
+                    <MonitorSmartphone />
+                </EmptyMedia>
+                <EmptyTitle>
+                    {{ t('account.sessions.helper.empty') }}
+                </EmptyTitle>
+            </EmptyHeader>
+        </Empty>
         <ul class="flex flex-col gap-3">
             <li
                 v-for="(session, i) in sessions"
@@ -90,7 +105,9 @@ function submit() {
                 :aria-label="t('user.label.current_password')"
                 :placeholder="t('user.placeholder.current_password')"
                 :aria-invalid="!!form.errors.password"
-                aria-describedby="session-password-error"
+                :aria-describedby="
+                    form.errors.password ? 'session-password-error' : undefined
+                "
             />
             <FieldError
                 id="session-password-error"

@@ -19,6 +19,7 @@ return [
         'content' => 'Content',
         'status' => 'Status',
         'search' => 'Search documentation',
+        'pagination' => 'Documentation pages',
     ],
 
     'placeholder' => [
@@ -39,8 +40,6 @@ return [
         'delete' => 'Delete',
         'preview' => 'Preview',
         'back' => 'Back to documentation',
-        'previous' => 'Previous',
-        'next' => 'Next',
         'search' => 'Search',
     ],
 

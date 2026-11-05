@@ -4,7 +4,7 @@ import { Link } from '@inertiajs/vue3';
 import { Mail, Save, UserRound } from '@lucide/vue';
 import { computed, onMounted, ref, watchEffect } from 'vue';
 
-import ProfileController from '@/actions/App/Http/Controllers/Account/ProfileController';
+import { update } from '@/actions/App/Http/Controllers/Account/ProfileController';
 import DisableAccount from '@/components/account/DisableAccount.vue';
 import ProfileAvatarForm from '@/components/account/ProfileAvatarForm.vue';
 import Heading from '@/components/shared/Heading.vue';
@@ -63,16 +63,14 @@ onMounted(() => {
     deviceTimezone.value = Intl.DateTimeFormat().resolvedOptions().timeZone;
 });
 
-const submit = () => {
-    form.submit(ProfileController.update(), {});
-};
+function submit(): void {
+    form.submit(update(), {});
+}
 </script>
 
 <template>
     <div>
         <Head :title="t('account.profile.title')" />
-
-        <h1 class="sr-only">{{ t('account.profile.title') }}</h1>
 
         <div class="flex flex-col gap-6">
             <ProfileAvatarForm

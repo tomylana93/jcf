@@ -5,6 +5,7 @@ import { computed, watchEffect } from 'vue';
 
 import PageContainer from '@/components/layout/PageContainer.vue';
 import NavigationCardGrid from '@/components/shared/NavigationCardGrid.vue';
+import { usePermissions } from '@/composables/usePermissions';
 import { useTranslations } from '@/composables/useTranslations';
 import { index } from '@/routes/master-data';
 import { index as apiClientsIndex } from '@/routes/master-data/api-clients';
@@ -21,9 +22,10 @@ watchEffect(() => {
 });
 
 const page = usePage();
+const { can } = usePermissions();
 
 const cards = computed<NavigationCard[]>(() => [
-    ...(page.props.auth.permissions.includes('users.view')
+    ...(can('users.view')
         ? [
               {
                   id: 'users',
@@ -34,8 +36,7 @@ const cards = computed<NavigationCard[]>(() => [
               },
           ]
         : []),
-    ...(page.props.features.backup.enabled &&
-    page.props.auth.permissions.includes('backups.manage')
+    ...(page.props.features.backup.enabled && can('backups.manage')
         ? [
               {
                   id: 'backups',
@@ -46,8 +47,7 @@ const cards = computed<NavigationCard[]>(() => [
               },
           ]
         : []),
-    ...(page.props.features.api.enabled &&
-    page.props.auth.permissions.includes('api-clients.view')
+    ...(page.props.features.api.enabled && can('api-clients.view')
         ? [
               {
                   id: 'api-clients',

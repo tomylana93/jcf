@@ -49,7 +49,6 @@ return [
     ],
 
     'invitation' => [
-        'create_hint' => 'A link to set a password and verify the email address will be sent automatically.',
         'pending' => 'The invitation has not been accepted.',
         'resend' => 'Resend invitation',
         'subject' => 'Account invitation',

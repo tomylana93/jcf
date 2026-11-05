@@ -178,6 +178,27 @@ describe('Mail settings', function (): void {
         'invalid sender' => [mailSettingsPayload(['from_address' => 'invalid']), 'from_address'],
     ]);
 
+    it('validates precognitive requests without saving changes', function (): void {
+        $admin = User::factory()->create();
+        assignRolePermissions($admin, Permission::ViewSettings, Permission::ManageSettings);
+
+        actingAs($admin)->withHeaders(['Precognition' => 'true'])
+            ->patch(route('settings.mail.update'), mailSettingsPayload())
+            ->assertSuccessfulPrecognition();
+
+        expect(resolve(MailSettings::class)->refresh()->mailer)->toBe('environment');
+    });
+
+    it('returns precognitive errors for the requested field only', function (): void {
+        $admin = User::factory()->create();
+        assignRolePermissions($admin, Permission::ViewSettings, Permission::ManageSettings);
+
+        actingAs($admin)->withHeaders(['Precognition' => 'true', 'Accept' => 'application/json', 'Precognition-Validate-Only' => 'from_address'])
+            ->patch(route('settings.mail.update'), mailSettingsPayload(['from_address' => 'invalid', 'smtp_host' => '']))
+            ->assertInvalid(['from_address'])
+            ->assertJsonMissingValidationErrors(['smtp_host']);
+    });
+
     it('uses current SMTP settings each time a message is sent', function (): void {
         $settings = resolve(MailSettings::class);
         $settings->mailer = 'smtp';

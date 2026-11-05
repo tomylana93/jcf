@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { Head, Link, router, setLayoutProps, usePage } from '@inertiajs/vue3';
+import { Head, Link, router, setLayoutProps } from '@inertiajs/vue3';
 import { ref, watchEffect } from 'vue';
 
 import PageContainer from '@/components/layout/PageContainer.vue';
-import { Badge } from '@/components/ui/badge';
+import SimplePagination from '@/components/shared/SimplePagination.vue';
+import StatusBadge from '@/components/shared/StatusBadge.vue';
 import { Button, buttonVariants } from '@/components/ui/button';
 import {
     Card,
@@ -14,6 +15,7 @@ import {
 } from '@/components/ui/card';
 import { Empty, EmptyHeader, EmptyTitle } from '@/components/ui/empty';
 import { Input } from '@/components/ui/input';
+import { usePermissions } from '@/composables/usePermissions';
 import { useTranslations } from '@/composables/useTranslations';
 import { index, show } from '@/routes/documentation';
 import {
@@ -21,7 +23,7 @@ import {
     edit,
     index as manageIndex,
 } from '@/routes/documentation/manage';
-import type { DocumentationPaginator } from '@/types';
+import type { DocumentationPaginator, DocumentationStatus } from '@/types';
 
 const props = defineProps<{
     documents: DocumentationPaginator;
@@ -30,14 +32,19 @@ const props = defineProps<{
 }>();
 
 const { t } = useTranslations();
-const page = usePage();
+const { can } = usePermissions();
+
+const statusTones = {
+    published: 'success',
+    draft: 'neutral',
+} as const satisfies Record<DocumentationStatus, 'success' | 'neutral'>;
 
 const query = ref(props.search);
 
-function searchDocuments(pageNumber = 1): void {
+function searchDocuments(): void {
     router.get(
         props.manage ? manageIndex.url() : index.url(),
-        { search: query.value, page: pageNumber },
+        { search: query.value },
         { preserveState: true },
     );
 }
@@ -92,9 +99,7 @@ watchEffect(() =>
                 {{ t('common.button.create') }}
             </Link>
             <Link
-                v-else-if="
-                    page.props.auth.permissions.includes('documentation.manage')
-                "
+                v-else-if="can('documentation.manage')"
                 :href="manageIndex()"
                 :class="buttonVariants({ variant: 'outline' })"
             >
@@ -119,22 +124,13 @@ watchEffect(() =>
                 <CardHeader>
                     <div class="flex items-start justify-between gap-2">
                         <CardTitle>{{ document.title }}</CardTitle>
-                        <Badge
+                        <StatusBadge
                             v-if="manage"
-                            :variant="
-                                document.status === 'published'
-                                    ? 'default'
-                                    : 'secondary'
+                            :tone="statusTones[document.status]"
+                            :label="
+                                t(`documentation.status.${document.status}`)
                             "
-                        >
-                            {{
-                                t(
-                                    document.status === 'published'
-                                        ? 'documentation.status.published'
-                                        : 'documentation.status.draft',
-                                )
-                            }}
-                        </Badge>
+                        />
                     </div>
                     <CardDescription>
                         {{ document.summary }}
@@ -162,27 +158,15 @@ watchEffect(() =>
                 </CardFooter>
             </Card>
         </div>
-        <div
-            v-if="documents.last_page > 1"
-            class="flex items-center justify-between gap-2"
-        >
-            <Button
-                variant="outline"
-                :disabled="documents.current_page === 1"
-                @click="searchDocuments(documents.current_page - 1)"
-            >
-                {{ t('documentation.button.previous') }}
-            </Button>
-            <span class="text-sm text-muted-foreground">
-                {{ documents.current_page }} / {{ documents.last_page }}
-            </span>
-            <Button
-                variant="outline"
-                :disabled="documents.current_page === documents.last_page"
-                @click="searchDocuments(documents.current_page + 1)"
-            >
-                {{ t('documentation.button.next') }}
-            </Button>
-        </div>
+        <SimplePagination
+            :paginator="documents"
+            :label="t('documentation.label.pagination')"
+            :page-href="
+                (pageNumber) =>
+                    (manage ? manageIndex : index)({
+                        query: { search, page: pageNumber },
+                    })
+            "
+        />
     </PageContainer>
 </template>

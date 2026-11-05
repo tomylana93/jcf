@@ -35,14 +35,17 @@ const form = useForm<ApiTokenForm>({
         '365',
 });
 
-function toggleAbility(value: string, checked: boolean | 'indeterminate') {
+function toggleAbility(
+    value: string,
+    checked: boolean | 'indeterminate',
+): void {
     form.abilities =
         checked === true
             ? [...new Set([...form.abilities, value])]
             : form.abilities.filter((ability) => ability !== value);
 }
 
-function submit() {
+function submit(): void {
     form.submit(props.action, {
         preserveScroll: true,
         onSuccess: () => form.reset('name'),

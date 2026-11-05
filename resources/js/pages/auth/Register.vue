@@ -37,11 +37,11 @@ const form = useForm<RegisterForm>({
     password_confirmation: '',
 });
 
-const submit = () => {
+function submit(): void {
     form.submit(store(), {
         onSuccess: () => form.reset('password', 'password_confirmation'),
     });
-};
+}
 </script>
 
 <template>

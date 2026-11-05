@@ -6,7 +6,6 @@ import { computed, nextTick, ref, useTemplateRef, watch } from 'vue';
 
 import { store as confirm } from '@/actions/Laravel/Fortify/Http/Controllers/ConfirmedTwoFactorAuthenticationController';
 import AlertError from '@/components/shared/AlertError.vue';
-import InputError from '@/components/shared/InputError.vue';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -15,6 +14,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { FieldError } from '@/components/ui/field';
 import {
     InputOTP,
     InputOTPGroup,
@@ -74,7 +74,7 @@ const modalConfig = computed<TwoFactorConfigContent>(() => {
     };
 });
 
-const handleModalNextStep = () => {
+function handleModalNextStep(): void {
     if (props.requiresConfirmation) {
         showVerificationStep.value = true;
 
@@ -87,16 +87,16 @@ const handleModalNextStep = () => {
 
     clearSetupData();
     isOpen.value = false;
-};
+}
 
-const resetModalState = () => {
+function resetModalState(): void {
     if (props.twoFactorEnabled) {
         clearSetupData();
     }
 
     showVerificationStep.value = false;
     form.resetAndClearErrors();
-};
+}
 
 watch(
     () => isOpen.value,
@@ -113,7 +113,7 @@ watch(
     },
 );
 
-const submit = () => {
+function submit(): void {
     form.submit(confirm(), {
         errorBag: 'confirmTwoFactorAuthentication',
         onFinish: () => form.reset(),
@@ -121,7 +121,7 @@ const submit = () => {
             isOpen.value = false;
         },
     });
-};
+}
 </script>
 
 <template>
@@ -183,7 +183,7 @@ const submit = () => {
                             >
                                 <div
                                     v-if="!qrCodeSvg"
-                                    class="absolute inset-0 z-10 flex aspect-square h-auto w-full animate-pulse items-center justify-center bg-background"
+                                    class="absolute inset-0 z-10 flex aspect-square h-auto w-full items-center justify-center bg-background"
                                 >
                                     <Spinner class="size-6" />
                                 </div>
@@ -286,7 +286,7 @@ const submit = () => {
                                         />
                                     </InputOTPGroup>
                                 </InputOTP>
-                                <InputError :message="form.errors?.code" />
+                                <FieldError :errors="[form.errors?.code]" />
                             </div>
 
                             <div class="flex w-full items-center space-x-5">

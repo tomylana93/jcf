@@ -1,11 +1,18 @@
 <script setup lang="ts">
-import { router } from '@inertiajs/vue3';
+import { router, useForm } from '@inertiajs/vue3';
 import { KeyRound } from '@lucide/vue';
 
 import { destroy } from '@/actions/Laravel/Passkeys/Http/Controllers/PasskeyRegistrationController';
 import PasskeyItem from '@/components/auth/passkeys/PasskeyItem.vue';
 import PasskeyRegister from '@/components/auth/passkeys/PasskeyRegister.vue';
 import Heading from '@/components/shared/Heading.vue';
+import {
+    Empty,
+    EmptyDescription,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
+} from '@/components/ui/empty';
 import { useTranslations } from '@/composables/useTranslations';
 import type { ManagePasskeysProps } from '@/types';
 
@@ -16,16 +23,18 @@ withDefaults(defineProps<ManagePasskeysProps>(), {
     passkeys: () => [],
 });
 
-const handleDelete = (id: number, onError: () => void) => {
-    router.delete(destroy.url(id), {
+const deleteForm = useForm({});
+
+function handleDelete(id: number, onError: () => void): void {
+    deleteForm.submit(destroy(id), {
         preserveScroll: true,
         onError,
     });
-};
+}
 
-const handleRegisterSuccess = () => {
+function handleRegisterSuccess(): void {
     router.reload();
-};
+}
 </script>
 
 <template>
@@ -49,22 +58,19 @@ const handleRegisterSuccess = () => {
                 />
             </template>
 
-            <div
-                v-else
-                class="p-8 text-center"
-            >
-                <div
-                    class="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-muted"
-                >
-                    <KeyRound class="size-7 text-muted-foreground" />
-                </div>
-                <p class="font-medium">
-                    {{ t('account.passkey.empty.title') }}
-                </p>
-                <p class="mt-1 text-sm text-muted-foreground">
-                    {{ t('account.passkey.empty.description') }}
-                </p>
-            </div>
+            <Empty v-else>
+                <EmptyHeader>
+                    <EmptyMedia variant="icon">
+                        <KeyRound />
+                    </EmptyMedia>
+                    <EmptyTitle>
+                        {{ t('account.passkey.empty.title') }}
+                    </EmptyTitle>
+                    <EmptyDescription>
+                        {{ t('account.passkey.empty.description') }}
+                    </EmptyDescription>
+                </EmptyHeader>
+            </Empty>
         </div>
 
         <PasskeyRegister @success="handleRegisterSuccess" />

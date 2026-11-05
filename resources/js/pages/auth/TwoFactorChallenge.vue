@@ -43,17 +43,17 @@ const recoveryForm = useForm<TwoFactorRecoveryForm>({
     recovery_code: '',
 });
 
-const submitCode = () => {
+function submitCode(): void {
     codeForm.submit(store(), {
         onError: () => codeForm.reset(),
     });
-};
+}
 
-const submitRecoveryCode = () => {
+function submitRecoveryCode(): void {
     recoveryForm.submit(store(), {
         onError: () => recoveryForm.reset(),
     });
-};
+}
 
 const authConfigContent = computed<TwoFactorConfigContent>(() => {
     if (showRecoveryInput.value) {
@@ -82,11 +82,11 @@ watchPostEffect(() => {
     codeInputContainer.value?.querySelector('input')?.focus();
 });
 
-const toggleRecoveryMode = (): void => {
+function toggleRecoveryMode(): void {
     showRecoveryInput.value = !showRecoveryInput.value;
     codeForm.resetAndClearErrors();
     recoveryForm.resetAndClearErrors();
-};
+}
 </script>
 
 <template>

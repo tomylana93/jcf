@@ -1,7 +1,14 @@
 import type { Component } from 'vue';
 
-import type { BadgeVariants } from '@/components/ui/badge';
 import type { ButtonVariants } from '@/components/ui/button';
+
+import type { TranslationKey } from './i18n';
+
+/** Shared dependencies injected by a page into its local createColumns factory. */
+export type DataTableColumnContext = {
+    t: (key: TranslationKey) => string;
+    formatDateTime: (timestamp: string) => string;
+};
 
 export type DataTableFilter = {
     key: string;
@@ -22,26 +29,6 @@ export type TablePaginator<T> = {
     current_page: number;
     per_page: number;
     total: number;
-};
-
-export type UserRow = {
-    invitation_pending: boolean;
-    email_verified: boolean;
-    avatar: string;
-    id: string;
-    name: string;
-    email: string;
-    status: 'active' | 'disabled';
-    status_label: string;
-    status_variant: BadgeVariants['variant'];
-    created_at: string;
-    role: { label: string; color: string };
-    roles: {
-        id: string;
-        name: string;
-        label: string;
-        color: string;
-    }[];
 };
 
 export type SelectOption = {

@@ -23,6 +23,16 @@ describe('Frontend translations', function (): void {
             ->and($messages['id']['auth']['throttle'])->toContain('{seconds}');
     });
 
+    it('omits server-only language groups from the browser bundle', function (): void {
+        artisan('lang:export')->assertSuccessful();
+
+        $messages = json_decode(File::get(resource_path('js/lang/messages.json')), true, flags: JSON_THROW_ON_ERROR);
+
+        expect($messages['en'])->not->toHaveKeys(['validation', 'passwords'])
+            ->and($messages['id'])->not->toHaveKeys(['validation', 'passwords'])
+            ->and($messages['en'])->toHaveKey('common');
+    });
+
     it('converts nested placeholders and literal syntax and refreshes removed messages', function (): void {
         $directory = sys_get_temp_dir().'/frontend-translations-'.uniqid();
         $originalLangPath = app()->langPath();

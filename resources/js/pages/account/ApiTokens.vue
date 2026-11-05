@@ -2,7 +2,10 @@
 import { Head, setLayoutProps } from '@inertiajs/vue3';
 import { watchEffect } from 'vue';
 
-import ApiTokenController from '@/actions/App/Http/Controllers/Account/ApiTokenController';
+import {
+    destroy,
+    store,
+} from '@/actions/App/Http/Controllers/Account/ApiTokenController';
 import ApiTokenCreateForm from '@/components/api-tokens/ApiTokenCreateForm.vue';
 import ApiTokenList from '@/components/api-tokens/ApiTokenList.vue';
 import NewApiTokenNotice from '@/components/api-tokens/NewApiTokenNotice.vue';
@@ -10,6 +13,7 @@ import Heading from '@/components/shared/Heading.vue';
 import { useTranslations } from '@/composables/useTranslations';
 import { index } from '@/routes/api-tokens';
 import type { ApiToken, SelectOption } from '@/types';
+import type { RouteDefinition } from '@/wayfinder';
 
 defineProps<{
     tokens: ApiToken[];
@@ -19,12 +23,13 @@ defineProps<{
 
 const { t } = useTranslations();
 
-const revokeUrl = (token: ApiToken): string =>
-    ApiTokenController.destroy.url(token.id);
+function revokeAction(token: ApiToken): RouteDefinition<'delete'> {
+    return destroy(token.id);
+}
 
 watchEffect(() =>
     setLayoutProps({
-        breadcrumbs: [{ title: t('account.api_tokens.title'), href: index() }],
+        breadcrumbs: [{ title: t('breadcrumb.api_tokens'), href: index() }],
     }),
 );
 </script>
@@ -41,7 +46,7 @@ watchEffect(() =>
             />
             <NewApiTokenNotice />
             <ApiTokenCreateForm
-                :action="ApiTokenController.store()"
+                :action="store()"
                 :ability-options="abilityOptions"
                 :expiration-options="expirationOptions"
             />
@@ -55,7 +60,7 @@ watchEffect(() =>
             <ApiTokenList
                 :tokens="tokens"
                 :ability-options="abilityOptions"
-                :revoke-url="revokeUrl"
+                :revoke-action="revokeAction"
             />
         </div>
     </div>

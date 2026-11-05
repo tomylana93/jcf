@@ -1,11 +1,21 @@
+import type { TablePaginator } from './table';
+
+/** Mirrors App\Enums\OperationStatus; tests/Feature/Enums/FrontendEnumMirrorTest.php keeps it in sync. */
+export type OperationStatus =
+    | 'idle'
+    | 'running'
+    | 'completed'
+    | 'failed'
+    | 'skipped';
+
 export type BackupArchive = {
     filename: string;
     size: number;
     created_at: string;
 };
 export type BackupPageProps = {
-    backups: import('./table').TablePaginator<BackupArchive>;
+    backups: TablePaginator<BackupArchive>;
     backupConfigured: boolean;
-    backupStatus: 'idle' | 'running' | 'completed' | 'failed' | 'skipped';
-    restoreStatus: 'idle' | 'running' | 'completed' | 'failed' | 'skipped';
+    backupStatus: OperationStatus;
+    restoreStatus: OperationStatus;
 };

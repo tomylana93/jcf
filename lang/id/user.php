@@ -49,7 +49,6 @@ return [
     ],
 
     'invitation' => [
-        'create_hint' => 'Link untuk mengatur password dan memverifikasi email akan dikirim otomatis.',
         'pending' => 'Undangan belum diterima.',
         'resend' => 'Kirim ulang undangan',
         'subject' => 'Undangan akun',

@@ -2,10 +2,11 @@ import { createInertiaApp, usePage } from '@inertiajs/vue3';
 import { createApp, watch } from 'vue';
 
 import { Toaster } from '@/components/ui/sonner';
-import { initializeTheme } from '@/composables/useAppearance';
 import AccountLayout from '@/layouts/account/Layout.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import AuthLayout from '@/layouts/AuthLayout.vue';
+import { initializeTheme } from '@/lib/appearance';
+import { applyBrand } from '@/lib/brand';
 import { initializeFlashToast } from '@/lib/flashToast';
 import { createTranslationPlugin } from '@/lib/i18n';
 import { formatPageTitle } from '@/lib/pageTitle';
@@ -42,8 +43,6 @@ void createInertiaApp<{
                 return AuthLayout;
             case name.startsWith('account/'):
                 return [AppLayout, AccountLayout];
-            case name.startsWith('settings/'):
-                return AppLayout;
             default:
                 return AppLayout;
         }
@@ -90,28 +89,9 @@ void createInertiaApp<{
             },
             { immediate: true },
         );
-        watch(
-            () => (currentPage.props ?? page.props).brand,
-            (brand) => {
-                document.documentElement.dataset.brandColor =
-                    brand?.color ?? 'neutral';
-                const icons = Array.from(
-                    document.querySelectorAll<HTMLLinkElement>(
-                        'link[rel="icon"]',
-                    ),
-                );
-                const icon = icons.shift() ?? document.createElement('link');
-                icons.forEach((duplicate) => duplicate.remove());
-                icon.rel = 'icon';
-                icon.href = brand?.favicon_url ?? '/favicon.svg';
-                icon.removeAttribute('sizes');
-                icon.removeAttribute('type');
-                if (!icon.isConnected) {
-                    document.head.appendChild(icon);
-                }
-            },
-            { immediate: true },
-        );
+        watch(() => (currentPage.props ?? page.props).brand, applyBrand, {
+            immediate: true,
+        });
         const notifications = document.createElement('div');
         document.body.appendChild(notifications);
         createApp(Toaster, { richColors: false, position: 'top-center' }).mount(

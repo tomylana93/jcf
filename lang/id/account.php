@@ -10,6 +10,8 @@ return [
     'link' => [
         'profile' => 'Profil',
         'security' => 'Keamanan',
+        'sessions' => 'Sesi',
+        'api_tokens' => 'Token API',
     ],
 
     'profile' => [
@@ -81,7 +83,6 @@ return [
 
         'card' => [
             'description' => 'Personal access token untuk script dan integrasi yang memanggil API.',
-            'create' => 'Buat token',
             'list' => 'Token aktif',
         ],
 

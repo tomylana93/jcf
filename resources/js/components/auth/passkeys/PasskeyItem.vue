@@ -29,12 +29,12 @@ const emit = defineEmits<{
 
 const isDeleting = ref(false);
 
-const handleDelete = () => {
+function handleDelete(): void {
     isDeleting.value = true;
     emit('remove', props.passkey.id, () => {
         isDeleting.value = false;
     });
-};
+}
 </script>
 
 <template>

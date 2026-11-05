@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, setLayoutProps, useForm, usePage } from '@inertiajs/vue3';
+import { Head, setLayoutProps, useForm } from '@inertiajs/vue3';
 import { Save } from '@lucide/vue';
 import { computed, watchEffect } from 'vue';
 
@@ -13,7 +13,9 @@ import {
     FieldLabel,
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
+import { usePermissions } from '@/composables/usePermissions';
 import { useTranslations } from '@/composables/useTranslations';
 import { index } from '@/routes/settings';
 import { edit } from '@/routes/settings/general';
@@ -25,11 +27,9 @@ const props = defineProps<{
 
 const { t } = useTranslations();
 
-const page = usePage();
+const { can } = usePermissions();
 
-const canManage = computed(() =>
-    page.props.auth.permissions.includes('settings.manage'),
-);
+const canManage = computed(() => can('settings.manage'));
 
 watchEffect(() => {
     setLayoutProps({
@@ -45,7 +45,7 @@ const form = useForm<UpdateGeneralSettingsForm>({
     support_email: props.settings.support_email ?? '',
 }).withPrecognition(update());
 
-const submit = () => {
+function submit(): void {
     form.submit(update(), {
         preserveScroll: true,
         onSuccess: () => {
@@ -55,7 +55,7 @@ const submit = () => {
             form.defaults();
         },
     });
-};
+}
 </script>
 
 <template>
@@ -81,7 +81,11 @@ const submit = () => {
                         name="site_name"
                         :readonly="!canManage"
                         :aria-invalid="!!form.errors.site_name"
-                        aria-describedby="site_name_error"
+                        :aria-describedby="
+                            form.errors.site_name
+                                ? 'site_name_error'
+                                : undefined
+                        "
                         @blur="canManage && form.validate('site_name')"
                     />
                     <FieldError
@@ -99,7 +103,11 @@ const submit = () => {
                         name="site_description"
                         :readonly="!canManage"
                         :aria-invalid="!!form.errors.site_description"
-                        aria-describedby="site_description_error"
+                        :aria-describedby="
+                            form.errors.site_description
+                                ? 'site_description_error'
+                                : undefined
+                        "
                         @blur="canManage && form.validate('site_description')"
                     />
                     <FieldError
@@ -117,7 +125,11 @@ const submit = () => {
                         name="support_email"
                         :readonly="!canManage"
                         :aria-invalid="!!form.errors.support_email"
-                        aria-describedby="support_email_error"
+                        :aria-describedby="
+                            form.errors.support_email
+                                ? 'support_email_error'
+                                : undefined
+                        "
                         @blur="canManage && form.validate('support_email')"
                     />
                     <FieldError
@@ -142,7 +154,14 @@ const submit = () => {
                     :disabled="form.processing"
                     data-test="save-general-settings"
                 >
-                    <Save data-icon="inline-start" />
+                    <Spinner
+                        v-if="form.processing"
+                        data-icon="inline-start"
+                    />
+                    <Save
+                        v-else
+                        data-icon="inline-start"
+                    />
                     {{ t('common.button.save') }}
                 </Button>
             </div>

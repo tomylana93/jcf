@@ -24,9 +24,9 @@ defineProps<{
 
 const form = useForm({});
 
-const submit = () => {
+function submit(): void {
     form.submit(send(), {});
-};
+}
 </script>
 
 <template>

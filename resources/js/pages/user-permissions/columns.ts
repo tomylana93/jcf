@@ -6,11 +6,11 @@ import { Badge } from '@/components/ui/badge';
 import { buttonVariants } from '@/components/ui/button';
 import { createIdentityColumns } from '@/pages/master-data/users/columns';
 import { edit } from '@/routes/permissions';
-import type { PermissionUser, TranslationKey } from '@/types';
+import type { DataTableColumnContext, PermissionUser } from '@/types';
 
-export function createColumns(
-    t: (key: TranslationKey) => string,
-): DataTableColumnDef<PermissionUser>[] {
+export function createColumns({
+    t,
+}: Pick<DataTableColumnContext, 't'>): DataTableColumnDef<PermissionUser>[] {
     return [
         ...createIdentityColumns<PermissionUser>(t),
         {

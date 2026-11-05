@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { Head, setLayoutProps, usePage } from '@inertiajs/vue3';
+import { Head, setLayoutProps } from '@inertiajs/vue3';
 import { Plus } from '@lucide/vue';
 import { computed, ref, watchEffect } from 'vue';
 
 import { DataTable } from '@/components/datatable';
 import PageContainer from '@/components/layout/PageContainer.vue';
 import { useDateTime } from '@/composables/useDateTime';
+import { usePermissions } from '@/composables/usePermissions';
 import { useTranslations } from '@/composables/useTranslations';
 import { index as masterDataIndex } from '@/routes/master-data';
 import { exportMethod, index } from '@/routes/master-data/api-clients';
@@ -25,13 +26,11 @@ const props = defineProps<{
     statuses: SelectOption[];
 }>();
 
-const page = usePage();
-const { t, locale } = useTranslations();
-const { timezone } = useDateTime();
+const { can } = usePermissions();
+const { t } = useTranslations();
+const { formatDateTime } = useDateTime();
 
-const canManage = computed(() =>
-    page.props.auth.permissions.includes('api-clients.manage'),
-);
+const canManage = computed(() => can('api-clients.manage'));
 const formOpen = ref(false);
 
 const filters = computed<DataTableFilter[]>(() => [
@@ -55,7 +54,7 @@ const actions = computed<DataTableAction[]>(() =>
         : [],
 );
 
-const columns = computed(() => createColumns(t, locale.value, timezone.value));
+const columns = computed(() => createColumns({ t, formatDateTime }));
 
 watchEffect(() => {
     setLayoutProps({

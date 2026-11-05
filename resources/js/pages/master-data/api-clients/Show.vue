@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, setLayoutProps, usePage } from '@inertiajs/vue3';
+import { Head, setLayoutProps } from '@inertiajs/vue3';
 import { Pencil } from '@lucide/vue';
 import { computed, ref, watchEffect } from 'vue';
 
@@ -12,14 +12,17 @@ import ApiTokenList from '@/components/api-tokens/ApiTokenList.vue';
 import NewApiTokenNotice from '@/components/api-tokens/NewApiTokenNotice.vue';
 import PageContainer from '@/components/layout/PageContainer.vue';
 import Heading from '@/components/shared/Heading.vue';
-import { Badge } from '@/components/ui/badge';
+import StatusBadge from '@/components/shared/StatusBadge.vue';
 import { Button } from '@/components/ui/button';
+import { usePermissions } from '@/composables/usePermissions';
 import { useTranslations } from '@/composables/useTranslations';
 import { index as masterDataIndex } from '@/routes/master-data';
 import { index, show } from '@/routes/master-data/api-clients';
 import type { ApiClientRow, ApiToken, SelectOption } from '@/types';
+import type { RouteDefinition } from '@/wayfinder';
 
 import ApiClientFormSheet from './ApiClientFormSheet.vue';
+import { apiClientStatusTones } from './columns';
 
 const props = defineProps<{
     client: ApiClientRow;
@@ -29,16 +32,15 @@ const props = defineProps<{
     expirationOptions: SelectOption[];
 }>();
 
-const page = usePage();
+const { can } = usePermissions();
 const { t } = useTranslations();
 const formOpen = ref(false);
 
-const revokeUrl = (token: ApiToken): string =>
-    destroyToken.url({ apiClient: props.client.id, token: token.id });
+function revokeAction(token: ApiToken): RouteDefinition<'delete'> {
+    return destroyToken({ apiClient: props.client.id, token: token.id });
+}
 
-const canManage = computed(() =>
-    page.props.auth.permissions.includes('api-clients.manage'),
-);
+const canManage = computed(() => can('api-clients.manage'));
 
 watchEffect(() => {
     setLayoutProps({
@@ -60,9 +62,10 @@ watchEffect(() => {
     >
         <div class="flex max-w-2xl flex-col gap-10">
             <div class="flex flex-wrap items-center gap-3">
-                <Badge :variant="client.status_variant">
-                    {{ client.status_label }}
-                </Badge>
+                <StatusBadge
+                    :tone="apiClientStatusTones[client.status]"
+                    :label="client.status_label"
+                />
                 <Button
                     v-if="canManage"
                     variant="outline"
@@ -101,7 +104,7 @@ watchEffect(() => {
                     :tokens="tokens"
                     :ability-options="abilityOptions"
                     :can-revoke="canManage"
-                    :revoke-url="revokeUrl"
+                    :revoke-action="revokeAction"
                 />
             </div>
         </div>

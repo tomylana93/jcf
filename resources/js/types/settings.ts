@@ -4,7 +4,17 @@ export type GeneralSettings = {
     support_email: string | null;
 };
 
+/** Mirrors App\Enums\LogoType; tests/Feature/Enums/FrontendEnumMirrorTest.php keeps it in sync. */
 export type LogoType = 'logo_only' | 'logo_text';
+
+/** Mirrors App\Enums\AppLayout; tests/Feature/Enums/FrontendEnumMirrorTest.php keeps it in sync. */
+export type AppLayoutVariant = 'sidebar' | 'header';
+
+/** Mirrors App\Enums\AuthLayout; tests/Feature/Enums/FrontendEnumMirrorTest.php keeps it in sync. */
+export type AuthLayoutVariant = 'split' | 'card' | 'simple';
+
+/** Mirrors App\Enums\Mailer; tests/Feature/Enums/FrontendEnumMirrorTest.php keeps it in sync. */
+export type Mailer = 'environment' | 'log' | 'smtp';
 
 export type LogoTypeOption = { value: LogoType; label: string; name: string };
 
@@ -33,12 +43,12 @@ export type AuthSettings = {
 };
 
 export type LayoutSettings = {
-    app_layout: 'sidebar' | 'header';
-    auth_layout: 'split' | 'card' | 'simple';
+    app_layout: AppLayoutVariant;
+    auth_layout: AuthLayoutVariant;
 };
 
 export type MailSettings = {
-    mailer: 'environment' | 'log' | 'smtp';
+    mailer: Mailer;
     smtp_host: string;
     smtp_port: number;
     smtp_scheme: 'none' | 'smtp' | 'smtps';
