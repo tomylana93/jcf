@@ -18,7 +18,7 @@ final class ChatMessageResource extends JsonResource
             'id' => $this->id, 'conversation_id' => $this->conversation_id,
             'sender_id' => $this->sender_id, 'sequence' => $this->sequence,
             'client_message_id' => $this->client_message_id, 'body' => $this->body,
-            'created_at' => $this->created_at?->toISOString(),
+            'created_at' => $this->created_at?->toIso8601String(),
         ];
     }
 }

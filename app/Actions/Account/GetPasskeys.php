@@ -9,7 +9,7 @@ use Laravel\Passkeys\Passkey;
 
 final readonly class GetPasskeys
 {
-    /** @return list<array{id: int|string, name: string, authenticator: mixed, created_at_diff: string, last_used_at_diff: string|null}> */
+    /** @return list<array{id: int|string, name: string, authenticator: mixed, created_at: string, last_used_at: string|null}> */
     public function handle(User $user): array
     {
         return array_values($user->passkeys()
@@ -20,8 +20,8 @@ final readonly class GetPasskeys
                 'id' => $passkey->id,
                 'name' => $passkey->name,
                 'authenticator' => $passkey->authenticator,
-                'created_at_diff' => $passkey->created_at->diffForHumans(),
-                'last_used_at_diff' => $passkey->last_used_at?->diffForHumans(),
+                'created_at' => $passkey->created_at->toIso8601String(),
+                'last_used_at' => $passkey->last_used_at?->toIso8601String(),
             ])
             ->all());
     }

@@ -47,7 +47,7 @@ describe('Chat broadcasting', function (): void {
                     'sequence' => 1,
                     'client_message_id' => $message->client_message_id,
                     'body' => 'Realtime hello',
-                    'created_at' => $message->created_at?->toISOString(),
+                    'created_at' => $message->created_at?->toIso8601String(),
                 ])
                 ->and(json_encode($payload))->not->toContain($actor->email)
                 ->and(json_encode($payload))->not->toContain($recipient->email);
@@ -148,7 +148,7 @@ describe('Chat broadcasting', function (): void {
                     'conversation_id' => $conversation->id,
                     'user_id' => $actor->id,
                     'typing' => true,
-                    'expires_at' => now()->addSeconds(4)->toISOString(),
+                    'expires_at' => now()->addSeconds(4)->toIso8601String(),
                 ]);
 
             return true;

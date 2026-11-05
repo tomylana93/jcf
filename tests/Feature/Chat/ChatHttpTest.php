@@ -218,7 +218,7 @@ describe('Chat HTTP', function (): void {
             expect($event->conversationId)->toBe($conversation->id)
                 ->and($event->userId)->toBe($actor->id)
                 ->and($event->typing)->toBeTrue()
-                ->and($event->expiresAt)->toBe(now()->addSeconds(4)->toISOString())
+                ->and($event->expiresAt)->toBe(now()->addSeconds(4)->toIso8601String())
                 ->and($event->userIds)->toBe([$recipient->id]);
 
             return true;

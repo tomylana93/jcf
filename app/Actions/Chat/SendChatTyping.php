@@ -33,7 +33,7 @@ final readonly class SendChatTyping
             (string) $conversation->getKey(),
             (string) $actor->getKey(),
             $typing,
-            now()->addSeconds(4)->toISOString(),
+            now()->addSeconds(4)->toIso8601String(),
             $recipients,
         ));
     }

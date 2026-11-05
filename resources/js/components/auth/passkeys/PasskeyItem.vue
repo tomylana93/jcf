@@ -12,10 +12,12 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
+import { useDateTime } from '@/composables/useDateTime';
 import { useTranslations } from '@/composables/useTranslations';
 import type { Passkey } from '@/types';
 
 const { t } = useTranslations();
+const { formatDateTime } = useDateTime();
 
 const props = defineProps<{
     passkey: Passkey;
@@ -56,14 +58,14 @@ const handleDelete = () => {
                 <p class="text-sm text-muted-foreground">
                     {{
                         t('account.passkey.helper.added', {
-                            time: passkey.created_at_diff,
+                            time: formatDateTime(passkey.created_at),
                         })
                     }}
-                    <template v-if="passkey.last_used_at_diff">
+                    <template v-if="passkey.last_used_at">
                         <span class="mx-1 text-muted-foreground/50">/</span>
                         {{
                             t('account.passkey.helper.last_used', {
-                                time: passkey.last_used_at_diff,
+                                time: formatDateTime(passkey.last_used_at),
                             })
                         }}
                     </template>

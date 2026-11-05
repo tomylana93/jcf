@@ -22,7 +22,7 @@ final class ApiClientResource extends JsonResource
             'status_label' => $this->status->label(),
             'status_variant' => $this->status->badgeVariant(),
             'tokens_count' => (int) ($this->tokens_count ?? $this->tokens()->count()),
-            'created_at' => $this->created_at,
+            'created_at' => $this->created_at?->toIso8601String(),
         ];
     }
 }
