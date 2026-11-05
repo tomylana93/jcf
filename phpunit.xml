@@ -24,6 +24,8 @@
         <env name="FEATURE_CHAT" value="true"/>
         <env name="FEATURE_DOCUMENTATION" value="true"/>
         <env name="FEATURE_BACKUP" value="true"/>
+        <env name="FEATURE_API" value="true"/>
+        <env name="API_DOMAIN" value="api.jcf.test"/>
         <env name="APP_ENV" value="testing"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>

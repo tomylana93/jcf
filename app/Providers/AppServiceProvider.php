@@ -14,7 +14,9 @@ use App\Settings\SettingsMailTransport;
 use Carbon\CarbonImmutable;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Broadcasting\BroadcastManager;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Http\Request;
 use Illuminate\Mail\MailManager;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Date;
@@ -22,6 +24,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Pusher\Pusher;
@@ -66,6 +69,13 @@ final class AppServiceProvider extends ServiceProvider
         Mail::extend('settings', fn (): SettingsMailTransport => new SettingsMailTransport($this->app->make(MailManager::class)));
 
         $this->configureDefaults();
+
+        RateLimiter::for('api', function (Request $request): Limit {
+            $user = $request->user();
+            $token = $user instanceof User ? $user->currentAccessToken() : null;
+
+            return Limit::perMinute((int) config('api.rate_limit'))->by($token !== null ? 'token:'.$token->getKey() : 'ip:'.$request->ip());
+        });
 
         Gate::before(function (User $user, string $ability, array $arguments): ?bool {
             if ($arguments !== []) {
