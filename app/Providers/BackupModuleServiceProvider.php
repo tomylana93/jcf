@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Actions\Operations\Backup\CheckBackupHealth;
 use App\Actions\Operations\Backup\IsBackupConfigured;
 use App\Enums\Module;
+use App\Support\Contracts\HealthCheck;
 use App\Support\FeatureManager;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\ServiceProvider;
@@ -15,6 +17,11 @@ use Illuminate\Support\ServiceProvider;
  */
 final class BackupModuleServiceProvider extends ServiceProvider
 {
+    public function register(): void
+    {
+        $this->app->tag(CheckBackupHealth::class, HealthCheck::class);
+    }
+
     public function boot(): void
     {
         $this->callAfterResolving(Schedule::class, function (Schedule $schedule): void {

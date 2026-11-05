@@ -6,7 +6,10 @@ namespace App\Providers;
 
 use App\Actions\Account\SearchUsers;
 use App\Actions\Search\SearchGlobal;
+use App\Actions\System\GetSystemHealth;
 use App\Enums\Module;
+use App\Settings\MailSettings;
+use App\Support\Contracts\HealthCheck;
 use App\Support\Contracts\SearchProvider;
 use App\Support\FeatureManager;
 use Illuminate\Contracts\Foundation\Application;
@@ -27,6 +30,7 @@ final class FeatureServiceProvider extends ServiceProvider
         }
         $this->app->tag(SearchUsers::class, SearchProvider::class);
         $this->app->bind(SearchGlobal::class, fn (Application $app): SearchGlobal => new SearchGlobal($app->tagged(SearchProvider::class)));
+        $this->app->bind(GetSystemHealth::class, fn (Application $app): GetSystemHealth => new GetSystemHealth($app->make(MailSettings::class), $app->tagged(HealthCheck::class)));
 
         $classes = config('settings.settings');
         $paths = config('settings.migrations_paths');

@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
+use App\Actions\System\GetSystemHealth;
 use App\Models\User;
 use App\Support\Contracts\ChatSummary;
+use App\Support\Contracts\HealthCheck;
 use App\Support\Contracts\SearchProvider;
 
 use function Pest\Laravel\actingAs;
@@ -43,5 +45,39 @@ describe('Module contributions', function (): void {
         actingAs(User::factory()->create());
 
         get(route('dashboard'))->assertInertia(fn ($page) => $page->where('chatSummary.unread_count', 42));
+    });
+
+    it('includes registered health checks and isolates their failures', function (): void {
+        app()->instance('test.health.ok', new class implements HealthCheck
+        {
+            public function name(): string
+            {
+                return 'extra';
+            }
+
+            public function handle(): string
+            {
+                return 'reachable';
+            }
+        });
+        app()->instance('test.health.failing', new class implements HealthCheck
+        {
+            public function name(): string
+            {
+                return 'broken';
+            }
+
+            public function handle(): string
+            {
+                throw new RuntimeException('Sensitive detail.');
+            }
+        });
+        app()->tag(['test.health.ok', 'test.health.failing'], HealthCheck::class);
+
+        $checks = collect(resolve(GetSystemHealth::class)->handle())->keyBy('name');
+
+        expect($checks['extra'])->toBe(['name' => 'extra', 'status' => 'ok', 'detail' => 'reachable'])
+            ->and($checks['broken'])->toBe(['name' => 'broken', 'status' => 'failed', 'detail' => 'unavailable'])
+            ->and($checks)->toHaveKey('backup');
     });
 });

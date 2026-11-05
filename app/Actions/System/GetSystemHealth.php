@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace App\Actions\System;
 
-use App\Enums\Module;
 use App\Settings\MailSettings;
-use App\Support\FeatureManager;
+use App\Support\Contracts\HealthCheck;
 use Closure;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -16,12 +15,13 @@ use Throwable;
 
 final readonly class GetSystemHealth
 {
-    public function __construct(private MailSettings $mailSettings) {}
+    /** @param iterable<HealthCheck> $contributedChecks */
+    public function __construct(private MailSettings $mailSettings, private iterable $contributedChecks = []) {}
 
     /** @return list<array{name: string, status: string, detail: string}> */
     public function handle(): array
     {
-        return [
+        $checks = [
             $this->check('database', function (): string {
                 DB::connection()->getPdo();
                 DB::select('SELECT 1');
@@ -59,18 +59,6 @@ final readonly class GetSystemHealth
                 return $this->heartbeat('system.queue_heartbeat');
             }),
             $this->check('scheduler', fn (): string => $this->heartbeat('system.scheduler_heartbeat')),
-            $this->check('backup', function (): string {
-                if (! resolve(FeatureManager::class)->enabled(Module::Backup)) {
-                    return 'disabled';
-                }
-                if (! config('backup.backup.password')) {
-                    return 'not_configured';
-                }
-                $disk = Storage::disk('backups');
-                $latest = collect($disk->files(config('backup.backup.name')))->filter(fn (string $path): bool => str_ends_with($path, '.zip'))->map(fn (string $path): int => $disk->lastModified($path))->max();
-
-                return is_int($latest) && $latest >= now()->subDays(2)->timestamp ? 'recent' : 'stale';
-            }),
             $this->check('mail', function (): string {
                 $mailer = config('mail.default');
 
@@ -79,6 +67,12 @@ final readonly class GetSystemHealth
                     ? 'configured' : 'not_configured';
             }),
         ];
+
+        foreach ($this->contributedChecks as $check) {
+            $checks[] = $this->check($check->name(), $check->handle(...));
+        }
+
+        return $checks;
     }
 
     /** @return array{name: string, status: string, detail: string} */
