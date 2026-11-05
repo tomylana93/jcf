@@ -34,8 +34,8 @@ const page = usePage();
 const { t } = useTranslations();
 const formOpen = ref(false);
 
-const revokeUrl = (token: ApiToken): string =>
-    destroyToken.url({ apiClient: props.client.id, token: token.id });
+const revokeAction = (token: ApiToken) =>
+    destroyToken({ apiClient: props.client.id, token: token.id });
 
 const canManage = computed(() =>
     page.props.auth.permissions.includes('api-clients.manage'),
@@ -103,7 +103,7 @@ watchEffect(() => {
                     :tokens="tokens"
                     :ability-options="abilityOptions"
                     :can-revoke="canManage"
-                    :revoke-url="revokeUrl"
+                    :revoke-action="revokeAction"
                 />
             </div>
         </div>

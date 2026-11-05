@@ -13,3 +13,6 @@ Define datatable columns in a page-local columns.ts exporting createColumns; inj
 
 ## Reusable operational status presentation
 Use the shared StatusBadge with a translated label and semantic tone for operational statuses; keep domain-specific status-to-tone mappings in the consuming page.
+
+## Shared pagination and bodiless mutations
+Paginate non-datatable lists with the shared SimplePagination component and the table.pagination translations. Submit bodiless button actions through useForm({}).submit() with a Wayfinder route so processing state is available; reserve useHttp for JSON endpoints that do not perform an Inertia visit.

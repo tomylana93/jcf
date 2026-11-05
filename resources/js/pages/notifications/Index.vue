@@ -8,6 +8,7 @@ import {
     update,
 } from '@/actions/App/Http/Controllers/Notification/NotificationController';
 import PageContainer from '@/components/layout/PageContainer.vue';
+import SimplePagination from '@/components/shared/SimplePagination.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { useDateTime } from '@/composables/useDateTime';
@@ -173,56 +174,10 @@ function markAllRead(): void {
                 {{ t('notification.helper.empty_description') }}
             </p>
         </div>
-        <nav
-            class="flex items-center justify-between gap-3"
-            :aria-label="t('notification.label.pagination')"
-        >
-            <Link
-                v-if="notifications.current_page > 1"
-                :href="
-                    index({
-                        query: {
-                            status,
-                            page: notifications.current_page - 1,
-                        },
-                    })
-                "
-                :class="buttonVariants({ variant: 'outline', size: 'sm' })"
-            >
-                {{ t('table.pagination.button.previous') }}
-            </Link>
-            <span v-else />
-            <p class="text-sm text-muted-foreground">
-                {{
-                    t('table.pagination.helper.page_status', {
-                        current: notifications.current_page,
-                        total: Math.max(
-                            1,
-                            Math.ceil(
-                                notifications.total / notifications.per_page,
-                            ),
-                        ),
-                    })
-                }}
-            </p>
-            <Link
-                v-if="
-                    notifications.current_page * notifications.per_page <
-                    notifications.total
-                "
-                :href="
-                    index({
-                        query: {
-                            status,
-                            page: notifications.current_page + 1,
-                        },
-                    })
-                "
-                :class="buttonVariants({ variant: 'outline', size: 'sm' })"
-            >
-                {{ t('table.pagination.button.next') }}
-            </Link>
-            <span v-else />
-        </nav>
+        <SimplePagination
+            :paginator="notifications"
+            :label="t('notification.label.pagination')"
+            :page-href="(page) => index({ query: { status, page } })"
+        />
     </PageContainer>
 </template>

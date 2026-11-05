@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { router } from '@inertiajs/vue3';
+import { router, useForm } from '@inertiajs/vue3';
 import { KeyRound } from '@lucide/vue';
 
 import { destroy } from '@/actions/Laravel/Passkeys/Http/Controllers/PasskeyRegistrationController';
@@ -16,8 +16,10 @@ withDefaults(defineProps<ManagePasskeysProps>(), {
     passkeys: () => [],
 });
 
+const deleteForm = useForm({});
+
 const handleDelete = (id: number, onError: () => void) => {
-    router.delete(destroy.url(id), {
+    deleteForm.submit(destroy(id), {
         preserveScroll: true,
         onError,
     });

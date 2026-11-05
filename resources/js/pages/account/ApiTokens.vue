@@ -19,8 +19,7 @@ defineProps<{
 
 const { t } = useTranslations();
 
-const revokeUrl = (token: ApiToken): string =>
-    ApiTokenController.destroy.url(token.id);
+const revokeAction = (token: ApiToken) => ApiTokenController.destroy(token.id);
 
 watchEffect(() =>
     setLayoutProps({
@@ -55,7 +54,7 @@ watchEffect(() =>
             <ApiTokenList
                 :tokens="tokens"
                 :ability-options="abilityOptions"
-                :revoke-url="revokeUrl"
+                :revoke-action="revokeAction"
             />
         </div>
     </div>

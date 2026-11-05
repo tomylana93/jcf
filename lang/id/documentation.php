@@ -19,6 +19,7 @@ return [
         'content' => 'Konten',
         'status' => 'Status',
         'search' => 'Cari dokumentasi',
+        'pagination' => 'Halaman dokumentasi',
     ],
 
     'placeholder' => [
@@ -39,8 +40,6 @@ return [
         'delete' => 'Hapus',
         'preview' => 'Preview',
         'back' => 'Kembali ke dokumentasi',
-        'previous' => 'Sebelumnya',
-        'next' => 'Berikutnya',
         'search' => 'Cari',
     ],
 

@@ -3,6 +3,7 @@ import { Head, Link, router, setLayoutProps, usePage } from '@inertiajs/vue3';
 import { ref, watchEffect } from 'vue';
 
 import PageContainer from '@/components/layout/PageContainer.vue';
+import SimplePagination from '@/components/shared/SimplePagination.vue';
 import StatusBadge from '@/components/shared/StatusBadge.vue';
 import { Button, buttonVariants } from '@/components/ui/button';
 import {
@@ -39,10 +40,10 @@ const statusTones = {
 
 const query = ref(props.search);
 
-function searchDocuments(pageNumber = 1): void {
+function searchDocuments(): void {
     router.get(
         props.manage ? manageIndex.url() : index.url(),
-        { search: query.value, page: pageNumber },
+        { search: query.value },
         { preserveState: true },
     );
 }
@@ -158,27 +159,15 @@ watchEffect(() =>
                 </CardFooter>
             </Card>
         </div>
-        <div
-            v-if="documents.last_page > 1"
-            class="flex items-center justify-between gap-2"
-        >
-            <Button
-                variant="outline"
-                :disabled="documents.current_page === 1"
-                @click="searchDocuments(documents.current_page - 1)"
-            >
-                {{ t('documentation.button.previous') }}
-            </Button>
-            <span class="text-sm text-muted-foreground">
-                {{ documents.current_page }} / {{ documents.last_page }}
-            </span>
-            <Button
-                variant="outline"
-                :disabled="documents.current_page === documents.last_page"
-                @click="searchDocuments(documents.current_page + 1)"
-            >
-                {{ t('documentation.button.next') }}
-            </Button>
-        </div>
+        <SimplePagination
+            :paginator="documents"
+            :label="t('documentation.label.pagination')"
+            :page-href="
+                (pageNumber) =>
+                    (manage ? manageIndex : index)({
+                        query: { search, page: pageNumber },
+                    })
+            "
+        />
     </PageContainer>
 </template>
