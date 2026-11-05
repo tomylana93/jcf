@@ -47,7 +47,7 @@ abstract class Table
      * Paginate and serialize each row through the table's JsonResource, as Inertia table pages expect.
      *
      * @param  class-string<JsonResource>  $resource
-     * @return LengthAwarePaginator<int, array<string, mixed>>
+     * @return LengthAwarePaginator<int, array<mixed>>
      */
     final public function paginateResource(Request $request, string $resource): LengthAwarePaginator
     {
