@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Actions\Account\SearchUsers;
+use App\Actions\Search\SearchGlobal;
 use App\Support\FeatureManager;
+use App\Support\SearchProvider;
 use Illuminate\Queue\Events\JobProcessing;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
@@ -17,6 +20,8 @@ final class FeatureServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->scoped(FeatureManager::class);
+        $this->app->tag(SearchUsers::class, SearchProvider::class);
+        $this->app->bind(SearchGlobal::class, fn ($app): SearchGlobal => new SearchGlobal($app->tagged(SearchProvider::class)));
 
         $classes = config('settings.settings');
         $paths = config('settings.migrations_paths');
