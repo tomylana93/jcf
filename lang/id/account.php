@@ -73,6 +73,54 @@ return [
         ],
     ],
 
+    'api_tokens' => [
+        'title' => 'Token API',
+
+        'card' => [
+            'description' => 'Personal access token untuk script dan integrasi yang memanggil API.',
+            'create' => 'Buat token',
+            'list' => 'Token aktif',
+        ],
+
+        'label' => [
+            'name' => 'Nama token',
+            'abilities' => 'Hak akses',
+            'expiration' => 'Masa berlaku',
+            'new_token' => 'Token baru',
+            'expired' => 'Kedaluwarsa',
+        ],
+
+        'placeholder' => [
+            'name' => 'mis. Script laporan',
+        ],
+
+        'helper' => [
+            'empty' => 'Belum ada token API.',
+            'copy_once' => 'Salin token sekarang. Token tidak akan ditampilkan lagi.',
+            'created' => 'Dibuat :time',
+            'last_used' => 'Terakhir dipakai :time',
+            'never_used' => 'Belum pernah dipakai',
+            'expires' => 'Berlaku sampai :time',
+            'revoke' => 'Aplikasi yang memakai token ini langsung kehilangan akses API.',
+        ],
+
+        'button' => [
+            'create' => 'Buat token',
+            'copy' => 'Salin token',
+            'copied' => 'Tersalin',
+            'revoke' => 'Cabut',
+        ],
+
+        'dialog' => [
+            'revoke_title' => 'Cabut token API',
+        ],
+
+        'status' => [
+            'created' => 'Token API dibuat.',
+            'revoked' => 'Token API dicabut.',
+        ],
+    ],
+
     'avatar' => [
         'title' => 'Foto profil',
 

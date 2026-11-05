@@ -73,6 +73,54 @@ return [
         ],
     ],
 
+    'api_tokens' => [
+        'title' => 'API tokens',
+
+        'card' => [
+            'description' => 'Personal access tokens for scripts and integrations that call the API.',
+            'create' => 'Create token',
+            'list' => 'Active tokens',
+        ],
+
+        'label' => [
+            'name' => 'Token name',
+            'abilities' => 'Abilities',
+            'expiration' => 'Expiration',
+            'new_token' => 'New token',
+            'expired' => 'Expired',
+        ],
+
+        'placeholder' => [
+            'name' => 'e.g., Reporting script',
+        ],
+
+        'helper' => [
+            'empty' => 'No API tokens yet.',
+            'copy_once' => 'Copy the token now. It will not be shown again.',
+            'created' => 'Created :time',
+            'last_used' => 'Last used :time',
+            'never_used' => 'Never used',
+            'expires' => 'Expires :time',
+            'revoke' => 'Applications using this token will lose API access immediately.',
+        ],
+
+        'button' => [
+            'create' => 'Create token',
+            'copy' => 'Copy token',
+            'copied' => 'Copied',
+            'revoke' => 'Revoke',
+        ],
+
+        'dialog' => [
+            'revoke_title' => 'Revoke API token',
+        ],
+
+        'status' => [
+            'created' => 'API token created.',
+            'revoked' => 'API token revoked.',
+        ],
+    ],
+
     'avatar' => [
         'title' => 'Profile photo',
 

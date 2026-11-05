@@ -46,7 +46,8 @@ describe('API domain routing', function (): void {
             $application = require base_path('bootstrap/app.php');
             $application->make(Kernel::class)->bootstrap();
 
-            expect($application['router']->has('api.v1.ping'))->toBeFalse();
+            expect($application['router']->has('api.v1.ping'))->toBeFalse()
+                ->and($application['router']->has('api-tokens.index'))->toBeFalse();
         } finally {
             putenv("{$variable}={$original}");
             $_ENV[$variable] = $_SERVER[$variable] = (string) $original;
@@ -76,7 +77,7 @@ describe('API authentication', function (): void {
 
     it('returns the token owner', function (): void {
         $user = User::factory()->create();
-        Sanctum::actingAs($user);
+        Sanctum::actingAs($user, ['read']);
 
         getJson(route('api.v1.user'))->assertOk()
             ->assertExactJson(['data' => [
@@ -89,14 +90,14 @@ describe('API authentication', function (): void {
     });
 
     it('returns 403 for a disabled account', function (): void {
-        Sanctum::actingAs(User::factory()->disabled()->create());
+        Sanctum::actingAs(User::factory()->disabled()->create(), ['read']);
 
         getJson(route('api.v1.user'))->assertForbidden()->assertJsonPath('message', __('auth.disabled'));
     });
 
     it('returns 403 for an unverified email when verification is required', function (bool $required, int $status): void {
         resolve(AuthSettings::class)->fill(['email_verification_required' => $required])->save();
-        Sanctum::actingAs(User::factory()->unverified()->create());
+        Sanctum::actingAs(User::factory()->unverified()->create(), ['read']);
 
         get(route('api.v1.user'))->assertStatus($status);
     })->with([[true, 403], [false, 200]]);

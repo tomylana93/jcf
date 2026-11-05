@@ -166,6 +166,7 @@ return [
     ],
 
     'attributes' => [
+        'abilities' => 'hak akses',
         'app_layout' => 'layout aplikasi',
         'auth_background' => 'background autentikasi',
         'auth_layout' => 'layout autentikasi',
@@ -175,6 +176,7 @@ return [
         'current_password' => 'password saat ini',
         'email' => 'alamat email',
         'email_verification_required' => 'verifikasi email',
+        'expiration' => 'masa berlaku',
         'favicon' => 'favicon',
         'filter' => 'filter',
         'footer_text' => 'teks footer',
@@ -211,5 +213,6 @@ return [
         'temporary_avatar' => 'foto sementara',
         'test_email' => 'email uji',
         'title' => 'judul',
+        'token_name' => 'nama token',
     ],
 ];

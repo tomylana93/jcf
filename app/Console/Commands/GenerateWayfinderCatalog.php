@@ -32,6 +32,8 @@ final class GenerateWayfinderCatalog extends Command
             'FEATURE_CHAT' => 'true',
             'FEATURE_DOCUMENTATION' => 'true',
             'FEATURE_BACKUP' => 'true',
+            'FEATURE_API' => 'true',
+            'API_DOMAIN' => is_string(config('api.domain')) && config('api.domain') !== '' ? config('api.domain') : 'api.localhost',
             'APP_CONFIG_CACHE' => $cache.'-config.php',
             'APP_ROUTES_CACHE' => $cache.'-routes.php',
         ]);

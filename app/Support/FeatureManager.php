@@ -57,7 +57,8 @@ final class FeatureManager
      *     chat: array{available: bool, enabled: bool},
      *     documentation: array{available: bool, enabled: bool},
      *     backup: array{available: bool, enabled: bool},
-     *     realtime: bool
+     *     realtime: bool,
+     *     api: bool
      * }
      */
     public function state(): array
@@ -76,6 +77,7 @@ final class FeatureManager
                 'enabled' => $this->enabled('backup'),
             ],
             'realtime' => ! in_array(config('broadcasting.default'), [null, 'null'], true),
+            'api' => ApiDomain::enabled(),
         ];
     }
 

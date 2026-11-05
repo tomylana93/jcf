@@ -51,6 +51,17 @@ return [
         'AssignUserPermissions' => 'Tetapkan permission pengguna',
     ],
 
+    'api_token_ability' => [
+        'Read' => 'Baca',
+        'Write' => 'Tulis',
+    ],
+
+    'api_token_expiration' => [
+        'ThirtyDays' => '30 hari',
+        'NinetyDays' => '90 hari',
+        'OneYear' => '1 tahun',
+    ],
+
     'locale' => [
         'English' => 'Bahasa Inggris',
         'Indonesian' => 'Bahasa Indonesia',

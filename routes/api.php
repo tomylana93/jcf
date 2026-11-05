@@ -9,5 +9,5 @@ use Illuminate\Support\Facades\Route;
 Route::get('ping', PingController::class)->name('ping');
 
 Route::middleware(['auth:sanctum', 'api.active', 'verified'])->group(function (): void {
-    Route::get('user', CurrentUserController::class)->name('user');
+    Route::get('user', CurrentUserController::class)->middleware('abilities:read')->name('user');
 });

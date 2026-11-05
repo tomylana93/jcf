@@ -185,7 +185,7 @@ describe('Backend feature gates', function (): void {
                 'DB_USERNAME' => $db->getConfig('username'), 'DB_PASSWORD' => $db->getConfig('password'),
                 'APP_CONFIG_CACHE' => $directory->path('config.php'), 'APP_ROUTES_CACHE' => $directory->path('routes.php'),
                 'FEATURE_CHAT' => 'false',
-                'FEATURE_DOCUMENTATION' => 'false', 'FEATURE_BACKUP' => 'false',
+                'FEATURE_DOCUMENTATION' => 'false', 'FEATURE_BACKUP' => 'false', 'FEATURE_API' => 'false',
             ];
             try {
                 new Process([PHP_BINARY, 'artisan', 'migrate', '--force', '--no-interaction'], base_path(), $environment)->mustRun();
@@ -194,7 +194,8 @@ describe('Backend feature gates', function (): void {
                 foreach (['chat_messages', 'documentations'] as $table) {
                     expect($db->getSchemaBuilder()->hasTable($table))->toBeFalse();
                 }
-                expect($directory->path('generated/routes/chat/index.ts'))->toBeFile();
+                expect($directory->path('generated/routes/chat/index.ts'))->toBeFile()
+                    ->and($directory->path('generated/routes/api-tokens/index.ts'))->toBeFile();
             } finally {
                 $directory->delete();
             }

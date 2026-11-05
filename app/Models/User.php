@@ -85,6 +85,16 @@ final class User extends Authenticatable implements HasMedia, MustVerifyEmail, P
                 $user->setRememberToken(Str::random(60));
             }
         });
+
+        self::updated(function (User $user): void {
+            if ($user->wasChanged('password') || ($user->wasChanged('status') && $user->status === UserStatus::Disabled)) {
+                $user->tokens()->delete();
+            }
+        });
+
+        self::deleted(function (User $user): void {
+            $user->tokens()->delete();
+        });
     }
 
     /** @return Attribute<string, never> */
