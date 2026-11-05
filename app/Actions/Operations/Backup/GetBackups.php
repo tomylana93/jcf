@@ -14,8 +14,8 @@ final class GetBackups
     {
         $disk = Storage::disk('backups');
 
-        return array_values(collect($disk->files(config('backup.backup.name')))
-            ->filter(fn (string $path): bool => preg_match('/^[A-Za-z0-9-]+\.zip$/D', basename($path)) === 1)
+        return array_values(collect($disk->files(GetBackupPath::directory()))
+            ->filter(fn (string $path): bool => GetBackupPath::isValidFilename(basename($path)))
             ->map(fn (string $path): array => [
                 'filename' => basename($path),
                 'size' => $disk->size($path),

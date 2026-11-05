@@ -27,7 +27,7 @@ final readonly class CheckBackupHealth implements HealthCheck
             return 'not_configured';
         }
         $disk = Storage::disk('backups');
-        $latest = collect($disk->files(config('backup.backup.name')))->filter(fn (string $path): bool => str_ends_with($path, '.zip'))->map(fn (string $path): int => $disk->lastModified($path))->max();
+        $latest = collect($disk->files(GetBackupPath::directory()))->filter(fn (string $path): bool => GetBackupPath::isValidFilename(basename($path)))->map(fn (string $path): int => $disk->lastModified($path))->max();
 
         return is_int($latest) && $latest >= now()->subDays(2)->timestamp ? 'recent' : 'stale';
     }

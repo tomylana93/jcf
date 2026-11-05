@@ -4,16 +4,23 @@ declare(strict_types=1);
 
 namespace App\Actions\Operations\Backup;
 
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
+
 final readonly class GetBackupPage
 {
     public function __construct(private GetBackups $getBackups) {}
 
-    /** @return array{data: list<array{filename: string, size: int, created_at: string}>, total: int, current_page: int, per_page: int} */
-    public function handle(string $search, string $sort, int $perPage, int $page): array
+    /**
+     * Filter, sort and paginate the stored archives with the same paginator shape as database tables.
+     *
+     * @return LengthAwarePaginator<int, array{filename: string, size: int, created_at: string}>
+     */
+    public function handle(string $search, string $sort, int $perPage, int $page): LengthAwarePaginator
     {
         $items = collect($this->getBackups->handle())->filter(fn (array $backup): bool => str_contains(mb_strtolower($backup['filename']), mb_strtolower($search)));
         $items = $items->sortBy(mb_ltrim($sort, '-'), SORT_REGULAR, str_starts_with($sort, '-'))->values();
 
-        return ['data' => array_values($items->forPage($page, $perPage)->all()), 'total' => $items->count(), 'current_page' => $page, 'per_page' => $perPage];
+        return new LengthAwarePaginator($items->forPage($page, $perPage)->values(), $items->count(), $perPage, $page, ['path' => Paginator::resolveCurrentPath()]);
     }
 }

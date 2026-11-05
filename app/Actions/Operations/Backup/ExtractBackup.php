@@ -12,12 +12,13 @@ use Spatie\TemporaryDirectory\TemporaryDirectory;
 use Throwable;
 use ZipArchive;
 
-final class ExtractBackup
+final readonly class ExtractBackup
 {
+    public function __construct(private GetBackupPath $getBackupPath) {}
+
     public function handle(string $filename, string $checksum, bool $requireEncryption = false): TemporaryDirectory
     {
-        throw_if(preg_match('/^[A-Za-z0-9-]+\.zip$/D', $filename) !== 1, RuntimeException::class, 'Invalid backup filename.');
-        $path = Storage::disk('backups')->path(config('backup.backup.name').'/'.$filename);
+        $path = Storage::disk('backups')->path($this->getBackupPath->handle($filename));
         $actualChecksum = is_file($path) ? hash_file('sha256', $path) : false;
         throw_if($actualChecksum === false || ! hash_equals($actualChecksum, $checksum), RuntimeException::class, 'Backup checksum mismatch or archive missing.');
         $zip = new ZipArchive;

@@ -107,6 +107,7 @@ arch('exposes backup operations only to their transport, jobs, commands and prov
     ->toOnlyBeUsedIn([
         'App\Actions\Operations',
         'App\Http\Controllers\Operations',
+        'App\Http\Requests\Operations',
         CreateSystemBackup::class,
         RestoreSystemBackup::class,
         CreateBackupCommand::class,

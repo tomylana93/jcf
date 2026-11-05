@@ -13,13 +13,13 @@ use Throwable;
 
 final readonly class UploadBackup
 {
-    public function __construct(private ExtractBackup $extractBackup, private GetBackupChecksum $getBackupChecksum) {}
+    public function __construct(private ExtractBackup $extractBackup, private GetBackupChecksum $getBackupChecksum, private GetBackupPath $getBackupPath) {}
 
     public function handle(UploadedFile $archive): string
     {
         $filename = 'upload-'.Str::uuid().'.zip';
-        $path = config('backup.backup.name').'/'.$filename;
-        $archive->storeAs(config('backup.backup.name'), $filename, 'backups');
+        $path = $this->getBackupPath->handle($filename);
+        $archive->storeAs(GetBackupPath::directory(), $filename, 'backups');
         try {
             $directory = $this->extractBackup->handle($filename, $this->getBackupChecksum->handle($filename), true);
             try {
