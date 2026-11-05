@@ -12,7 +12,7 @@ use App\Actions\Settings\GetGeneralSettings;
 use App\Actions\Settings\GetLayoutSettings;
 use App\Enums\Locale;
 use App\Enums\Role;
-use App\Support\ChatSummary;
+use App\Support\Contracts\ChatSummary;
 use App\Support\FeatureManager;
 use Illuminate\Http\Request;
 use Inertia\Middleware;

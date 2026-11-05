@@ -9,7 +9,7 @@ use App\Enums\Permission;
 use App\Enums\UserStatus;
 use App\Models\ChatMessage;
 use App\Models\User;
-use App\Support\ChatSummary;
+use App\Support\Contracts\ChatSummary;
 use App\Support\FeatureManager;
 
 final readonly class GetChatSummary implements ChatSummary

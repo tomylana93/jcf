@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Actions\Chat\GetChatSummary;
-use App\Support\ChatSummary;
+use App\Support\Contracts\ChatSummary;
 use Illuminate\Support\ServiceProvider;
 
 final class ChatServiceProvider extends ServiceProvider

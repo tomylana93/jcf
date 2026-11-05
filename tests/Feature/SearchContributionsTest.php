@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use App\Models\User;
-use App\Support\ChatSummary;
-use App\Support\SearchProvider;
+use App\Support\Contracts\ChatSummary;
+use App\Support\Contracts\SearchProvider;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;

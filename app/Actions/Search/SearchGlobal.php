@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Actions\Search;
 
 use App\Models\User;
-use App\Support\SearchProvider;
+use App\Support\Contracts\SearchProvider;
 
 final readonly class SearchGlobal
 {

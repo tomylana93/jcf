@@ -6,7 +6,7 @@ namespace App\Actions\Account;
 
 use App\Enums\Role;
 use App\Models\User;
-use App\Support\SearchProvider;
+use App\Support\Contracts\SearchProvider;
 use Illuminate\Database\Eloquent\Builder;
 
 final class SearchUsers implements SearchProvider

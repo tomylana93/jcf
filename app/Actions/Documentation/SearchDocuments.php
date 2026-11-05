@@ -8,8 +8,8 @@ use App\Enums\Module;
 use App\Enums\Permission;
 use App\Models\Documentation;
 use App\Models\User;
+use App\Support\Contracts\SearchProvider;
 use App\Support\FeatureManager;
-use App\Support\SearchProvider;
 use Illuminate\Database\Eloquent\Builder;
 
 final readonly class SearchDocuments implements SearchProvider
