@@ -23,7 +23,7 @@ final readonly class CheckBackupHealth implements HealthCheck
         if (! $this->features->enabled(Module::Backup)) {
             return 'disabled';
         }
-        if (! filled(config('backup.backup.password'))) {
+        if (blank(config('backup.backup.password'))) {
             return 'not_configured';
         }
         $disk = Storage::disk('backups');
