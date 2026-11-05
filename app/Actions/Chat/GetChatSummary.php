@@ -11,7 +11,7 @@ use App\Models\User;
 use App\Support\ChatSummary;
 use App\Support\FeatureManager;
 
-final class GetChatSummary implements ChatSummary
+final readonly class GetChatSummary implements ChatSummary
 {
     public function __construct(private FeatureManager $features) {}
 
