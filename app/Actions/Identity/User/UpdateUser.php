@@ -21,6 +21,7 @@ final class UpdateUser
         public GetUserAuditValues $getAuditValues,
         private readonly TerminateUserRealtimeConnections $terminateRealtimeConnections,
         private readonly PrepareEmailChange $prepareEmailChange,
+        private readonly SendUserInvitation $sendInvitation,
     ) {}
 
     /** @param array{name: string, email: string, role?: ?string, status: string} $data */
@@ -45,7 +46,7 @@ final class UpdateUser
             }
 
             if ($emailChanged && $user->invited_at !== null && $user->invitation_accepted_at === null && $user->status === UserStatus::Active) {
-                resolve(SendUserInvitation::class)->handle($user, $actor);
+                $this->sendInvitation->handle($user, $actor);
             }
         });
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Actions\Account;
+namespace App\Actions\Identity\User;
 
 use App\Enums\Role;
 use App\Models\User;

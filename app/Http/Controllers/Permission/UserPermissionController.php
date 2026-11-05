@@ -41,12 +41,9 @@ final class UserPermissionController extends Controller
 
     public function update(UpdateUserPermissionsRequest $request, User $user, UpdateUserPermissions $updatePermissions): RedirectResponse
     {
-        $actor = $request->user();
-        abort_unless($actor instanceof User, 403);
-
         /** @var list<string> $permissions */
         $permissions = $request->validated('permissions');
-        $updatePermissions->handle($user, $actor, $permissions);
+        $updatePermissions->handle($user, $request->user(), $permissions);
         $this->toastSuccess(__('permission.status.updated'));
 
         return back();

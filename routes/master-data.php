@@ -2,22 +2,15 @@
 
 declare(strict_types=1);
 
-use App\Enums\Permission;
 use App\Http\Controllers\Identity\ApiClientController;
 use App\Http\Controllers\Identity\UserController;
+use App\Http\Controllers\MasterDataController;
 use App\Support\ApiDomain;
 use Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
-use Inertia\Response;
 
 Route::middleware(['auth', 'verified'])->prefix('master-data')->name('master-data.')->group(function (): void {
-    Route::get('/', function (): Response {
-        abort_unless(Gate::any([Permission::ViewUsers->value, Permission::ManageBackups->value, Permission::ViewApiClients->value]), 403);
-
-        return Inertia::render('master-data/Index');
-    })->name('index');
+    Route::get('/', MasterDataController::class)->name('index');
     Route::get('users', [UserController::class, 'index'])->name('users.index');
     Route::get('users/export', [UserController::class, 'export'])->name('users.export');
     Route::post('users', [UserController::class, 'store'])->middleware(HandlePrecognitiveRequests::class)->name('users.store');

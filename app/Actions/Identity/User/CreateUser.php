@@ -16,7 +16,7 @@ use Illuminate\Validation\ValidationException;
 
 final class CreateUser
 {
-    public function __construct(public RecordAuditLog $recordAuditLog, public GetUserAuditValues $getAuditValues) {}
+    public function __construct(public RecordAuditLog $recordAuditLog, public GetUserAuditValues $getAuditValues, private readonly SendUserInvitation $sendInvitation) {}
 
     /** @param array{name: string, email: string, password?: ?string, role?: ?string, send_invitation?: bool} $data */
     public function handle(array $data, ?User $actor = null): User
@@ -43,7 +43,7 @@ final class CreateUser
             $user->notify(new ApplicationNotification('account_created'));
 
             if ($data['send_invitation'] ?? false) {
-                resolve(SendUserInvitation::class)->handle($user, $actor);
+                $this->sendInvitation->handle($user, $actor);
             }
 
             return $user;
