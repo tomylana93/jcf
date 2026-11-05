@@ -14,23 +14,31 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { getInitials } from '@/composables/useInitials';
-import { formatDateTime } from '@/lib/dateTime';
-import type { TranslationKey, UserRow, UserStatus } from '@/types';
+import type {
+    DataTableColumnContext,
+    TranslationKey,
+    UserRow,
+    UserStatus,
+} from '@/types';
 
 const statusTones = {
     active: 'success',
     disabled: 'neutral',
 } as const satisfies Record<UserStatus, 'success' | 'neutral'>;
 
-export function createColumns(
-    t: (key: TranslationKey) => string,
-    locale: string,
-    timezone: string,
-    canManage: boolean,
-    currentUserId: string,
-    onEdit: (user: UserRow) => void,
-    onChangeStatus: (user: UserRow) => void,
-): DataTableColumnDef<UserRow>[] {
+export function createColumns({
+    t,
+    formatDateTime,
+    canManage,
+    currentUserId,
+    onEdit,
+    onChangeStatus,
+}: DataTableColumnContext & {
+    canManage: boolean;
+    currentUserId: string;
+    onEdit: (user: UserRow) => void;
+    onChangeStatus: (user: UserRow) => void;
+}): DataTableColumnDef<UserRow>[] {
     return [
         {
             id: 'select',
@@ -71,12 +79,10 @@ export function createColumns(
         },
         {
             accessorKey: 'created_at',
-            exportValue: (user) =>
-                formatDateTime(user.created_at, locale, timezone),
+            exportValue: (user) => formatDateTime(user.created_at),
             header: t('user.label.created_at'),
             enableSorting: true,
-            cell: ({ row }) =>
-                formatDateTime(row.original.created_at, locale, timezone),
+            cell: ({ row }) => formatDateTime(row.original.created_at),
         },
         ...(canManage
             ? [

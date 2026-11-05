@@ -1,18 +1,23 @@
 import { h } from 'vue';
 
 import type { DataTableColumnDef } from '@/components/datatable';
-import type { BackupArchive, TranslationKey } from '@/types';
+import type { BackupArchive, DataTableColumnContext } from '@/types';
 
 import BackupActions from './BackupActions.vue';
 
-export function createColumns(
-    t: (key: TranslationKey) => string,
-    formatDateTime: (timestamp: string) => string,
-    disabled: boolean,
-    deleteDisabled: boolean,
-    onDelete: (backup: BackupArchive) => void,
-    onRestore: (backup: BackupArchive) => void,
-): DataTableColumnDef<BackupArchive>[] {
+export function createColumns({
+    t,
+    formatDateTime,
+    disabled,
+    deleteDisabled,
+    onDelete,
+    onRestore,
+}: DataTableColumnContext & {
+    disabled: boolean;
+    deleteDisabled: boolean;
+    onDelete: (backup: BackupArchive) => void;
+    onRestore: (backup: BackupArchive) => void;
+}): DataTableColumnDef<BackupArchive>[] {
     return [
         {
             accessorKey: 'filename',

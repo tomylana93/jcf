@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, setLayoutProps, useForm, usePage } from '@inertiajs/vue3';
+import { Head, setLayoutProps, useForm } from '@inertiajs/vue3';
 import { Save } from '@lucide/vue';
 import { computed, ref, watchEffect } from 'vue';
 
@@ -19,6 +19,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { usePermissions } from '@/composables/usePermissions';
 import { useTranslations } from '@/composables/useTranslations';
 import { index } from '@/routes/settings';
 import { edit, preview } from '@/routes/settings/mail';
@@ -32,11 +33,9 @@ const props = defineProps<{ settings: MailSettings }>();
 
 const { t } = useTranslations();
 
-const page = usePage();
+const { can } = usePermissions();
 
-const canManage = computed(() =>
-    page.props.auth.permissions.includes('settings.manage'),
-);
+const canManage = computed(() => can('settings.manage'));
 
 const previewKey = ref(0);
 

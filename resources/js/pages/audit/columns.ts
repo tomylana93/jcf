@@ -2,13 +2,15 @@ import { h } from 'vue';
 
 import type { DataTableColumnDef } from '@/components/datatable';
 import { Button } from '@/components/ui/button';
-import type { AuditLogRow, TranslationKey } from '@/types';
+import type { AuditLogRow, DataTableColumnContext } from '@/types';
 
-export function createColumns(
-    t: (key: TranslationKey) => string,
-    formatDateTime: (timestamp: string) => string,
-    onDetail: (log: AuditLogRow) => void,
-): DataTableColumnDef<AuditLogRow>[] {
+export function createColumns({
+    t,
+    formatDateTime,
+    onDetail,
+}: DataTableColumnContext & {
+    onDetail: (log: AuditLogRow) => void;
+}): DataTableColumnDef<AuditLogRow>[] {
     return [
         {
             accessorKey: 'created_at',

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, setLayoutProps, useForm, usePage } from '@inertiajs/vue3';
+import { Head, setLayoutProps, useForm } from '@inertiajs/vue3';
 import { computed, watchEffect } from 'vue';
 
 import { update } from '@/actions/App/Http/Controllers/Settings/ModuleSettingsController';
@@ -13,6 +13,7 @@ import {
     FieldLabel,
 } from '@/components/ui/field';
 import { Switch } from '@/components/ui/switch';
+import { usePermissions } from '@/composables/usePermissions';
 import { useTranslations } from '@/composables/useTranslations';
 import { index } from '@/routes/settings';
 import { edit } from '@/routes/settings/modules';
@@ -23,10 +24,8 @@ const props = defineProps<{
     >;
 }>();
 const { t } = useTranslations();
-const page = usePage();
-const canManage = computed(() =>
-    page.props.auth.permissions.includes('settings.manage'),
-);
+const { can } = usePermissions();
+const canManage = computed(() => can('settings.manage'));
 const form = useForm({ modules: { ...props.modules } });
 watchEffect(() =>
     setLayoutProps({

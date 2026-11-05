@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Link, router, setLayoutProps, usePage } from '@inertiajs/vue3';
+import { Head, Link, router, setLayoutProps } from '@inertiajs/vue3';
 import { ref, watchEffect } from 'vue';
 
 import PageContainer from '@/components/layout/PageContainer.vue';
@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/card';
 import { Empty, EmptyHeader, EmptyTitle } from '@/components/ui/empty';
 import { Input } from '@/components/ui/input';
+import { usePermissions } from '@/composables/usePermissions';
 import { useTranslations } from '@/composables/useTranslations';
 import { index, show } from '@/routes/documentation';
 import {
@@ -31,7 +32,7 @@ const props = defineProps<{
 }>();
 
 const { t } = useTranslations();
-const page = usePage();
+const { can } = usePermissions();
 
 const statusTones = {
     published: 'success',
@@ -98,9 +99,7 @@ watchEffect(() =>
                 {{ t('common.button.create') }}
             </Link>
             <Link
-                v-else-if="
-                    page.props.auth.permissions.includes('documentation.manage')
-                "
+                v-else-if="can('documentation.manage')"
                 :href="manageIndex()"
                 :class="buttonVariants({ variant: 'outline' })"
             >

@@ -3,20 +3,22 @@ import { h } from 'vue';
 
 import type { DataTableColumnDef } from '@/components/datatable';
 import StatusBadge from '@/components/shared/StatusBadge.vue';
-import { formatDateTime } from '@/lib/dateTime';
 import { show } from '@/routes/master-data/api-clients';
-import type { ApiClientRow, ApiClientStatus, TranslationKey } from '@/types';
+import type {
+    ApiClientRow,
+    ApiClientStatus,
+    DataTableColumnContext,
+} from '@/types';
 
 export const apiClientStatusTones = {
     active: 'success',
     disabled: 'neutral',
 } as const satisfies Record<ApiClientStatus, 'success' | 'neutral'>;
 
-export function createColumns(
-    t: (key: TranslationKey) => string,
-    locale: string,
-    timezone: string,
-): DataTableColumnDef<ApiClientRow>[] {
+export function createColumns({
+    t,
+    formatDateTime,
+}: DataTableColumnContext): DataTableColumnDef<ApiClientRow>[] {
     return [
         {
             accessorKey: 'name',
@@ -61,12 +63,10 @@ export function createColumns(
         },
         {
             accessorKey: 'created_at',
-            exportValue: (client) =>
-                formatDateTime(client.created_at, locale, timezone),
+            exportValue: (client) => formatDateTime(client.created_at),
             header: t('api_client.label.created_at'),
             enableSorting: true,
-            cell: ({ row }) =>
-                formatDateTime(row.original.created_at, locale, timezone),
+            cell: ({ row }) => formatDateTime(row.original.created_at),
         },
     ];
 }

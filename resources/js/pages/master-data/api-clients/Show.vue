@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, setLayoutProps, usePage } from '@inertiajs/vue3';
+import { Head, setLayoutProps } from '@inertiajs/vue3';
 import { Pencil } from '@lucide/vue';
 import { computed, ref, watchEffect } from 'vue';
 
@@ -14,6 +14,7 @@ import PageContainer from '@/components/layout/PageContainer.vue';
 import Heading from '@/components/shared/Heading.vue';
 import StatusBadge from '@/components/shared/StatusBadge.vue';
 import { Button } from '@/components/ui/button';
+import { usePermissions } from '@/composables/usePermissions';
 import { useTranslations } from '@/composables/useTranslations';
 import { index as masterDataIndex } from '@/routes/master-data';
 import { index, show } from '@/routes/master-data/api-clients';
@@ -30,16 +31,14 @@ const props = defineProps<{
     expirationOptions: SelectOption[];
 }>();
 
-const page = usePage();
+const { can } = usePermissions();
 const { t } = useTranslations();
 const formOpen = ref(false);
 
 const revokeAction = (token: ApiToken) =>
     destroyToken({ apiClient: props.client.id, token: token.id });
 
-const canManage = computed(() =>
-    page.props.auth.permissions.includes('api-clients.manage'),
-);
+const canManage = computed(() => can('api-clients.manage'));
 
 watchEffect(() => {
     setLayoutProps({

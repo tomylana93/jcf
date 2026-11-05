@@ -7,6 +7,7 @@ import { updateStatus } from '@/actions/App/Http/Controllers/Identity/UserContro
 import { DataTable } from '@/components/datatable';
 import PageContainer from '@/components/layout/PageContainer.vue';
 import { useDateTime } from '@/composables/useDateTime';
+import { usePermissions } from '@/composables/usePermissions';
 import { useTranslations } from '@/composables/useTranslations';
 import { index as masterDataIndex } from '@/routes/master-data';
 import { exportMethod, index } from '@/routes/master-data/users';
@@ -29,12 +30,11 @@ const props = defineProps<{
 }>();
 
 const page = usePage();
-const { t, locale } = useTranslations();
-const { timezone } = useDateTime();
+const { can } = usePermissions();
+const { t } = useTranslations();
+const { formatDateTime } = useDateTime();
 
-const canManage = computed(() =>
-    page.props.auth.permissions.includes('users.manage'),
-);
+const canManage = computed(() => can('users.manage'));
 
 const selectedUser = ref<UserRow | null>(null);
 const formOpen = ref(false);
@@ -73,15 +73,14 @@ function create(): void {
 }
 
 const columns = computed(() =>
-    createColumns(
+    createColumns({
         t,
-        locale.value,
-        timezone.value,
-        canManage.value,
-        page.props.auth.user.id,
-        edit,
-        changeStatus,
-    ),
+        formatDateTime,
+        canManage: canManage.value,
+        currentUserId: page.props.auth.user.id,
+        onEdit: edit,
+        onChangeStatus: changeStatus,
+    }),
 );
 
 watchEffect(() => {

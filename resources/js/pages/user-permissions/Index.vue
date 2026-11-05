@@ -16,7 +16,7 @@ const props = defineProps<{
 
 const { t } = useTranslations();
 
-const columns = computed(() => createColumns(t));
+const columns = computed(() => createColumns({ t }));
 
 watchEffect(() =>
     setLayoutProps({

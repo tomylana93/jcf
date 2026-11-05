@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, setLayoutProps, useForm, usePage } from '@inertiajs/vue3';
+import { Head, setLayoutProps, useForm } from '@inertiajs/vue3';
 import { ImageIcon, Palette, Save, Trash2, Undo2 } from '@lucide/vue';
 import { computed, onBeforeUnmount, reactive, watchEffect } from 'vue';
 
@@ -27,6 +27,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Spinner } from '@/components/ui/spinner';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useAppearance } from '@/composables/useAppearance';
+import { usePermissions } from '@/composables/usePermissions';
 import { useTranslations } from '@/composables/useTranslations';
 import { index } from '@/routes/settings';
 import { edit } from '@/routes/settings/brand';
@@ -46,11 +47,9 @@ const props = defineProps<{
 const { t } = useTranslations();
 const { resolvedAppearance } = useAppearance();
 
-const page = usePage();
+const { can } = usePermissions();
 
-const canManage = computed(() =>
-    page.props.auth.permissions.includes('settings.manage'),
-);
+const canManage = computed(() => can('settings.manage'));
 
 type ImageField = 'logo' | 'logo_text' | 'favicon' | 'auth_background';
 

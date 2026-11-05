@@ -2,7 +2,14 @@ import type { Component } from 'vue';
 
 import type { ButtonVariants } from '@/components/ui/button';
 
+import type { TranslationKey } from './i18n';
 import type { UserStatus } from './user';
+
+/** Shared dependencies injected by a page into its local createColumns factory. */
+export type DataTableColumnContext = {
+    t: (key: TranslationKey) => string;
+    formatDateTime: (timestamp: string) => string;
+};
 
 export type DataTableFilter = {
     key: string;
