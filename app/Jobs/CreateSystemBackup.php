@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs;
 
 use App\Actions\Operations\Backup\CreateBackup;
+use App\Enums\Module;
 use App\Models\User;
 use App\Notifications\ApplicationNotification;
 use App\Support\FeatureManager;
@@ -31,7 +32,7 @@ final class CreateSystemBackup implements ShouldBeUnique, ShouldQueue
 
     public function handle(CreateBackup $createBackup): void
     {
-        if (! resolve(FeatureManager::class)->enabled('backup')) {
+        if (! resolve(FeatureManager::class)->enabled(Module::Backup)) {
             Cache::put('system.backup_status', 'skipped', 86400);
 
             return;

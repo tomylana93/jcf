@@ -1,7 +1,7 @@
-import type { User } from '@/types';
+import type { PermissionName, User } from '@/types';
 
 export type Auth = {
     user: User;
-    permissions: string[];
+    permissions: PermissionName[];
     super_admin?: boolean;
 };

@@ -37,7 +37,7 @@ describe('Feature deployment acceptance', function (): void {
                 expect($result['module_status'])->toBe($module === 'all' || ! $hard || ! $soft ? 404 : 200)
                     ->and($result['forbidden_queries'])->toBe([]);
                 foreach (Permission::cases() as $permission) {
-                    if ($permission->module() !== null && ! $result['features'][$permission->module()]['enabled']) {
+                    if ($permission->module() !== null && ! $result['features'][$permission->module()->value]['enabled']) {
                         expect($result['permissions'])->not->toContain($permission->value);
                     }
                 }

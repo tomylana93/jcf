@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Enums\Module;
 use App\Http\Controllers\Audit\AuditLogController;
 use App\Http\Controllers\Notification\NotificationController;
 use App\Http\Controllers\Permission\UserPermissionController;
@@ -25,7 +26,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'Dashboard')->name('dashboard');
 });
 
-if (config('features.chat')) {
+if (Module::Chat->available()) {
     Route::middleware('feature:chat')->group(__DIR__.'/chat.php');
 }
 
@@ -35,10 +36,10 @@ require __DIR__.'/account.php';
 
 require __DIR__.'/master-data.php';
 
-if (config('features.documentation')) {
+if (Module::Documentation->available()) {
     Route::middleware('feature:documentation')->group(__DIR__.'/documentation.php');
 }
 
-if (config('features.backup')) {
+if (Module::Backup->available()) {
     Route::middleware('feature:backup')->group(__DIR__.'/backups.php');
 }

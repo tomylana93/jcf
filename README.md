@@ -29,8 +29,20 @@ JCF is a **source scaffold**: once a project is created, the application owns it
 ## Features
 
 - **Core:** authentication and accounts, users and permissions, application shell, locale and timezone, settings, audit, and notifications.
-- **Optional modules:** chat, documentation, and backup. All are off by default; enable them with `FEATURE_CHAT`, `FEATURE_DOCUMENTATION`, and `FEATURE_BACKUP`, then run migrations before sending module traffic.
+- **Optional modules:** chat, documentation, backup, and the external API. All are off by default; enable them with `FEATURE_CHAT`, `FEATURE_DOCUMENTATION`, `FEATURE_BACKUP`, and `FEATURE_API` (which also needs `API_DOMAIN`), then run migrations before sending module traffic.
 - **Stack:** Inertia v3 + Vue with SSR, Wayfinder, Fortify, Reverb, and Spatie permission, settings, media library, and backup.
+
+## Architecture
+
+JCF is a **modular monolith**: one Laravel application, one deployment, and one PostgreSQL database, split into modules that each own their code, tables, settings, permissions, and tests. Modules work together through small contracts, not through each other's internals, so turning one off or changing it does not require changes in the rest of the application.
+
+- **Module registry:** `App\Enums\Module` is the single definition of each optional module: its settings class, permissions, service provider, and migration paths. `config/features.php` holds the environment hard flags.
+- **Two-level activation:** the hard flag (`FEATURE_*`) decides whether a module's schema, settings, and routes exist at all. A stored toggle under **Settings → Modules** then switches an available module on or off at runtime. A module that is off never touches its tables.
+- **Contracts:** the core consumes modules through interfaces in `App\Support\Contracts`. Examples are `SearchProvider` (global search), `ChatSummary` (shell badge), and `HealthCheck` (system page). Each module registers its implementation in its own service provider.
+- **Ownership:** code is grouped by domain (`Identity`, `Account`, `Operations`, `Chat`, `Documentation`, `Settings`, …) across `app/Actions`, `app/Http`, and `app/Tables`. Menu groupings such as *Master Data* are navigation only.
+- **Enforced boundaries:** `tests/Feature/ModuleBoundariesTest.php` uses Pest architecture tests to fail the build when core code reaches into module models or Actions. A lint rule keeps chat frontend internals inside the chat module. The frontend `PermissionName` and `ModuleName` types are tested against the backend enums.
+
+Adding a module means adding a `Module` case, its settings class and migrations, its provider, the frontend type entries, and its boundary rules. The full checklist is in `.ai/rules/providers.md`.
 
 ## Requirements
 

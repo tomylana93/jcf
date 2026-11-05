@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
+use App\Providers\ApiServiceProvider;
+use App\Providers\BackupModuleServiceProvider;
 use App\Providers\ChatServiceProvider;
 use App\Providers\DocumentationServiceProvider;
 use App\Settings\ApiSettings;
 use App\Settings\BackupSettings;
 use App\Settings\ChatSettings;
 use App\Settings\DocumentationSettings;
+use App\Support\ApiDomain;
 use Illuminate\Support\ServiceProvider;
 
 enum Module: string
@@ -28,6 +31,25 @@ enum Module: string
         }
 
         return $classes;
+    }
+
+    /**
+     * Whether the environment hard flag enables this module's schema, settings and routes.
+     */
+    public function flagged(): bool
+    {
+        return config('features.'.$this->value) === true;
+    }
+
+    /**
+     * Whether the module is flagged and its runtime requirements are met.
+     */
+    public function available(): bool
+    {
+        return $this->flagged() && match ($this) {
+            self::Api => ApiDomain::domain() !== null,
+            default => true,
+        };
     }
 
     /** @return class-string<ApiSettings|BackupSettings|ChatSettings|DocumentationSettings> */
@@ -52,13 +74,14 @@ enum Module: string
         };
     }
 
-    /** @return class-string<ServiceProvider>|null */
-    public function provider(): ?string
+    /** @return class-string<ServiceProvider> */
+    public function provider(): string
     {
         return match ($this) {
             self::Chat => ChatServiceProvider::class,
             self::Documentation => DocumentationServiceProvider::class,
-            default => null,
+            self::Backup => BackupModuleServiceProvider::class,
+            self::Api => ApiServiceProvider::class,
         };
     }
 

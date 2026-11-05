@@ -121,7 +121,33 @@ export default defineConfig({
         rules: {
             'sort-imports': ['error', { ignoreDeclarationSort: true }],
             'object-shorthand': ['error', 'always'],
+            'no-restricted-imports': [
+                'error',
+                {
+                    patterns: [
+                        {
+                            group: [
+                                '@/components/chat/*',
+                                '@/composables/useChat',
+                                '@/composables/useChat*',
+                            ],
+                            message:
+                                'Chat internals belong to the chat module; the shell reads chatSummary or useRealtimeChatSummary.',
+                        },
+                    ],
+                },
+            ],
         },
+        overrides: [
+            {
+                files: [
+                    'resources/js/pages/chat/**',
+                    'resources/js/components/chat/**',
+                    'resources/js/composables/useChat*.ts',
+                ],
+                rules: { 'no-restricted-imports': 'off' },
+            },
+        ],
     },
     fmt: {
         printWidth: 80,

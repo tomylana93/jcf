@@ -68,7 +68,7 @@ describe('Feature flags', function (): void {
         resolve($class)->fill(['enabled' => $soft])->save();
         config(['features.'.$module => $hard]);
 
-        expect(resolve(FeatureManager::class)->envEnabled($module))->toBe($hard)
+        expect(resolve(FeatureManager::class)->available($module))->toBe($hard)
             ->and(resolve(FeatureManager::class)->enabled($module))->toBe($hard && $soft);
     })->with(['chat', 'documentation', 'backup', 'api'])->with([true, false])->with([true, false]);
 

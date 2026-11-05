@@ -46,6 +46,7 @@ pest()->extend(TestCase::class)
         Http::preventStrayRequests();
         config([
             'jalara.operations.backup_lock_directory' => storage_path('framework/testing/backup-locks-'.getmypid()),
+            'backup.backup.temporary_directory' => storage_path('framework/testing/backup-temp-'.getmypid()),
             'cache.stores.file.path' => storage_path('framework/testing/file-cache-'.getmypid()),
             'cache.stores.file.lock_path' => storage_path('framework/testing/file-cache-'.getmypid()),
         ]);

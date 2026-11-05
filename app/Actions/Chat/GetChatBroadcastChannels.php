@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Chat;
 
+use App\Enums\Module;
 use App\Models\ChatConversation;
 use App\Models\ChatParticipant;
 use App\Support\FeatureManager;
@@ -20,7 +21,7 @@ final readonly class GetChatBroadcastChannels
      */
     public function handle(string $conversationId, array $userIds): array
     {
-        if (! resolve(FeatureManager::class)->enabled('chat')) {
+        if (! resolve(FeatureManager::class)->enabled(Module::Chat)) {
             return [];
         }
 

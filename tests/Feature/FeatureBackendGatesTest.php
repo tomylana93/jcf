@@ -19,6 +19,7 @@ use App\Models\ChatMessage;
 use App\Models\User;
 use App\Settings\BackupSettings;
 use App\Settings\ChatSettings;
+use App\Support\Exceptions\ModuleUnavailableException;
 use Illuminate\Broadcasting\BroadcastEvent;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Broadcasting\Factory;
@@ -29,7 +30,6 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Spatie\TemporaryDirectory\TemporaryDirectory;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Process\Process;
 
 use function Pest\Laravel\artisan;
@@ -66,8 +66,8 @@ describe('Backend feature gates', function (): void {
         Event::fake([ChatMessageCreated::class]);
         DB::shouldReceive('transaction')->never();
 
-        expect(fn () => resolve(SendChatMessage::class)->handle($user, $conversation, []))->toThrow(NotFoundHttpException::class)
-            ->and(fn () => resolve(StartDirectConversation::class)->handle($user, $user))->toThrow(NotFoundHttpException::class);
+        expect(fn () => resolve(SendChatMessage::class)->handle($user, $conversation, []))->toThrow(ModuleUnavailableException::class)
+            ->and(fn () => resolve(StartDirectConversation::class)->handle($user, $user))->toThrow(ModuleUnavailableException::class);
         Event::assertNotDispatched(ChatMessageCreated::class);
     })->with([true, false]);
 
