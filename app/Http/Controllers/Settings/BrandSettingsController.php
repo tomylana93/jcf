@@ -21,7 +21,7 @@ final class BrandSettingsController extends Controller
         return Inertia::render('settings/Brand', [
             'settings' => $getSettings->handle(),
             'logoTypeOptions' => LogoType::options(),
-            'colorPresets' => BrandColor::presets(),
+            'colorPresets' => BrandColor::options(),
         ]);
     }
 

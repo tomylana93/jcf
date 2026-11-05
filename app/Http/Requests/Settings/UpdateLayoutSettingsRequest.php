@@ -13,11 +13,6 @@ use Illuminate\Validation\Rules\Enum;
 /** @method array{app_layout: string, auth_layout: string} validated() */
 final class UpdateLayoutSettingsRequest extends FormRequest
 {
-    public function authorize(): bool
-    {
-        return $this->user() !== null;
-    }
-
     /** @return array<string, list<Enum|string>> */
     public function rules(): array
     {

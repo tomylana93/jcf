@@ -11,11 +11,6 @@ use Illuminate\Validation\Rule;
 /** @method array{mailer: string, smtp_host: ?string, smtp_port: ?int, smtp_scheme: ?string, smtp_username: ?string, smtp_password: ?string, from_address: string, from_name: string, show_logo: bool, footer_text: ?string} validated() */
 final class UpdateMailSettingsRequest extends FormRequest
 {
-    public function authorize(): bool
-    {
-        return $this->user() !== null;
-    }
-
     /** @return array<string, array<int, mixed>> */
     public function rules(): array
     {

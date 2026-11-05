@@ -38,10 +38,7 @@ final class GetMailBrand
                     ? url(Storage::disk('public')->url($logoPath))
                     : asset($fallback))
                 : null,
-            'accent' => match ($this->brandSettings->color->value) {
-                'blue' => '#2563eb', 'green' => '#198b46', 'purple' => '#7c3aed',
-                'rose' => '#e11d48', 'orange' => '#d96306', default => '#171717',
-            },
+            'accent' => $this->brandSettings->color->mailAccent(),
             'footer_text' => $this->mailSettings->footer_text,
         ];
     }

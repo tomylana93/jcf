@@ -11,7 +11,7 @@ trait HasOptions
 {
     abstract public function label(): string;
 
-    /** @return list<array{value: string|int, label: string, name: string, color?: string}> */
+    /** @return list<array{value: string|int, label: string, name: string, color?: string, swatch?: string}> */
     public static function options(): array
     {
         return array_map(fn (self $case): array => array_merge([
@@ -21,7 +21,7 @@ trait HasOptions
         ], $case->optionAttributes()), self::cases());
     }
 
-    /** @return array{color?: string} */
+    /** @return array{color?: string, swatch?: string} */
     protected function optionAttributes(): array
     {
         return [];
