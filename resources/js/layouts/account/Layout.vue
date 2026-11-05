@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
 import PageContainer from '@/components/layout/PageContainer.vue';
@@ -8,12 +8,14 @@ import { Separator } from '@/components/ui/separator';
 import { useCurrentUrl } from '@/composables/useCurrentUrl';
 import { useTranslations } from '@/composables/useTranslations';
 import { toUrl } from '@/lib/utils';
+import { index as apiTokensIndex } from '@/routes/api-tokens';
 import { edit as editProfile } from '@/routes/profile';
 import { edit as editSecurity } from '@/routes/security';
 import { index as sessionsIndex } from '@/routes/sessions';
 import type { NavItem } from '@/types';
 
 const { t } = useTranslations();
+const page = usePage();
 
 const sidebarNavItems = computed<NavItem[]>(() => [
     {
@@ -25,6 +27,9 @@ const sidebarNavItems = computed<NavItem[]>(() => [
         href: editSecurity(),
     },
     { title: t('account.sessions.title'), href: sessionsIndex() },
+    ...(page.props.features.api
+        ? [{ title: t('account.api_tokens.title'), href: apiTokensIndex() }]
+        : []),
 ]);
 
 const { isCurrentOrParentUrl } = useCurrentUrl();

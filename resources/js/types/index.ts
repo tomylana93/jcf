@@ -18,6 +18,7 @@ export * from './notification';
 export * from './dashboard';
 
 export * from './sessions';
+export * from './api-tokens';
 
 export * from './system';
 

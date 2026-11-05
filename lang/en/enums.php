@@ -51,6 +51,17 @@ return [
         'AssignUserPermissions' => 'Assign user permissions',
     ],
 
+    'api_token_ability' => [
+        'Read' => 'Read',
+        'Write' => 'Write',
+    ],
+
+    'api_token_expiration' => [
+        'ThirtyDays' => '30 days',
+        'NinetyDays' => '90 days',
+        'OneYear' => '1 year',
+    ],
+
     'locale' => [
         'English' => 'English',
         'Indonesian' => 'Indonesian',

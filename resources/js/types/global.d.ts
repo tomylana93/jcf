@@ -5,6 +5,7 @@ import type {
     BrandSettings,
     ChatSummary,
     Features,
+    FlashToast,
     GeneralSettings,
     LayoutSettings,
     LocaleSettings,
@@ -39,6 +40,10 @@ declare module '@inertiajs/core' {
             notificationSummary?: NotificationSummary;
             chatSummary?: ChatSummary;
             [key: string]: unknown;
+        };
+        flashDataType: {
+            toast?: FlashToast;
+            apiToken?: string;
         };
     }
 }

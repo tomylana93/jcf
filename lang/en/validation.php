@@ -167,6 +167,7 @@ return [
     ],
 
     'attributes' => [
+        'abilities' => 'abilities',
         'app_layout' => 'application layout',
         'auth_background' => 'authentication background',
         'auth_layout' => 'authentication layout',
@@ -176,6 +177,7 @@ return [
         'current_password' => 'current password',
         'email' => 'email address',
         'email_verification_required' => 'email verification',
+        'expiration' => 'expiration',
         'favicon' => 'favicon',
         'filter' => 'filter',
         'footer_text' => 'footer text',
@@ -212,6 +214,7 @@ return [
         'temporary_avatar' => 'temporary photo',
         'test_email' => 'test email',
         'title' => 'title',
+        'token_name' => 'token name',
     ],
 
 ];

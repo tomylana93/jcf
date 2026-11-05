@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Account\ApiTokenController;
 use App\Http\Controllers\Account\ProfileAvatarController;
 use App\Http\Controllers\Account\ProfileController;
 use App\Http\Controllers\Account\SecurityController;
 use App\Http\Controllers\Account\SessionController;
+use App\Support\ApiDomain;
 use Illuminate\Auth\Middleware\RequirePassword;
 use Illuminate\Support\Facades\Route;
 
@@ -25,6 +27,12 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::put('account/password', [SecurityController::class, 'update'])->middleware('throttle:6,1')->name('user-password.update');
     Route::get('account/sessions', [SessionController::class, 'index'])->middleware(RequirePassword::class)->name('sessions.index');
     Route::delete('account/sessions', [SessionController::class, 'destroy'])->middleware('throttle:6,1')->name('sessions.destroy');
+
+    if (ApiDomain::enabled()) {
+        Route::get('account/api-tokens', [ApiTokenController::class, 'index'])->middleware(RequirePassword::class)->name('api-tokens.index');
+        Route::post('account/api-tokens', [ApiTokenController::class, 'store'])->middleware(['throttle:6,1', RequirePassword::class])->name('api-tokens.store');
+        Route::delete('account/api-tokens/{token}', [ApiTokenController::class, 'destroy'])->whereNumber('token')->middleware(RequirePassword::class)->name('api-tokens.destroy');
+    }
 });
 
 Route::get('.well-known/passkey-endpoints', fn () => response()->json([

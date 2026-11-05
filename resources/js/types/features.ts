@@ -8,4 +8,5 @@ export type Features = {
     documentation: ModuleFeature;
     backup: ModuleFeature;
     realtime: boolean;
+    api: boolean;
 };
