@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Actions\Settings;
 
 use App\Enums\Module;
+use App\Support\Exceptions\ModuleUnavailableException;
 use App\Support\FeatureManager;
 
 final readonly class GetModuleSettings
@@ -20,7 +21,7 @@ final readonly class GetModuleSettings
                 $modules[$module] = $this->features->enabled($module);
             }
         }
-        abort_if($modules === [], 404);
+        throw_if($modules === [], ModuleUnavailableException::none());
 
         return $modules;
     }

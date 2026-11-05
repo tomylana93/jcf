@@ -10,6 +10,7 @@ use App\Models\ChatConversation;
 use App\Models\ChatMessage;
 use App\Models\User;
 use App\Support\FeatureManager;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
@@ -21,12 +22,12 @@ final readonly class SendChatMessage
     /** @param array<string, mixed> $data */
     public function handle(User $actor, ChatConversation $conversation, array $data): ChatMessage
     {
-        abort_unless(resolve(FeatureManager::class)->enabled(Module::Chat), 404);
+        resolve(FeatureManager::class)->ensureEnabled(Module::Chat);
 
         return DB::transaction(function () use ($actor, $conversation, $data): ChatMessage {
             $ids = $conversation->participants()->pluck('user_id')->push($actor->id)->unique()->sort()->values();
             $users = User::query()->whereIn('id', $ids)->orderBy('id')->lockForUpdate()->get()->keyBy('id');
-            $sender = $users->get($actor->id) ?? abort(403);
+            $sender = $users->get($actor->id) ?? throw new AuthorizationException;
             $record = ChatConversation::query()->lockForUpdate()->findOrFail($conversation->id);
             Gate::forUser($sender)->authorize('sendMessage', $record);
 

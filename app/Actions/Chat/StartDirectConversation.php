@@ -8,6 +8,7 @@ use App\Enums\Module;
 use App\Models\ChatConversation;
 use App\Models\User;
 use App\Support\FeatureManager;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
@@ -16,15 +17,15 @@ final class StartDirectConversation
 {
     public function handle(User $actor, User $recipient): ChatConversation
     {
-        abort_unless(resolve(FeatureManager::class)->enabled(Module::Chat), 404);
+        resolve(FeatureManager::class)->ensureEnabled(Module::Chat);
 
         return DB::transaction(function () use ($actor, $recipient): ChatConversation {
             $ids = [$actor->id, $recipient->id];
             sort($ids, SORT_STRING);
 
             $users = User::query()->whereIn('id', $ids)->orderBy('id')->lockForUpdate()->get()->keyBy('id');
-            $sender = $users->get($actor->id) ?? abort(403);
-            $receiver = $users->get($recipient->id) ?? abort(403);
+            $sender = $users->get($actor->id) ?? throw new AuthorizationException;
+            $receiver = $users->get($recipient->id) ?? throw new AuthorizationException;
             Gate::forUser($sender)->authorize('create', ChatConversation::class);
             Gate::forUser($receiver)->authorize('create', ChatConversation::class);
 

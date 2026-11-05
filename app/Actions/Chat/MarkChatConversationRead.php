@@ -28,7 +28,7 @@ final class MarkChatConversationRead
 
     public function handle(User $actor, ChatConversation $conversation, int $sequence): ChatParticipant
     {
-        abort_unless(resolve(FeatureManager::class)->enabled(Module::Chat), 404);
+        resolve(FeatureManager::class)->ensureEnabled(Module::Chat);
 
         return DB::transaction(function () use ($actor, $conversation, $sequence): ChatParticipant {
             $user = User::query()->lockForUpdate()->findOrFail($actor->id);

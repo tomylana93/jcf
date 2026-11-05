@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Support;
 
 use App\Enums\Module;
+use App\Support\Exceptions\ModuleUnavailableException;
 
 final class FeatureManager
 {
@@ -33,6 +34,14 @@ final class FeatureManager
         }
 
         return $this->enabled[$module->value] ??= resolve($module->settingsClass())->enabled;
+    }
+
+    /**
+     * @throws ModuleUnavailableException
+     */
+    public function ensureEnabled(Module $module): void
+    {
+        throw_unless($this->enabled($module), ModuleUnavailableException::for($module));
     }
 
     public function moduleEnabled(?Module $module): bool

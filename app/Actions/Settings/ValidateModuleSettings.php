@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Actions\Settings;
 
 use App\Enums\Module;
+use App\Support\Exceptions\ModuleUnavailableException;
 use App\Support\FeatureManager;
 use Illuminate\Support\Facades\Validator;
 
@@ -18,7 +19,7 @@ final readonly class ValidateModuleSettings
     public function handle(array $data): array
     {
         $available = array_keys(array_filter(Module::settingsClasses(), fn (string $class, string $module): bool => $this->features->available($module), ARRAY_FILTER_USE_BOTH));
-        abort_if($available === [], 404);
+        throw_if($available === [], ModuleUnavailableException::none());
         $rules = ['modules' => ['required', 'array:'.implode(',', $available)]];
         foreach ($available as $module) {
             $rules['modules.'.$module] = ['required', 'boolean'];

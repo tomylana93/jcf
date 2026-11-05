@@ -15,7 +15,7 @@ final class SendChatTyping
 {
     public function handle(User $actor, ChatConversation $conversation, bool $typing): void
     {
-        abort_unless(resolve(FeatureManager::class)->enabled(Module::Chat), 404);
+        resolve(FeatureManager::class)->ensureEnabled(Module::Chat);
 
         Gate::forUser($actor)->authorize('sendMessage', $conversation);
 

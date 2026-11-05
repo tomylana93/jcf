@@ -16,7 +16,6 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
 use function Pest\Laravel\assertDatabaseCount;
 use function Pest\Laravel\assertDatabaseHas;
@@ -78,7 +77,7 @@ describe('Direct chat domain', function (): void {
         $recipient->delete();
 
         expect(fn () => resolve(StartDirectConversation::class)->handle($sender, $recipient))
-            ->toThrow(HttpException::class);
+            ->toThrow(AuthorizationException::class);
         assertDatabaseCount('chat_conversations', 0);
     });
 

@@ -13,6 +13,7 @@ use App\Jobs\CreateSystemBackup;
 use App\Jobs\RestoreSystemBackup;
 use App\Models\User;
 use Illuminate\Contracts\Process\ProcessResult;
+use Illuminate\Database\RecordsNotFoundException;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Process\Factory;
@@ -26,7 +27,6 @@ use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
 use Spatie\Backup\Config\Config;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\artisan;
@@ -122,7 +122,7 @@ describe('Backup management', function (): void {
 
     it('rejects unsafe filenames before accessing backup storage', function (): void {
         expect(fn () => resolve(DeleteBackup::class)->handle('../test.zip'))
-            ->toThrow(HttpException::class);
+            ->toThrow(RecordsNotFoundException::class);
     });
 
     it('lets a backup manager enter master data without user-view permission', function (): void {
