@@ -13,6 +13,13 @@ use Illuminate\Support\Facades\File;
 #[Description('Export PHP language messages for Vue I18n')]
 final class ExportFrontendTranslations extends Command
 {
+    /**
+     * Language groups that are only rendered by the server and never shipped to the browser.
+     *
+     * @var list<string>
+     */
+    private const array SERVER_ONLY_GROUPS = ['passwords', 'validation'];
+
     public function handle(): int
     {
         $messages = [];
@@ -22,7 +29,7 @@ final class ExportFrontendTranslations extends Command
             $messages[$locale] = [];
 
             foreach (File::files($directory) as $file) {
-                if ($file->getExtension() !== 'php') {
+                if ($file->getExtension() !== 'php' || in_array($file->getBasename('.php'), self::SERVER_ONLY_GROUPS, true)) {
                     continue;
                 }
 
