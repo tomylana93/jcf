@@ -1,6 +1,8 @@
 domains:
   - jcf
   - api.jcf
+env_overrides:
+  API_DOMAIN: "api.{{domain}}"
 php_version: "8.5"
 node_version: "26"
 framework: laravel
