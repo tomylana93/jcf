@@ -26,4 +26,9 @@ final class MarkChatConversationReadRequest extends FormRequest
 
         return MarkChatConversationRead::rules($conversation);
     }
+
+    public function sequence(): int
+    {
+        return (int) $this->validated()['sequence'];
+    }
 }

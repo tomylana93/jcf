@@ -70,7 +70,7 @@ final class UserController extends Controller
 
     public function updateStatus(UpdateUserStatusRequest $request, User $user, UpdateUserStatus $updateUserStatus): RedirectResponse
     {
-        $status = UserStatus::from($request->string('status')->toString());
+        $status = $request->status();
         $updateUserStatus->handle($request->user(), $user, $status);
         $this->toastSuccess(__($status === UserStatus::Active ? 'user.status.activated' : 'user.status.disabled'));
 

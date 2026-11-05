@@ -13,6 +13,6 @@ final class GlobalSearchController extends Controller
 {
     public function __invoke(GlobalSearchRequest $request, SearchGlobal $search): JsonResponse
     {
-        return response()->json($search->handle($request->user(), $request->string('query')->toString()));
+        return response()->json($search->handle($request->user(), $request->term()));
     }
 }

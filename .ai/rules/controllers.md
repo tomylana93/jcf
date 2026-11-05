@@ -19,3 +19,6 @@ Authorize every route in exactly one primary place: route ->can() for permission
 
 ## Shared HTTP helpers
 Flash success toasts with $this->toastSuccess(), mark private per-user responses with the no-store route middleware instead of Cache-Control headers in controllers, and serialize Table pages with $table->paginateResource($request, Resource::class).
+
+## Reading validated input
+Read input in controllers through validated(), declaring its array shape with an @method docblock on the FormRequest. When a value needs conversion (enum, integer, optional string, default), add a typed helper on the FormRequest, such as UpdateUserStatusRequest::status(); do not call $request->string(), integer() or array() in controllers. Avoid helper names that FormRequest already uses, such as after().

@@ -7,6 +7,7 @@ namespace App\Http\Requests\Api\V1;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
+/** @method array{email: string, password: string, device_name: string} validated() */
 final class IssueTokenRequest extends FormRequest
 {
     /** @return array<string, ValidationRule|array<mixed>|string> */

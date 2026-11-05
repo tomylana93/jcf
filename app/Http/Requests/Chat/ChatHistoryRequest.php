@@ -24,4 +24,14 @@ final class ChatHistoryRequest extends FormRequest
             'after' => ['nullable', 'integer', 'min:0', 'max:2147483647', 'prohibits:before'],
         ];
     }
+
+    public function beforeSequence(): ?int
+    {
+        return $this->filled('before') ? (int) $this->validated('before') : null;
+    }
+
+    public function afterSequence(): ?int
+    {
+        return $this->filled('after') ? (int) $this->validated('after') : null;
+    }
 }

@@ -21,7 +21,7 @@ final class ModuleSettingsController extends Controller
 
     public function update(UpdateModuleSettingsRequest $request, UpdateModuleSettings $update): RedirectResponse
     {
-        $update->handle($request->user(), $request->array('modules'));
+        $update->handle($request->user(), $request->modules());
         $this->toastSuccess(__('settings.modules.status.updated'));
 
         return to_route('settings.modules.edit');

@@ -29,6 +29,12 @@ final class UpdateModuleSettingsRequest extends FormRequest
         }];
     }
 
+    /** @return array<string, mixed> */
+    public function modules(): array
+    {
+        return (array) $this->validated('modules');
+    }
+
     /**
      * Report a missing module as 404 before field validation; permissions are enforced on the route.
      */

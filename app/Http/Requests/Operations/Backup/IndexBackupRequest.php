@@ -18,4 +18,24 @@ final class IndexBackupRequest extends FormRequest
             'sort' => ['nullable', 'in:filename,-filename,created_at,-created_at,size,-size'],
         ];
     }
+
+    public function search(): string
+    {
+        return (string) $this->validated('filter.search');
+    }
+
+    public function sort(): string
+    {
+        return (string) $this->validated('sort', '-created_at');
+    }
+
+    public function perPage(): int
+    {
+        return (int) $this->validated('per_page', 10);
+    }
+
+    public function page(): int
+    {
+        return (int) $this->validated('page', 1);
+    }
 }

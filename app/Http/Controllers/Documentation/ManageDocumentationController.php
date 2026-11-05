@@ -23,8 +23,8 @@ final class ManageDocumentationController extends Controller
         Gate::authorize('create', Documentation::class);
 
         return Inertia::render('documentation/Index', [
-            'documents' => $search->handle($request->string('search')->toString(), true),
-            'search' => $request->string('search')->toString(),
+            'documents' => $search->handle($request->search(), true),
+            'search' => $request->search(),
             'manage' => true,
         ]);
     }

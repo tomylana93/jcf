@@ -14,6 +14,11 @@ final class GlobalSearchRequest extends FormRequest
         return ['query' => ['required', 'string', 'min:2', 'max:200']];
     }
 
+    public function term(): string
+    {
+        return (string) $this->validated('query');
+    }
+
     protected function prepareForValidation(): void
     {
         if (is_string($this->input('query'))) {

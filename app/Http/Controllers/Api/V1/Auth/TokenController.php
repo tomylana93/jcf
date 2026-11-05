@@ -23,8 +23,9 @@ final class TokenController extends Controller
      */
     public function store(IssueTokenRequest $request, AuthenticateApiUser $authenticate, StartTwoFactorChallenge $startChallenge, IssueDeviceToken $issueToken): JsonResponse
     {
-        $user = $authenticate->handle($request->string('email')->toString(), $request->string('password')->toString());
-        $deviceName = $request->string('device_name')->toString();
+        $credentials = $request->validated();
+        $user = $authenticate->handle($credentials['email'], $credentials['password']);
+        $deviceName = $credentials['device_name'];
 
         if ($user->hasEnabledTwoFactorAuthentication()) {
             return new TwoFactorChallengeResource($startChallenge->handle($user, $deviceName))->response();

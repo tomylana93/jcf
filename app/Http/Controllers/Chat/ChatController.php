@@ -48,7 +48,7 @@ final class ChatController extends Controller
 
     public function recipients(ChatQueryRequest $request, GetChatRecipients $getRecipients): JsonResponse
     {
-        $page = $getRecipients->handle($request->user(), $request->string('search')->toString());
+        $page = $getRecipients->handle($request->user(), $request->search());
 
         return response()->json([
             'data' => ChatUserResource::collection($page->items())->resolve($request),
@@ -66,8 +66,7 @@ final class ChatController extends Controller
     public function history(ChatHistoryRequest $request, ChatConversation $conversation, GetChatHistory $getHistory): JsonResponse
     {
         $result = $getHistory->handle($request->user(), $conversation,
-            $request->filled('before') ? $request->integer('before') : null,
-            $request->filled('after') ? $request->integer('after') : null);
+            $request->beforeSequence(), $request->afterSequence());
 
         return response()->json([
             'data' => ChatMessageResource::collection($result['messages'])->resolve($request),
@@ -84,14 +83,14 @@ final class ChatController extends Controller
 
     public function read(MarkChatConversationReadRequest $request, ChatConversation $conversation, MarkChatConversationRead $markRead): JsonResponse
     {
-        $participant = $markRead->handle($request->user(), $conversation, (int) $request->validated()['sequence']);
+        $participant = $markRead->handle($request->user(), $conversation, $request->sequence());
 
         return response()->json(['last_read_sequence' => $participant->last_read_sequence]);
     }
 
     public function typing(ChatTypingRequest $request, ChatConversation $conversation, SendChatTyping $sendTyping): JsonResponse
     {
-        $typing = (bool) $request->validated()['typing'];
+        $typing = $request->typing();
         $sendTyping->handle($request->user(), $conversation, $typing);
 
         return response()->json(['typing' => $typing]);

@@ -28,7 +28,7 @@ final class BackupController extends Controller
     public function index(IndexBackupRequest $request, GetBackupPage $getBackupPage, IsBackupConfigured $isBackupConfigured): Response
     {
         return Inertia::render('master-data/backups/Index', [
-            'backups' => $getBackupPage->handle($request->string('filter.search')->toString(), $request->string('sort', '-created_at')->toString(), $request->integer('per_page', 10), $request->integer('page', 1)),
+            'backups' => $getBackupPage->handle($request->search(), $request->sort(), $request->perPage(), $request->page()),
             'backupConfigured' => $isBackupConfigured->handle(),
             'backupStatus' => BackupOperation::Backup->status(),
             'restoreStatus' => BackupOperation::Restore->status(),
