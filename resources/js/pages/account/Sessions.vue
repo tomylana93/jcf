@@ -28,7 +28,7 @@ const form = useForm<ConfirmPasswordForm>({ password: '' });
 
 watchEffect(() =>
     setLayoutProps({
-        breadcrumbs: [{ title: t('account.sessions.title'), href: index() }],
+        breadcrumbs: [{ title: t('breadcrumb.sessions'), href: index() }],
     }),
 );
 

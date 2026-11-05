@@ -10,7 +10,6 @@ return [
         'description' => 'Partner systems that call the external API with their own tokens.',
         'create_title' => 'Add API client',
         'edit_title' => 'Edit API client',
-        'details' => 'Client details',
         'tokens' => 'Client tokens',
         'tokens_description' => 'Tokens issued to this client. Each token is shown once when created.',
     ],
@@ -26,15 +25,10 @@ return [
     'placeholder' => [
         'name' => 'e.g., Logistics partner',
         'description' => 'What this client uses the API for',
-        'status' => 'Select status',
     ],
 
     'helper' => [
         'disabled' => 'Requests from a disabled client are rejected. Its tokens are kept and work again after reactivation.',
-    ],
-
-    'button' => [
-        'manage' => 'Manage tokens',
     ],
 
     'status' => [

@@ -16,6 +16,8 @@ return [
     'mail' => 'Pengaturan Mail',
     'profile' => 'Pengaturan profil',
     'security' => 'Pengaturan keamanan',
+    'sessions' => 'Sesi dan perangkat',
+    'api_tokens' => 'Token API',
     'permission' => 'Permission',
     'master_data' => 'Master Data',
     'user' => 'Pengguna',

@@ -29,7 +29,7 @@ function revokeAction(token: ApiToken): RouteDefinition<'delete'> {
 
 watchEffect(() =>
     setLayoutProps({
-        breadcrumbs: [{ title: t('account.api_tokens.title'), href: index() }],
+        breadcrumbs: [{ title: t('breadcrumb.api_tokens'), href: index() }],
     }),
 );
 </script>

@@ -10,7 +10,6 @@ return [
         'description' => 'Sistem partner yang memanggil API eksternal dengan token sendiri.',
         'create_title' => 'Tambah klien API',
         'edit_title' => 'Ubah klien API',
-        'details' => 'Detail klien',
         'tokens' => 'Token klien',
         'tokens_description' => 'Token yang diterbitkan untuk klien ini. Setiap token hanya ditampilkan sekali saat dibuat.',
     ],
@@ -26,15 +25,10 @@ return [
     'placeholder' => [
         'name' => 'mis. Partner logistik',
         'description' => 'Kegunaan API bagi klien ini',
-        'status' => 'Pilih status',
     ],
 
     'helper' => [
         'disabled' => 'Request dari klien yang dinonaktifkan ditolak. Token tetap disimpan dan berlaku lagi setelah klien diaktifkan.',
-    ],
-
-    'button' => [
-        'manage' => 'Kelola token',
     ],
 
     'status' => [

@@ -16,6 +16,8 @@ return [
     'mail' => 'Mail Settings',
     'profile' => 'Profile settings',
     'security' => 'Security settings',
+    'sessions' => 'Sessions and devices',
+    'api_tokens' => 'API tokens',
     'permission' => 'Permission',
     'master_data' => 'Master Data',
     'user' => 'Users',
