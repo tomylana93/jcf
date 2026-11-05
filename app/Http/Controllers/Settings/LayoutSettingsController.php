@@ -29,7 +29,7 @@ final class LayoutSettingsController extends Controller
     {
         $updateSettings->handle($request->validated(), $request->user());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('settings.layout.status.updated')]);
+        $this->toastSuccess(__('settings.layout.status.updated'));
 
         return to_route('settings.layout.edit');
     }

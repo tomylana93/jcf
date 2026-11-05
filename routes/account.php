@@ -16,7 +16,7 @@ Route::middleware('auth')->group(function (): void {
     Route::get('account/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('account/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::post('account/profile/avatar/temporary', [ProfileAvatarController::class, 'upload'])->middleware('throttle:20,1')->name('profile.avatar.upload');
-    Route::get('account/profile/avatar/temporary/{temporaryAvatar}', [ProfileAvatarController::class, 'preview'])->whereUuid('temporaryAvatar')->name('profile.avatar.preview');
+    Route::get('account/profile/avatar/temporary/{temporaryAvatar}', [ProfileAvatarController::class, 'preview'])->whereUuid('temporaryAvatar')->middleware('no-store')->name('profile.avatar.preview');
     Route::delete('account/profile/avatar/temporary', [ProfileAvatarController::class, 'discard'])->name('profile.avatar.discard');
     Route::patch('account/profile/avatar', [ProfileAvatarController::class, 'update'])->name('profile.avatar.update');
 });

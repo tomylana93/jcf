@@ -17,6 +17,6 @@ final class GlobalSearchController extends Controller
         $user = $request->user();
         abort_unless($user instanceof User, 401);
 
-        return response()->json($search->handle($user, $request->string('query')->toString()))->header('Cache-Control', 'no-store');
+        return response()->json($search->handle($user, $request->string('query')->toString()));
     }
 }

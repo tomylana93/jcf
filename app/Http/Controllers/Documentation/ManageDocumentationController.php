@@ -41,7 +41,7 @@ final class ManageDocumentationController extends Controller
         /** @var User $user */
         $user = $request->user();
         $documentation = $save->handle($user, $request->validated());
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('documentation.status.saved')]);
+        $this->toastSuccess(__('documentation.status.saved'));
 
         return to_route('documentation.manage.edit', $documentation);
     }
@@ -58,7 +58,7 @@ final class ManageDocumentationController extends Controller
         /** @var User $user */
         $user = $request->user();
         $save->handle($user, $request->validated(), $documentation);
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('documentation.status.saved')]);
+        $this->toastSuccess(__('documentation.status.saved'));
 
         return to_route('documentation.manage.edit', $documentation);
     }
@@ -67,7 +67,7 @@ final class ManageDocumentationController extends Controller
     {
         Gate::authorize('delete', $documentation);
         $documentation->delete();
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('documentation.status.deleted')]);
+        $this->toastSuccess(__('documentation.status.deleted'));
 
         return to_route('documentation.manage.index');
     }

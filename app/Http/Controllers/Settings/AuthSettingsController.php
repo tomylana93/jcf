@@ -25,7 +25,7 @@ final class AuthSettingsController extends Controller
     {
         $updateSettings->handle($request->validated(), $request->user());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('settings.auth.status.updated')]);
+        $this->toastSuccess(__('settings.auth.status.updated'));
 
         return to_route('settings.auth.edit');
     }

@@ -25,7 +25,7 @@ final class GeneralSettingsController extends Controller
     {
         $updateSettings->handle($request->validated(), $request->user());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('settings.general.status.updated')]);
+        $this->toastSuccess(__('settings.general.status.updated'));
 
         return to_route('settings.general.edit');
     }

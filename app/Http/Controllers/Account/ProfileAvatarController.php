@@ -13,7 +13,6 @@ use App\Http\Requests\Account\AvatarSaveRequest;
 use App\Http\Requests\Account\AvatarUploadRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 final class ProfileAvatarController extends Controller
@@ -29,7 +28,7 @@ final class ProfileAvatarController extends Controller
     {
         $saveAvatar->handle($request->user(), $request->validated('temporary_avatar'), (bool) $request->validated('remove_avatar', false));
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('account.avatar.status.saved')]);
+        $this->toastSuccess(__('account.avatar.status.saved'));
 
         return to_route('profile.edit');
     }
@@ -38,7 +37,7 @@ final class ProfileAvatarController extends Controller
     {
         $media = $getTemporaryAvatar->handle($request->user(), $temporaryAvatar);
 
-        return response()->file($media->getPath('preview'), ['Cache-Control' => 'no-store'])->setPrivate();
+        return response()->file($media->getPath('preview'));
     }
 
     public function discard(AvatarSaveRequest $request, DiscardTemporaryAvatar $discardAvatar): RedirectResponse

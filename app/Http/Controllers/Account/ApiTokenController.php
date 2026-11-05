@@ -36,10 +36,8 @@ final class ApiTokenController extends Controller
             $request->expiration(),
         );
 
-        Inertia::flash([
-            'apiToken' => $plainTextToken,
-            'toast' => ['type' => 'success', 'message' => __('account.api_tokens.status.created')],
-        ]);
+        Inertia::flash('apiToken', $plainTextToken);
+        $this->toastSuccess(__('account.api_tokens.status.created'));
 
         return to_route('api-tokens.index');
     }
@@ -47,7 +45,7 @@ final class ApiTokenController extends Controller
     public function destroy(Request $request, int $token, RevokeApiToken $revokeApiToken): RedirectResponse
     {
         $revokeApiToken->handle($request->user(), $token);
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('account.api_tokens.status.revoked')]);
+        $this->toastSuccess(__('account.api_tokens.status.revoked'));
 
         return to_route('api-tokens.index');
     }

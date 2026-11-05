@@ -38,7 +38,7 @@ final class BackupController extends Controller
     public function store(Request $request, QueueBackup $queueBackup): RedirectResponse
     {
         $queueBackup->handle($request->user());
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('backup.status.queued')]);
+        $this->toastSuccess(__('backup.status.queued'));
 
         return back();
     }
@@ -46,7 +46,7 @@ final class BackupController extends Controller
     public function upload(UploadBackupRequest $request, UploadBackup $uploadBackup): RedirectResponse
     {
         $uploadBackup->handle($request->archive());
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('backup.status.uploaded')]);
+        $this->toastSuccess(__('backup.status.uploaded'));
 
         return back();
     }
@@ -54,7 +54,7 @@ final class BackupController extends Controller
     public function restore(RestoreBackupRequest $request, string $backup, QueueRestore $queueRestore): RedirectResponse
     {
         $queueRestore->handle($backup, $request->user());
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('backup.status.restore_queued')]);
+        $this->toastSuccess(__('backup.status.restore_queued'));
 
         return back();
     }
@@ -62,13 +62,13 @@ final class BackupController extends Controller
     public function destroy(string $backup, DeleteBackup $deleteBackup): RedirectResponse
     {
         $deleteBackup->handle($backup);
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('backup.status.deleted')]);
+        $this->toastSuccess(__('backup.status.deleted'));
 
         return back();
     }
 
     public function download(string $backup, GetBackupPath $getBackupPath): StreamedResponse
     {
-        return Storage::disk('backups')->download($getBackupPath->handle($backup, mustExist: true), $backup, ['Cache-Control' => 'no-store']);
+        return Storage::disk('backups')->download($getBackupPath->handle($backup, mustExist: true), $backup);
     }
 }

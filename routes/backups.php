@@ -15,5 +15,5 @@ Route::middleware(['auth', 'verified', 'can:'.Permission::ManageBackups->value])
         Route::post('backups/{backup}/restore', [BackupController::class, 'restore'])->where('backup', GetBackupPath::FILENAME_PATTERN)->name('backups.restore');
         Route::delete('backups/{backup}', [BackupController::class, 'destroy'])->where('backup', GetBackupPath::FILENAME_PATTERN)->name('backups.destroy');
     });
-    Route::get('backups/{backup}/download', [BackupController::class, 'download'])->where('backup', GetBackupPath::FILENAME_PATTERN)->middleware('password.confirm')->name('backups.download');
+    Route::get('backups/{backup}/download', [BackupController::class, 'download'])->where('backup', GetBackupPath::FILENAME_PATTERN)->middleware(['password.confirm', 'no-store'])->name('backups.download');
 });

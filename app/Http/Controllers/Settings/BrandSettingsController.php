@@ -29,7 +29,7 @@ final class BrandSettingsController extends Controller
     {
         $updateSettings->handle($request->validated(), $request->user());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('settings.brand.status.updated')]);
+        $this->toastSuccess(__('settings.brand.status.updated'));
 
         return to_route('settings.brand.edit');
     }

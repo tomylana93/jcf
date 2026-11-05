@@ -22,7 +22,7 @@ final class ModuleSettingsController extends Controller
     public function update(UpdateModuleSettingsRequest $request, UpdateModuleSettings $update): RedirectResponse
     {
         $update->handle($request->user(), $request->array('modules'));
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('settings.modules.status.updated')]);
+        $this->toastSuccess(__('settings.modules.status.updated'));
 
         return to_route('settings.modules.edit');
     }
