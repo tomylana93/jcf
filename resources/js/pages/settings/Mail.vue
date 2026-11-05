@@ -17,6 +17,7 @@ import {
     FieldLabel,
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { usePermissions } from '@/composables/usePermissions';
@@ -50,7 +51,7 @@ const form = useForm<UpdateMailSettingsForm>({
     from_name: props.settings.from_name,
     show_logo: props.settings.show_logo,
     footer_text: props.settings.footer_text,
-});
+}).withPrecognition(update());
 
 const testForm = useForm<SendMailSettingsTestForm>({
     test_email: '',
@@ -138,6 +139,9 @@ watchEffect(() => {
                                     name="smtp_host"
                                     :readonly="!canManage"
                                     :aria-invalid="!!form.errors.smtp_host"
+                                    @blur="
+                                        canManage && form.validate('smtp_host')
+                                    "
                                 />
                                 <FieldError :errors="[form.errors.smtp_host]" />
                                 <FieldDescription
@@ -157,6 +161,9 @@ watchEffect(() => {
                                     type="number"
                                     :readonly="!canManage"
                                     :aria-invalid="!!form.errors.smtp_port"
+                                    @blur="
+                                        canManage && form.validate('smtp_port')
+                                    "
                                 />
                                 <FieldError :errors="[form.errors.smtp_port]" />
                             </Field>
@@ -195,6 +202,10 @@ watchEffect(() => {
                                     name="smtp_username"
                                     :readonly="!canManage"
                                     :aria-invalid="!!form.errors.smtp_username"
+                                    @blur="
+                                        canManage &&
+                                        form.validate('smtp_username')
+                                    "
                                 />
                                 <FieldError
                                     :errors="[form.errors.smtp_username]"
@@ -212,6 +223,10 @@ watchEffect(() => {
                                     autocomplete="new-password"
                                     :readonly="!canManage"
                                     :aria-invalid="!!form.errors.smtp_password"
+                                    @blur="
+                                        canManage &&
+                                        form.validate('smtp_password')
+                                    "
                                 />
                                 <FieldDescription>
                                     {{
@@ -247,6 +262,9 @@ watchEffect(() => {
                                 name="from_address"
                                 :readonly="!canManage"
                                 :aria-invalid="!!form.errors.from_address"
+                                @blur="
+                                    canManage && form.validate('from_address')
+                                "
                             />
                             <FieldError :errors="[form.errors.from_address]" />
                         </Field>
@@ -260,6 +278,7 @@ watchEffect(() => {
                                 name="from_name"
                                 :readonly="!canManage"
                                 :aria-invalid="!!form.errors.from_name"
+                                @blur="canManage && form.validate('from_name')"
                             />
                             <FieldError :errors="[form.errors.from_name]" />
                         </Field>
@@ -299,12 +318,22 @@ watchEffect(() => {
                                 name="footer_text"
                                 :readonly="!canManage"
                                 :aria-invalid="!!form.errors.footer_text"
+                                @blur="
+                                    canManage && form.validate('footer_text')
+                                "
                             />
                             <FieldError :errors="[form.errors.footer_text]" />
                         </Field>
                     </FieldGroup>
                 </section>
 
+                <p
+                    v-if="form.validating"
+                    role="status"
+                    class="text-sm text-muted-foreground"
+                >
+                    {{ t('common.status.validating') }}
+                </p>
                 <div
                     v-if="canManage"
                     class="flex justify-end"
@@ -314,7 +343,14 @@ watchEffect(() => {
                         :disabled="form.processing"
                         data-test="save-mail-settings"
                     >
-                        <Save data-icon="inline-start" />
+                        <Spinner
+                            v-if="form.processing"
+                            data-icon="inline-start"
+                        />
+                        <Save
+                            v-else
+                            data-icon="inline-start"
+                        />
                         {{ t('common.button.save') }}
                     </Button>
                 </div>
@@ -361,6 +397,10 @@ watchEffect(() => {
                             :disabled="testForm.processing"
                             data-test="send-mail-test"
                         >
+                            <Spinner
+                                v-if="testForm.processing"
+                                data-icon="inline-start"
+                            />
                             {{ t('settings.mail.test.send') }}
                         </Button>
                     </FieldGroup>

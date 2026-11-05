@@ -19,3 +19,6 @@ Paginate non-datatable lists with the shared SimplePagination component and the 
 
 ## Empty and loading states
 Render empty collections with the Empty primitives (EmptyMedia icon, EmptyTitle, optional EmptyDescription) and loading placeholders with Skeleton instead of hand-written text, divs or animate-pulse utilities.
+
+## Settings form feedback
+Settings forms with text or number inputs use useForm().withPrecognition() with field validation on blur, a role="status" validating message, and a backend route with HandlePrecognitiveRequests; file-upload forms submit normally. Submit buttons show Spinner while processing, replacing the leading icon when one exists.

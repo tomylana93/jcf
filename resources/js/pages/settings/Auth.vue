@@ -15,6 +15,7 @@ import {
     FieldLabel,
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
 import { usePermissions } from '@/composables/usePermissions';
 import { useTranslations } from '@/composables/useTranslations';
@@ -41,7 +42,7 @@ watchEffect(() => {
 
 const form = useForm<UpdateAuthSettingsForm>({
     ...props.settings,
-});
+}).withPrecognition(update());
 
 const submit = () => {
     form.submit(update(), {
@@ -152,6 +153,7 @@ const submit = () => {
                         type="number"
                         :readonly="!canManage"
                         :aria-invalid="!!form.errors[name]"
+                        @blur="canManage && form.validate(name)"
                         :aria-describedby="
                             form.errors[name] ? `${name}_error` : undefined
                         "
@@ -163,6 +165,13 @@ const submit = () => {
                 </Field>
             </FieldGroup>
 
+            <p
+                v-if="form.validating"
+                role="status"
+                class="text-sm text-muted-foreground"
+            >
+                {{ t('common.status.validating') }}
+            </p>
             <div
                 v-if="canManage"
                 class="flex flex-col gap-3 sm:items-end"
@@ -172,7 +181,14 @@ const submit = () => {
                     :disabled="form.processing"
                     data-test="save-auth-settings"
                 >
-                    <Save data-icon="inline-start" />
+                    <Spinner
+                        v-if="form.processing"
+                        data-icon="inline-start"
+                    />
+                    <Save
+                        v-else
+                        data-icon="inline-start"
+                    />
                     {{ t('common.button.save') }}
                 </Button>
             </div>

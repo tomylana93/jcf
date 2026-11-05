@@ -13,6 +13,7 @@ import {
     FieldLabel,
 } from '@/components/ui/field';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Spinner } from '@/components/ui/spinner';
 import { usePermissions } from '@/composables/usePermissions';
 import { useTranslations } from '@/composables/useTranslations';
 import { index } from '@/routes/settings';
@@ -177,7 +178,14 @@ const submit = () => {
                     :disabled="form.processing"
                     data-test="save-layout-settings"
                 >
-                    <Save data-icon="inline-start" />
+                    <Spinner
+                        v-if="form.processing"
+                        data-icon="inline-start"
+                    />
+                    <Save
+                        v-else
+                        data-icon="inline-start"
+                    />
                     {{ t('common.button.save') }}
                 </Button>
             </div>

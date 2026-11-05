@@ -13,6 +13,7 @@ import {
     FieldLabel,
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
 import { usePermissions } from '@/composables/usePermissions';
 import { useTranslations } from '@/composables/useTranslations';
@@ -153,7 +154,14 @@ const submit = () => {
                     :disabled="form.processing"
                     data-test="save-general-settings"
                 >
-                    <Save data-icon="inline-start" />
+                    <Spinner
+                        v-if="form.processing"
+                        data-icon="inline-start"
+                    />
+                    <Save
+                        v-else
+                        data-icon="inline-start"
+                    />
                     {{ t('common.button.save') }}
                 </Button>
             </div>
