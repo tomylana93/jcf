@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Documentation;
 
+use App\Enums\DocumentationStatus;
 use App\Enums\Module;
 use App\Enums\Permission;
 use App\Models\Documentation;
@@ -28,7 +29,7 @@ final readonly class SearchDocuments implements SearchProvider
         if ($this->features->enabled(Module::Documentation) && $user->can('viewAny', Documentation::class)) {
             $documents = Documentation::query()
                 ->select(['id', 'title', 'summary', 'slug'])
-                ->unless($user->can(Permission::ManageDocumentation), fn (Builder $builder): Builder => $builder->where('status', 'published'))
+                ->unless($user->can(Permission::ManageDocumentation), fn (Builder $builder): Builder => $builder->where('status', DocumentationStatus::Published))
                 ->whereRaw("search_vector @@ websearch_to_tsquery('simple', ?)", [$query])
                 ->orderByRaw("ts_rank(search_vector, websearch_to_tsquery('simple', ?)) DESC", [$query])
                 ->orderBy('id')->limit(5)->get()

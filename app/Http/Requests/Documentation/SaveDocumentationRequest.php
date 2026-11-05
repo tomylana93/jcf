@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Documentation;
 
+use App\Enums\DocumentationStatus;
 use App\Models\Documentation;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
@@ -31,7 +32,7 @@ final class SaveDocumentationRequest extends FormRequest
             'slug' => ['required', 'string', 'max:255', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', Rule::notIn(['manage']), Rule::unique('documentations', 'slug')->ignore($documentation instanceof Documentation ? $documentation : null)],
             'summary' => ['nullable', 'string', 'max:2000'],
             'content_json' => ['required', 'array'],
-            'status' => ['required', Rule::in(['draft', 'published'])],
+            'status' => ['required', Rule::enum(DocumentationStatus::class)],
         ];
     }
 
