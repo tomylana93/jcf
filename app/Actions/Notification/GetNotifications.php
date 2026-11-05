@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Notification;
 
+use App\Enums\NotificationFilter;
 use App\Models\User;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -11,15 +12,15 @@ use Illuminate\Pagination\LengthAwarePaginator;
 final class GetNotifications
 {
     /** @return LengthAwarePaginator<int, DatabaseNotification> */
-    public function handle(User $user, string $status): LengthAwarePaginator
+    public function handle(User $user, NotificationFilter $filter): LengthAwarePaginator
     {
         $query = $user->notifications()->reorder()->latest()->orderByDesc('id');
 
-        if ($status === 'unread') {
-            $query->whereNull('read_at');
-        } elseif ($status === 'read') {
-            $query->whereNotNull('read_at');
-        }
+        match ($filter) {
+            NotificationFilter::Unread => $query->whereNull('read_at'),
+            NotificationFilter::Read => $query->whereNotNull('read_at'),
+            NotificationFilter::All => null,
+        };
 
         return $query->paginate(20)->withQueryString();
     }

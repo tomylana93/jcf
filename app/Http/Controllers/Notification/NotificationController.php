@@ -20,12 +20,12 @@ final class NotificationController extends Controller
 {
     public function index(IndexNotificationRequest $request, GetNotifications $getNotifications): Response
     {
-        $status = $request->string('status', 'all')->toString();
+        $filter = $request->filter();
 
         return Inertia::render('notifications/Index', [
-            'notifications' => $getNotifications->handle($request->user(), $status)
+            'notifications' => $getNotifications->handle($request->user(), $filter)
                 ->through(fn (DatabaseNotification $notification): array => new NotificationResource($notification)->resolve($request)),
-            'status' => $status,
+            'status' => $filter,
         ]);
     }
 
