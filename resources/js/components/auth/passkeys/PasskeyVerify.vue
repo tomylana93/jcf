@@ -4,8 +4,8 @@ import { router } from '@inertiajs/vue3';
 import { usePasskeyVerify } from '@laravel/passkeys/vue';
 import { KeyRound } from '@lucide/vue';
 
-import InputError from '@/components/shared/InputError.vue';
 import { Button } from '@/components/ui/button';
+import { FieldError } from '@/components/ui/field';
 import { Separator } from '@/components/ui/separator';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslations } from '@/composables/useTranslations';
@@ -63,12 +63,11 @@ const { verify, isLoading, error, isSupported } = usePasskeyVerify({
                 }}
             </Button>
 
-            <div
+            <FieldError
                 v-if="error"
                 class="text-center"
-            >
-                <InputError :message="error" />
-            </div>
+                :errors="[error]"
+            />
         </div>
 
         <div class="relative my-6">

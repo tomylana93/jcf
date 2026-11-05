@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 return [
+    'dashboard' => 'Dashboard',
     'documentation' => 'Dokumentasi',
     'audit' => 'Audit log',
     'notifications' => 'Notifikasi',

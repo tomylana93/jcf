@@ -241,14 +241,3 @@ export function flattenNavigationItems(items: NavItem[]): NavItem[] {
         ...flattenNavigationItems(item.children ?? []),
     ]);
 }
-
-// JCF fallback: simple navigation without i18n, for pages that do not use translations yet.
-export function createSimpleNavigationItems(): NavItem[] {
-    return [
-        {
-            title: 'Dashboard',
-            href: dashboard(),
-            icon: LayoutGrid,
-        },
-    ];
-}

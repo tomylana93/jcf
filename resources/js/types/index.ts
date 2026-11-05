@@ -15,7 +15,6 @@ export * from './features';
 export * from './documentation';
 export * from './audit';
 export * from './notification';
-export * from './dashboard';
 
 export * from './sessions';
 export * from './api-tokens';

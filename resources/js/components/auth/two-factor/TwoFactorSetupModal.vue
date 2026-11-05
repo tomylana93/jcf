@@ -6,7 +6,6 @@ import { computed, nextTick, ref, useTemplateRef, watch } from 'vue';
 
 import { store as confirm } from '@/actions/Laravel/Fortify/Http/Controllers/ConfirmedTwoFactorAuthenticationController';
 import AlertError from '@/components/shared/AlertError.vue';
-import InputError from '@/components/shared/InputError.vue';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -15,6 +14,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { FieldError } from '@/components/ui/field';
 import {
     InputOTP,
     InputOTPGroup,
@@ -286,7 +286,7 @@ const submit = () => {
                                         />
                                     </InputOTPGroup>
                                 </InputOTP>
-                                <InputError :message="form.errors?.code" />
+                                <FieldError :errors="[form.errors?.code]" />
                             </div>
 
                             <div class="flex w-full items-center space-x-5">
