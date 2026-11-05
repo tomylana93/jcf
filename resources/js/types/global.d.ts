@@ -3,6 +3,7 @@ import type { Directive } from 'vue';
 import type {
     Auth,
     BrandSettings,
+    BreadcrumbItem,
     ChatSummary,
     Features,
     FlashToast,
@@ -32,6 +33,7 @@ declare module '@inertiajs/core' {
             auth: Auth;
             timezone: TimezoneSettings;
             sidebarOpen: boolean;
+            currentYear: number;
             general: GeneralSettings;
             features: Features;
             brand: BrandSettings;
@@ -45,17 +47,16 @@ declare module '@inertiajs/core' {
             toast?: FlashToast;
             apiToken?: string;
         };
+        layoutProps: {
+            breadcrumbs: BreadcrumbItem[];
+            title: string;
+            description: string;
+        };
     }
 }
 
 declare module 'vue' {
     interface GlobalDirectives {
         vFocus: Directive<HTMLElement, boolean | undefined>;
-    }
-
-    interface ComponentCustomProperties {
-        $inertia: typeof Router;
-        $page: Page;
-        $headManager: ReturnType<typeof createHeadManager>;
     }
 }

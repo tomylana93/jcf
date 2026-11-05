@@ -1,11 +1,18 @@
+import type { DocumentationStatus } from './documentation';
 import type { EditorDocument } from './editor';
-import type { LogoType } from './settings';
+import type {
+    AppLayoutVariant,
+    AuthLayoutVariant,
+    LogoType,
+    Mailer,
+} from './settings';
+import type { UserStatus } from './user';
 export type DocumentationForm = {
     title: string;
     slug: string;
     summary: string;
     content_json: EditorDocument;
-    status: 'draft' | 'published';
+    status: DocumentationStatus;
 };
 
 export type LoginForm = {
@@ -101,12 +108,12 @@ export type UpdateAuthSettingsForm = {
 };
 
 export type UpdateLayoutSettingsForm = {
-    app_layout: 'sidebar' | 'header';
-    auth_layout: 'split' | 'card' | 'simple';
+    app_layout: AppLayoutVariant;
+    auth_layout: AuthLayoutVariant;
 };
 
 export type UpdateMailSettingsForm = {
-    mailer: 'environment' | 'log' | 'smtp';
+    mailer: Mailer;
     smtp_host: string;
     smtp_port: number;
     smtp_scheme: 'none' | 'smtp' | 'smtps';
@@ -122,7 +129,7 @@ export type SendMailSettingsTestForm = {
     test_email: string;
 };
 
-export type UpdateUserStatusForm = { status: 'active' | 'disabled' };
+export type UpdateUserStatusForm = { status: UserStatus };
 
 export type UserForm = {
     send_invitation: boolean;
@@ -131,7 +138,7 @@ export type UserForm = {
     name: string;
     email: string;
     role: string;
-    status: 'active' | 'disabled';
+    status: UserStatus;
 };
 
 export type UpdateUserPermissionsForm = { permissions: string[] };

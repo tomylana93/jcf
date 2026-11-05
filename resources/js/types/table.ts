@@ -3,6 +3,8 @@ import type { Component } from 'vue';
 import type { BadgeVariants } from '@/components/ui/badge';
 import type { ButtonVariants } from '@/components/ui/button';
 
+import type { UserStatus } from './user';
+
 export type DataTableFilter = {
     key: string;
     label: string;
@@ -31,7 +33,7 @@ export type UserRow = {
     id: string;
     name: string;
     email: string;
-    status: 'active' | 'disabled';
+    status: UserStatus;
     status_label: string;
     status_variant: BadgeVariants['variant'];
     created_at: string;

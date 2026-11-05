@@ -2,10 +2,10 @@
 import { computed } from 'vue';
 
 import { SidebarInset } from '@/components/ui/sidebar';
-import type { AppVariant } from '@/types';
+import type { AppLayoutVariant } from '@/types';
 
 type Props = {
-    variant?: AppVariant;
+    variant?: AppLayoutVariant;
     class?: string;
 };
 

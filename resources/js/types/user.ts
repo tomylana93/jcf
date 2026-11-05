@@ -1,9 +1,12 @@
+/** Mirrors App\Enums\UserStatus; tests/Feature/Enums/FrontendEnumMirrorTest.php keeps it in sync. */
+export type UserStatus = 'active' | 'disabled';
+
 export type User = {
     id: string;
     name: string;
     email: string;
     timezone?: string | null;
-    status?: 'active' | 'disabled';
+    status?: UserStatus;
     avatar?: string;
     email_verified_at: string | null;
     two_factor_enabled?: boolean;

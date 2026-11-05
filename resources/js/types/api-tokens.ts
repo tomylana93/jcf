@@ -16,11 +16,14 @@ export type ApiTokenForm = {
     expiration: string;
 };
 
+/** Mirrors App\Enums\ApiClientStatus; tests/Feature/Enums/FrontendEnumMirrorTest.php keeps it in sync. */
+export type ApiClientStatus = 'active' | 'disabled';
+
 export type ApiClientRow = {
     id: string;
     name: string;
     description: string | null;
-    status: 'active' | 'disabled';
+    status: ApiClientStatus;
     status_label: string;
     status_variant: BadgeVariants['variant'];
     tokens_count: number;
@@ -30,5 +33,5 @@ export type ApiClientRow = {
 export type ApiClientForm = {
     name: string;
     description: string;
-    status: string;
+    status: ApiClientStatus;
 };

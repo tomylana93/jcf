@@ -14,12 +14,18 @@ import { useDateTime } from '@/composables/useDateTime';
 import { useTranslations } from '@/composables/useTranslations';
 import { index } from '@/routes/notifications';
 import { edit as profileEdit } from '@/routes/profile';
-import type { NotificationRow, TablePaginator } from '@/types';
+import type {
+    NotificationFilter,
+    NotificationRow,
+    TablePaginator,
+} from '@/types';
 
 const props = defineProps<{
     notifications: TablePaginator<NotificationRow>;
-    status: string;
+    status: NotificationFilter;
 }>();
+
+const filters: NotificationFilter[] = ['all', 'unread', 'read'];
 
 const { t } = useTranslations();
 const { formatDateTime } = useDateTime();
@@ -54,7 +60,7 @@ function markAllRead(): void {
                 :aria-label="t('notification.label.filter')"
             >
                 <Link
-                    v-for="filter in ['all', 'unread', 'read'] as const"
+                    v-for="filter in filters"
                     :key="filter"
                     :href="index({ query: { status: filter } })"
                     :class="
