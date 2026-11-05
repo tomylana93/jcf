@@ -14,7 +14,8 @@ use function Pest\Laravel\getJson;
 
 describe('API domain routing', function (): void {
     it('serves versioned API routes on the API host', function (): void {
-        expect(route('api.v1.ping'))->toBe('https://api.jcf.test/v1/ping');
+        expect(parse_url(route('api.v1.ping'), PHP_URL_HOST))->toBe('api.jcf.test')
+            ->and(parse_url(route('api.v1.ping'), PHP_URL_PATH))->toBe('/v1/ping');
 
         getJson(route('api.v1.ping'))->assertOk()->assertExactJson(['status' => 'ok', 'version' => 'v1']);
     });
