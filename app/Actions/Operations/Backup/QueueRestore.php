@@ -23,7 +23,7 @@ final readonly class QueueRestore
      * @throws ValidationException
      * @throws RecordsNotFoundException
      */
-    public function handle(string $filename, User $actor): void
+    public function handle(User $actor, string $filename): void
     {
         throw_unless($this->isBackupConfigured->handle(), ValidationException::withMessages(['backup' => __('backup.error.not_configured')]));
         $this->getBackupPath->handle($filename, mustExist: true);

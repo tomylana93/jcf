@@ -43,7 +43,7 @@ final class UserPermissionController extends Controller
     {
         /** @var list<string> $permissions */
         $permissions = $request->validated('permissions');
-        $updatePermissions->handle($user, $request->user(), $permissions);
+        $updatePermissions->handle($request->user(), $user, $permissions);
         $this->toastSuccess(__('permission.status.updated'));
 
         return back();

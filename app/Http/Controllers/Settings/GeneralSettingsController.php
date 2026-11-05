@@ -23,7 +23,7 @@ final class GeneralSettingsController extends Controller
 
     public function update(UpdateGeneralSettingsRequest $request, UpdateGeneralSettings $updateSettings): RedirectResponse
     {
-        $updateSettings->handle($request->validated(), $request->user());
+        $updateSettings->handle($request->user(), $request->validated());
 
         $this->toastSuccess(__('settings.general.status.updated'));
 

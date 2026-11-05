@@ -19,7 +19,7 @@ final readonly class UpdateUserPermissions
     public function __construct(private RecordAuditLog $recordAuditLog, private FeatureManager $features) {}
 
     /** @param list<string> $permissions */
-    public function handle(User $user, User $actor, array $permissions): void
+    public function handle(User $actor, User $user, array $permissions): void
     {
         $this->ensureAvailable($permissions);
 

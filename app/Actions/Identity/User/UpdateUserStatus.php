@@ -19,7 +19,7 @@ final readonly class UpdateUserStatus
         private TerminateUserRealtimeConnections $terminateRealtimeConnections,
     ) {}
 
-    public function handle(User $user, UserStatus $status, ?User $actor = null): void
+    public function handle(?User $actor, User $user, UserStatus $status): void
     {
         $wasActive = $user->status !== UserStatus::Disabled;
 

@@ -31,7 +31,7 @@ final readonly class UpdateModuleSettings
                 DB::table('settings')->where('group', $module)->orderBy('id')->lockForUpdate()->get();
                 $settings = resolve(Module::settingsClasses()[$module]);
                 $settings->refresh();
-                $this->audit->handle($settings, $actor, function () use ($settings, $enabled): void {
+                $this->audit->handle($actor, $settings, function () use ($settings, $enabled): void {
                     $settings->enabled = $enabled;
                     $settings->save();
                 });

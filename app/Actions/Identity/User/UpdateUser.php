@@ -25,7 +25,7 @@ final readonly class UpdateUser
     ) {}
 
     /** @param array{name: string, email: string, role?: ?string, status: string} $data */
-    public function handle(User $user, array $data, ?User $actor = null): void
+    public function handle(?User $actor, User $user, array $data): void
     {
         $wasDisabled = $user->status === UserStatus::Disabled;
 
@@ -46,7 +46,7 @@ final readonly class UpdateUser
             }
 
             if ($emailChanged && $user->invited_at !== null && $user->invitation_accepted_at === null && $user->status === UserStatus::Active) {
-                $this->sendInvitation->handle($user, $actor);
+                $this->sendInvitation->handle($actor, $user);
             }
         });
 

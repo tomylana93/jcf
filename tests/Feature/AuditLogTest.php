@@ -154,7 +154,7 @@ describe('Sensitive change recording', function (): void {
         $target = User::factory()->create(['name' => 'Before']);
         DB::beginTransaction();
 
-        resolve(UpdateUser::class)->handle($target, ['name' => 'Rolled back', 'email' => $target->email, 'status' => UserStatus::Active->value]);
+        resolve(UpdateUser::class)->handle(null, $target, ['name' => 'Rolled back', 'email' => $target->email, 'status' => UserStatus::Active->value]);
 
         DB::rollBack();
 
@@ -166,7 +166,7 @@ describe('Sensitive change recording', function (): void {
         $before = $settings->site_name;
         DB::beginTransaction();
 
-        resolve(UpdateGeneralSettings::class)->handle(['site_name' => 'Rolled back', 'site_description' => '', 'support_email' => null]);
+        resolve(UpdateGeneralSettings::class)->handle(null, ['site_name' => 'Rolled back', 'site_description' => '', 'support_email' => null]);
 
         DB::rollBack();
 

@@ -23,7 +23,7 @@ final class AuthSettingsController extends Controller
 
     public function update(UpdateAuthSettingsRequest $request, UpdateAuthSettings $updateSettings): RedirectResponse
     {
-        $updateSettings->handle($request->validated(), $request->user());
+        $updateSettings->handle($request->user(), $request->validated());
 
         $this->toastSuccess(__('settings.auth.status.updated'));
 

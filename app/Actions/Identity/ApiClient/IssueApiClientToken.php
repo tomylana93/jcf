@@ -21,7 +21,7 @@ final readonly class IssueApiClientToken
      *
      * @param  list<ApiTokenAbility>  $abilities
      */
-    public function handle(ApiClient $client, User $actor, string $name, array $abilities, ApiTokenExpiration $expiration): string
+    public function handle(User $actor, ApiClient $client, string $name, array $abilities, ApiTokenExpiration $expiration): string
     {
         $plainTextToken = $this->createApiToken->handle($client, $name, $abilities, $expiration);
 

@@ -19,7 +19,7 @@ final readonly class RecordSettingsChange
      *
      * @param  Closure(): void  $update
      */
-    public function handle(Settings $settings, ?User $actor, Closure $update): void
+    public function handle(?User $actor, Settings $settings, Closure $update): void
     {
         DB::transaction(function () use ($settings, $actor, $update): void {
             $before = $settings->toArray();

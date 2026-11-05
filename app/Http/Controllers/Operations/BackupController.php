@@ -53,7 +53,7 @@ final class BackupController extends Controller
 
     public function restore(RestoreBackupRequest $request, string $backup, QueueRestore $queueRestore): RedirectResponse
     {
-        $queueRestore->handle($backup, $request->user());
+        $queueRestore->handle($request->user(), $backup);
         $this->toastSuccess(__('backup.status.restore_queued'));
 
         return back();

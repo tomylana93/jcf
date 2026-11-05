@@ -16,7 +16,7 @@ final readonly class RevokeApiClientToken
     /**
      * Revoke one of the client's tokens and record it. Tokens of other owners are reported as missing.
      */
-    public function handle(ApiClient $client, User $actor, int $tokenId): void
+    public function handle(User $actor, ApiClient $client, int $tokenId): void
     {
         $token = $client->tokens()->whereKey($tokenId)->firstOrFail();
         $token->delete();

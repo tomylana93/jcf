@@ -45,7 +45,7 @@ final class ApiClientController extends Controller
 
     public function store(SaveApiClientRequest $request, SaveApiClient $saveApiClient): RedirectResponse
     {
-        $client = $saveApiClient->handle($request->apiClientData(), $request->user());
+        $client = $saveApiClient->handle($request->user(), $request->apiClientData());
         $this->toastSuccess(__('api_client.status.created'));
 
         return to_route('master-data.api-clients.show', $client);
@@ -66,7 +66,7 @@ final class ApiClientController extends Controller
 
     public function update(SaveApiClientRequest $request, ApiClient $apiClient, SaveApiClient $saveApiClient): RedirectResponse
     {
-        $saveApiClient->handle($request->apiClientData(), $request->user(), $apiClient);
+        $saveApiClient->handle($request->user(), $request->apiClientData(), $apiClient);
         $this->toastSuccess(__('api_client.status.updated'));
 
         return back(fallback: route('master-data.api-clients.show', $apiClient));
@@ -75,7 +75,7 @@ final class ApiClientController extends Controller
     public function storeToken(StoreApiTokenRequest $request, ApiClient $apiClient, IssueApiClientToken $issueApiClientToken): RedirectResponse
     {
         Gate::authorize('manageTokens', $apiClient);
-        $plainTextToken = $issueApiClientToken->handle($apiClient, $request->user(), (string) $request->validated('name'), $request->abilities(), $request->expiration());
+        $plainTextToken = $issueApiClientToken->handle($request->user(), $apiClient, (string) $request->validated('name'), $request->abilities(), $request->expiration());
         Inertia::flash('apiToken', $plainTextToken);
         $this->toastSuccess(__('account.api_tokens.status.created'));
 
@@ -85,7 +85,7 @@ final class ApiClientController extends Controller
     public function destroyToken(Request $request, ApiClient $apiClient, int $token, RevokeApiClientToken $revokeApiClientToken): RedirectResponse
     {
         Gate::authorize('manageTokens', $apiClient);
-        $revokeApiClientToken->handle($apiClient, $request->user(), $token);
+        $revokeApiClientToken->handle($request->user(), $apiClient, $token);
         $this->toastSuccess(__('account.api_tokens.status.revoked'));
 
         return to_route('master-data.api-clients.show', $apiClient);

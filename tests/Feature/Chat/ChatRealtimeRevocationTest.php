@@ -91,8 +91,8 @@ describe('Chat realtime revocation', function (): void {
         });
 
         match ($action) {
-            'status' => resolve(UpdateUserStatus::class)->handle($user, UserStatus::Disabled),
-            'update' => resolve(UpdateUser::class)->handle($user, [
+            'status' => resolve(UpdateUserStatus::class)->handle(null, $user, UserStatus::Disabled),
+            'update' => resolve(UpdateUser::class)->handle(null, $user, [
                 'name' => $user->name,
                 'email' => $user->email,
                 'status' => UserStatus::Disabled->value,
@@ -110,8 +110,8 @@ describe('Chat realtime revocation', function (): void {
         });
 
         match ($action) {
-            'status' => resolve(UpdateUserStatus::class)->handle($user, UserStatus::Disabled),
-            'update' => resolve(UpdateUser::class)->handle($user, [
+            'status' => resolve(UpdateUserStatus::class)->handle(null, $user, UserStatus::Disabled),
+            'update' => resolve(UpdateUser::class)->handle(null, $user, [
                 'name' => $user->name,
                 'email' => $user->email,
                 'status' => UserStatus::Disabled->value,

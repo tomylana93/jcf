@@ -27,7 +27,7 @@ final class LayoutSettingsController extends Controller
 
     public function update(UpdateLayoutSettingsRequest $request, UpdateLayoutSettings $updateSettings): RedirectResponse
     {
-        $updateSettings->handle($request->validated(), $request->user());
+        $updateSettings->handle($request->user(), $request->validated());
 
         $this->toastSuccess(__('settings.layout.status.updated'));
 

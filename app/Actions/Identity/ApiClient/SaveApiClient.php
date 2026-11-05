@@ -20,7 +20,7 @@ final readonly class SaveApiClient
      *
      * @param  array{name: string, description?: string|null, status: string}  $data
      */
-    public function handle(array $data, User $actor, ?ApiClient $client = null): ApiClient
+    public function handle(User $actor, array $data, ?ApiClient $client = null): ApiClient
     {
         return DB::transaction(function () use ($data, $actor, $client): ApiClient {
             $creating = $client === null;

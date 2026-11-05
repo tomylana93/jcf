@@ -15,9 +15,9 @@ final readonly class UpdateLayoutSettings
     public function __construct(private LayoutSettings $settings, private RecordSettingsChange $recordSettingsChange) {}
 
     /** @param array{app_layout: string, auth_layout: string} $data */
-    public function handle(array $data, ?User $actor = null): void
+    public function handle(?User $actor, array $data): void
     {
-        $this->recordSettingsChange->handle($this->settings, $actor, function () use ($data): void {
+        $this->recordSettingsChange->handle($actor, $this->settings, function () use ($data): void {
 
             $this->settings->app_layout = AppLayout::from($data['app_layout']);
             $this->settings->auth_layout = AuthLayout::from($data['auth_layout']);

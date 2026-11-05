@@ -19,7 +19,7 @@ final readonly class CreateUser
     public function __construct(private RecordAuditLog $recordAuditLog, private GetUserAuditValues $getAuditValues, private SendUserInvitation $sendInvitation) {}
 
     /** @param array{name: string, email: string, password?: ?string, role?: ?string, send_invitation?: bool} $data */
-    public function handle(array $data, ?User $actor = null): User
+    public function handle(?User $actor, array $data): User
     {
         $invited = $data['send_invitation'] ?? false;
         if (! $invited && blank($data['password'] ?? null)) {
@@ -43,7 +43,7 @@ final readonly class CreateUser
             $user->notify(new ApplicationNotification('account_created'));
 
             if ($data['send_invitation'] ?? false) {
-                $this->sendInvitation->handle($user, $actor);
+                $this->sendInvitation->handle($actor, $user);
             }
 
             return $user;

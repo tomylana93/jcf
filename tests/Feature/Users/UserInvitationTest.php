@@ -213,7 +213,7 @@ describe('Admin user invitations', function (): void {
         Notification::fake();
         try {
             DB::transaction(function (): void {
-                resolve(CreateUser::class)->handle(['name' => 'Rollback', 'email' => 'rollback@example.test', 'send_invitation' => true]);
+                resolve(CreateUser::class)->handle(null, ['name' => 'Rollback', 'email' => 'rollback@example.test', 'send_invitation' => true]);
                 throw new RuntimeException('rollback');
             });
         } catch (RuntimeException) {
@@ -225,7 +225,7 @@ describe('Admin user invitations', function (): void {
 
 describe('Invitation account boundaries', function (): void {
     it('refuses account creation without an invitation or initial password', function (): void {
-        expect(fn () => resolve(CreateUser::class)->handle(['name' => 'Rejected', 'email' => 'missing-password@example.test']))
+        expect(fn () => resolve(CreateUser::class)->handle(null, ['name' => 'Rejected', 'email' => 'missing-password@example.test']))
             ->toThrow(ValidationException::class)
             ->and(User::query()->where('email', 'missing-password@example.test')->exists())->toBeFalse();
     });

@@ -27,7 +27,7 @@ final class BrandSettingsController extends Controller
 
     public function update(UpdateBrandSettingsRequest $request, UpdateBrandSettings $updateSettings): RedirectResponse
     {
-        $updateSettings->handle($request->validated(), $request->user());
+        $updateSettings->handle($request->user(), $request->validated());
 
         $this->toastSuccess(__('settings.brand.status.updated'));
 

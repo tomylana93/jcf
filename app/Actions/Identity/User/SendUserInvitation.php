@@ -18,7 +18,7 @@ final readonly class SendUserInvitation
 {
     public function __construct(private RecordAuditLog $recordAuditLog) {}
 
-    public function handle(User $user, ?User $actor = null): void
+    public function handle(?User $actor, User $user): void
     {
         if ($user->invited_at === null || $user->invitation_accepted_at !== null || $user->status !== UserStatus::Active) {
             throw ValidationException::withMessages(['invitation' => __('user.invitation.unavailable')]);

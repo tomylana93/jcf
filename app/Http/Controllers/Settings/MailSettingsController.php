@@ -30,7 +30,7 @@ final class MailSettingsController extends Controller
 
     public function update(UpdateMailSettingsRequest $request, UpdateMailSettings $updateSettings): RedirectResponse
     {
-        $updateSettings->handle($request->validated(), $request->user());
+        $updateSettings->handle($request->user(), $request->validated());
 
         $this->toastSuccess(__('settings.mail.status.updated'));
 

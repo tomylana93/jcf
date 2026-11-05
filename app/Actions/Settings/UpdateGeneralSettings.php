@@ -13,9 +13,9 @@ final readonly class UpdateGeneralSettings
     public function __construct(private GeneralSettings $settings, private RecordSettingsChange $recordSettingsChange) {}
 
     /** @param array{site_name: string, site_description: ?string, support_email: ?string} $data */
-    public function handle(array $data, ?User $actor = null): void
+    public function handle(?User $actor, array $data): void
     {
-        $this->recordSettingsChange->handle($this->settings, $actor, function () use ($data): void {
+        $this->recordSettingsChange->handle($actor, $this->settings, function () use ($data): void {
 
             $this->settings->site_name = $data['site_name'];
             $this->settings->site_description = $data['site_description'] ?? '';

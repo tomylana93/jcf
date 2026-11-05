@@ -262,7 +262,7 @@ describe('Direct user permissions', function (): void {
             ->assertSessionHasErrors('permissions.0');
 
         expect($target->fresh()->getDirectPermissions())->toBeEmpty()
-            ->and(fn () => resolve(UpdateUserPermissions::class)->handle($target, $actor, ['chat.use']))
+            ->and(fn () => resolve(UpdateUserPermissions::class)->handle($actor, $target, ['chat.use']))
             ->toThrow(ValidationException::class);
     });
 });
