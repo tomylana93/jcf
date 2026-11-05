@@ -12,11 +12,12 @@ return [
     'modules' => [
         'title' => 'Modul',
         'card' => ['title' => 'Modul', 'description' => 'Aktifkan atau nonaktifkan modul aplikasi yang terpasang.'],
-        'label' => ['chat' => 'Chat', 'documentation' => 'Documentation', 'backup' => 'Backup'],
+        'label' => ['chat' => 'Chat', 'documentation' => 'Documentation', 'backup' => 'Backup', 'api' => 'API eksternal'],
         'helper' => [
             'chat' => 'Percakapan internal dan pesan realtime.',
             'documentation' => 'Dokumentasi dan panduan aplikasi.',
             'backup' => 'Operasi backup dan restore sistem.',
+            'api' => 'API berbasis token di domain API terpisah.',
         ],
         'status' => ['updated' => 'Pengaturan modul diperbarui.'],
     ],

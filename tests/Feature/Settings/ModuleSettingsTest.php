@@ -37,8 +37,8 @@ describe('Module settings', function (): void {
     });
 
     it('hides unavailable modules without resolving their settings', function (): void {
-        config(['features.documentation' => false, 'features.backup' => false]);
-        foreach (['documentation', 'backup'] as $module) {
+        config(['features.documentation' => false, 'features.backup' => false, 'features.api' => false]);
+        foreach (['documentation', 'backup', 'api'] as $module) {
             app()->bind(FeatureManager::SETTINGS[$module], fn () => throw new RuntimeException('Unavailable settings resolved'));
         }
         $user = User::factory()->create();
@@ -49,7 +49,7 @@ describe('Module settings', function (): void {
     });
 
     it('returns 404 when every module is hard off', function (): void {
-        config(array_fill_keys(['features.chat', 'features.documentation', 'features.backup'], false));
+        config(array_fill_keys(['features.chat', 'features.documentation', 'features.backup', 'features.api'], false));
         $user = User::factory()->create();
         assignRolePermissions($user, Permission::ViewSettings, Permission::ManageSettings);
         actingAs($user)->get(route('settings.modules.edit'))->assertNotFound();
@@ -58,7 +58,7 @@ describe('Module settings', function (): void {
     });
 
     it('rejects unavailable and invalid module values before writing', function (array $modules, string $field): void {
-        config(['features.documentation' => false, 'features.backup' => false]);
+        config(['features.documentation' => false, 'features.backup' => false, 'features.api' => false]);
         $user = User::factory()->create();
         assignRolePermissions($user, Permission::ViewSettings, Permission::ManageSettings);
         actingAs($user)->patch(route('settings.modules.update'), ['modules' => $modules])->assertInvalid($field);
@@ -72,7 +72,7 @@ describe('Module settings', function (): void {
 
     it('saves each installed module independently', function (): void {
         actingAsUserWithPermissions(Permission::ViewSettings, Permission::ManageSettings);
-        $modules = ['chat' => false, 'documentation' => false, 'backup' => false];
+        $modules = ['chat' => false, 'documentation' => false, 'backup' => false, 'api' => false];
         patch(route('settings.modules.update'), ['modules' => $modules])->assertSessionHasNoErrors();
         get(route('settings.modules.edit'))->assertInertia(fn (Assert $page): Assert => $page->where('modules', $modules));
         foreach (array_keys($modules) as $module) {
@@ -80,11 +80,11 @@ describe('Module settings', function (): void {
             assertDatabaseHas('audit_logs', ['event' => 'settings.updated', 'subject_id' => $module]);
         }
         patch(route('settings.modules.update'), ['modules' => array_fill_keys(array_keys($modules), true)])->assertSessionHasNoErrors();
-        get(route('settings.modules.edit'))->assertInertia(fn (Assert $page): Assert => $page->where('modules.chat', true)->where('modules.documentation', true)->where('modules.backup', true));
+        get(route('settings.modules.edit'))->assertInertia(fn (Assert $page): Assert => $page->where('modules.chat', true)->where('modules.documentation', true)->where('modules.backup', true)->where('modules.api', true));
     });
 
     it('normalizes HTTP boolean values before saving', function (): void {
-        config(['features.documentation' => false, 'features.backup' => false]);
+        config(['features.documentation' => false, 'features.backup' => false, 'features.api' => false]);
         actingAsUserWithPermissions(Permission::ViewSettings, Permission::ManageSettings);
         patch(route('settings.modules.update'), ['modules' => ['chat' => '0']])->assertSessionHasNoErrors();
         expect(resolve(ChatSettings::class)->refresh()->enabled)->toBeFalse();
@@ -98,7 +98,7 @@ describe('Module settings', function (): void {
     });
 
     it('refreshes soft toggles and audits updates with persistent caching', function (bool $cached): void {
-        config(['features.documentation' => false, 'features.backup' => false, 'settings.cache.enabled' => $cached, 'settings.cache.store' => 'file']);
+        config(['features.documentation' => false, 'features.backup' => false, 'features.api' => false, 'settings.cache.enabled' => $cached, 'settings.cache.store' => 'file']);
         resolve(SettingsContainer::class)->registerBindings();
         Event::subscribe(new SettingsEventSubscriber(new SettingsCacheFactory(config('settings'))));
         $user = User::factory()->create();

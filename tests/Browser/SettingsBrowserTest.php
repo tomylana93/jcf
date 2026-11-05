@@ -92,10 +92,10 @@ describe('Auth settings in the browser', function (): void {
 
 describe('Module settings in the browser', function (): void {
     it('hides unavailable modules and the card when none are installed', function (): void {
-        config(['features.documentation' => false, 'features.backup' => false]);
+        config(['features.documentation' => false, 'features.backup' => false, 'features.api' => false]);
         actingAsUserWithPermissions(Permission::ViewSettings, Permission::ManageSettings);
         visit(route('settings.modules.edit'))->assertPresent('#module-chat')
-            ->assertMissing('#module-documentation')->assertMissing('#module-backup')
+            ->assertMissing('#module-documentation')->assertMissing('#module-backup')->assertMissing('#module-api')
             ->assertNoJavaScriptErrors();
         config(['features.chat' => false]);
         visit(route('settings.index'))->assertMissing('@modules-settings-card')->assertNoJavaScriptErrors();

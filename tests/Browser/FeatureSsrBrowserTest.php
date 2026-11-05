@@ -18,6 +18,7 @@ describe('Feature flags with production SSR', function (): void {
             'chat' => ['chat_conversations', 'chat_participants', 'chat_messages'],
             'documentation' => ['documentations'],
             'backup' => [],
+            'api' => [],
         ];
         foreach ($disabled === 'all' ? array_keys($tables) : [$disabled] as $module) {
             config(['features.'.$module => false]);
@@ -47,5 +48,5 @@ describe('Feature flags with production SSR', function (): void {
         } finally {
             $server->stop();
         }
-    })->with(['chat', 'documentation', 'backup', 'all']);
+    })->with(['chat', 'documentation', 'backup', 'api', 'all']);
 });

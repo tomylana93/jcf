@@ -12,11 +12,12 @@ return [
     'modules' => [
         'title' => 'Modules',
         'card' => ['title' => 'Modules', 'description' => 'Enable or disable installed application modules.'],
-        'label' => ['chat' => 'Chat', 'documentation' => 'Documentation', 'backup' => 'Backup'],
+        'label' => ['chat' => 'Chat', 'documentation' => 'Documentation', 'backup' => 'Backup', 'api' => 'External API'],
         'helper' => [
             'chat' => 'Internal conversations and realtime messages.',
             'documentation' => 'Application documentation and guides.',
             'backup' => 'System backup and restore operations.',
+            'api' => 'Token-authenticated API on the dedicated API domain.',
         ],
         'status' => ['updated' => 'Module settings updated.'],
     ],

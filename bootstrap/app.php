@@ -38,7 +38,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
         then: function (): void {
             if (ApiDomain::enabled()) {
                 Route::domain((string) ApiDomain::domain())
-                    ->middleware(['api', ForceJsonResponse::class, 'throttle:api'])
+                    ->middleware(['api', ForceJsonResponse::class, 'feature:api', 'throttle:api'])
                     ->prefix('v1')
                     ->name('api.v1.')
                     ->group(base_path('routes/api.php'));
