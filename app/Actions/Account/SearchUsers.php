@@ -29,6 +29,6 @@ final class SearchUsers implements SearchProvider
                 ->map(fn (User $target): array => ['id' => $target->id, 'name' => $target->name, 'email' => $target->email])->values()->all();
         }
 
-        return $users;
+        return array_values($users);
     }
 }

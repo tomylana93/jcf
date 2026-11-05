@@ -34,6 +34,6 @@ final readonly class SearchDocuments implements SearchProvider
                 ->map(fn (Documentation $document): array => ['id' => $document->id, 'title' => $document->title, 'summary' => $document->summary, 'slug' => $document->slug])->values()->all();
         }
 
-        return $documents;
+        return array_values($documents);
     }
 }
