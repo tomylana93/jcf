@@ -49,6 +49,13 @@ return [
         'ViewUsers' => 'Lihat pengguna',
         'ManageUsers' => 'Kelola pengguna',
         'AssignUserPermissions' => 'Tetapkan permission pengguna',
+        'ViewApiClients' => 'Lihat klien API',
+        'ManageApiClients' => 'Kelola klien API',
+    ],
+
+    'api_client_status' => [
+        'Active' => 'Aktif',
+        'Disabled' => 'Dinonaktifkan',
     ],
 
     'api_token_ability' => [

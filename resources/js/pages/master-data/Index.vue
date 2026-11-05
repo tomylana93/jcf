@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { Head, setLayoutProps, usePage } from '@inertiajs/vue3';
-import { DatabaseBackup, Users } from '@lucide/vue';
+import { DatabaseBackup, KeyRound, Users } from '@lucide/vue';
 import { computed, watchEffect } from 'vue';
 
 import PageContainer from '@/components/layout/PageContainer.vue';
 import NavigationCardGrid from '@/components/shared/NavigationCardGrid.vue';
 import { useTranslations } from '@/composables/useTranslations';
 import { index } from '@/routes/master-data';
+import { index as apiClientsIndex } from '@/routes/master-data/api-clients';
 import { index as backupsIndex } from '@/routes/master-data/backups';
 import { index as usersIndex } from '@/routes/master-data/users';
 import type { NavigationCard } from '@/types';
@@ -42,6 +43,18 @@ const cards = computed<NavigationCard[]>(() => [
                   icon: DatabaseBackup,
                   title: 'backup.title' as const,
                   description: 'backup.card.description' as const,
+              },
+          ]
+        : []),
+    ...(page.props.features.api.enabled &&
+    page.props.auth.permissions.includes('api-clients.view')
+        ? [
+              {
+                  id: 'api-clients',
+                  href: apiClientsIndex(),
+                  icon: KeyRound,
+                  title: 'api_client.card.title' as const,
+                  description: 'api_client.card.description' as const,
               },
           ]
         : []),

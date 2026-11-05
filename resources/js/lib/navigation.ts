@@ -36,6 +36,7 @@ export type NavigationAccess = {
     canViewAudit: boolean;
     canViewSystem: boolean;
     canManageBackups: boolean;
+    canViewApiClients: boolean;
     canUseChat: boolean;
 };
 
@@ -59,6 +60,7 @@ export function navigationAccess(
         canViewAudit: permissions.includes('audit.view'),
         canViewSystem: permissions.includes('system.view'),
         canManageBackups: permissions.includes('backups.manage'),
+        canViewApiClients: permissions.includes('api-clients.view'),
         canUseChat: permissions.includes('chat.use'),
     };
 }
@@ -96,6 +98,7 @@ export function createManagementNavigationGroups(
 ): NavGroup[] {
     const canViewUsers = access.canViewUsers;
     const canManageBackups = access.canManageBackups && features.backup.enabled;
+    const canViewApiClients = access.canViewApiClients && features.api.enabled;
     const canViewUserPermissions = access.canViewUserPermissions;
     const canViewSettings = access.canViewSettings;
     const canManageDocumentation =
@@ -110,7 +113,8 @@ export function createManagementNavigationGroups(
         !canManageDocumentation &&
         !canViewAudit &&
         !canViewSystem &&
-        !canManageBackups
+        !canManageBackups &&
+        !canViewApiClients
     ) {
         return [];
     }
@@ -119,7 +123,7 @@ export function createManagementNavigationGroups(
         {
             title: t('navigation.group.admin'),
             items: [
-                ...(canViewUsers || canManageBackups
+                ...(canViewUsers || canManageBackups || canViewApiClients
                     ? [
                           {
                               title: t('navigation.link.master_data'),

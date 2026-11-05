@@ -190,7 +190,7 @@ describe('Feature flags', function (): void {
             };
             $migrate();
             expect($db->table('settings')->whereIn('group', array_keys(FeatureManager::SETTINGS))->count())->toBe(0);
-            $tables = ['chat' => ['chat_conversations', 'chat_participants', 'chat_messages'], 'documentation' => ['documentations'], 'backup' => [], 'api' => []];
+            $tables = ['chat' => ['chat_conversations', 'chat_participants', 'chat_messages'], 'documentation' => ['documentations'], 'backup' => [], 'api' => ['api_clients']];
             foreach ($tables as $names) {
                 foreach ($names as $table) {
                     expect($db->getSchemaBuilder()->hasTable($table))->toBeFalse();

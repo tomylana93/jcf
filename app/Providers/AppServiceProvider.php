@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Laravel\Sanctum\Contracts\HasApiTokens;
 use Pusher\Pusher;
 use Spatie\Permission\PermissionRegistrar;
 
@@ -72,7 +73,7 @@ final class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('api', function (Request $request): Limit {
             $user = $request->user();
-            $token = $user instanceof User ? $user->currentAccessToken() : null;
+            $token = $user instanceof HasApiTokens ? $user->currentAccessToken() : null;
 
             return Limit::perMinute((int) config('api.rate_limit'))->by($token !== null ? 'token:'.$token->getKey() : 'ip:'.$request->ip());
         });

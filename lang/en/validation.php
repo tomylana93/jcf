@@ -172,6 +172,7 @@ return [
         'auth_background' => 'authentication background',
         'auth_layout' => 'authentication layout',
         'avatar' => 'profile photo',
+        'client_name' => 'client name',
         'color' => 'primary color',
         'content_json' => 'content',
         'current_password' => 'current password',
