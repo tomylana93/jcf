@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
+use App\Providers\ApiServiceProvider;
+use App\Providers\BackupModuleServiceProvider;
 use App\Providers\ChatServiceProvider;
 use App\Providers\DocumentationServiceProvider;
 use App\Settings\ApiSettings;
@@ -72,13 +74,14 @@ enum Module: string
         };
     }
 
-    /** @return class-string<ServiceProvider>|null */
-    public function provider(): ?string
+    /** @return class-string<ServiceProvider> */
+    public function provider(): string
     {
         return match ($this) {
             self::Chat => ChatServiceProvider::class,
             self::Documentation => DocumentationServiceProvider::class,
-            default => null,
+            self::Backup => BackupModuleServiceProvider::class,
+            self::Api => ApiServiceProvider::class,
         };
     }
 

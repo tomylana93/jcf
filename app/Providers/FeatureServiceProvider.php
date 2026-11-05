@@ -23,9 +23,7 @@ final class FeatureServiceProvider extends ServiceProvider
     {
         $this->app->scoped(FeatureManager::class);
         foreach (Module::cases() as $module) {
-            if ($provider = $module->provider()) {
-                $this->app->register($provider);
-            }
+            $this->app->register($module->provider());
         }
         $this->app->tag(SearchUsers::class, SearchProvider::class);
         $this->app->bind(SearchGlobal::class, fn (Application $app): SearchGlobal => new SearchGlobal($app->tagged(SearchProvider::class)));
