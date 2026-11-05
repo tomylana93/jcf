@@ -71,6 +71,8 @@ final class AppServiceProvider extends ServiceProvider
 
         $this->configureDefaults();
 
+        RateLimiter::for('api-two-factor', fn (Request $request): Limit => Limit::perMinute(5)->by('challenge:'.hash('sha256', $request->string('challenge')->toString()).'|'.$request->ip()));
+
         RateLimiter::for('api', function (Request $request): Limit {
             $user = $request->user();
             $token = $user instanceof HasApiTokens ? $user->currentAccessToken() : null;
