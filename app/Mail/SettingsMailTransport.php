@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Mail;
 
+use App\Enums\Mailer;
 use App\Settings\MailSettings;
 use Illuminate\Mail\MailManager;
 use Symfony\Component\Mailer\Envelope;
@@ -32,11 +33,13 @@ final class SettingsMailTransport implements TransportInterface
             $envelope = null;
         }
 
-        if ($settings->mailer === 'environment') {
+        $mailer = Mailer::tryFrom($settings->mailer);
+
+        if ($mailer === Mailer::Environment) {
             return $this->mailManager->mailer(config('mail.environment_mailer'))->getSymfonyTransport()->send($message, $envelope);
         }
 
-        if ($settings->mailer === 'log') {
+        if ($mailer === Mailer::Log) {
             return $this->mailManager->mailer('log')->getSymfonyTransport()->send($message, $envelope);
         }
 

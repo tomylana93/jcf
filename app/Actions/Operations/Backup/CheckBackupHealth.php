@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Operations\Backup;
 
+use App\Enums\HealthDetail;
 use App\Enums\Module;
 use App\Support\Contracts\HealthCheck;
 use App\Support\FeatureManager;
@@ -18,17 +19,17 @@ final readonly class CheckBackupHealth implements HealthCheck
         return 'backup';
     }
 
-    public function handle(): string
+    public function handle(): HealthDetail
     {
         if (! $this->features->enabled(Module::Backup)) {
-            return 'disabled';
+            return HealthDetail::Disabled;
         }
         if (blank(config('backup.backup.password'))) {
-            return 'not_configured';
+            return HealthDetail::NotConfigured;
         }
         $disk = Storage::disk('backups');
         $latest = collect($disk->files(GetBackupPath::directory()))->filter(fn (string $path): bool => GetBackupPath::isValidFilename(basename($path)))->map(fn (string $path): int => $disk->lastModified($path))->max();
 
-        return is_int($latest) && $latest >= now()->subDays(2)->timestamp ? 'recent' : 'stale';
+        return is_int($latest) && $latest >= now()->subDays(2)->timestamp ? HealthDetail::Recent : HealthDetail::Stale;
     }
 }
