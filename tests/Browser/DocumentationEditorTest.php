@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Enums\DocumentationStatus;
 use App\Enums\Permission;
 use App\Models\Documentation;
 use App\Models\User;
@@ -94,7 +95,7 @@ describe('Documentation editor', function (): void {
 
         $document = Documentation::query()->sole();
 
-        expect($document->status)->toBe('published')->and($document->content_html)->toContain('<h2>', '<strong>', '<em>', 'Formatted content');
+        expect($document->status)->toBe(DocumentationStatus::Published)->and($document->content_html)->toContain('<h2>', '<strong>', '<em>', 'Formatted content');
 
         $browser->navigate(route('documentation.show', $document->slug))->assertSee('Formatted content')->assertNoJavaScriptErrors();
     });
