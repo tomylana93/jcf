@@ -24,6 +24,7 @@ import type {
     Features,
     NavGroup,
     NavItem,
+    PermissionName,
     TranslationKey,
 } from '@/types';
 
@@ -47,7 +48,7 @@ export type NavigationOptions = {
 };
 
 export function navigationAccess(
-    permissions: readonly string[],
+    permissions: readonly PermissionName[],
     superAdmin = false,
 ): NavigationAccess {
     return {
@@ -215,7 +216,7 @@ export function createNavigationGroups(
 
 export function createEditorLinkOptions(
     t: (key: TranslationKey) => string,
-    permissions: readonly string[],
+    permissions: readonly PermissionName[],
     features: Features,
 ): EditorLinkOption[] {
     const options: NavigationOptions = {
