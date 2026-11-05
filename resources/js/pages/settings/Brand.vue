@@ -175,7 +175,10 @@ onBeforeUnmount(() => {
     clearPreview('auth_background');
 });
 
-function submit() {
+/**
+ * Submits as POST with `_method: patch` because file uploads cannot be sent with a native PATCH request.
+ */
+function submit(): void {
     form.post(update().url, {
         preserveScroll: true,
         onSuccess: resetSelections,

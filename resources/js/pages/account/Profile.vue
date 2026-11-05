@@ -4,7 +4,7 @@ import { Link } from '@inertiajs/vue3';
 import { Mail, Save, UserRound } from '@lucide/vue';
 import { computed, onMounted, ref, watchEffect } from 'vue';
 
-import ProfileController from '@/actions/App/Http/Controllers/Account/ProfileController';
+import { update } from '@/actions/App/Http/Controllers/Account/ProfileController';
 import DisableAccount from '@/components/account/DisableAccount.vue';
 import ProfileAvatarForm from '@/components/account/ProfileAvatarForm.vue';
 import Heading from '@/components/shared/Heading.vue';
@@ -64,7 +64,7 @@ onMounted(() => {
 });
 
 const submit = () => {
-    form.submit(ProfileController.update(), {});
+    form.submit(update(), {});
 };
 </script>
 

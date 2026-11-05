@@ -17,6 +17,7 @@ export * from './audit';
 export * from './notification';
 
 export * from './sessions';
+export * from './api-client';
 export * from './api-tokens';
 
 export * from './system';

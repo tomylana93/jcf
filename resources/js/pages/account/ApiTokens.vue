@@ -2,7 +2,10 @@
 import { Head, setLayoutProps } from '@inertiajs/vue3';
 import { watchEffect } from 'vue';
 
-import ApiTokenController from '@/actions/App/Http/Controllers/Account/ApiTokenController';
+import {
+    destroy,
+    store,
+} from '@/actions/App/Http/Controllers/Account/ApiTokenController';
 import ApiTokenCreateForm from '@/components/api-tokens/ApiTokenCreateForm.vue';
 import ApiTokenList from '@/components/api-tokens/ApiTokenList.vue';
 import NewApiTokenNotice from '@/components/api-tokens/NewApiTokenNotice.vue';
@@ -19,7 +22,7 @@ defineProps<{
 
 const { t } = useTranslations();
 
-const revokeAction = (token: ApiToken) => ApiTokenController.destroy(token.id);
+const revokeAction = (token: ApiToken) => destroy(token.id);
 
 watchEffect(() =>
     setLayoutProps({
@@ -40,7 +43,7 @@ watchEffect(() =>
             />
             <NewApiTokenNotice />
             <ApiTokenCreateForm
-                :action="ApiTokenController.store()"
+                :action="store()"
                 :ability-options="abilityOptions"
                 :expiration-options="expirationOptions"
             />

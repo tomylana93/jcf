@@ -13,7 +13,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { getInitials } from '@/composables/useInitials';
+import { getInitials } from '@/lib/initials';
 import type {
     DataTableColumnContext,
     TranslationKey,

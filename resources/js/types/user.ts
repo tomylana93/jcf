@@ -22,3 +22,22 @@ export type AvatarSettings = {
         url: string;
     } | null;
 };
+
+export type UserRow = {
+    invitation_pending: boolean;
+    email_verified: boolean;
+    avatar: string;
+    id: string;
+    name: string;
+    email: string;
+    status: UserStatus;
+    status_label: string;
+    created_at: string;
+    role: { label: string; color: string };
+    roles: {
+        id: string;
+        name: string;
+        label: string;
+        color: string;
+    }[];
+};

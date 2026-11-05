@@ -3,7 +3,7 @@ import { Head, setLayoutProps, useForm } from '@inertiajs/vue3';
 import { Save } from '@lucide/vue';
 import { watchEffect } from 'vue';
 
-import SecurityController from '@/actions/App/Http/Controllers/Account/SecurityController';
+import { update } from '@/actions/App/Http/Controllers/Account/SecurityController';
 import ManagePasskeys from '@/components/auth/passkeys/ManagePasskeys.vue';
 import ManageTwoFactor from '@/components/auth/two-factor/ManageTwoFactor.vue';
 import Heading from '@/components/shared/Heading.vue';
@@ -46,7 +46,7 @@ const form = useForm<UpdatePasswordForm>({
 });
 
 const submit = () => {
-    form.submit(SecurityController.update(), {
+    form.submit(update(), {
         preserveScroll: true,
         onSuccess: () => form.reset(),
         onError: () => form.reset(),

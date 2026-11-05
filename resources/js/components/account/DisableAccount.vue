@@ -2,7 +2,7 @@
 import { useForm } from '@inertiajs/vue3';
 import { useTemplateRef } from 'vue';
 
-import ProfileController from '@/actions/App/Http/Controllers/Account/ProfileController';
+import { disable } from '@/actions/App/Http/Controllers/Account/ProfileController';
 import Heading from '@/components/shared/Heading.vue';
 import PasswordInput from '@/components/shared/PasswordInput.vue';
 import { Button } from '@/components/ui/button';
@@ -26,7 +26,7 @@ const passwordInput = useTemplateRef('passwordInput');
 const form = useForm<DisableAccountForm>({ password: '' });
 
 const submit = () => {
-    form.submit(ProfileController.disable(), {
+    form.submit(disable(), {
         preserveScroll: true,
         onSuccess: () => form.reset(),
         onError: () => passwordInput.value?.focus(),

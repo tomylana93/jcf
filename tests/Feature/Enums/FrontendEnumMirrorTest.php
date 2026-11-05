@@ -43,7 +43,7 @@ describe('Frontend enum mirrors', function (): void {
             ->toEqualCanonicalizing(array_column($enum::cases(), 'value'));
     })->with([
         'user status' => [UserStatus::class, 'user.ts', 'UserStatus'],
-        'api client status' => [ApiClientStatus::class, 'api-tokens.ts', 'ApiClientStatus'],
+        'api client status' => [ApiClientStatus::class, 'api-client.ts', 'ApiClientStatus'],
         'documentation status' => [DocumentationStatus::class, 'documentation.ts', 'DocumentationStatus'],
         'operation status' => [OperationStatus::class, 'backup.ts', 'OperationStatus'],
         'health detail' => [HealthDetail::class, 'system.ts', 'HealthDetail'],

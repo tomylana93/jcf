@@ -27,8 +27,8 @@ import {
 import { FieldError } from '@/components/ui/field';
 import { Progress } from '@/components/ui/progress';
 import { useAppearance } from '@/composables/useAppearance';
-import { useInitials } from '@/composables/useInitials';
 import { useTranslations } from '@/composables/useTranslations';
+import { getInitials } from '@/lib/initials';
 import { cn } from '@/lib/utils';
 
 import '@uppy/core/css/style.css';
@@ -58,8 +58,6 @@ const props = withDefaults(
 const emit = defineEmits<{ selected: [file: File]; removed: [] }>();
 
 const { t, locale } = useTranslations();
-
-const { getInitials } = useInitials();
 
 const { resolvedAppearance } = useAppearance();
 
