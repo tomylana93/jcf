@@ -7,6 +7,8 @@ return [
     'disabled' => 'The account is disabled. Contact an administrator to reactivate the account.',
     'password' => 'The provided password is incorrect.',
     'throttle' => 'Too many login attempts. Another attempt is allowed in :seconds seconds.',
+    'two_factor_failed' => 'The provided two-factor code is invalid.',
+    'two_factor_expired' => 'The two-factor challenge has expired. Log in again.',
 
     'login' => [
         'title' => 'Log in',
