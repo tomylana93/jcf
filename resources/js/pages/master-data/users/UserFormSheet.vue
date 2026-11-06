@@ -19,6 +19,8 @@ import {
 import { Button } from '@/components/ui/button';
 import {
     Field,
+    FieldContent,
+    FieldDescription,
     FieldError,
     FieldGroup,
     FieldLabel,
@@ -319,16 +321,25 @@ function submit(): void {
                         />
                     </Field>
                     <template v-if="!editing">
-                        <Field>
-                            <FieldLabel for="send-invitation">
-                                {{ t('user.invitation.action') }}
-                            </FieldLabel>
+                        <Field
+                            orientation="horizontal"
+                            :data-invalid="!!form.errors.send_invitation"
+                        >
+                            <FieldContent>
+                                <FieldLabel for="send-invitation">
+                                    {{ t('user.invitation.action') }}
+                                </FieldLabel>
+                                <FieldDescription>
+                                    {{ t('user.helper.send_invitation') }}
+                                </FieldDescription>
+                                <FieldError
+                                    :errors="[form.errors.send_invitation]"
+                                />
+                            </FieldContent>
                             <Switch
                                 id="send-invitation"
                                 v-model="form.send_invitation"
-                            />
-                            <FieldError
-                                :errors="[form.errors.send_invitation]"
+                                :aria-invalid="!!form.errors.send_invitation"
                             />
                         </Field>
                         <Field

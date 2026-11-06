@@ -38,6 +38,7 @@ return [
 
     'helper' => [
         'email_verified' => 'Terverifikasi',
+        'send_invitation' => 'Pengguna mengatur password melalui link yang dikirim lewat email.',
     ],
 
     'status' => [

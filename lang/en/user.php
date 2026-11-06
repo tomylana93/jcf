@@ -38,6 +38,7 @@ return [
 
     'helper' => [
         'email_verified' => 'Verified',
+        'send_invitation' => 'The user sets a password through a link sent by email.',
     ],
 
     'status' => [
