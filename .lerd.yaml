@@ -24,7 +24,7 @@ custom_workers:
     command: php artisan queue:work backups --queue=backups --tries=1 --timeout=1800 --sleep=3
     restart: always
     check:
-      file: app/Jobs/CreateSystemBackup.php
+      file: app/Jobs/Operations/CreateSystemBackup.php
   chat:
     label: Chat broadcasts
     command: php artisan queue:work realtime --queue=chat --tries=3 --timeout=60 --sleep=1
