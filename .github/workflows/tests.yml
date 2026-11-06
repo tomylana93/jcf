@@ -12,7 +12,7 @@ on:
       - .release-please-manifest.json
   pull_request:
     branches: [main]
-    types: [opened, synchronize, reopened, ready_for_review, converted_to_draft, closed]
+    types: [opened, synchronize, reopened, ready_for_review, converted_to_draft, closed, edited]
   workflow_dispatch:
     inputs:
       suite:
@@ -27,16 +27,18 @@ permissions:
   pull-requests: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-${{ github.event.action == 'edited' && !github.event.changes.base && 'metadata' || 'suite' }}
   cancel-in-progress: true
 
 jobs:
   ci:
-    name: CI
+    # Ignored metadata edits must not publish a skipped required CI check.
+    name: ${{ github.event.action == 'edited' && !github.event.changes.base && 'PR metadata' || 'CI' }}
     if: >-
       github.event_name == 'workflow_dispatch' ||
       github.event_name == 'push' ||
-      (github.event.pull_request.state == 'open' && github.event.pull_request.draft == false)
+      (github.event.pull_request.state == 'open' && github.event.pull_request.draft == false &&
+      (github.event.action != 'edited' || github.event.changes.base))
 
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -87,15 +89,19 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
+
+      - name: Test CI scope detection
+        run: python3 -B -m unittest discover -s .github/scripts -p 'test_*.py'
 
       - name: Detect change scope
         id: scope
         env:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_CHANGED_FILES: ${{ github.event.pull_request.changed_files }}
           REPOSITORY: ${{ github.repository }}
           REQUESTED_SUITE: ${{ inputs.suite }}
         run: |
@@ -111,10 +117,8 @@ jobs:
           fi
 
           if [ -n "${PR_NUMBER:-}" ]; then
-            if files="$(gh api --paginate "repos/$REPOSITORY/pulls/$PR_NUMBER/files" --jq '.[].filename')" && [ -n "$files" ]; then
-              if ! grep -Evq '^(docs/|LICENSE$)|\.md$' <<<"$files"; then
-                mode=docs
-              fi
+            if gh api --paginate --slurp "repos/$REPOSITORY/pulls/$PR_NUMBER/files" > "$RUNNER_TEMP/pr-files.json"; then
+              mode="$(python3 -B .github/scripts/ci_scope.py "$PR_CHANGED_FILES" < "$RUNNER_TEMP/pr-files.json")"
             fi
           fi
 
@@ -123,7 +127,7 @@ jobs:
 
       - name: Setup PHP
         if: steps.scope.outputs.mode != 'docs'
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
         with:
           php-version: '8.5'
           extensions: mbstring, pdo_pgsql, pgsql, zip
@@ -133,7 +137,7 @@ jobs:
 
       - name: Setup Node.js and pnpm
         if: steps.scope.outputs.mode != 'docs'
-        uses: pnpm/setup@v3
+        uses: pnpm/setup@fa36a5ef7dcdefc3a7cb25655c122e00cf6e636e # v3
         with:
           version: 12.16.1
           runtime: node@26
@@ -148,7 +152,7 @@ jobs:
 
       - name: Cache Composer
         if: steps.scope.outputs.mode != 'docs'
-        uses: actions/cache@v6
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-php85-composer-${{ hashFiles('composer.lock') }}
@@ -188,7 +192,7 @@ jobs:
 
       - name: Cache Playwright browsers
         if: steps.scope.outputs.mode == 'ci' || steps.scope.outputs.mode == 'full'
-        uses: actions/cache@v6
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-${{ runner.arch }}-playwright-shell-${{ steps.playwright.outputs.version }}

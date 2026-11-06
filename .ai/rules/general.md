@@ -10,7 +10,12 @@ When generating a commit message, follow .github/instructions/commit-message.ins
 Choose the primary intent from feat, fix, refactor, perf, docs, test, style, build, ci, chore, revert; use chore only when no specific type applies. Prefer one lowercase business-domain scope (auth, account, user, permission, chat, documentation, backup, api, settings, notification, audit, search, system); technical scopes (database, ui, config, deps, vite, lang, tests, actions) are for cross-cutting changes. Choose scope by logical purpose, not file location.
 Use English imperative wording starting with a lowercase verb, describing the specific dominant logical change concisely (ideally under 50 characters), without a trailing period, repeated type, vague phrases, unrelated generic summaries, or claims unsupported by the staged diff. Prioritize business behavior over supporting implementation details.
 
+## Pull request descriptions
+
+When writing a development PR body, use Matt Pocock's `pr` skill if available and fill `.github/PULL_REQUEST_TEMPLATE.md`: Summary, Evidence, Merge Danger, and the repository's merge-completion checklist. If the skill cannot be loaded, fill the repository template directly. Write the title and body in English, scale the detail to the change, and report actual checks and omitted checks separately. Keep Release Please PR bodies generator-managed.
+
 ## Short-lived branches and squash merges
+
 Never develop, edit project files, or create commits directly on main. Before starting changes, switch to a short-lived branch based on up-to-date main; preserve any existing uncommitted work when moving it to the branch. Make focused logical commits and open a pull request targeting main. Squash merge only after checks pass on the latest PR head and review feedback is resolved. After verifying the PR state is MERGED, synchronize local main and delete both the remote and local short-lived branch; preserve any unmerged commits or unrelated work before deletion, and do not force-delete them. Do not push directly to main. Respect explicit instructions to keep changes local; recording this workflow does not authorize pushing, merging, or deleting branches now.
 
 ## Complete local database reset and re-initialization
