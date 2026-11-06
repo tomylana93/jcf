@@ -12,6 +12,7 @@ use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\HandleLocale;
 use App\Http\Middleware\PreventResponseCaching;
 use App\Http\Middleware\RejectApiDomain;
+use App\Http\Middleware\SendSecurityHeaders;
 use App\Support\ApiDomain;
 use App\Support\FeatureConfiguration;
 use App\Support\FeaturePackageManifest;
@@ -47,6 +48,8 @@ $app = Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->append(SendSecurityHeaders::class);
+
         $middleware->trimStrings(except: ['content_json.*']);
 
         $middleware->alias(['verified' => EnsureEmailIsVerifiedWhenRequired::class, 'feature' => EnsureFeatureEnabled::class, 'api.owner' => EnsureApiTokenOwner::class, 'abilities' => CheckAbilities::class, 'no-store' => PreventResponseCaching::class]);
@@ -86,6 +89,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
                 ->setPrivate();
 
             $errorResponse->headers->set('Cache-Control', 'no-store, private');
+            $errorResponse->headers->set('Content-Type', 'text/html; charset=UTF-8');
             if ($response->headers->has('Retry-After')) {
                 $errorResponse->headers->set('Retry-After', $response->headers->get('Retry-After'));
             }

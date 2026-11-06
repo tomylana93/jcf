@@ -26,7 +26,8 @@ describe('Safe web error pages', function (): void {
         get('/error-test')->assertStatus($status)
             ->assertInertia(fn (Assert $page) => $page->component('ErrorPage')
                 ->where('status', $status)->missing('secret')->missing('auth')->missing('brand'))
-            ->assertDontSee('Sensitive exception detail');
+            ->assertDontSee('Sensitive exception detail')
+            ->assertHeader('Content-Type', 'text/html; charset=UTF-8');
     })->with([403, 404, 419, 500, 503]);
 
     it('handles unknown routes even when settings cannot be resolved', function (): void {
