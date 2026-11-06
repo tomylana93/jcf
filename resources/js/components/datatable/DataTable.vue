@@ -287,6 +287,12 @@ watch(
     { flush: 'sync' },
 );
 
+const hasActiveQuery = computed(
+    () =>
+        globalFilter.value.trim() !== '' ||
+        Object.values(filterValues.value).some((value) => value !== ''),
+);
+
 const search = computed({
     get: () => globalFilter.value,
     set: (value: string) => {
@@ -420,7 +426,7 @@ const search = computed({
                                         <EmptyTitle>
                                             {{ t('table.helper.empty') }}
                                         </EmptyTitle>
-                                        <EmptyDescription>
+                                        <EmptyDescription v-if="hasActiveQuery">
                                             {{
                                                 t(
                                                     'table.helper.empty_description',
