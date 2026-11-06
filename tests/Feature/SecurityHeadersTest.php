@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Vite;
 
 use function Pest\Laravel\get;
@@ -39,6 +40,32 @@ describe('Security headers', function (): void {
 
         expect((string) get(route('login'))->headers->get('Content-Security-Policy-Report-Only'))
             ->toContain("connect-src 'self' wss://ws.example.test:443");
+    });
+
+    it('leaves the realtime server out when no host is configured', function (): void {
+        Vite::useHotFile(storage_path('framework/testing/missing-vite.hot'));
+        config([
+            'broadcasting.default' => 'reverb',
+            'broadcasting.connections.reverb.options' => ['host' => '', 'port' => 443, 'scheme' => 'https'],
+        ]);
+
+        expect((string) get(route('login'))->headers->get('Content-Security-Policy-Report-Only'))
+            ->toEndWith("connect-src 'self'");
+    });
+
+    it('allows the Vite dev server origin and its websocket while it is running', function (): void {
+        $hotFile = storage_path('framework/testing/csp-vite.hot');
+        File::put($hotFile, 'https://vite.example.test:5173');
+        Vite::useHotFile($hotFile);
+
+        try {
+            $policy = (string) get(route('login'))->headers->get('Content-Security-Policy-Report-Only');
+        } finally {
+            File::delete($hotFile);
+        }
+
+        expect($policy)->toContain("script-src 'self' 'nonce-".Vite::cspNonce()."' https://vite.example.test:5173")
+            ->toContain('wss://vite.example.test:5173');
     });
 
     it('sends HSTS only for secure production requests', function (bool $production, bool $secure, bool $expected): void {
