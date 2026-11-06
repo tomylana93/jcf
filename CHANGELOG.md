@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.3](https://github.com/tomylana93/jcf/compare/v1.1.2...v1.1.3) (2026-11-06)
+
+
+### Bug Fixes
+
+* **system:** report health check probe failures ([#82](https://github.com/tomylana93/jcf/issues/82)) ([4f74214](https://github.com/tomylana93/jcf/commit/4f742144d2f701012fc5d29a32fdc81b512e97c5))
+
 ## [1.1.2](https://github.com/tomylana93/jcf/compare/v1.1.1...v1.1.2) (2026-11-06)
 
 
