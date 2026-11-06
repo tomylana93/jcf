@@ -16,10 +16,16 @@ export type PermissionName =
     | 'api-clients.view'
     | 'api-clients.manage';
 
-export type PermissionOption = { value: string; label: string; group: string };
+export type PermissionOption = {
+    value: string;
+    label: string;
+    group: string;
+    group_label: string;
+};
+export type PermissionLabel = { value: string; label: string };
 /** Mirrors App\Http\Resources\Permission\UserPermissionResource. */
 export type PermissionUser = UserRow & {
     super_admin: boolean;
     direct_permissions: string[];
-    inherited_permissions: string[];
+    inherited_permissions: PermissionLabel[];
 };

@@ -29,7 +29,6 @@ import { Empty, EmptyHeader, EmptyTitle } from '@/components/ui/empty';
 import {
     Field,
     FieldContent,
-    FieldDescription,
     FieldError,
     FieldGroup,
     FieldLabel,
@@ -82,8 +81,17 @@ watch(
 );
 
 const groups = computed(() => [
-    ...new Set(props.permissions.map((permission) => permission.group)),
+    ...new Map(
+        props.permissions.map((permission) => [
+            permission.group,
+            { value: permission.group, label: permission.group_label },
+        ]),
+    ).values(),
 ]);
+
+const inheritedValues = computed(() =>
+    props.user.inherited_permissions.map((permission) => permission.value),
+);
 
 const filtered = computed(() =>
     props.permissions.filter(
@@ -97,7 +105,7 @@ const filtered = computed(() =>
 
 const visibleGroups = computed(() =>
     groups.value.filter((group) =>
-        filtered.value.some((permission) => permission.group === group),
+        filtered.value.some((permission) => permission.group === group.value),
     ),
 );
 
@@ -179,11 +187,11 @@ watchEffect(() =>
                     </CardHeader>
                     <CardContent class="flex flex-wrap gap-2">
                         <Badge
-                            v-for="value in user.inherited_permissions"
-                            :key="value"
+                            v-for="permission in user.inherited_permissions"
+                            :key="permission.value"
                             variant="secondary"
                         >
-                            {{ value }}
+                            {{ permission.label }}
                         </Badge>
                     </CardContent>
                 </Card>
@@ -234,10 +242,10 @@ watchEffect(() =>
                                     </SelectItem>
                                     <SelectItem
                                         v-for="group in groups"
-                                        :key="group"
-                                        :value="group"
+                                        :key="group.value"
+                                        :value="group.value"
                                     >
-                                        {{ group }}
+                                        {{ group.label }}
                                     </SelectItem>
                                 </SelectGroup>
                             </SelectContent>
@@ -277,14 +285,14 @@ watchEffect(() =>
                 <FieldGroup>
                     <FieldSet
                         v-for="group in visibleGroups"
-                        :key="group"
+                        :key="group.value"
                         class="rounded-xl border p-4"
                     >
-                        <FieldLegend>{{ group }}</FieldLegend>
+                        <FieldLegend>{{ group.label }}</FieldLegend>
                         <FieldGroup>
                             <Field
                                 v-for="permission in filtered.filter(
-                                    (option) => option.group === group,
+                                    (option) => option.group === group.value,
                                 )"
                                 :key="permission.value"
                                 orientation="horizontal"
@@ -310,9 +318,6 @@ watchEffect(() =>
                                     >
                                         {{ permission.label }}
                                     </FieldLabel>
-                                    <FieldDescription>
-                                        {{ permission.value }}
-                                    </FieldDescription>
                                 </FieldContent>
                             </Field>
                         </FieldGroup>
@@ -328,8 +333,7 @@ watchEffect(() =>
                         {{ t('permission.label.selected') }}:
                         {{
                             form.permissions.filter(
-                                (value) =>
-                                    !user.inherited_permissions.includes(value),
+                                (value) => !inheritedValues.includes(value),
                             ).length
                         }}
                     </CardDescription>

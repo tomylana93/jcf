@@ -93,7 +93,7 @@
         "test:lint": [
             "pint --parallel --test",
             "rector --dry-run",
-            "pest tests/Acceptance/TemplateCopyTest.php --compact",
+            "pest tests/Acceptance/TemplateCopyTest.php tests/Acceptance/LangWordingTest.php --compact",
             "@check"
         ],
         "test:browser": [

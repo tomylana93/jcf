@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Actions\Audit\DescribeAuditChanges;
 use App\Actions\Audit\RecordAuditLog;
 use App\Actions\Identity\User\UpdateUser;
 use App\Actions\Settings\UpdateGeneralSettings;
@@ -37,7 +38,7 @@ describe('Audit access and filtering', function (): void {
 
         actingAs($actor)->get(route('audit.index', ['filter' => ['search' => 'search target', 'event' => 'user.updated'], 'sort' => '-created_at']))
             ->assertInertia(fn (Assert $page): Assert => $page->component('audit/Index')->has('logs.data', 1)
-                ->where('logs.data.0.id', $log->id)->where('logs.data.0.before.name', 'Previous name')->where('logs.data.0.after.name', 'Updated name'));
+                ->where('logs.data.0.id', $log->id)->where('logs.data.0.changes', [['field' => 'name', 'label' => 'Full name', 'before' => 'Previous name', 'after' => 'Updated name']]));
 
         get(route('audit.index', ['filter' => ['search' => $actor->name]]))->assertInertia(fn (Assert $page): Assert => $page->has('logs.data', 1));
         get(route('audit.index', ['filter' => ['event' => 'settings.updated']]))
@@ -185,5 +186,74 @@ describe('Sensitive change recording', function (): void {
         artisan('model:prune', ['--model' => [AuditLog::class]])->assertSuccessful();
 
         expect(AuditLog::query()->find($old->id))->toBeNull()->and($recent->fresh())->not->toBeNull();
+    });
+});
+
+describe('Audit change labels', function (): void {
+    it('labels settings fields with form labels, change flags, booleans and options', function (): void {
+        $log = AuditLog::factory()->create([
+            'event' => 'settings.updated', 'subject_type' => 'settings', 'subject_label' => 'mail',
+            'before' => ['mailer' => 'log', 'show_logo' => false, 'smtp_password_changed' => false],
+            'after' => ['mailer' => 'smtp', 'show_logo' => true, 'smtp_password_changed' => true],
+        ]);
+
+        $changes = resolve(DescribeAuditChanges::class)->handle($log);
+
+        expect($changes)->toBe([
+            ['field' => 'mailer', 'label' => 'Delivery mode', 'before' => 'Do not send (record only)', 'after' => 'SMTP'],
+            ['field' => 'show_logo', 'label' => 'Show brand logo', 'before' => 'No', 'after' => 'Yes'],
+            ['field' => 'smtp_password_changed', 'label' => 'SMTP password', 'before' => null, 'after' => 'Changed'],
+        ]);
+    });
+
+    it('translates enum values and module toggles in the active locale', function (): void {
+        app()->setLocale('id');
+        $brand = AuditLog::factory()->create([
+            'event' => 'settings.updated', 'subject_type' => 'settings', 'subject_label' => 'brand',
+            'before' => ['logo_type' => 'logo_only', 'favicon_path' => null], 'after' => ['logo_type' => 'logo_text', 'favicon_path' => 'brand/favicon.png'],
+        ]);
+        $module = AuditLog::factory()->create([
+            'event' => 'settings.updated', 'subject_type' => 'settings', 'subject_label' => 'chat',
+            'before' => ['enabled' => true], 'after' => ['enabled' => false],
+        ]);
+
+        $brandChanges = resolve(DescribeAuditChanges::class)->handle($brand);
+        $moduleChanges = resolve(DescribeAuditChanges::class)->handle($module);
+
+        expect($brandChanges)->toBe([
+            ['field' => 'logo_type', 'label' => 'Tipe logo', 'before' => 'Logo lengkap', 'after' => 'Simbol + nama'],
+            ['field' => 'favicon_path', 'label' => 'Favicon', 'before' => null, 'after' => 'brand/favicon.png'],
+        ])->and($moduleChanges)->toBe([
+            ['field' => 'enabled', 'label' => 'Chat', 'before' => 'Ya', 'after' => 'Tidak'],
+        ]);
+    });
+
+    it('keeps raw field names and values for unknown subject types', function (): void {
+        $log = AuditLog::factory()->create([
+            'event' => 'legacy.event', 'subject_type' => 'legacy', 'subject_label' => 'Legacy record',
+            'before' => ['site_name' => 'Old', 'limit' => 5], 'after' => ['site_name' => 'New', 'limit' => 10],
+        ]);
+
+        $changes = resolve(DescribeAuditChanges::class)->handle($log);
+
+        expect($changes)->toBe([
+            ['field' => 'site_name', 'label' => 'site_name', 'before' => 'Old', 'after' => 'New'],
+            ['field' => 'limit', 'label' => 'limit', 'before' => '5', 'after' => '10'],
+        ]);
+    });
+
+    it('labels user lists and falls back to raw names for unknown fields', function (): void {
+        $log = AuditLog::factory()->create([
+            'event' => 'user.permissions_updated', 'subject_type' => 'user', 'subject_label' => 'Target',
+            'before' => ['permissions' => ['users.view'], 'legacy_flag' => ['nested' => 1]],
+            'after' => ['permissions' => ['users.view', 'custom.permission'], 'legacy_flag' => null],
+        ]);
+
+        $changes = resolve(DescribeAuditChanges::class)->handle($log);
+
+        expect($changes)->toBe([
+            ['field' => 'permissions', 'label' => 'Direct permissions', 'before' => 'View users', 'after' => 'View users, custom.permission'],
+            ['field' => 'legacy_flag', 'label' => 'legacy_flag', 'before' => '{"nested":1}', 'after' => null],
+        ]);
     });
 });

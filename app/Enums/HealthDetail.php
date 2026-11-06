@@ -14,7 +14,9 @@ enum HealthDetail: string
     case Recent = 'recent';
     case Configured = 'configured';
     case Synchronous = 'synchronous';
-    case Stale = 'stale';
+    case StaleQueue = 'stale_queue';
+    case StaleScheduler = 'stale_scheduler';
+    case StaleBackup = 'stale_backup';
     case NotConfigured = 'not_configured';
     case Disabled = 'disabled';
     case Unavailable = 'unavailable';
@@ -24,7 +26,7 @@ enum HealthDetail: string
         return match ($this) {
             self::Reachable, self::Writable, self::Recent, self::Configured => 'ok',
             self::Unavailable => 'failed',
-            self::Synchronous, self::Stale, self::NotConfigured, self::Disabled => 'warning',
+            self::Synchronous, self::StaleQueue, self::StaleScheduler, self::StaleBackup, self::NotConfigured, self::Disabled => 'warning',
         };
     }
 }

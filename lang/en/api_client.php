@@ -12,6 +12,7 @@ return [
         'edit_title' => 'Edit API client',
         'tokens' => 'Client tokens',
         'tokens_description' => 'Tokens issued to this client. Each token is shown once when created.',
+        'tokens_list' => 'Active tokens',
     ],
 
     'label' => [
@@ -29,6 +30,10 @@ return [
 
     'helper' => [
         'disabled' => 'Requests from a disabled client are rejected. Its tokens are kept and work again after reactivation.',
+    ],
+
+    'button' => [
+        'edit' => 'Edit',
     ],
 
     'status' => [

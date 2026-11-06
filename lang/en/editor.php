@@ -25,7 +25,7 @@ return [
 
     'helper' => [
         'no_pages' => 'No matching application pages.',
-        'link' => 'Use an HTTP, HTTPS, mailto, relative, or anchor URL. Leave empty to remove the link.',
+        'link' => 'Enter a web address, a page path such as /documentation, an email link, or #section. Leave empty to remove the link.',
         'html' => 'HTML follows the supported editor formatting. Apply changes before saving.',
         'normalized' => 'The editor normalizes HTML and removes unsupported markup. Review the result before applying it.',
     ],

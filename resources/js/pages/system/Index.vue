@@ -80,14 +80,16 @@ usePoll(15000, { only: ['checks'] });
                             />
                         </CardAction>
                     </CardHeader>
-                    <CardContent class="text-sm text-muted-foreground">
-                        {{ t(`system.detail.${check.detail}`) }}
+                    <CardContent
+                        class="flex flex-col gap-2 text-sm text-muted-foreground"
+                    >
+                        <p>{{ t(`system.detail.${check.detail}`) }}</p>
+                        <p v-if="check.name === 'mail'">
+                            {{ t('system.helper.mail') }}
+                        </p>
                     </CardContent>
                 </Card>
             </div>
         </Deferred>
-        <p class="text-sm text-muted-foreground">
-            {{ t('system.helper.mail') }}
-        </p>
     </PageContainer>
 </template>

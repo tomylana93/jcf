@@ -25,6 +25,16 @@ enum Permission: string
     case ViewApiClients = 'api-clients.view';
     case ManageApiClients = 'api-clients.manage';
 
+    public function group(): string
+    {
+        return explode('.', $this->value)[0];
+    }
+
+    public function groupLabel(): string
+    {
+        return __('permission.group.'.str_replace('-', '_', $this->group()));
+    }
+
     public function module(): ?Module
     {
         foreach (Module::cases() as $module) {

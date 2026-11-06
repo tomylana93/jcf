@@ -58,24 +58,28 @@ watchEffect(() => {
 
     <PageContainer
         :title="client.name"
-        :description="client.description ?? t('api_client.card.description')"
+        :description="client.description ?? undefined"
     >
-        <div class="flex max-w-2xl flex-col gap-10">
+        <template
+            v-if="canManage"
+            #actions
+        >
+            <Button
+                variant="outline"
+                data-test="edit-api-client"
+                @click="formOpen = true"
+            >
+                <Pencil data-icon="inline-start" />
+                {{ t('api_client.button.edit') }}
+            </Button>
+        </template>
+
+        <div class="flex flex-col gap-10">
             <div class="flex flex-wrap items-center gap-3">
                 <StatusBadge
                     :tone="apiClientStatusTones[client.status]"
                     :label="client.status_label"
                 />
-                <Button
-                    v-if="canManage"
-                    variant="outline"
-                    size="sm"
-                    data-test="edit-api-client"
-                    @click="formOpen = true"
-                >
-                    <Pencil data-icon="inline-start" />
-                    {{ t('api_client.card.edit_title') }}
-                </Button>
             </div>
 
             <div
@@ -98,7 +102,7 @@ watchEffect(() => {
             <div class="flex flex-col gap-4">
                 <Heading
                     variant="small"
-                    :title="t('account.api_tokens.card.list')"
+                    :title="t('api_client.card.tokens_list')"
                 />
                 <ApiTokenList
                     :tokens="tokens"

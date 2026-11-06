@@ -54,7 +54,7 @@ describe('Direct user permissions', function (): void {
             ->assertInertia(fn (Assert $page): Assert => $page->component('user-permissions/Index')
                 ->has('users.data', 1)->where('users.data.0.id', $target->id)
                 ->where('users.data.0.direct_permissions', ['users.view'])
-                ->where('users.data.0.inherited_permissions', ['settings.view'])
+                ->where('users.data.0.inherited_permissions', [['value' => 'settings.view', 'label' => 'View settings']])
                 ->where('users.data.0.super_admin', false));
     });
 
@@ -162,7 +162,8 @@ describe('Direct user permissions', function (): void {
 
         get(route('permissions.edit', $target))->assertInertia(fn (Assert $page): Assert => $page
             ->component('user-permissions/Edit')->has('permissions', 1)
-            ->where('permissions.0.value', 'users.view')->where('user.inherited_permissions', ['settings.view']));
+            ->where('permissions.0.value', 'users.view')->where('permissions.0.group_label', 'Users')
+            ->where('user.inherited_permissions', [['value' => 'settings.view', 'label' => 'View settings']]));
 
         foreach (['system.view', 'legacy.permission', 'audit.view'] as $value) {
             patch(route('permissions.update', $target), ['permissions' => [$value]])->assertSessionHasErrors('permissions.0');
@@ -233,7 +234,7 @@ describe('Direct user permissions', function (): void {
         get(route('permissions.edit', $target))->assertInertia(fn (Assert $page): Assert => $page
             ->component('user-permissions/Edit')
             ->where('user.direct_permissions', ['users.view'])
-            ->where('user.inherited_permissions', ['settings.view'])
+            ->where('user.inherited_permissions', [['value' => 'settings.view', 'label' => 'View settings']])
             ->where('permissions', fn ($permissions): bool => collect($permissions)->pluck('value')->all() === ['audit.view', 'users.view']));
 
         patch(route('permissions.update', $target), ['permissions' => ['users.view', 'audit.view']])

@@ -1,9 +1,8 @@
-import { Link } from '@inertiajs/vue3';
 import { h } from 'vue';
 
+import { DataTableActions } from '@/components/datatable';
 import type { DataTableColumnDef } from '@/components/datatable';
 import StatusBadge from '@/components/shared/StatusBadge.vue';
-import { show } from '@/routes/master-data/api-clients';
 import type {
     ApiClientRow,
     ApiClientStatus,
@@ -18,21 +17,23 @@ export const apiClientStatusTones = {
 export function createColumns({
     t,
     formatDateTime,
-}: DataTableColumnContext): DataTableColumnDef<ApiClientRow>[] {
+    canManage,
+    onView,
+    onEdit,
+    onChangeStatus,
+}: DataTableColumnContext & {
+    canManage: boolean;
+    onView: (client: ApiClientRow) => void;
+    onEdit: (client: ApiClientRow) => void;
+    onChangeStatus: (client: ApiClientRow) => void;
+}): DataTableColumnDef<ApiClientRow>[] {
     return [
         {
             accessorKey: 'name',
             header: t('api_client.label.name'),
             enableSorting: true,
             cell: ({ row }) =>
-                h(
-                    Link,
-                    {
-                        href: show.url(row.original.id),
-                        class: 'font-medium underline-offset-4 hover:underline',
-                    },
-                    () => row.original.name,
-                ),
+                h('span', { class: 'font-medium' }, row.original.name),
         },
         {
             accessorKey: 'description',
@@ -67,6 +68,22 @@ export function createColumns({
             header: t('api_client.label.created_at'),
             enableSorting: true,
             cell: ({ row }) => formatDateTime(row.original.created_at),
+        },
+        {
+            id: 'actions',
+            exportable: false,
+            enableHiding: false,
+            cell: ({ row }) =>
+                h(DataTableActions, {
+                    recordName: row.original.name,
+                    canView: true,
+                    canEdit: canManage,
+                    canChangeStatus: canManage,
+                    active: row.original.status === 'active',
+                    onView: () => onView(row.original),
+                    onEdit: () => onEdit(row.original),
+                    onChangeStatus: () => onChangeStatus(row.original),
+                }),
         },
     ];
 }

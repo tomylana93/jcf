@@ -19,6 +19,9 @@ return [
         'before' => 'Sebelum',
         'after' => 'Sesudah',
         'system' => 'Sistem',
+        'changed' => 'Diubah',
+        'yes' => 'Ya',
+        'no' => 'Tidak',
     ],
 
     'button' => [
@@ -31,5 +34,9 @@ return [
         'brand' => 'Pengaturan brand',
         'layout' => 'Pengaturan layout',
         'mail' => 'Pengaturan email',
+        'chat' => 'Modul chat',
+        'documentation' => 'Modul dokumentasi',
+        'backup' => 'Modul backup',
+        'api' => 'Modul API eksternal',
     ],
 ];

@@ -57,6 +57,20 @@ describe('User management browser flows', function (): void {
         expect(User::query()->where('email', 'browser-created@example.test')->sole()->name)->toBe('Browser Updated');
     });
 
+    it('suggests changing the search only when an empty table is filtered', function (): void {
+        $actor = User::factory()->create();
+        assignRolePermissions($actor, Permission::ViewAuditLogs);
+        actingAs($actor);
+
+        $page = visit(route('audit.index', absolute: false));
+
+        $page->assertSee(__('table.helper.empty'))
+            ->assertDontSee(__('table.helper.empty_description'))
+            ->fill('[aria-label="'.__('table.label.search').'"]', 'no-matching-record')
+            ->assertSee(__('table.helper.empty_description'))
+            ->assertNoJavaScriptErrors();
+    });
+
     it('renders the read only table on mobile', function (): void {
         $actor = User::factory()->create();
         assignRolePermissions($actor, Permission::ViewUsers);

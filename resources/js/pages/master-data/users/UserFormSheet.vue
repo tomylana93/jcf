@@ -19,6 +19,8 @@ import {
 import { Button } from '@/components/ui/button';
 import {
     Field,
+    FieldContent,
+    FieldDescription,
     FieldError,
     FieldGroup,
     FieldLabel,
@@ -39,7 +41,6 @@ import {
 import {
     Sheet,
     SheetContent,
-    SheetDescription,
     SheetFooter,
     SheetHeader,
     SheetTitle,
@@ -116,7 +117,10 @@ function submit(): void {
         :open="open"
         @update:open="emit('update:open', $event)"
     >
-        <SheetContent class="overflow-y-auto sm:max-w-lg">
+        <SheetContent
+            class="overflow-y-auto sm:max-w-lg"
+            :aria-describedby="undefined"
+        >
             <div
                 v-if="user?.invitation_pending && user.status === 'active'"
                 class="mt-8 flex flex-col gap-2 px-4"
@@ -147,9 +151,6 @@ function submit(): void {
                                 : t('user.card.create_title')
                         }}
                     </SheetTitle>
-                    <SheetDescription>
-                        {{ t('user.card.description') }}
-                    </SheetDescription>
                 </SheetHeader>
                 <FieldGroup class="flex-1 px-4 py-6">
                     <Field :data-invalid="!!form.errors.name">
@@ -320,16 +321,25 @@ function submit(): void {
                         />
                     </Field>
                     <template v-if="!editing">
-                        <Field>
-                            <FieldLabel for="send-invitation">
-                                {{ t('user.invitation.action') }}
-                            </FieldLabel>
+                        <Field
+                            orientation="horizontal"
+                            :data-invalid="!!form.errors.send_invitation"
+                        >
+                            <FieldContent>
+                                <FieldLabel for="send-invitation">
+                                    {{ t('user.invitation.action') }}
+                                </FieldLabel>
+                                <FieldDescription>
+                                    {{ t('user.helper.send_invitation') }}
+                                </FieldDescription>
+                                <FieldError
+                                    :errors="[form.errors.send_invitation]"
+                                />
+                            </FieldContent>
                             <Switch
                                 id="send-invitation"
                                 v-model="form.send_invitation"
-                            />
-                            <FieldError
-                                :errors="[form.errors.send_invitation]"
+                                :aria-invalid="!!form.errors.send_invitation"
                             />
                         </Field>
                         <Field

@@ -6,9 +6,9 @@ return [
     'title' => 'Dokumentasi',
 
     'card' => [
-        'manage_title' => 'Kelola Dokumentasi',
-        'edit_title' => 'Edit Dokumentasi',
-        'create_title' => 'Buat Dokumentasi',
+        'manage_title' => 'Kelola dokumentasi',
+        'edit_title' => 'Edit dokumentasi',
+        'create_title' => 'Buat dokumentasi',
         'description' => 'Panduan dan referensi penggunaan aplikasi.',
     ],
 
@@ -34,7 +34,7 @@ return [
     ],
 
     'button' => [
-        'manage' => 'Kelola Dokumentasi',
+        'manage' => 'Kelola dokumentasi',
         'read' => 'Baca',
         'edit' => 'Edit',
         'delete' => 'Hapus',
@@ -46,8 +46,8 @@ return [
     'status' => [
         'draft' => 'Draft',
         'published' => 'Terbit',
-        'saved' => 'Dokumentasi berhasil disimpan.',
-        'deleted' => 'Dokumentasi berhasil dihapus.',
+        'saved' => 'Dokumentasi disimpan.',
+        'deleted' => 'Dokumentasi dihapus.',
     ],
 
     'error' => [

@@ -75,6 +75,21 @@ describe('Mail settings', function (): void {
             ->and((string) DB::table('settings')->where('group', 'mail')->where('name', 'smtp_password')->value('payload'))->not->toContain('app-password');
     });
 
+    it('flags local development tooling hints only in the local environment', function (string $environment, bool $isLocal): void {
+        $admin = User::factory()->create();
+        assignRolePermissions($admin, Permission::ViewSettings);
+        app()->detectEnvironment(fn (): string => $environment);
+
+        $response = actingAs($admin)->get(route('settings.mail.edit'));
+
+        $response->assertInertia(fn (Assert $page): Assert => $page
+            ->component('settings/Mail')
+            ->where('isLocal', $isLocal));
+    })->with([
+        'local' => ['local', true],
+        'production' => ['production', false],
+    ]);
+
     it('keeps the saved password when the password field is blank', function (): void {
 
         $admin = User::factory()->create();

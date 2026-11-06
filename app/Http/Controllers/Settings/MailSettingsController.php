@@ -25,6 +25,7 @@ final class MailSettingsController extends Controller
     {
         return Inertia::render('settings/Mail', [
             'settings' => $getSettings->handle(),
+            'isLocal' => app()->isLocal(),
         ]);
     }
 

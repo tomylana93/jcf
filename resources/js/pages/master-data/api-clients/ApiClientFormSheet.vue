@@ -17,13 +17,16 @@ import {
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import {
-    NativeSelect,
-    NativeSelectOption,
-} from '@/components/ui/native-select';
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import {
     Sheet,
     SheetContent,
-    SheetDescription,
     SheetFooter,
     SheetHeader,
     SheetTitle,
@@ -81,7 +84,10 @@ function submit(): void {
         :open="open"
         @update:open="emit('update:open', $event)"
     >
-        <SheetContent class="overflow-y-auto sm:max-w-lg">
+        <SheetContent
+            class="overflow-y-auto sm:max-w-lg"
+            :aria-describedby="undefined"
+        >
             <form
                 novalidate
                 class="flex min-h-full flex-col gap-2"
@@ -95,9 +101,6 @@ function submit(): void {
                                 : t('api_client.card.create_title')
                         }}
                     </SheetTitle>
-                    <SheetDescription>
-                        {{ t('api_client.card.description') }}
-                    </SheetDescription>
                 </SheetHeader>
                 <FieldGroup class="flex-1 px-4 py-6">
                     <Field :data-invalid="!!form.errors.name">
@@ -140,19 +143,26 @@ function submit(): void {
                         <FieldLabel for="api-client-status">
                             {{ t('api_client.label.status') }}
                         </FieldLabel>
-                        <NativeSelect
-                            id="api-client-status"
-                            v-model="form.status"
-                            :aria-invalid="!!form.errors.status"
-                        >
-                            <NativeSelectOption
-                                v-for="status in statuses"
-                                :key="status.value"
-                                :value="status.value"
+                        <Select v-model="form.status">
+                            <SelectTrigger
+                                id="api-client-status"
+                                class="w-full"
+                                :aria-invalid="!!form.errors.status"
                             >
-                                {{ status.label }}
-                            </NativeSelectOption>
-                        </NativeSelect>
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                    <SelectItem
+                                        v-for="status in statuses"
+                                        :key="status.value"
+                                        :value="status.value"
+                                    >
+                                        {{ status.label }}
+                                    </SelectItem>
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
                         <FieldDescription>
                             {{ t('api_client.helper.disabled') }}
                         </FieldDescription>

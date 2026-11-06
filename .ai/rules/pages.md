@@ -21,4 +21,7 @@ Paginate non-datatable lists with the shared SimplePagination component and the 
 Render empty collections with the Empty primitives (EmptyMedia icon, EmptyTitle, optional EmptyDescription) and loading placeholders with Skeleton instead of hand-written text, divs or animate-pulse utilities.
 
 ## Settings form feedback
-Settings forms with text or number inputs use useForm().withPrecognition() with field validation on blur, a role="status" validating message, and a backend route with HandlePrecognitiveRequests; file-upload forms submit normally. Submit buttons show Spinner while processing, replacing the leading icon when one exists.
+Settings forms with text or number inputs use useForm().withPrecognition() with field validation on blur, a visually hidden (sr-only) role="status" validating message, and a backend route with HandlePrecognitiveRequests; file-upload forms submit normally. Submit buttons show Spinner while processing, replacing the leading icon when one exists.
+
+## Copy placement follows the lang wording rules
+Pages and components follow the wording rules in .ai/rules/lang.md: use each translation key only in its own position (list card.description not in sheets, dialogs or detail pages; button.* not as titles; navigation.* not as page titles), render labels instead of raw codes, field names, enum values or JSON, show statuses only when informative, and gate local-only hints behind an environment prop from the controller.

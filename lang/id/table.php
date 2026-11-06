@@ -27,6 +27,7 @@ return [
     ],
 
     'button' => [
+        'view' => 'Lihat',
         'columns' => 'Kolom',
         'edit' => 'Edit',
         'delete' => 'Hapus',
@@ -39,7 +40,7 @@ return [
         ],
 
         'helper' => [
-            'scope' => 'Baris terpilih atau seluruh hasil filter; kolom yang terlihat.',
+            'scope' => 'Mengekspor baris terpilih, atau semua hasil filter jika tidak ada yang dipilih. Hanya kolom yang terlihat yang disertakan.',
         ],
 
         'button' => [
@@ -49,7 +50,7 @@ return [
 
         'status' => [
             'preparing' => 'Menyiapkan :format…',
-            'ready' => ':format siap diunduh.',
+            'ready' => ':format siap di-download.',
         ],
 
         'error' => [

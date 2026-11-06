@@ -7,8 +7,8 @@ return [
 
     'card' => [
         'title' => 'Permission',
-        'description' => 'Kelola tambahan permission yang diberikan langsung ke user.',
-        'manage_title' => 'Kelola Permission',
+        'description' => 'Permission tambahan yang diberikan langsung ke pengguna, di luar role.',
+        'manage_title' => 'Kelola permission',
         'summary_title' => 'Ringkasan perubahan',
     ],
 
@@ -23,7 +23,7 @@ return [
     ],
 
     'placeholder' => [
-        'search' => 'Cari nama atau kode permission',
+        'search' => 'Cari nama atau code permission',
         'all_modules' => 'Semua modul',
     ],
 
@@ -38,11 +38,22 @@ return [
         'select_visible' => 'Pilih hasil pencarian',
         'clear_visible' => 'Lepas hasil pencarian',
         'reset' => 'Batalkan perubahan',
-        'back' => 'Kembali ke daftar permission user',
+        'back' => 'Kembali ke daftar permission pengguna',
     ],
 
     'status' => [
-        'updated' => 'Permission user berhasil diperbarui.',
+        'updated' => 'Permission pengguna diperbarui.',
+    ],
+
+    'group' => [
+        'chat' => 'Chat',
+        'system' => 'Kesehatan sistem',
+        'backups' => 'Backup',
+        'audit' => 'Audit log',
+        'settings' => 'Pengaturan',
+        'users' => 'Pengguna',
+        'documentation' => 'Dokumentasi',
+        'api_clients' => 'Klien API',
     ],
 
     'error' => [

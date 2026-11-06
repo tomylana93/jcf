@@ -17,11 +17,11 @@ return [
     ],
     '500' => [
         'title' => 'Terjadi kesalahan',
-        'description' => 'Terjadi gangguan yang tidak terduga. Silakan coba lagi.',
+        'description' => 'Terjadi gangguan yang tidak terduga. Coba lagi.',
     ],
     '503' => [
         'title' => 'Layanan tidak tersedia',
-        'description' => 'Layanan sementara tidak tersedia. Silakan coba lagi nanti.',
+        'description' => 'Layanan sementara tidak tersedia. Coba lagi nanti.',
     ],
     'action' => [
         'retry' => 'Muat ulang halaman',

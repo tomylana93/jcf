@@ -10,7 +10,7 @@ return [
     ],
 
     'helper' => [
-        'mail' => 'Email checks validate configuration only. Use the test email action in mail settings to verify delivery.',
+        'mail' => 'Configuration only. Send a test email from Mail settings to verify delivery.',
     ],
 
     'check' => [
@@ -31,13 +31,15 @@ return [
 
     'detail' => [
         'reachable' => 'Connection available.',
-        'writable' => 'Read and write probe passed.',
+        'writable' => 'Files can be read and written.',
         'recent' => 'Recent activity detected.',
-        'configured' => 'SMTP configuration is present.',
+        'configured' => 'Mail delivery is configured.',
         'unavailable' => 'The check failed. Inspect the service configuration.',
-        'synchronous' => 'Queue runs synchronously; no background worker is verified.',
-        'stale' => 'Recent activity is missing. Check the worker, scheduler, or backup configuration.',
+        'synchronous' => 'Jobs run during the request. No queue worker is in use.',
+        'stale_queue' => 'No recent activity from the queue worker. Check that the worker is running.',
+        'stale_scheduler' => 'No recent scheduler run. Check that the scheduler is running.',
+        'stale_backup' => 'No backup in the last 2 days. Check the backup schedule.',
         'disabled' => 'Module disabled.',
-        'not_configured' => 'Production configuration is incomplete.',
+        'not_configured' => 'Required configuration is incomplete.',
     ],
 ];

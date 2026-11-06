@@ -72,7 +72,6 @@ const busy = computed(
 );
 
 const statusTones = {
-    idle: 'neutral',
     skipped: 'neutral',
     running: 'info',
     completed: 'success',
@@ -176,12 +175,17 @@ usePoll(15000, { only: ['backups', 'backupStatus', 'restoreStatus'] });
         :title="t('backup.title')"
         :description="t('backup.card.description')"
     >
-        <div class="flex flex-wrap items-center gap-3">
+        <div
+            v-if="backupStatus !== 'idle' || restoreStatus !== 'idle'"
+            class="flex flex-wrap items-center gap-3"
+        >
             <StatusBadge
+                v-if="backupStatus !== 'idle'"
                 :tone="statusTones[backupStatus]"
                 :label="`${t('backup.label.backup')}: ${t(`backup.badge.${backupStatus}`)}`"
             />
             <StatusBadge
+                v-if="restoreStatus !== 'idle'"
                 :tone="statusTones[restoreStatus]"
                 :label="`${t('backup.label.restore')}: ${t(`backup.badge.${restoreStatus}`)}`"
             />
@@ -230,7 +234,7 @@ usePoll(15000, { only: ['backups', 'backupStatus', 'restoreStatus'] });
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>
-                        {{ t('backup.button.upload') }}
+                        {{ t('backup.dialog.upload') }}
                     </DialogTitle>
                     <DialogDescription>
                         {{ t('backup.helper.upload') }}

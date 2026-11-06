@@ -5,7 +5,9 @@ export type HealthDetail =
     | 'recent'
     | 'configured'
     | 'synchronous'
-    | 'stale'
+    | 'stale_queue'
+    | 'stale_scheduler'
+    | 'stale_backup'
     | 'not_configured'
     | 'disabled'
     | 'unavailable';

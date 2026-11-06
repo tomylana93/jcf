@@ -1,16 +1,18 @@
 <script setup lang="ts">
-import { Head, setLayoutProps } from '@inertiajs/vue3';
+import { Head, router, setLayoutProps, useForm } from '@inertiajs/vue3';
 import { Plus } from '@lucide/vue';
 import { computed, ref, watchEffect } from 'vue';
 
+import { update } from '@/actions/App/Http/Controllers/Identity/ApiClientController';
 import { DataTable } from '@/components/datatable';
 import PageContainer from '@/components/layout/PageContainer.vue';
 import { useDateTime } from '@/composables/useDateTime';
 import { usePermissions } from '@/composables/usePermissions';
 import { useTranslations } from '@/composables/useTranslations';
 import { index as masterDataIndex } from '@/routes/master-data';
-import { exportMethod, index } from '@/routes/master-data/api-clients';
+import { exportMethod, index, show } from '@/routes/master-data/api-clients';
 import type {
+    ApiClientForm,
     ApiClientRow,
     DataTableAction,
     DataTableFilter,
@@ -32,6 +34,7 @@ const { formatDateTime } = useDateTime();
 
 const canManage = computed(() => can('api-clients.manage'));
 const formOpen = ref(false);
+const selectedClient = ref<ApiClientRow | null>(null);
 
 const filters = computed<DataTableFilter[]>(() => [
     {
@@ -48,13 +51,52 @@ const actions = computed<DataTableAction[]>(() =>
               {
                   label: t('common.button.create'),
                   icon: Plus,
-                  onClick: () => (formOpen.value = true),
+                  onClick: create,
               },
           ]
         : [],
 );
 
-const columns = computed(() => createColumns({ t, formatDateTime }));
+const columns = computed(() =>
+    createColumns({
+        t,
+        formatDateTime,
+        canManage: canManage.value,
+        onView: view,
+        onEdit: edit,
+        onChangeStatus: changeStatus,
+    }),
+);
+
+function create(): void {
+    selectedClient.value = null;
+    formOpen.value = true;
+}
+
+function view(client: ApiClientRow): void {
+    router.visit(show(client.id));
+}
+
+function edit(client: ApiClientRow): void {
+    selectedClient.value = client;
+    formOpen.value = true;
+}
+
+const statusForm = useForm<ApiClientForm>({
+    name: '',
+    description: '',
+    status: 'active',
+});
+
+function changeStatus(client: ApiClientRow): void {
+    if (statusForm.processing) {
+        return;
+    }
+    statusForm.name = client.name;
+    statusForm.description = client.description ?? '';
+    statusForm.status = client.status === 'active' ? 'disabled' : 'active';
+    statusForm.submit(update.patch(client.id), { preserveScroll: true });
+}
 
 watchEffect(() => {
     setLayoutProps({
@@ -89,7 +131,7 @@ watchEffect(() => {
         <ApiClientFormSheet
             v-if="canManage"
             v-model:open="formOpen"
-            :client="null"
+            :client="selectedClient"
             :statuses="statuses"
         />
     </PageContainer>

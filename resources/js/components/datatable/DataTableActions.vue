@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Ban, CircleCheck, Ellipsis, Pencil, Trash2 } from '@lucide/vue';
+import { Ban, CircleCheck, Ellipsis, Eye, Pencil, Trash2 } from '@lucide/vue';
 import { computed, ref } from 'vue';
 
 import {
@@ -25,19 +25,28 @@ import { useTranslations } from '@/composables/useTranslations';
 
 const props = withDefaults(
     defineProps<{
+        canView?: boolean;
+        canEdit?: boolean;
         canChangeStatus?: boolean;
         canDelete?: boolean;
         active: boolean;
         recordName?: string;
     }>(),
     {
+        canView: false,
+        canEdit: true,
         canChangeStatus: true,
         canDelete: false,
         recordName: '',
     },
 );
 
-const emit = defineEmits<{ edit: []; changeStatus: []; delete: [] }>();
+const emit = defineEmits<{
+    view: [];
+    edit: [];
+    changeStatus: [];
+    delete: [];
+}>();
 
 const { t } = useTranslations();
 
@@ -98,12 +107,25 @@ function confirmAction(): void {
                 @close-auto-focus="dialogOpen && $event.preventDefault()"
             >
                 <DropdownMenuGroup>
-                    <DropdownMenuItem @select="emit('edit')">
+                    <DropdownMenuItem
+                        v-if="canView"
+                        @select="emit('view')"
+                    >
+                        <Eye aria-hidden="true" />
+                        {{ t('table.button.view') }}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                        v-if="canEdit"
+                        @select="emit('edit')"
+                    >
                         <Pencil aria-hidden="true" />
                         {{ t('table.button.edit') }}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator
-                        v-if="canChangeStatus || canDelete"
+                        v-if="
+                            (canView || canEdit) &&
+                            (canChangeStatus || canDelete)
+                        "
                     />
                     <DropdownMenuItem
                         v-if="canChangeStatus"
