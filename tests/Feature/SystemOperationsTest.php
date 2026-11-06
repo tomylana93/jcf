@@ -143,9 +143,9 @@ describe('System readiness checks', function (): void {
         $mail->smtp_host = 'smtp.example.com';
         $checks = collect(resolve(GetSystemHealth::class)->handle())->keyBy('name');
 
-        expect($checks['queue']['detail'])->toBe('stale')
-            ->and($checks['scheduler']['detail'])->toBe('stale')
-            ->and($checks['backup']['detail'])->toBe('stale')
+        expect($checks['queue']['detail'])->toBe('stale_queue')
+            ->and($checks['scheduler']['detail'])->toBe('stale_scheduler')
+            ->and($checks['backup']['detail'])->toBe('stale_backup')
             ->and($checks['mail']['detail'])->toBe('configured');
     });
     it('reports failures without returning service exception details', function (): void {

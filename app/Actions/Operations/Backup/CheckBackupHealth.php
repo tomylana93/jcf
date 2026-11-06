@@ -30,6 +30,6 @@ final readonly class CheckBackupHealth implements HealthCheck
         $disk = Storage::disk('backups');
         $latest = collect($disk->files(GetBackupPath::directory()))->filter(fn (string $path): bool => GetBackupPath::isValidFilename(basename($path)))->map(fn (string $path): int => $disk->lastModified($path))->max();
 
-        return is_int($latest) && $latest >= now()->subDays(2)->timestamp ? HealthDetail::Recent : HealthDetail::Stale;
+        return is_int($latest) && $latest >= now()->subDays(2)->timestamp ? HealthDetail::Recent : HealthDetail::StaleBackup;
     }
 }

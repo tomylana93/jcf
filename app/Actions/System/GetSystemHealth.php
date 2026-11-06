@@ -58,9 +58,9 @@ final readonly class GetSystemHealth
                     return HealthDetail::Synchronous;
                 }
 
-                return $this->heartbeat('system.queue_heartbeat');
+                return $this->heartbeat('system.queue_heartbeat', HealthDetail::StaleQueue);
             }),
-            $this->check('scheduler', fn (): HealthDetail => $this->heartbeat('system.scheduler_heartbeat')),
+            $this->check('scheduler', fn (): HealthDetail => $this->heartbeat('system.scheduler_heartbeat', HealthDetail::StaleScheduler)),
             $this->check('mail', function (): HealthDetail {
                 $mailer = config('mail.default');
 
@@ -92,11 +92,11 @@ final readonly class GetSystemHealth
         return ['name' => $name, 'status' => $detail->status(), 'detail' => $detail->value];
     }
 
-    private function heartbeat(string $key): HealthDetail
+    private function heartbeat(string $key, HealthDetail $stale): HealthDetail
     {
         $timestamp = Cache::get($key);
 
         return is_int($timestamp) && $timestamp >= now()->timestamp - config('jalara.operations.heartbeat_seconds')
-            ? HealthDetail::Recent : HealthDetail::Stale;
+            ? HealthDetail::Recent : $stale;
     }
 }
