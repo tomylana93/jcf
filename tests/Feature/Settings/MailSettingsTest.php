@@ -298,7 +298,8 @@ describe('Mailpit and secret boundaries', function (): void {
             : $response->assertSessionHasErrors(['smtp_host' => __('settings.mail.error.smtp_host_blocked')]);
     })->with([
         'loopback' => ['127.0.0.1', false],
-        'localhost' => ['localhost', false],
+        'localhost name' => ['localhost', false],
+        'localhost subdomain' => ['mail.localhost', false],
         'IPv6 loopback' => ['[::1]', false],
         'metadata' => ['169.254.169.254', false],
         'private relay' => ['10.0.0.5', true],

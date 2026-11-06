@@ -25,7 +25,7 @@ final readonly class IsSmtpHostAllowed
 
         $host = mb_strtolower(mb_trim($host, " \t\n\r\0\x0B[]"));
 
-        if ($host === 'localhost' || str_ends_with($host, '.localhost')) {
+        if (str_ends_with($host, '.localhost')) {
             return false;
         }
 
@@ -34,14 +34,13 @@ final readonly class IsSmtpHostAllowed
         return array_all($addresses, fn (string $address): bool => ! IpUtils::checkIp($address, self::BLOCKED_RANGES));
     }
 
-    /** @return list<string> */
+    /**
+     * IPv4 addresses come from the system resolver, so hosts-file names such as localhost are included; IPv6 from DNS.
+     *
+     * @return list<string>
+     */
     private function resolve(string $host): array
     {
-        $records = @dns_get_record($host, DNS_A | DNS_AAAA) ?: [];
-
-        return array_values(array_filter(array_map(
-            fn (array $record): ?string => $record['ip'] ?? $record['ipv6'] ?? null,
-            $records,
-        )));
+        return [...(gethostbynamel($host) ?: []), ...array_column(@dns_get_record($host, DNS_AAAA) ?: [], 'ipv6')];
     }
 }
