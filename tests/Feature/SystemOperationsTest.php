@@ -13,6 +13,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -203,6 +204,7 @@ describe('System readiness checks', function (): void {
     ]);
 
     it('reports failures without returning service exception details', function (): void {
+        Exceptions::fake();
         $action = resolve(GetSystemHealth::class);
         $original = config('database.default');
         config(['database.default' => 'missing', 'filesystems.default' => 'missing']);
@@ -215,6 +217,7 @@ describe('System readiness checks', function (): void {
         expect($checks['database'])->toBe(['name' => 'database', 'status' => 'failed', 'detail' => 'unavailable'])
             ->and($checks['storage']['status'])->toBe('failed')
             ->and($checks['queue_backups'])->toBe(['name' => 'queue_backups', 'status' => 'failed', 'detail' => 'unavailable']);
+        Exceptions::assertReported(InvalidArgumentException::class);
     });
 });
 
