@@ -5,7 +5,7 @@ declare(strict_types=1);
 return [
     'card' => [
         'title' => 'Pengaturan akun',
-        'description' => 'Kelola pengaturan profil dan akun.',
+        'description' => 'Profil, keamanan login, dan sesi aktif akun ini.',
     ],
     'link' => [
         'profile' => 'Profil',
@@ -18,7 +18,7 @@ return [
         'title' => 'Pengaturan profil',
         'card' => [
             'title' => 'Profil',
-            'description' => 'Update nama akun dan alamat email.',
+            'description' => 'Nama, alamat email, dan zona waktu yang dipakai di seluruh aplikasi.',
         ],
         'link' => [
             'resend' => 'Kirim ulang email verifikasi.',
@@ -37,14 +37,14 @@ return [
         ],
         'status' => [
             'verification_sent' => 'Link verifikasi baru telah dikirim ke alamat email.',
-            'updated' => 'Profil berhasil diperbarui.',
+            'updated' => 'Profil diperbarui.',
         ],
     ],
 
     'security' => [
         'title' => 'Pengaturan keamanan',
         'card' => [
-            'title' => 'Update password',
+            'title' => 'Perbarui password',
             'description' => 'Gunakan password panjang dan acak untuk melindungi akun.',
         ],
         'status' => [
@@ -64,7 +64,7 @@ return [
         ],
 
         'helper' => [
-            'unsupported' => 'Daftar sesi memerlukan driver session database. Sesi lain tetap dapat dicabut.',
+            'unsupported' => 'Daftar perangkat tidak tersedia. Perangkat lain tetap dapat di-logout.',
             'empty' => 'Tidak ada sesi aktif tersimpan.',
             'revoke' => 'Masukkan password saat ini untuk logout perangkat lain. Sesi saat ini tetap aktif.',
         ],
@@ -132,47 +132,47 @@ return [
             'choose' => 'Pilih foto',
             'remove' => 'Hapus foto',
             'save' => 'Simpan foto',
-            'discard' => 'Batalkan unggahan',
-            'retry' => 'Ulangi unggahan',
+            'discard' => 'Batalkan upload',
+            'retry' => 'Ulangi upload',
         ],
 
         'status' => [
-            'uploading' => 'Mengunggah foto sementara…',
+            'uploading' => 'Meng-upload foto…',
             'processing' => 'Memproses foto…',
             'removing' => 'Foto profil akan dihapus setelah disimpan.',
-            'saved' => 'Foto profil berhasil disimpan.',
+            'saved' => 'Foto profil disimpan.',
             'too_large' => 'Ukuran file maksimal 2 MB.',
-            'failed' => 'Foto gagal diproses. Coba unggah gambar lain.',
-            'expired' => 'Unggahan kedaluwarsa. Silakan unggah ulang foto.',
+            'failed' => 'Foto gagal diproses. Coba upload gambar lain.',
+            'expired' => 'Upload kedaluwarsa. Upload ulang foto.',
         ],
     ],
 
     'disable_account' => [
         'card' => [
             'title' => 'Nonaktifkan akun',
-            'description' => 'Nonaktifkan akun dan semua resource terkait.',
+            'description' => 'Nonaktifkan akses akun. Resource dan data terkait tetap tersimpan.',
         ],
         'helper' => [
             'warning' => 'Peringatan',
-            'access_disabled' => 'Akses akun akan dinonaktifkan.',
+            'access_disabled' => 'Hanya administrator yang dapat mengaktifkan kembali akun.',
         ],
         'button' => [
             'disable' => 'Nonaktifkan akun',
         ],
         'dialog' => [
             'title' => 'Konfirmasi penonaktifan akun',
-            'description' => 'Akun akan dinonaktifkan dan sesi login akan diakhiri. resource dan data terkait tetap tersimpan. Masukkan password untuk mengonfirmasi.',
+            'description' => 'Akun akan dinonaktifkan dan sesi login akan diakhiri. Resource dan data terkait tetap tersimpan. Masukkan password untuk mengonfirmasi.',
         ],
     ],
 
     'two_factor' => [
         'card' => [
             'title' => 'Autentikasi dua faktor',
-            'description' => 'Kelola pengaturan autentikasi dua faktor.',
+            'description' => 'Menambahkan code sekali pakai dari aplikasi authenticator di setiap login.',
         ],
         'helper' => [
-            'disabled' => 'Mengaktifkan 2FA mewajibkan code dari aplikasi yang mendukung TOTP saat login.',
-            'enabled' => 'Login memerlukan code dari aplikasi yang mendukung TOTP.',
+            'disabled' => '2FA belum aktif.',
+            'enabled' => '2FA aktif. Simpan recovery code di tempat yang aman.',
         ],
         'button' => [
             'setup' => 'Lanjutkan setup',
@@ -220,7 +220,7 @@ return [
     'passkey' => [
         'card' => [
             'title' => 'Passkeys',
-            'description' => 'Kelola passkey untuk login tanpa password.',
+            'description' => 'Login dengan sidik jari, wajah, atau PIN perangkat tanpa password.',
         ],
         'label' => [
             'name' => 'Nama passkey',
@@ -250,7 +250,7 @@ return [
         ],
         'empty' => [
             'title' => 'Belum ada passkey',
-            'description' => 'Tambahkan passkey untuk login tanpa password.',
+            'description' => 'Passkey yang terdaftar tampil di sini.',
         ],
         'dialog' => [
             'title' => 'Hapus passkey',

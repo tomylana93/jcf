@@ -7,9 +7,9 @@ return [
 
     'card' => [
         'title' => 'Pengguna',
-        'description' => 'Kelola akun pengguna dan hak akses.',
-        'create_title' => 'Tambah user',
-        'edit_title' => 'Edit user',
+        'description' => 'Akun, role, dan undangan bagi orang yang memakai aplikasi.',
+        'create_title' => 'Tambah pengguna',
+        'edit_title' => 'Edit pengguna',
     ],
 
     'label' => [
@@ -41,11 +41,11 @@ return [
     ],
 
     'status' => [
-        'created' => 'Pengguna ditambahkan. Undangan dijadwalkan untuk dikirim melalui email.',
-        'updated' => 'Pengguna berhasil diperbarui.',
+        'created' => 'Pengguna dibuat. Email undangan akan dikirim.',
+        'updated' => 'Pengguna diperbarui.',
         'activated' => 'Pengguna diaktifkan.',
         'disabled' => 'Pengguna dinonaktifkan.',
-        'invitation_queued' => 'Undangan dijadwalkan untuk dikirim melalui email.',
+        'invitation_queued' => 'Email undangan akan dikirim.',
     ],
 
     'invitation' => [

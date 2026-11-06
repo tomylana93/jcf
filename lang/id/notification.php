@@ -35,7 +35,7 @@ return [
 
     'mail' => [
         'greeting' => 'Halo!',
-        'error_greeting' => 'Terjadi kesalahan!',
+        'error_greeting' => 'Perlu perhatian',
         'salutation' => 'Salam,',
         'action_fallback' => 'Jika tombol :actionText tidak dapat dibuka, salin dan tempel URL berikut ke browser:',
     ],
@@ -44,8 +44,8 @@ return [
         'account_created' => 'Akun dibuat. Pengaturan profil dan keamanan tersedia.',
         'account_updated' => 'Detail akun atau akses telah diperbarui.',
         'permissions_updated' => 'Permission tambahan akun telah diperbarui.',
-        'invitation_queued' => 'Undangan untuk :subject telah masuk antrean pengiriman.',
-        'backup_ready' => 'Backup :subject siap diunduh.',
+        'invitation_queued' => 'Email undangan untuk :subject akan dikirim.',
+        'backup_ready' => 'Backup :subject siap di-download.',
         'restore_ready' => 'Restore :subject selesai.',
         'restore_failed' => 'Restore gagal. Periksa log aplikasi dan maintenance mode.',
         'backup_failed' => 'Backup gagal. Periksa kesehatan sistem dan log aplikasi.',

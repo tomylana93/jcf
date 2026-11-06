@@ -5,7 +5,7 @@ declare(strict_types=1);
 return [
     'card' => [
         'title' => 'Account settings',
-        'description' => 'Manage profile and account settings.',
+        'description' => 'Profile, sign-in security, and active sessions for this account.',
     ],
     'link' => [
         'profile' => 'Profile',
@@ -18,7 +18,7 @@ return [
         'title' => 'Profile settings',
         'card' => [
             'title' => 'Profile',
-            'description' => 'Update the account name and email address.',
+            'description' => 'Name, email address, and time zone used across the application.',
         ],
         'link' => [
             'resend' => 'Resend the verification email.',
@@ -64,7 +64,7 @@ return [
         ],
 
         'helper' => [
-            'unsupported' => 'Session listing requires the database session driver. Other sessions can still be revoked.',
+            'unsupported' => 'The device list is unavailable. Other devices can still be logged out.',
             'empty' => 'No stored active sessions.',
             'revoke' => 'Enter the current password to log out other devices. The current session remains active.',
         ],
@@ -137,7 +137,7 @@ return [
         ],
 
         'status' => [
-            'uploading' => 'Uploading temporary photo…',
+            'uploading' => 'Uploading photo…',
             'processing' => 'Processing photo…',
             'removing' => 'The profile photo will be removed after saving.',
             'saved' => 'Profile photo saved.',
@@ -154,7 +154,7 @@ return [
         ],
         'helper' => [
             'warning' => 'Warning',
-            'access_disabled' => 'Account access will be disabled.',
+            'access_disabled' => 'Only an administrator can reactivate the account.',
         ],
         'button' => [
             'disable' => 'Disable account',
@@ -168,11 +168,11 @@ return [
     'two_factor' => [
         'card' => [
             'title' => 'Two-factor authentication',
-            'description' => 'Manage two-factor authentication settings.',
+            'description' => 'Adds a one-time code from an authenticator app to each login.',
         ],
         'helper' => [
-            'disabled' => 'Enabling 2FA requires a secure code from a TOTP-supported app during login.',
-            'enabled' => 'Login requires a secure code from a TOTP-supported app.',
+            'disabled' => '2FA is not enabled.',
+            'enabled' => '2FA is enabled. Keep the recovery codes somewhere safe.',
         ],
         'button' => [
             'setup' => 'Continue setup',
@@ -220,7 +220,7 @@ return [
     'passkey' => [
         'card' => [
             'title' => 'Passkeys',
-            'description' => 'Manage passkeys for passwordless login.',
+            'description' => 'Log in with a fingerprint, face, or device PIN instead of a password.',
         ],
         'label' => [
             'name' => 'Passkey name',
@@ -250,7 +250,7 @@ return [
         ],
         'empty' => [
             'title' => 'No passkeys yet',
-            'description' => 'Add a passkey to log in without a password.',
+            'description' => 'Registered passkeys appear here.',
         ],
         'dialog' => [
             'title' => 'Remove passkey',

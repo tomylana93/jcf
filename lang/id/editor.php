@@ -25,7 +25,7 @@ return [
 
     'helper' => [
         'no_pages' => 'Tidak ada halaman aplikasi yang sesuai.',
-        'link' => 'Gunakan URL HTTP, HTTPS, mailto, relatif, atau anchor. Kosongkan untuk menghapus link.',
+        'link' => 'Masukkan alamat web, path halaman seperti /documentation, link email, atau #bagian. Kosongkan untuk menghapus link.',
         'html' => 'HTML mengikuti format yang didukung editor. Terapkan perubahan sebelum menyimpan.',
         'normalized' => 'Editor menormalisasi HTML dan menghapus markup yang tidak didukung. Periksa hasil sebelum menerapkan perubahan.',
     ],

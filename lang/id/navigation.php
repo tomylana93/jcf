@@ -25,8 +25,8 @@ return [
         'settings' => 'Pengaturan',
         'permission' => 'Permission',
         'account' => 'Akun',
-        'master_data' => 'Master Data',
-        'manage_documentation' => 'Kelola Dokumentasi',
+        'master_data' => 'Master data',
+        'manage_documentation' => 'Kelola dokumentasi',
         'documentation' => 'Dokumentasi',
     ],
 

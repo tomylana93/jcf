@@ -3,5 +3,5 @@
 declare(strict_types=1);
 
 return [
-    'description' => 'Manage application master data.',
+    'description' => 'User accounts and other records shared across modules.',
 ];

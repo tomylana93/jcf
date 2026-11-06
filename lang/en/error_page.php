@@ -17,11 +17,11 @@ return [
     ],
     '500' => [
         'title' => 'Something went wrong',
-        'description' => 'An unexpected problem occurred. Please try again.',
+        'description' => 'An unexpected problem occurred. Try again.',
     ],
     '503' => [
         'title' => 'Service unavailable',
-        'description' => 'The service is temporarily unavailable. Please try again later.',
+        'description' => 'The service is temporarily unavailable. Try again later.',
     ],
     'action' => [
         'retry' => 'Reload page',

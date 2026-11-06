@@ -109,7 +109,7 @@ describe('Notification center', function (): void {
 
         actingAs($user);
         withUnencryptedCookie('locale', 'id')->get(route('notifications.index'))
-            ->assertInertia(fn (Assert $page): Assert => $page->where('notifications.data.0.message', 'Undangan untuk Recipient telah masuk antrean pengiriman.'));
+            ->assertInertia(fn (Assert $page): Assert => $page->where('notifications.data.0.message', 'Email undangan untuk Recipient akan dikirim.'));
     });
 
     it('rolls back database notifications with their transaction', function (): void {

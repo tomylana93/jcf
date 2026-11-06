@@ -45,7 +45,7 @@ return [
         'empty_history' => 'Belum ada pesan.',
         'select' => 'Pilih percakapan untuk membaca dan mengirim pesan.',
         'no_recipients' => 'Tidak ada penerima tersedia.',
-        'saved' => 'Tersimpan',
+        'saved' => 'Terkirim',
         'sending' => 'Mengirim…',
         'read' => 'Dibaca',
         'typing' => ':name sedang menulis…',
@@ -59,7 +59,7 @@ return [
         'send' => 'Pesan belum terkonfirmasi. Coba lagi untuk memeriksa atau mengirim pesan.',
         'read' => 'Status baca gagal disimpan. Coba lagi.',
         'length' => 'Pesan maksimal 4.000 karakter.',
-        'self_conversation' => 'Percakapan pribadi memerlukan penerima yang berbeda.',
-        'idempotency_conflict' => 'Identitas pesan sudah digunakan untuk pesan yang berbeda.',
+        'self_conversation' => 'Pilih penerima lain.',
+        'idempotency_conflict' => 'Pesan tidak dapat dikirim. Muat ulang percakapan lalu coba lagi.',
     ],
 ];

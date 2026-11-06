@@ -21,7 +21,7 @@ return [
     'helper' => [
         'delete' => 'Hapus backup :filename secara permanen? Tindakan ini tidak dapat dibatalkan.',
         'setup' => 'Backup belum dikonfigurasi. Hubungi pengelola sistem.',
-        'upload' => 'Upload ZIP backup tepercaya yang dienkripsi dengan password backup yang dikonfigurasi. SQL dalam arsip akan dijalankan saat restore.',
+        'upload' => 'Upload ZIP backup dari sumber tepercaya yang dienkripsi dengan password backup. Restore akan mengganti database saat ini.',
         'restore' => 'Restore :filename? Database aktif dan file upload akan diganti. Backup pengaman dibuat terlebih dahulu. Aplikasi tidak dapat diakses selama restore dan login diperlukan setelah selesai.',
     ],
 
@@ -33,10 +33,10 @@ return [
     ],
 
     'status' => [
-        'deleted' => 'Backup berhasil dihapus.',
-        'queued' => 'Backup masuk antrean. Notifikasi akan melaporkan hasilnya.',
-        'uploaded' => 'Backup berhasil diunggah dan divalidasi.',
-        'restore_queued' => 'Restore masuk antrean. Aplikasi akan masuk mode pemeliharaan.',
+        'deleted' => 'Backup dihapus.',
+        'queued' => 'Backup dimulai. Notifikasi dikirim setelah selesai.',
+        'uploaded' => 'Backup di-upload dan divalidasi.',
+        'restore_queued' => 'Restore dimulai. Aplikasi tidak dapat diakses sampai selesai.',
     ],
 
     'badge' => [

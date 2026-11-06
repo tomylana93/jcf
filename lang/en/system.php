@@ -31,13 +31,13 @@ return [
 
     'detail' => [
         'reachable' => 'Connection available.',
-        'writable' => 'Read and write probe passed.',
+        'writable' => 'Files can be read and written.',
         'recent' => 'Recent activity detected.',
-        'configured' => 'SMTP configuration is present.',
+        'configured' => 'Mail delivery is configured.',
         'unavailable' => 'The check failed. Inspect the service configuration.',
-        'synchronous' => 'Queue runs synchronously; no background worker is verified.',
+        'synchronous' => 'Jobs run during the request. No queue worker is in use.',
         'stale' => 'Recent activity is missing. Check the worker, scheduler, or backup configuration.',
         'disabled' => 'Module disabled.',
-        'not_configured' => 'Production configuration is incomplete.',
+        'not_configured' => 'Required configuration is incomplete.',
     ],
 ];

@@ -31,13 +31,13 @@ return [
 
     'detail' => [
         'reachable' => 'Koneksi tersedia.',
-        'writable' => 'Uji baca dan tulis berhasil.',
+        'writable' => 'File dapat dibaca dan ditulis.',
         'recent' => 'Aktivitas terbaru terdeteksi.',
-        'configured' => 'Konfigurasi SMTP tersedia.',
+        'configured' => 'Pengiriman email sudah dikonfigurasi.',
         'unavailable' => 'Pemeriksaan gagal. Periksa konfigurasi layanan.',
-        'synchronous' => 'Queue berjalan sinkron; background worker belum terverifikasi.',
+        'synchronous' => 'Job dijalankan saat request. Queue worker tidak dipakai.',
         'stale' => 'Aktivitas terbaru belum tersedia. Periksa worker, scheduler, atau konfigurasi backup.',
         'disabled' => 'Modul dinonaktifkan.',
-        'not_configured' => 'Konfigurasi produksi belum lengkap.',
+        'not_configured' => 'Konfigurasi yang dibutuhkan belum lengkap.',
     ],
 ];

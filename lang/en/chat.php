@@ -45,7 +45,7 @@ return [
         'empty_history' => 'No messages yet.',
         'select' => 'Select a conversation to read and send messages.',
         'no_recipients' => 'No available recipients found.',
-        'saved' => 'Saved',
+        'saved' => 'Sent',
         'sending' => 'Sending…',
         'read' => 'Read',
         'typing' => ':name is typing…',
@@ -59,7 +59,7 @@ return [
         'send' => 'Message could not be confirmed. Retry to check or send it.',
         'read' => 'Read status could not be saved. Try again.',
         'length' => 'Messages must contain no more than 4,000 characters.',
-        'self_conversation' => 'A direct conversation requires a different recipient.',
-        'idempotency_conflict' => 'The message identifier has already been used for a different message.',
+        'self_conversation' => 'Choose another recipient.',
+        'idempotency_conflict' => 'This message could not be sent. Reload the conversation and try again.',
     ],
 ];

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 return [
     'logo_type' => [
-        'LogoOnly' => 'Logo only',
-        'LogoText' => 'Logo + text',
+        'LogoOnly' => 'Logo lengkap',
+        'LogoText' => 'Simbol + nama',
     ],
 
     'brand_color' => [

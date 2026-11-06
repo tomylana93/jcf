@@ -6,9 +6,9 @@ return [
     'title' => 'Documentation',
 
     'card' => [
-        'manage_title' => 'Manage Documentation',
-        'edit_title' => 'Edit Documentation',
-        'create_title' => 'Create Documentation',
+        'manage_title' => 'Manage documentation',
+        'edit_title' => 'Edit documentation',
+        'create_title' => 'Create documentation',
         'description' => 'Guides and reference for the application.',
     ],
 
@@ -34,7 +34,7 @@ return [
     ],
 
     'button' => [
-        'manage' => 'Manage Documentation',
+        'manage' => 'Manage documentation',
         'read' => 'Read',
         'edit' => 'Edit',
         'delete' => 'Delete',

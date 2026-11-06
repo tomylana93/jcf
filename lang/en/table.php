@@ -39,7 +39,7 @@ return [
         ],
 
         'helper' => [
-            'scope' => 'Selected rows or all filtered records; visible columns.',
+            'scope' => 'Exports the selected rows, or all filtered rows if none are selected. Only visible columns are included.',
         ],
 
         'button' => [

@@ -21,7 +21,7 @@ return [
     'helper' => [
         'delete' => 'Permanently delete backup :filename? This action cannot be undone.',
         'setup' => 'Backups are not configured. Contact the system operator.',
-        'upload' => 'Upload a trusted backup ZIP encrypted with the configured backup password. SQL in the archive will execute during restore.',
+        'upload' => 'Upload a backup ZIP from a trusted source, encrypted with the backup password. Restoring it replaces the current database.',
         'restore' => 'Restore :filename? The active database and uploaded files will be replaced. A safety backup is created first. The application will be unavailable during restore and login is required afterward.',
     ],
 
@@ -34,9 +34,9 @@ return [
 
     'status' => [
         'deleted' => 'Backup deleted.',
-        'queued' => 'Backup queued. A notification will report the result.',
+        'queued' => 'Backup started. A notification will follow when it finishes.',
         'uploaded' => 'Backup uploaded and validated.',
-        'restore_queued' => 'Restore queued. The application will enter maintenance mode.',
+        'restore_queued' => 'Restore started. The application will be unavailable until it finishes.',
     ],
 
     'badge' => [

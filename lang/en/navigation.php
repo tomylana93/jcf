@@ -25,8 +25,8 @@ return [
         'settings' => 'Settings',
         'permission' => 'Permission',
         'account' => 'Account',
-        'master_data' => 'Master Data',
-        'manage_documentation' => 'Manage Documentation',
+        'master_data' => 'Master data',
+        'manage_documentation' => 'Manage documentation',
         'documentation' => 'Documentation',
     ],
 

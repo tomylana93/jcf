@@ -35,7 +35,7 @@ return [
 
     'mail' => [
         'greeting' => 'Hello!',
-        'error_greeting' => 'Whoops!',
+        'error_greeting' => 'Attention needed',
         'salutation' => 'Regards,',
         'action_fallback' => 'If the :actionText button cannot be opened, copy and paste the following URL into a web browser:',
     ],
@@ -44,7 +44,7 @@ return [
         'account_created' => 'Account created. Profile and security settings are ready.',
         'account_updated' => 'Account details or access have been updated.',
         'permissions_updated' => 'Additional account permissions have been updated.',
-        'invitation_queued' => 'An invitation for :subject has been queued for delivery.',
+        'invitation_queued' => 'An invitation email for :subject will be sent.',
         'backup_ready' => 'Backup :subject is ready for download.',
         'restore_ready' => 'Restore of :subject completed.',
         'restore_failed' => 'Restore failed. Check application logs and maintenance mode.',

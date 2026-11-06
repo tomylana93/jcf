@@ -3,5 +3,5 @@
 declare(strict_types=1);
 
 return [
-    'description' => 'Kelola data utama aplikasi.',
+    'description' => 'Akun pengguna dan data lain yang dipakai lintas modul.',
 ];

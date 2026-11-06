@@ -7,8 +7,8 @@ return [
     'disabled' => 'Akun dinonaktifkan. Hubungi administrator untuk mengaktifkan kembali akun.',
     'password' => 'Password yang diberikan salah.',
     'throttle' => 'Terlalu banyak percobaan login. Percobaan berikutnya diizinkan dalam :seconds detik.',
-    'two_factor_failed' => 'Kode two-factor tidak valid.',
-    'two_factor_expired' => 'Challenge two-factor sudah kedaluwarsa. Silakan login kembali.',
+    'two_factor_failed' => 'Code two-factor tidak valid.',
+    'two_factor_expired' => 'Challenge two-factor sudah kedaluwarsa. Login kembali.',
 
     'login' => [
         'title' => 'Log in',

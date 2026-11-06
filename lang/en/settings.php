@@ -6,7 +6,7 @@ return [
     'title' => 'Settings',
     'card' => [
         'title' => 'Settings',
-        'description' => 'Manage application settings.',
+        'description' => 'Application-wide configuration such as identity, sign-in, and email.',
     ],
 
     'modules' => [
@@ -17,7 +17,7 @@ return [
             'chat' => 'Internal conversations and realtime messages.',
             'documentation' => 'Application documentation and guides.',
             'backup' => 'System backup and restore operations.',
-            'api' => 'Token-authenticated API on the dedicated API domain.',
+            'api' => 'API access for partner systems using client tokens.',
         ],
         'status' => ['updated' => 'Module settings updated.'],
     ],
@@ -41,28 +41,28 @@ return [
     ],
 
     'brand' => [
-        'title' => 'Brand Settings',
+        'title' => 'Brand settings',
         'card' => [
-            'title' => 'Brand Settings',
+            'title' => 'Brand settings',
             'description' => 'Manage the application logo, favicon, authentication background, and color.',
         ],
         'label' => [
             'logo_type' => 'Logo type',
-            'logo' => 'Logo only',
-            'logo_text' => 'Logo + text',
+            'logo' => 'Full logo',
+            'logo_text' => 'Symbol + name',
             'favicon' => 'Favicon',
             'auth_background' => 'Split authentication background',
             'color' => 'Primary color',
         ],
         'helper' => [
-            'logo' => 'Image containing both the logo and text. No additional text is displayed.',
-            'logo_text' => 'Symbol image without text. The application name is added beside it.',
+            'logo' => 'Image already includes the name. No text is added.',
+            'logo_text' => 'Symbol image. The application name is shown beside it.',
             'auth_background' => 'Shown on the split authentication layout. Use a portrait image, up to 5 MB. The default illustration is used when no custom image is set.',
             'color' => 'Choose a preset for buttons and navigation accents.',
         ],
         'button' => [
-            'choose_logo_text' => 'Choose logo + text',
-            'remove_logo_text' => 'Remove logo + text',
+            'choose_logo_text' => 'Choose symbol',
+            'remove_logo_text' => 'Remove symbol',
             'remove_logo' => 'Remove logo',
             'remove_favicon' => 'Remove favicon',
             'choose_logo' => 'Choose logo',
@@ -122,9 +122,9 @@ return [
     ],
 
     'mail' => [
-        'title' => 'Mail Settings',
+        'title' => 'Mail settings',
         'card' => [
-            'title' => 'Mail Settings',
+            'title' => 'Mail settings',
             'description' => 'Configure email delivery and the shared email layout.',
         ],
         'section' => [
@@ -146,18 +146,18 @@ return [
             'footer_text' => 'Footer text',
         ],
         'option' => [
-            'environment' => 'Environment configuration',
-            'none' => 'No encryption (local Mailpit)',
-            'log' => 'Log only',
+            'environment' => 'Server default',
+            'none' => 'No encryption',
+            'log' => 'Do not send (record only)',
             'smtp' => 'SMTP',
             'starttls' => 'STARTTLS (usually port 587)',
             'smtps' => 'TLS (usually port 465)',
         ],
         'hint' => [
             'mailpit' => 'Local Mailpit uses host lerd-mailpit, port 1025, no encryption, and empty credentials. Save changes before sending a test email.',
-            'log' => 'Messages are recorded in the application log and are not delivered.',
+            'log' => 'Emails are not sent. They are recorded in the application log for the operator.',
             'smtp_password' => 'Leave blank to keep the saved password.',
-            'brand' => 'Logo and button color follow Brand Settings.',
+            'brand' => 'Logo and button color follow Brand settings.',
         ],
         'status' => [
             'updated' => 'Mail settings updated.',

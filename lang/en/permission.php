@@ -7,8 +7,8 @@ return [
 
     'card' => [
         'title' => 'Permission',
-        'description' => 'Manage additional permissions assigned directly to users.',
-        'manage_title' => 'Manage Permissions',
+        'description' => 'Extra permissions granted directly to a user, on top of the role.',
+        'manage_title' => 'Manage permissions',
         'summary_title' => 'Change summary',
     ],
 
@@ -42,7 +42,7 @@ return [
     ],
 
     'status' => [
-        'updated' => 'User permissions updated successfully.',
+        'updated' => 'User permissions updated.',
     ],
 
     'error' => [

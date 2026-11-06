@@ -6,18 +6,18 @@ return [
     'title' => 'Pengaturan',
     'card' => [
         'title' => 'Pengaturan',
-        'description' => 'Kelola pengaturan aplikasi.',
+        'description' => 'Konfigurasi tingkat aplikasi, seperti identitas, login, dan email.',
     ],
 
     'modules' => [
         'title' => 'Modul',
         'card' => ['title' => 'Modul', 'description' => 'Aktifkan atau nonaktifkan modul aplikasi yang terpasang.'],
-        'label' => ['chat' => 'Chat', 'documentation' => 'Documentation', 'backup' => 'Backup', 'api' => 'API eksternal'],
+        'label' => ['chat' => 'Chat', 'documentation' => 'Dokumentasi', 'backup' => 'Backup', 'api' => 'API eksternal'],
         'helper' => [
             'chat' => 'Percakapan internal dan pesan realtime.',
             'documentation' => 'Dokumentasi dan panduan aplikasi.',
             'backup' => 'Operasi backup dan restore sistem.',
-            'api' => 'API berbasis token di domain API terpisah.',
+            'api' => 'Akses API untuk sistem partner dengan token klien.',
         ],
         'status' => ['updated' => 'Pengaturan modul diperbarui.'],
     ],
@@ -36,33 +36,33 @@ return [
         'helper' => [
         ],
         'status' => [
-            'updated' => 'Pengaturan umum berhasil diperbarui.',
+            'updated' => 'Pengaturan umum diperbarui.',
         ],
     ],
 
     'brand' => [
-        'title' => 'Pengaturan Brand',
+        'title' => 'Pengaturan brand',
         'card' => [
-            'title' => 'Pengaturan Brand',
+            'title' => 'Pengaturan brand',
             'description' => 'Kelola logo, favicon, background autentikasi, dan warna aplikasi.',
         ],
         'label' => [
             'logo_type' => 'Tipe logo',
-            'logo' => 'Logo only',
-            'logo_text' => 'Logo + text',
+            'logo' => 'Logo lengkap',
+            'logo_text' => 'Simbol + nama',
             'favicon' => 'Favicon',
             'auth_background' => 'Background split auth',
             'color' => 'Warna utama',
         ],
         'helper' => [
-            'logo' => 'Gambar yang sudah memuat logo dan teks. Tidak ada teks tambahan yang ditampilkan.',
-            'logo_text' => 'Gambar simbol tanpa teks. Nama aplikasi ditambahkan di sampingnya.',
+            'logo' => 'Gambar sudah memuat nama. Tidak ada teks tambahan.',
+            'logo_text' => 'Gambar simbol. Nama aplikasi ditampilkan di sebelahnya.',
             'auth_background' => 'Ditampilkan pada layout split auth. Gunakan gambar portrait, maksimal 5 MB. Ilustrasi default digunakan jika gambar kustom belum diatur.',
             'color' => 'Pilih preset untuk tombol dan aksen navigasi.',
         ],
         'button' => [
-            'choose_logo_text' => 'Pilih logo + text',
-            'remove_logo_text' => 'Hapus logo + text',
+            'choose_logo_text' => 'Pilih simbol',
+            'remove_logo_text' => 'Hapus simbol',
             'remove_logo' => 'Hapus logo',
             'remove_favicon' => 'Hapus favicon',
             'choose_logo' => 'Pilih logo',
@@ -71,7 +71,7 @@ return [
             'choose_favicon' => 'Pilih favicon',
         ],
         'status' => [
-            'updated' => 'Pengaturan brand berhasil diperbarui.',
+            'updated' => 'Pengaturan brand diperbarui.',
             'default' => 'Default',
             'current' => 'Gambar saat ini',
             'selected' => 'Gambar baru dipilih',
@@ -102,7 +102,7 @@ return [
             'email_verification_required' => 'Akun yang belum diverifikasi harus memverifikasi email sebelum mengakses halaman terlindungi.',
         ],
         'status' => [
-            'updated' => 'Pengaturan autentikasi berhasil diperbarui.',
+            'updated' => 'Pengaturan autentikasi diperbarui.',
         ],
     ],
 
@@ -117,14 +117,14 @@ return [
             'auth_layout' => 'Layout autentikasi',
         ],
         'status' => [
-            'updated' => 'Pengaturan layout berhasil diperbarui.',
+            'updated' => 'Pengaturan layout diperbarui.',
         ],
     ],
 
     'mail' => [
-        'title' => 'Pengaturan Mail',
+        'title' => 'Pengaturan mail',
         'card' => [
-            'title' => 'Pengaturan Mail',
+            'title' => 'Pengaturan mail',
             'description' => 'Atur pengiriman email dan layout email bersama.',
         ],
         'section' => [
@@ -146,21 +146,21 @@ return [
             'footer_text' => 'Teks footer',
         ],
         'option' => [
-            'environment' => 'Konfigurasi environment',
-            'none' => 'Tanpa enkripsi (Mailpit lokal)',
-            'log' => 'Hanya log',
+            'environment' => 'Default server',
+            'none' => 'Tanpa enkripsi',
+            'log' => 'Jangan kirim (hanya dicatat)',
             'smtp' => 'SMTP',
             'starttls' => 'STARTTLS (umumnya port 587)',
             'smtps' => 'TLS (umumnya port 465)',
         ],
         'hint' => [
             'mailpit' => 'Mailpit lokal menggunakan host lerd-mailpit, port 1025, tanpa enkripsi, dan credentials kosong. Simpan perubahan sebelum mengirim email uji.',
-            'log' => 'Email dicatat di log aplikasi dan tidak dikirim.',
+            'log' => 'Email tidak dikirim. Isinya dicatat di log aplikasi untuk operator.',
             'smtp_password' => 'Kosongkan untuk mempertahankan password tersimpan.',
-            'brand' => 'Logo dan warna tombol mengikuti Pengaturan Brand.',
+            'brand' => 'Logo dan warna tombol mengikuti Pengaturan brand.',
         ],
         'status' => [
-            'updated' => 'Pengaturan mail berhasil diperbarui.',
+            'updated' => 'Pengaturan mail diperbarui.',
             'password_saved' => 'Password sudah tersimpan.',
             'test_sent' => 'Email uji diproses.',
             'test_failed' => 'Email uji gagal dikirim. Periksa pengaturan mail.',

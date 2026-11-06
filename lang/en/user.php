@@ -7,7 +7,7 @@ return [
 
     'card' => [
         'title' => 'Users',
-        'description' => 'Manage user accounts and access permissions.',
+        'description' => 'Accounts, roles, and invitations for people who use the application.',
         'create_title' => 'Add user',
         'edit_title' => 'Edit user',
     ],
@@ -41,11 +41,11 @@ return [
     ],
 
     'status' => [
-        'created' => 'User created. The invitation has been queued for email delivery.',
+        'created' => 'User created. An invitation email will be sent.',
         'updated' => 'User updated.',
         'activated' => 'User activated.',
         'disabled' => 'User disabled.',
-        'invitation_queued' => 'The invitation has been queued for email delivery.',
+        'invitation_queued' => 'The invitation email will be sent.',
     ],
 
     'invitation' => [
@@ -55,7 +55,7 @@ return [
         'description' => 'An account has been created by an administrator. Use the following link to set a password.',
         'action' => 'Set password',
         'expires' => 'This link expires in :minutes minutes.',
-        'verification' => 'The email address is automatically verified after the password is set successfully.',
+        'verification' => 'The email address is automatically verified after the password is set.',
         'unavailable' => 'Invitations are only available for active accounts with a pending invitation.',
     ],
 ];
