@@ -154,7 +154,8 @@ return [
             'smtps' => 'TLS (umumnya port 465)',
         ],
         'hint' => [
-            'mailpit' => 'Mailpit lokal menggunakan host lerd-mailpit, port 1025, tanpa enkripsi, dan credentials kosong. Simpan perubahan sebelum mengirim email uji.',
+            'environment' => 'Memakai konfigurasi mail yang diatur di server.',
+            'mailpit' => 'Mailpit lokal menggunakan host lerd-mailpit, port 1025, tanpa enkripsi, dan credentials kosong.',
             'log' => 'Email tidak dikirim. Isinya dicatat di log aplikasi untuk operator.',
             'smtp_password' => 'Kosongkan untuk mempertahankan password tersimpan.',
             'brand' => 'Logo dan warna tombol mengikuti Pengaturan brand.',
@@ -174,6 +175,7 @@ return [
         'test' => [
             'title' => 'Kirim email uji',
             'email' => 'Email penerima',
+            'hint' => 'Simpan perubahan sebelum mengirim email uji.',
             'send' => 'Kirim email uji',
             'subject' => 'Uji pengaturan mail',
             'heading' => 'Uji pengaturan mail',

@@ -139,11 +139,12 @@ function submit(): void {
                 </Field>
             </FieldGroup>
             <p
-                v-if="form.validating"
                 role="status"
-                class="text-sm text-muted-foreground"
+                class="sr-only"
             >
-                {{ t('common.status.validating') }}
+                <template v-if="form.validating">
+                    {{ t('common.status.validating') }}
+                </template>
             </p>
             <div
                 v-if="canManage"

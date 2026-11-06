@@ -30,7 +30,7 @@ import type {
     UpdateMailSettingsForm,
 } from '@/types';
 
-const props = defineProps<{ settings: MailSettings }>();
+const props = defineProps<{ settings: MailSettings; isLocal: boolean }>();
 
 const { t } = useTranslations();
 
@@ -124,7 +124,12 @@ watchEffect(() => {
                                 </option>
                             </select>
                             <FieldError :errors="[form.errors.mailer]" />
-                            <FieldDescription v-if="form.mailer === 'log'">
+                            <FieldDescription
+                                v-if="form.mailer === 'environment'"
+                            >
+                                {{ t('settings.mail.hint.environment') }}
+                            </FieldDescription>
+                            <FieldDescription v-else-if="form.mailer === 'log'">
                                 {{ t('settings.mail.hint.log') }}
                             </FieldDescription>
                         </Field>
@@ -145,7 +150,9 @@ watchEffect(() => {
                                 />
                                 <FieldError :errors="[form.errors.smtp_host]" />
                                 <FieldDescription
-                                    v-if="form.smtp_scheme === 'none'"
+                                    v-if="
+                                        isLocal && form.smtp_scheme === 'none'
+                                    "
                                 >
                                     {{ t('settings.mail.hint.mailpit') }}
                                 </FieldDescription>
@@ -328,11 +335,12 @@ watchEffect(() => {
                 </section>
 
                 <p
-                    v-if="form.validating"
                     role="status"
-                    class="text-sm text-muted-foreground"
+                    class="sr-only"
                 >
-                    {{ t('common.status.validating') }}
+                    <template v-if="form.validating">
+                        {{ t('common.status.validating') }}
+                    </template>
                 </p>
                 <div
                     v-if="canManage"
@@ -391,6 +399,9 @@ watchEffect(() => {
                             <FieldError
                                 :errors="[testForm.errors.test_email]"
                             />
+                            <FieldDescription>
+                                {{ t('settings.mail.test.hint') }}
+                            </FieldDescription>
                         </Field>
                         <Button
                             type="submit"
