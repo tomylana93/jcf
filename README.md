@@ -88,6 +88,12 @@ composer test:ci   # faster gate used by CI
 
 To publish releases from a derived repository, configure a GitHub App (`RELEASE_APP_ID`, `RELEASE_APP_PRIVATE_KEY`) and set `RELEASE_ENABLED=true`.
 
+## Support JCF
+
+If JCF helps you build your applications, you can support its maintenance and development through [GitHub Sponsors](https://github.com/sponsors/tomylana93) or [Trakteer](https://trakteer.id/tomylana93).
+
+Support is voluntary. JCF remains freely available under the MIT license.
+
 ## License
 
 [MIT](LICENSE) © 2026 tomylana93
