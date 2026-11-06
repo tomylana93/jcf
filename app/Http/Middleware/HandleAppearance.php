@@ -9,8 +9,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Shares the theme preference with the root views; the cookie is unencrypted, so only known values reach the inline script.
+ */
 final class HandleAppearance
 {
+    /** @var list<string> */
+    private const array APPEARANCES = ['light', 'dark', 'system'];
+
     /**
      * Handle an incoming request.
      *
@@ -18,7 +24,9 @@ final class HandleAppearance
      */
     public function handle(Request $request, Closure $next): Response
     {
-        View::share('appearance', $request->cookie('appearance') ?? 'system');
+        $appearance = $request->cookie('appearance');
+
+        View::share('appearance', in_array($appearance, self::APPEARANCES, true) ? $appearance : 'system');
 
         return $next($request);
     }
