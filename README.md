@@ -86,7 +86,9 @@ composer test      # full gate: audits, builds, lint, types, coverage, browser t
 composer test:ci   # faster gate used by CI
 ```
 
-To publish releases from a derived repository, configure a GitHub App (`RELEASE_APP_ID`, `RELEASE_APP_PRIVATE_KEY`) and set `RELEASE_ENABLED=true`.
+Derived private repositories on GitHub Free run CI without branch protection or rulesets; check the CI result before merging. JCF's hosted branch protection settings apply only to `tomylana93/jcf`.
+
+To publish releases from a derived repository, configure a GitHub App (`RELEASE_APP_CLIENT_ID`, `RELEASE_APP_PRIVATE_KEY`) and set `RELEASE_ENABLED=true`.
 
 ## Support JCF
 

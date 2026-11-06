@@ -3,23 +3,23 @@
 
 ## Summary
 
-<!-- Explain the concrete problem and the resulting behavior in one or two sentences. -->
+<!-- Show the smallest useful diff sketch, tree, flow, or example. -->
+<!-- Explain the concrete problem and resulting behavior briefly. -->
 
-## Changes
+## Evidence
 
-<!-- List the meaningful changes and why they matter. Keep detail proportional to the scope. -->
+<!-- Record actual before/after evidence, commands and results. -->
+<!-- Include screenshots when useful; state checks not run and why. -->
 
-## Validation
-
-<!-- List actual commands and results, manual checks, and checks not run with reasons. -->
-<!-- Include screenshots for visual changes when available. -->
-
-- [ ] Relevant checks and `composer test` pass.
+- [ ] Relevant checks pass on the latest head; checks not run or not applicable are explained above.
 - [ ] `tests / CI` passes on the latest PR head; review feedback is resolved.
 
-## Risks and rollout
+## Merge Danger
 
-<!-- Describe breaking changes, migrations, compatibility concerns, and rollback steps when applicable. Otherwise write None. -->
+**Door:** <!-- one-way or two-way -->
+**Blast Radius:** <!-- affected area -->
+
+<!-- Describe rollout, migrations, compatibility, and rollback when relevant. -->
 
 ## Merge completion
 
