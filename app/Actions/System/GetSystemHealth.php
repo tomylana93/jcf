@@ -6,8 +6,10 @@ namespace App\Actions\System;
 
 use App\Enums\HealthDetail;
 use App\Enums\Mailer;
+use App\Jobs\SystemHeartbeat;
 use App\Settings\MailSettings;
 use App\Support\Contracts\HealthCheck;
+use App\Support\Contracts\MonitoredQueue;
 use Closure;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -17,8 +19,11 @@ use Throwable;
 
 final readonly class GetSystemHealth
 {
-    /** @param iterable<HealthCheck> $contributedChecks */
-    public function __construct(private MailSettings $mailSettings, private iterable $contributedChecks = []) {}
+    /**
+     * @param  iterable<HealthCheck>  $contributedChecks
+     * @param  iterable<MonitoredQueue>  $monitoredQueues
+     */
+    public function __construct(private MailSettings $mailSettings, private iterable $contributedChecks = [], private iterable $monitoredQueues = []) {}
 
     /** @return list<array{name: string, status: string, detail: string}> */
     public function handle(): array
@@ -53,13 +58,7 @@ final readonly class GetSystemHealth
                     Cache::forget($key);
                 }
             }),
-            $this->check('queue', function (): HealthDetail {
-                if (config('queue.connections.'.config('queue.default').'.driver') === 'sync') {
-                    return HealthDetail::Synchronous;
-                }
-
-                return $this->heartbeat('system.queue_heartbeat', HealthDetail::StaleQueue);
-            }),
+            ...$this->queueChecks(),
             $this->check('scheduler', fn (): HealthDetail => $this->heartbeat('system.scheduler_heartbeat', HealthDetail::StaleScheduler)),
             $this->check('mail', function (): HealthDetail {
                 $mailer = config('mail.default');
@@ -94,6 +93,33 @@ final readonly class GetSystemHealth
         }
 
         return ['name' => $name, 'status' => $detail->status(), 'detail' => $detail->value];
+    }
+
+    /**
+     * One heartbeat check per queue a worker is expected on; queues of disabled features are omitted rather than reported stale, and an undeterminable feature state reports the queue unavailable.
+     *
+     * @return list<array{name: string, status: string, detail: string}>
+     */
+    private function queueChecks(): array
+    {
+        $checks = [];
+        foreach ($this->monitoredQueues as $queue) {
+            try {
+                if (! $queue->monitored()) {
+                    continue;
+                }
+            } catch (Throwable) {
+                $checks[] = $this->check($queue->name(), static fn (): HealthDetail => HealthDetail::Unavailable);
+
+                continue;
+            }
+
+            $checks[] = $this->check($queue->name(), fn (): HealthDetail => config('queue.connections.'.$queue->connection().'.driver') === 'sync'
+                ? HealthDetail::Synchronous
+                : $this->heartbeat(SystemHeartbeat::cacheKey($queue->name()), HealthDetail::StaleQueue));
+        }
+
+        return $checks;
     }
 
     private function heartbeat(string $key, HealthDetail $stale): HealthDetail

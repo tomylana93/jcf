@@ -8,7 +8,9 @@ use App\Actions\Operations\Backup\CheckBackupHealth;
 use App\Actions\Operations\Backup\IsBackupConfigured;
 use App\Enums\Module;
 use App\Support\Contracts\HealthCheck;
+use App\Support\Contracts\MonitoredQueue;
 use App\Support\FeatureManager;
+use App\Support\Queues\BackupQueue;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\ServiceProvider;
 
@@ -20,6 +22,7 @@ final class BackupModuleServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->tag(CheckBackupHealth::class, HealthCheck::class);
+        $this->app->tag(BackupQueue::class, MonitoredQueue::class);
     }
 
     public function boot(): void
