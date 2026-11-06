@@ -58,7 +58,7 @@ watchEffect(() => {
 
     <PageContainer
         :title="client.name"
-        :description="client.description ?? t('api_client.card.description')"
+        :description="client.description ?? undefined"
     >
         <div class="flex max-w-2xl flex-col gap-10">
             <div class="flex flex-wrap items-center gap-3">

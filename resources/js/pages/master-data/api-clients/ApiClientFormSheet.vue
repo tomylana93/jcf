@@ -23,7 +23,6 @@ import {
 import {
     Sheet,
     SheetContent,
-    SheetDescription,
     SheetFooter,
     SheetHeader,
     SheetTitle,
@@ -81,7 +80,10 @@ function submit(): void {
         :open="open"
         @update:open="emit('update:open', $event)"
     >
-        <SheetContent class="overflow-y-auto sm:max-w-lg">
+        <SheetContent
+            class="overflow-y-auto sm:max-w-lg"
+            :aria-describedby="undefined"
+        >
             <form
                 novalidate
                 class="flex min-h-full flex-col gap-2"
@@ -95,9 +97,6 @@ function submit(): void {
                                 : t('api_client.card.create_title')
                         }}
                     </SheetTitle>
-                    <SheetDescription>
-                        {{ t('api_client.card.description') }}
-                    </SheetDescription>
                 </SheetHeader>
                 <FieldGroup class="flex-1 px-4 py-6">
                     <Field :data-invalid="!!form.errors.name">

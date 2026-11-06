@@ -39,7 +39,6 @@ import {
 import {
     Sheet,
     SheetContent,
-    SheetDescription,
     SheetFooter,
     SheetHeader,
     SheetTitle,
@@ -116,7 +115,10 @@ function submit(): void {
         :open="open"
         @update:open="emit('update:open', $event)"
     >
-        <SheetContent class="overflow-y-auto sm:max-w-lg">
+        <SheetContent
+            class="overflow-y-auto sm:max-w-lg"
+            :aria-describedby="undefined"
+        >
             <div
                 v-if="user?.invitation_pending && user.status === 'active'"
                 class="mt-8 flex flex-col gap-2 px-4"
@@ -147,9 +149,6 @@ function submit(): void {
                                 : t('user.card.create_title')
                         }}
                     </SheetTitle>
-                    <SheetDescription>
-                        {{ t('user.card.description') }}
-                    </SheetDescription>
                 </SheetHeader>
                 <FieldGroup class="flex-1 px-4 py-6">
                     <Field :data-invalid="!!form.errors.name">
