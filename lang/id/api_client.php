@@ -12,6 +12,7 @@ return [
         'edit_title' => 'Ubah klien API',
         'tokens' => 'Token klien',
         'tokens_description' => 'Token yang diterbitkan untuk klien ini. Setiap token hanya ditampilkan sekali saat dibuat.',
+        'tokens_list' => 'Token aktif',
     ],
 
     'label' => [
@@ -29,6 +30,10 @@ return [
 
     'helper' => [
         'disabled' => 'Request dari klien yang dinonaktifkan ditolak. Token tetap disimpan dan berlaku lagi setelah klien diaktifkan.',
+    ],
+
+    'button' => [
+        'edit' => 'Ubah',
     ],
 
     'status' => [

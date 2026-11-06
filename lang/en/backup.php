@@ -56,6 +56,7 @@ return [
         'restore_failed' => 'Restore failed. Contact the system operator to check logs and recover from maintenance mode.',
     ],
     'dialog' => [
+        'upload' => 'Upload backup',
         'delete' => 'Delete backup',
         'restore' => 'Restore active application',
     ],

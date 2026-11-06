@@ -230,7 +230,7 @@ usePoll(15000, { only: ['backups', 'backupStatus', 'restoreStatus'] });
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>
-                        {{ t('backup.button.upload') }}
+                        {{ t('backup.dialog.upload') }}
                     </DialogTitle>
                     <DialogDescription>
                         {{ t('backup.helper.upload') }}

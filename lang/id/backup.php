@@ -56,6 +56,7 @@ return [
         'restore_failed' => 'Restore gagal. Hubungi pengelola sistem untuk memeriksa log dan memulihkan maintenance mode.',
     ],
     'dialog' => [
+        'upload' => 'Upload backup',
         'delete' => 'Hapus backup',
         'restore' => 'Restore aplikasi aktif',
     ],

@@ -45,6 +45,17 @@ return [
         'updated' => 'Permission pengguna diperbarui.',
     ],
 
+    'group' => [
+        'chat' => 'Chat',
+        'system' => 'Kesehatan sistem',
+        'backups' => 'Backup',
+        'audit' => 'Audit log',
+        'settings' => 'Pengaturan',
+        'users' => 'Pengguna',
+        'documentation' => 'Dokumentasi',
+        'api_clients' => 'Klien API',
+    ],
+
     'error' => [
         'module_disabled' => 'Permission ini berasal dari modul yang sedang dinonaktifkan.',
     ],

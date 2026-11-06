@@ -45,6 +45,17 @@ return [
         'updated' => 'User permissions updated.',
     ],
 
+    'group' => [
+        'chat' => 'Chat',
+        'system' => 'System health',
+        'backups' => 'Backups',
+        'audit' => 'Audit log',
+        'settings' => 'Settings',
+        'users' => 'Users',
+        'documentation' => 'Documentation',
+        'api_clients' => 'API clients',
+    ],
+
     'error' => [
         'module_disabled' => 'This permission belongs to a module that is currently disabled.',
     ],

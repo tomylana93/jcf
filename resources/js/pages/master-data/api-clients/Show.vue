@@ -74,7 +74,7 @@ watchEffect(() => {
                     @click="formOpen = true"
                 >
                     <Pencil data-icon="inline-start" />
-                    {{ t('api_client.card.edit_title') }}
+                    {{ t('api_client.button.edit') }}
                 </Button>
             </div>
 
@@ -98,7 +98,7 @@ watchEffect(() => {
             <div class="flex flex-col gap-4">
                 <Heading
                     variant="small"
-                    :title="t('account.api_tokens.card.list')"
+                    :title="t('api_client.card.tokens_list')"
                 />
                 <ApiTokenList
                     :tokens="tokens"

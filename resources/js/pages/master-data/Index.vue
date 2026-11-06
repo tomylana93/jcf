@@ -62,10 +62,10 @@ const cards = computed<NavigationCard[]>(() => [
 </script>
 
 <template>
-    <Head :title="t('navigation.link.master_data')" />
+    <Head :title="t('master_data.title')" />
 
     <PageContainer
-        :title="t('navigation.link.master_data')"
+        :title="t('master_data.title')"
         :description="t('master_data.description')"
     >
         <NavigationCardGrid :cards="cards" />

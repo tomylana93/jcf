@@ -19,6 +19,9 @@ return [
         'before' => 'Before',
         'after' => 'After',
         'system' => 'System',
+        'changed' => 'Changed',
+        'yes' => 'Yes',
+        'no' => 'No',
     ],
 
     'button' => [
