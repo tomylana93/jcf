@@ -34,5 +34,9 @@ return [
         'brand' => 'Brand settings',
         'layout' => 'Layout settings',
         'mail' => 'Mail settings',
+        'chat' => 'Chat module',
+        'documentation' => 'Documentation module',
+        'backup' => 'Backup module',
+        'api' => 'External API module',
     ],
 ];

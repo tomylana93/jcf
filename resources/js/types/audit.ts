@@ -1,3 +1,11 @@
+/** Mirrors App\Actions\Audit\DescribeAuditChanges rows; values are display-ready text. */
+export type AuditChange = {
+    field: string;
+    label: string;
+    before: string | null;
+    after: string | null;
+};
+
 /** Mirrors App\Http\Resources\Audit\AuditLogResource. */
 export type AuditLogRow = {
     id: string;
@@ -5,7 +13,6 @@ export type AuditLogRow = {
     event: string;
     event_label: string;
     subject_label: string;
-    before: Record<string, unknown>;
-    after: Record<string, unknown>;
+    changes: AuditChange[];
     created_at: string;
 };

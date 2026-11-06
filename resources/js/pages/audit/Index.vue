@@ -34,17 +34,6 @@ const { formatDateTime } = useDateTime();
 const selected = ref<AuditLogRow | null>(null);
 const detailOpen = ref(false);
 
-const fields = computed(() =>
-    selected.value
-        ? [
-              ...new Set([
-                  ...Object.keys(selected.value.before),
-                  ...Object.keys(selected.value.after),
-              ]),
-          ]
-        : [],
-);
-
 const columns = computed(() =>
     createColumns({ t, formatDateTime, onDetail: showDetail }),
 );
@@ -63,14 +52,8 @@ function showDetail(log: AuditLogRow): void {
     detailOpen.value = true;
 }
 
-function displayValue(value: unknown): string {
-    if (value === undefined || value === null) {
-        return '—';
-    }
-    if (typeof value === 'string') {
-        return value;
-    }
-    return JSON.stringify(value);
+function displayValue(value: string | null): string {
+    return value ?? '—';
 }
 
 watchEffect(() =>
@@ -129,12 +112,12 @@ watchEffect(() =>
                         </div>
                     </dl>
                     <div
-                        v-for="field in fields"
-                        :key="field"
+                        v-for="change in selected.changes"
+                        :key="change.field"
                         class="space-y-2 rounded-lg border p-3"
                     >
                         <p class="text-sm font-medium wrap-break-word">
-                            {{ field }}
+                            {{ change.label }}
                         </p>
                         <div class="grid gap-3 sm:grid-cols-2">
                             <div>
@@ -143,9 +126,7 @@ watchEffect(() =>
                                 </p>
                                 <pre
                                     class="rounded bg-muted/50 p-2 text-xs wrap-anywhere whitespace-pre-wrap"
-                                    >{{
-                                        displayValue(selected.before[field])
-                                    }}</pre>
+                                    >{{ displayValue(change.before) }}</pre>
                             </div>
                             <div>
                                 <p class="mb-1 text-xs text-muted-foreground">
@@ -153,9 +134,7 @@ watchEffect(() =>
                                 </p>
                                 <pre
                                     class="rounded bg-muted/50 p-2 text-xs wrap-anywhere whitespace-pre-wrap"
-                                    >{{
-                                        displayValue(selected.after[field])
-                                    }}</pre>
+                                    >{{ displayValue(change.after) }}</pre>
                             </div>
                         </div>
                     </div>
