@@ -18,6 +18,7 @@ use App\Http\Requests\Operations\Backup\RestoreBackupRequest;
 use App\Http\Requests\Operations\Backup\UploadBackupRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -28,7 +29,7 @@ final class BackupController extends Controller
     public function index(IndexBackupRequest $request, GetBackupPage $getBackupPage, IsBackupConfigured $isBackupConfigured): Response
     {
         return Inertia::render('master-data/backups/Index', [
-            'backups' => $getBackupPage->handle($request->search(), $request->sort(), $request->perPage(), $request->page()),
+            'backups' => Inertia::defer(fn (): LengthAwarePaginator => $getBackupPage->handle($request->search(), $request->sort(), $request->perPage(), $request->page())),
             'backupConfigured' => $isBackupConfigured->handle(),
             'backupStatus' => BackupOperation::Backup->status(),
             'restoreStatus' => BackupOperation::Restore->status(),

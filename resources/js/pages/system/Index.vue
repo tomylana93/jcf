@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, setLayoutProps, usePoll } from '@inertiajs/vue3';
+import { Deferred, Head, setLayoutProps, usePoll } from '@inertiajs/vue3';
 import { watchEffect } from 'vue';
 
 import PageContainer from '@/components/layout/PageContainer.vue';
@@ -11,6 +11,7 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslations } from '@/composables/useTranslations';
 import { index } from '@/routes/system';
 import type { SystemPageProps } from '@/types';
@@ -41,28 +42,50 @@ usePoll(15000, { only: ['checks'] });
         :title="t('system.title')"
         :description="t('system.card.description')"
     >
-        <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            <Card
-                v-for="check in checks"
-                :key="check.name"
-                class="gap-3 shadow-none"
-            >
-                <CardHeader>
-                    <CardTitle class="font-medium">
-                        {{ t(`system.check.${check.name}`) }}
-                    </CardTitle>
-                    <CardAction>
-                        <StatusBadge
-                            :tone="statusTones[check.status]"
-                            :label="t(`system.health.${check.status}`)"
-                        />
-                    </CardAction>
-                </CardHeader>
-                <CardContent class="text-sm text-muted-foreground">
-                    {{ t(`system.detail.${check.detail}`) }}
-                </CardContent>
-            </Card>
-        </div>
+        <Deferred data="checks">
+            <template #fallback>
+                <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                    <Card
+                        v-for="placeholder in 7"
+                        :key="placeholder"
+                        class="gap-3 shadow-none"
+                    >
+                        <CardHeader>
+                            <Skeleton class="h-5 w-32" />
+                            <CardAction>
+                                <Skeleton class="h-5 w-16 rounded-full" />
+                            </CardAction>
+                        </CardHeader>
+                        <CardContent>
+                            <Skeleton class="h-4 w-full" />
+                        </CardContent>
+                    </Card>
+                </div>
+            </template>
+
+            <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                <Card
+                    v-for="check in checks"
+                    :key="check.name"
+                    class="gap-3 shadow-none"
+                >
+                    <CardHeader>
+                        <CardTitle class="font-medium">
+                            {{ t(`system.check.${check.name}`) }}
+                        </CardTitle>
+                        <CardAction>
+                            <StatusBadge
+                                :tone="statusTones[check.status]"
+                                :label="t(`system.health.${check.status}`)"
+                            />
+                        </CardAction>
+                    </CardHeader>
+                    <CardContent class="text-sm text-muted-foreground">
+                        {{ t(`system.detail.${check.detail}`) }}
+                    </CardContent>
+                </Card>
+            </div>
+        </Deferred>
         <p class="text-sm text-muted-foreground">
             {{ t('system.helper.mail') }}
         </p>

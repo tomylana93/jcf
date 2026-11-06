@@ -146,9 +146,9 @@ describe('Backup management', function (): void {
         }
         $user = User::factory()->create();
         $user->syncRoles(Role::SuperAdmin);
-        actingAs($user)->get(route('master-data.backups.index', ['sort' => '-size', 'page' => 2, 'per_page' => 10]))->assertInertia(fn (Assert $page) => $page->where('backups.total', 12)->has('backups.data', 2)->where('backups.data.0.filename', 'archive-02.zip'));
+        actingAs($user)->get(route('master-data.backups.index', ['sort' => '-size', 'page' => 2, 'per_page' => 10]))->assertInertia(fn (Assert $page) => $page->loadDeferredProps(fn (Assert $reload) => $reload->where('backups.total', 12)->has('backups.data', 2)->where('backups.data.0.filename', 'archive-02.zip')));
 
-        get(route('master-data.backups.index', ['filter' => ['search' => 'ARCHIVE-12'], 'sort' => 'filename']))->assertInertia(fn (Assert $page) => $page->where('backups.total', 1)->where('backups.data.0.filename', 'archive-12.zip'));
+        get(route('master-data.backups.index', ['filter' => ['search' => 'ARCHIVE-12'], 'sort' => 'filename']))->assertInertia(fn (Assert $page) => $page->reloadOnly(['backups', 'backupStatus', 'restoreStatus'], fn (Assert $reload) => $reload->where('backups.total', 1)->where('backups.data.0.filename', 'archive-12.zip')->has('backupStatus')));
         get(route('master-data.backups.index', ['sort' => 'untrusted']))->assertSessionHasErrors('sort');
     });
     it('requires password confirmation before uploading or restoring', function (): void {

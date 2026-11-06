@@ -13,8 +13,9 @@ export type BackupArchive = {
     size: number;
     created_at: string;
 };
+/** `backups` is a deferred prop and stays undefined until the follow-up request resolves. */
 export type BackupPageProps = {
-    backups: TablePaginator<BackupArchive>;
+    backups?: TablePaginator<BackupArchive>;
     backupConfigured: boolean;
     backupStatus: OperationStatus;
     restoreStatus: OperationStatus;
