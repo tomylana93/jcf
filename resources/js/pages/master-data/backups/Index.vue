@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import { Head, setLayoutProps, useForm, usePoll } from '@inertiajs/vue3';
+import {
+    Deferred,
+    Head,
+    setLayoutProps,
+    useForm,
+    usePoll,
+} from '@inertiajs/vue3';
 import { Plus, Upload } from '@lucide/vue';
 import { computed, ref, watchEffect } from 'vue';
 
@@ -193,16 +199,33 @@ usePoll(15000, { only: ['backups', 'backupStatus', 'restoreStatus'] });
             {{ t('backup.error.restore_failed') }}
         </p>
         <FieldError :errors="Object.values(createForm.errors)" />
-        <DataTable
-            :url="index.url()"
-            data-key="backups"
-            :columns="columns"
-            :actions="actions"
-            :rows="backups.data"
-            :row-count="backups.total"
-            :current-page="backups.current_page"
-            :page-size="backups.per_page"
-        />
+        <Deferred data="backups">
+            <template #fallback>
+                <DataTable
+                    :url="index.url()"
+                    data-key="backups"
+                    :columns="columns"
+                    :actions="actions"
+                    :rows="[]"
+                    :row-count="0"
+                    :current-page="1"
+                    :page-size="10"
+                    loading
+                />
+            </template>
+
+            <DataTable
+                v-if="backups"
+                :url="index.url()"
+                data-key="backups"
+                :columns="columns"
+                :actions="actions"
+                :rows="backups.data"
+                :row-count="backups.total"
+                :current-page="backups.current_page"
+                :page-size="backups.per_page"
+            />
+        </Deferred>
         <Dialog v-model:open="uploadOpen">
             <DialogContent>
                 <DialogHeader>

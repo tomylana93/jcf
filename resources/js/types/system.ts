@@ -24,4 +24,5 @@ export type SystemHealthCheck = {
     status: HealthStatus;
     detail: HealthDetail;
 };
-export type SystemPageProps = { checks: SystemHealthCheck[] };
+/** `checks` is a deferred prop and stays undefined until the follow-up request resolves. */
+export type SystemPageProps = { checks?: SystemHealthCheck[] };

@@ -66,7 +66,15 @@ describe('System operations authorization', function (): void {
         assignRolePermissions($user, Permission::ViewSystem);
         Cache::put('system.backup_status', 'failed');
         actingAs($user)->get(route('system.index'))->assertInertia(fn (Assert $page) => $page
-            ->component('system/Index')->has('checks', 7)->missing('backups')->missing('backupStatus'));
+            ->component('system/Index')->missing('checks')->missing('backups')->missing('backupStatus')
+            ->loadDeferredProps(fn (Assert $reload) => $reload->has('checks', 7)->missing('backups')->missing('backupStatus')));
+    });
+    it('resolves deferred health checks on a partial reload used by polling', function (): void {
+        $user = User::factory()->create();
+        assignRolePermissions($user, Permission::ViewSystem);
+
+        actingAs($user)->get(route('system.index'))->assertInertia(fn (Assert $page) => $page
+            ->reloadOnly('checks', fn (Assert $reload) => $reload->has('checks', 7)));
     });
     it('lists valid archives and requires confirmation before downloading', function (): void {
         $disk = Storage::fake('backups');
@@ -75,7 +83,8 @@ describe('System operations authorization', function (): void {
         $user = User::factory()->create();
         $user->syncRoles(Role::SuperAdmin);
         actingAs($user)->get(route('master-data.backups.index'))->assertInertia(fn (Assert $page) => $page
-            ->component('master-data/backups/Index')->has('backups.data', 1)->where('backups.data.0.filename', '2026-10-06.zip')->where('backups.data.0.size', 7));
+            ->component('master-data/backups/Index')->missing('backups')->has('backupStatus')->has('restoreStatus')
+            ->loadDeferredProps(fn (Assert $reload) => $reload->has('backups.data', 1)->where('backups.data.0.filename', '2026-10-06.zip')->where('backups.data.0.size', 7)));
 
         get(route('master-data.backups.download', '2026-10-06.zip'))->assertRedirect(route('password.confirm'));
 

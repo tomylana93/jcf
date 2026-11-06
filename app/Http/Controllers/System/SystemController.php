@@ -17,6 +17,6 @@ final class SystemController extends Controller
     {
         Gate::authorize(Permission::ViewSystem);
 
-        return Inertia::render('system/Index', ['checks' => $getSystemHealth->handle()]);
+        return Inertia::render('system/Index', ['checks' => Inertia::defer(fn (): array => $getSystemHealth->handle())]);
     }
 }
