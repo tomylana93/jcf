@@ -35,6 +35,9 @@ describe('API client management browser flows', function (): void {
             ->click(__('table.button.view'))
             ->assertPathIs(route('master-data.api-clients.show', $client, absolute: false))
             ->assertSee(__('api_client.card.tokens_list'))
+            ->assertScript('() => document.querySelector("h1").parentElement.parentElement === document.querySelector("[data-test=edit-api-client]").parentElement.parentElement')
+            ->click('@edit-api-client')
+            ->assertSee(__('api_client.card.edit_title'))
             ->assertNoJavaScriptErrors();
 
         expect($client->fresh())->name->toBe('Renamed partner')->status->toBe(ApiClientStatus::Disabled);

@@ -60,22 +60,26 @@ watchEffect(() => {
         :title="client.name"
         :description="client.description ?? undefined"
     >
+        <template
+            v-if="canManage"
+            #actions
+        >
+            <Button
+                variant="outline"
+                data-test="edit-api-client"
+                @click="formOpen = true"
+            >
+                <Pencil data-icon="inline-start" />
+                {{ t('api_client.button.edit') }}
+            </Button>
+        </template>
+
         <div class="flex flex-col gap-10">
             <div class="flex flex-wrap items-center gap-3">
                 <StatusBadge
                     :tone="apiClientStatusTones[client.status]"
                     :label="client.status_label"
                 />
-                <Button
-                    v-if="canManage"
-                    variant="outline"
-                    size="sm"
-                    data-test="edit-api-client"
-                    @click="formOpen = true"
-                >
-                    <Pencil data-icon="inline-start" />
-                    {{ t('api_client.button.edit') }}
-                </Button>
             </div>
 
             <div
