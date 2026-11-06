@@ -54,6 +54,7 @@ export type UpdateProfileForm = {
     name: string;
     email: string;
     timezone: string;
+    current_password: string;
 };
 
 export type UploadAvatarForm = {

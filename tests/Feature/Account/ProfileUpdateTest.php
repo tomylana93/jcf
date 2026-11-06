@@ -5,6 +5,9 @@ declare(strict_types=1);
 use App\Enums\Role;
 use App\Enums\UserStatus;
 use App\Models\User;
+use App\Notifications\Account\EmailAddressChanged;
+use Illuminate\Notifications\AnonymousNotifiable;
+use Illuminate\Support\Facades\Notification;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\assertGuest;
@@ -24,15 +27,16 @@ describe('Profile settings', function (): void {
         $response->assertOk();
     });
 
-    it('updates profile information and clears email verification', function (): void {
-        $user = User::factory()->create();
+    it('updates profile information, clears email verification and warns the previous address', function (): void {
+        Notification::fake();
+        $user = User::factory()->create(['email' => 'previous@example.com']);
 
         actingAs($user);
 
         $response = patch(route('profile.update'), [
             'name' => 'Test User',
             'email' => 'test@example.com',
-
+            'current_password' => 'password',
         ]);
 
         $response
@@ -44,9 +48,35 @@ describe('Profile settings', function (): void {
         expect($user->name)->toBe('Test User')
             ->and($user->email)->toBe('test@example.com')
             ->and($user->email_verified_at)->toBeNull();
+        Notification::assertSentOnDemand(EmailAddressChanged::class, fn (EmailAddressChanged $notification, array $channels, AnonymousNotifiable $notifiable): bool => $notifiable->routes['mail'] === 'previous@example.com'
+            && $notification->accountName === 'Test User');
     });
 
-    it('preserves verification when the email address is unchanged', function (): void {
+    it('requires the current password to change the email address', function (?string $password): void {
+        Notification::fake();
+        $user = User::factory()->create(['email' => 'previous@example.com']);
+
+        actingAs($user);
+
+        patch(route('profile.update'), array_filter([
+            'name' => $user->name,
+            'email' => 'attacker@example.com',
+            'current_password' => $password,
+        ]))->assertSessionHasErrors('current_password');
+
+        expect($user->refresh()->email)->toBe('previous@example.com');
+        Notification::assertNothingSent();
+    })->with(['missing' => [null], 'incorrect' => ['wrong-password']]);
+
+    it('escapes the account name in the email change notice', function (): void {
+        $mail = new EmailAddressChanged("O'Reilly <script>alert('xss')</script>")->toMail(new AnonymousNotifiable)->render();
+
+        expect((string) $mail)->toContain('&lt;script&gt;')
+            ->not->toContain("<script>alert('xss')</script>");
+    });
+
+    it('preserves verification without a password when the email address is unchanged', function (): void {
+        Notification::fake();
         $user = User::factory()->create();
 
         actingAs($user);
@@ -62,6 +92,7 @@ describe('Profile settings', function (): void {
             ->assertRedirect(route('profile.edit'));
 
         expect($user->refresh()->email_verified_at)->not->toBeNull();
+        Notification::assertNothingSent();
     });
 
     it('disables the account while retaining its data', function (): void {

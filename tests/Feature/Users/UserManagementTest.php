@@ -7,8 +7,11 @@ use App\Enums\Role as SystemRole;
 use App\Enums\UserStatus;
 use App\Models\Role;
 use App\Models\User;
+use App\Notifications\Account\EmailAddressChanged;
+use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Password;
 use Inertia\Testing\AssertableInertia as Assert;
 
@@ -199,6 +202,7 @@ describe('User management', function (): void {
     })->with(['superadmin', 'missing', 'api-editor']);
 
     it('updates users and removes the old verification and reset token when email changes', function (): void {
+        Notification::fake();
         $actor = User::factory()->create();
         assignRolePermissions($actor, Permission::ManageUsers);
         $target = User::factory()->create();
@@ -216,6 +220,7 @@ describe('User management', function (): void {
             ->and($target->getRoleNames()->all())->toBe(['editor'])
             ->and(Hash::check('password', $target->password))->toBeTrue();
         assertDatabaseMissing('password_reset_tokens', ['email' => $oldEmail]);
+        Notification::assertSentOnDemand(EmailAddressChanged::class, fn (EmailAddressChanged $notification, array $channels, AnonymousNotifiable $notifiable): bool => $notifiable->routes['mail'] === $oldEmail);
 
         patch(route('master-data.users.update', $target), [
             'name' => 'Changed again', 'email' => $target->email, 'status' => 'active', 'role' => null,

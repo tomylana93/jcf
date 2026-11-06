@@ -41,7 +41,7 @@ final class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request, UpdateProfile $updateProfile): RedirectResponse
     {
-        $updateProfile->handle($request->user(), $request->validated());
+        $updateProfile->handle($request->user(), $request->profile());
 
         $this->toastSuccess(__('account.profile.status.updated'));
 
