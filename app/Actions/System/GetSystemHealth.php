@@ -81,6 +81,8 @@ final readonly class GetSystemHealth
     }
 
     /**
+     * Probe failures are reported for operators while the returned detail stays generic.
+     *
      * @param  Closure(): HealthDetail  $probe
      * @return array{name: string, status: string, detail: string}
      */
@@ -88,7 +90,8 @@ final readonly class GetSystemHealth
     {
         try {
             $detail = $probe();
-        } catch (Throwable) {
+        } catch (Throwable $exception) {
+            report($exception);
             $detail = HealthDetail::Unavailable;
         }
 
