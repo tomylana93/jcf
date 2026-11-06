@@ -18,6 +18,7 @@ use function Pest\Laravel\artisan;
 use function Pest\Laravel\get;
 use function Pest\Laravel\patch;
 use function Pest\Laravel\post;
+use function Pest\Laravel\put;
 use function Pest\Laravel\travel;
 
 describe('Account avatar', function (): void {
@@ -196,4 +197,16 @@ describe('Account avatar', function (): void {
             ->and(Storage::disk('public')->allFiles())->toHaveCount(3);
     });
 
+});
+
+describe('Private storage exposure', function (): void {
+    it('serves pending avatars only through the owner preview route', function (): void {
+        $owner = User::factory()->create();
+        actingAs($owner)->post(route('profile.avatar.upload'), ['avatar' => UploadedFile::fake()->image('avatar.png', 600, 600)])->assertRedirect();
+        $media = $owner->media()->where('collection_name', 'avatar_pending')->sole();
+
+        get('/storage/'.$media->getPathRelativeToRoot())->assertNotFound();
+        put('/storage/'.$media->getPathRelativeToRoot())->assertNotFound();
+        get(route('profile.avatar.preview', $media->uuid))->assertOk();
+    });
 });
