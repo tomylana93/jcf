@@ -10,7 +10,7 @@ return [
     ],
 
     'helper' => [
-        'mail' => 'Pemeriksaan email hanya memvalidasi konfigurasi. Gunakan pengiriman email uji pada pengaturan mail untuk memverifikasi pengiriman.',
+        'mail' => 'Hanya memeriksa konfigurasi. Kirim email uji dari Pengaturan mail untuk memverifikasi pengiriman.',
     ],
 
     'check' => [

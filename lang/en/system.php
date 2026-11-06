@@ -10,7 +10,7 @@ return [
     ],
 
     'helper' => [
-        'mail' => 'Email checks validate configuration only. Use the test email action in mail settings to verify delivery.',
+        'mail' => 'Configuration only. Send a test email from Mail settings to verify delivery.',
     ],
 
     'check' => [
