@@ -1,6 +1,7 @@
 import { Link } from '@inertiajs/vue3';
 import { h } from 'vue';
 
+import { DataTableActions } from '@/components/datatable';
 import type { DataTableColumnDef } from '@/components/datatable';
 import StatusBadge from '@/components/shared/StatusBadge.vue';
 import { show } from '@/routes/master-data/api-clients';
@@ -18,7 +19,14 @@ export const apiClientStatusTones = {
 export function createColumns({
     t,
     formatDateTime,
-}: DataTableColumnContext): DataTableColumnDef<ApiClientRow>[] {
+    canManage,
+    onEdit,
+    onChangeStatus,
+}: DataTableColumnContext & {
+    canManage: boolean;
+    onEdit: (client: ApiClientRow) => void;
+    onChangeStatus: (client: ApiClientRow) => void;
+}): DataTableColumnDef<ApiClientRow>[] {
     return [
         {
             accessorKey: 'name',
@@ -68,5 +76,22 @@ export function createColumns({
             enableSorting: true,
             cell: ({ row }) => formatDateTime(row.original.created_at),
         },
+        ...(canManage
+            ? [
+                  {
+                      id: 'actions',
+                      exportable: false,
+                      enableHiding: false,
+                      cell: ({ row }: { row: { original: ApiClientRow } }) =>
+                          h(DataTableActions, {
+                              recordName: row.original.name,
+                              active: row.original.status === 'active',
+                              onEdit: () => onEdit(row.original),
+                              onChangeStatus: () =>
+                                  onChangeStatus(row.original),
+                          }),
+                  },
+              ]
+            : []),
     ];
 }
