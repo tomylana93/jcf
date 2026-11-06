@@ -98,7 +98,7 @@ USER www-data
 EXPOSE 9000
 CMD ["php-fpm"]
 
-FROM docker.io/library/nginx:1.30.5-alpine AS web
+FROM docker.io/library/nginx:1.30.6-alpine AS web
 ENV PHP_FPM_ADDRESS=app:9000 \
     NGINX_CLIENT_MAX_BODY_SIZE=110m
 COPY <<"EOF" /etc/nginx/templates/default.conf.template
