@@ -17,9 +17,13 @@ import {
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import {
-    NativeSelect,
-    NativeSelectOption,
-} from '@/components/ui/native-select';
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import {
     Sheet,
     SheetContent,
@@ -139,19 +143,26 @@ function submit(): void {
                         <FieldLabel for="api-client-status">
                             {{ t('api_client.label.status') }}
                         </FieldLabel>
-                        <NativeSelect
-                            id="api-client-status"
-                            v-model="form.status"
-                            :aria-invalid="!!form.errors.status"
-                        >
-                            <NativeSelectOption
-                                v-for="status in statuses"
-                                :key="status.value"
-                                :value="status.value"
+                        <Select v-model="form.status">
+                            <SelectTrigger
+                                id="api-client-status"
+                                class="w-full"
+                                :aria-invalid="!!form.errors.status"
                             >
-                                {{ status.label }}
-                            </NativeSelectOption>
-                        </NativeSelect>
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                    <SelectItem
+                                        v-for="status in statuses"
+                                        :key="status.value"
+                                        :value="status.value"
+                                    >
+                                        {{ status.label }}
+                                    </SelectItem>
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
                         <FieldDescription>
                             {{ t('api_client.helper.disabled') }}
                         </FieldDescription>
