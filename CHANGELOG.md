@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2](https://github.com/tomylana93/jcf/compare/v1.1.1...v1.1.2) (2026-11-06)
+
+
+### Continuous Integration
+
+* **actions:** cache playwright system packages ([#80](https://github.com/tomylana93/jcf/issues/80)) ([1c27708](https://github.com/tomylana93/jcf/commit/1c27708240d6625430de2286b2414598505a0212))
+
 ## [1.1.1](https://github.com/tomylana93/jcf/compare/v1.1.0...v1.1.1) (2026-11-06)
 
 
