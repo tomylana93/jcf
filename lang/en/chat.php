@@ -45,7 +45,7 @@ return [
         'empty_history' => 'No messages yet.',
         'select' => 'Select a conversation to read and send messages.',
         'no_recipients' => 'No available recipients found.',
-        'saved' => 'Sent',
+        'sent' => 'Sent',
         'sending' => 'Sending…',
         'read' => 'Read',
         'typing' => ':name is typing…',

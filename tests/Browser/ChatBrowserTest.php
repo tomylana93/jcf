@@ -43,7 +43,7 @@ describe('Chat browser', function (): void {
         assertDatabaseCount('chat_messages', 0);
         $page->script('() => document.querySelector("#chat-body").dispatchEvent(new CompositionEvent("compositionend", { bubbles: true }))');
         $page->fill('#chat-body', 'First line')->keys('#chat-body', 'Shift+Enter')->assertValue('#chat-body', "First line\n")->fill('#chat-body', "First line\nSecond line")->keys('#chat-body', 'Enter')
-            ->assertSee(__('chat.status.saved'))->assertValue('#chat-body', '')->assertNoJavaScriptErrors();
+            ->assertSee(__('chat.status.sent'))->assertValue('#chat-body', '')->assertNoJavaScriptErrors();
         expect(ChatMessage::query()->sole()->body)->toBe("First line\nSecond line");
         $page->navigate(route('chat.index'))->click('button[aria-pressed]:has-text("Chat Recipient")')->assertSee('Second line')
             ->resize(390, 844)->assertVisible('#chat-body')->assertScript('() => document.documentElement.scrollWidth <= innerWidth')
@@ -81,7 +81,7 @@ describe('Chat browser', function (): void {
         JS_WRAP);
         $page->fill('#chat-body', 'Retry once')->keys('#chat-body', 'Enter')->assertSee(__('chat.error.send'));
         assertDatabaseCount('chat_messages', 1);
-        $page->click(__('chat.button.retry'))->assertSee(__('chat.status.saved'))->assertDontSee(__('chat.error.send'))
+        $page->click(__('chat.button.retry'))->assertSee(__('chat.status.sent'))->assertDontSee(__('chat.error.send'))
             ->assertScript('() => window.chatTokens.length === 2 && window.chatTokens[0] === window.chatTokens[1]')
             ->assertScript('() => document.querySelectorAll("[data-test=chat-message-body]").length === 1')
             ->assertNoJavaScriptErrors();
@@ -117,7 +117,7 @@ describe('Chat browser', function (): void {
             ChatMessage::factory()->create(['conversation_id' => $conversation->id, 'sender_id' => $recipient->id, 'sequence' => $sequence, 'body' => 'Catch-up message '.$sequence]);
         }
         $conversation->update(['last_message_sequence' => 126]);
-        $page->fill('#chat-body', 'Own message ahead of catch-up')->keys('#chat-body', 'Enter')->assertSee(__('chat.status.saved'))
+        $page->fill('#chat-body', 'Own message ahead of catch-up')->keys('#chat-body', 'Enter')->assertSee(__('chat.status.sent'))
             ->assertValue('#chat-body', '');
         $page->click('button[aria-label="'.__('chat.button.refresh_history').'"]')->assertSee('Catch-up message 126')
             ->assertScript('() => document.querySelectorAll("[data-test=chat-message-body]").length === 127')
@@ -138,7 +138,7 @@ describe('Chat browser', function (): void {
             ->assertSee(__('chat.helper.keyboard'))->fill('#chat-body', str_repeat('界', 4001))
             ->assertSee(__('chat.error.length'))->assertAttribute('#chat-body', 'aria-invalid', 'true');
         assertDatabaseCount('chat_messages', 0);
-        $page->fill('#chat-body', 'Pesan singkat')->keys('#chat-body', 'Enter')->assertSee(__('chat.status.saved'))
+        $page->fill('#chat-body', 'Pesan singkat')->keys('#chat-body', 'Enter')->assertSee(__('chat.status.sent'))
             ->assertScript('() => document.querySelector("#chat-body").getBoundingClientRect().bottom < innerHeight')
             ->assertScript('() => document.documentElement.scrollWidth <= innerWidth')
             ->assertNoJavaScriptErrors();
@@ -237,7 +237,7 @@ describe('Chat browser', function (): void {
         JS_WRAP);
         $page->fill('#chat-body', 'Typing in progress')->wait(0.4)
             ->assertScript('() => window.chatTypingRequests.some(request => request.typing === true)')
-            ->keys('#chat-body', 'Enter')->assertSee(__('chat.status.saved'))->wait(0.5)
+            ->keys('#chat-body', 'Enter')->assertSee(__('chat.status.sent'))->wait(0.5)
             ->assertScript('() => window.chatTypingRequests.some(request => request.typing === false)');
 
         $page->click('button[aria-pressed]:has-text("Typing Other")')
@@ -316,6 +316,22 @@ describe('Chat browser', function (): void {
         $page->assertMissing('button[aria-pressed]:has-text("Realtime Recipient") [data-slot=badge]')
             ->assertSeeIn('a[href="/chat"] [data-slot=badge]', '1')
             ->assertScript('() => window.chatSummaryReloads === 0')
+            ->assertNoJavaScriptErrors();
+    });
+
+    it('shows the delivery status only on the latest own message', function (): void {
+        [$actor, $recipient] = createChatUsers();
+        $recipient->update(['name' => 'Status Recipient']);
+        $conversation = resolve(StartDirectConversation::class)->handle($actor, $recipient);
+        foreach (['Earlier own message', 'Latest own message'] as $body) {
+            resolve(SendChatMessage::class)->handle($actor, $conversation, ['body' => $body, 'client_message_id' => (string) Str::uuid()]);
+        }
+        actingAs($actor);
+
+        $page = visit(route('chat.index'))->click('button[aria-pressed]:has-text("Status Recipient")');
+
+        $page->assertSee('Latest own message')->assertSee(__('chat.status.sent'))
+            ->assertScript('() => document.querySelectorAll(\'[data-test="chat-message-status"]\').length', 1)
             ->assertNoJavaScriptErrors();
     });
 

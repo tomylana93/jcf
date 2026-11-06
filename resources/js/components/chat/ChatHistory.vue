@@ -121,15 +121,15 @@ const lastOwnMessageId = computed(
                                         {{ formatDateTime(message.created_at) }}
                                     </time>
                                     <span
-                                        v-if="message.sender_id === actor.id"
+                                        v-if="message.id === lastOwnMessageId"
                                         class="ml-2"
+                                        data-test="chat-message-status"
                                     >
                                         {{
-                                            message.id === lastOwnMessageId &&
                                             conversation.recipient_last_read_sequence >=
-                                                message.sequence
+                                            message.sequence
                                                 ? t('chat.status.read')
-                                                : t('chat.status.saved')
+                                                : t('chat.status.sent')
                                         }}
                                     </span>
                                 </MessageFooter>

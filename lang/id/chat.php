@@ -45,7 +45,7 @@ return [
         'empty_history' => 'Belum ada pesan.',
         'select' => 'Pilih percakapan untuk membaca dan mengirim pesan.',
         'no_recipients' => 'Tidak ada penerima tersedia.',
-        'saved' => 'Terkirim',
+        'sent' => 'Terkirim',
         'sending' => 'Mengirim…',
         'read' => 'Dibaca',
         'typing' => ':name sedang menulis…',
