@@ -91,15 +91,17 @@ export function createColumns({
                       exportable: false,
                       enableHiding: false,
                       cell: ({ row }: { row: { original: UserRow } }) =>
-                          h(DataTableActions, {
-                              recordName: row.original.name,
-                              canChangeStatus:
-                                  row.original.id !== currentUserId,
-                              active: row.original.status === 'active',
-                              onEdit: () => onEdit(row.original),
-                              onChangeStatus: () =>
-                                  onChangeStatus(row.original),
-                          }),
+                          row.original.can_manage
+                              ? h(DataTableActions, {
+                                    recordName: row.original.name,
+                                    canChangeStatus:
+                                        row.original.id !== currentUserId,
+                                    active: row.original.status === 'active',
+                                    onEdit: () => onEdit(row.original),
+                                    onChangeStatus: () =>
+                                        onChangeStatus(row.original),
+                                })
+                              : null,
                   },
               ]
             : []),

@@ -34,6 +34,7 @@ export type UserRow = {
     status: UserStatus;
     status_label: string;
     created_at: string;
+    can_manage: boolean;
     role: { label: string; color: string };
     roles: {
         id: string;

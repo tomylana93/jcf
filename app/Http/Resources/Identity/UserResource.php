@@ -33,6 +33,7 @@ final class UserResource extends JsonResource
             'status' => $this->status,
             'status_label' => $this->status->label(),
             'created_at' => $this->created_at?->toIso8601String(),
+            'can_manage' => $request->user()?->can('update', $this->resource) ?? false,
             'roles' => $this->roles->map(function (PermissionRole $role): array {
                 $roleEnum = Role::tryFrom($role->name);
 
