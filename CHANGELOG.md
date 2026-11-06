@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/tomylana93/jcf/compare/v1.1.0...v1.1.1) (2026-11-06)
+
+
+### Bug Fixes
+
+* **system:** update nginx web image to 1.30.6 ([#78](https://github.com/tomylana93/jcf/issues/78)) ([5ded091](https://github.com/tomylana93/jcf/commit/5ded0917ac487e5759d8ebacdbf944d67579e8e5))
+
 ## [1.1.0](https://github.com/tomylana93/jcf/compare/v1.0.1...v1.1.0) (2026-11-06)
 
 
