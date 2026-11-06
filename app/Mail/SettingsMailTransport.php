@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Mail;
 
+use App\Actions\Settings\IsSmtpHostAllowed;
 use App\Enums\Mailer;
 use App\Settings\MailSettings;
 use Illuminate\Mail\MailManager;
 use Symfony\Component\Mailer\Envelope;
+use Symfony\Component\Mailer\Exception\TransportException;
 use Symfony\Component\Mailer\SentMessage;
 use Symfony\Component\Mailer\Transport\TransportInterface;
 use Symfony\Component\Mime\Address;
@@ -42,6 +44,8 @@ final class SettingsMailTransport implements TransportInterface
         if ($mailer === Mailer::Log) {
             return $this->mailManager->mailer('log')->getSymfonyTransport()->send($message, $envelope);
         }
+
+        throw_unless(resolve(IsSmtpHostAllowed::class)->handle($settings->smtp_host), TransportException::class, 'The configured SMTP host is not allowed.');
 
         $transport = $this->mailManager->createSymfonyTransport([
             'transport' => 'smtp',

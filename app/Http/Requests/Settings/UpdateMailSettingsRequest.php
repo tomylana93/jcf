@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Settings;
 
+use App\Actions\Settings\IsSmtpHostAllowed;
 use App\Enums\Mailer;
 use App\Settings\MailSettings;
+use Closure;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -17,7 +19,13 @@ final class UpdateMailSettingsRequest extends FormRequest
     {
         return [
             'mailer' => ['required', Rule::enum(Mailer::class)],
-            'smtp_host' => ['present', Rule::requiredIf($this->input('mailer') === Mailer::Smtp->value), 'nullable', 'string', 'max:255'],
+            'smtp_host' => ['present', Rule::requiredIf($this->input('mailer') === Mailer::Smtp->value), 'nullable', 'string', 'max:255',
+                function (string $attribute, mixed $value, Closure $fail): void {
+                    if (is_string($value) && $value !== '' && ! resolve(IsSmtpHostAllowed::class)->handle($value)) {
+                        $fail(__('settings.mail.error.smtp_host_blocked'));
+                    }
+                },
+            ],
             'smtp_port' => ['present', Rule::requiredIf($this->input('mailer') === Mailer::Smtp->value), 'nullable', 'integer', 'between:1,65535'],
             'smtp_scheme' => ['present', Rule::requiredIf($this->input('mailer') === Mailer::Smtp->value), 'nullable', Rule::in(['none', 'smtp', 'smtps'])],
             'smtp_username' => ['present', 'nullable', 'string', 'max:255'],

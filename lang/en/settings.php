@@ -166,6 +166,9 @@ return [
             'test_sent' => 'Test email processed.',
             'test_failed' => 'Unable to send the test email. Check the mail settings.',
         ],
+        'error' => [
+            'smtp_host_blocked' => 'The SMTP host must not point to this server, a link-local address, or a cloud metadata service.',
+        ],
         'preview' => [
             'subject' => 'Email preview',
             'greeting' => 'Hello!',

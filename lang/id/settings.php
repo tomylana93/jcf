@@ -166,6 +166,9 @@ return [
             'test_sent' => 'Email uji diproses.',
             'test_failed' => 'Email uji gagal dikirim. Periksa pengaturan mail.',
         ],
+        'error' => [
+            'smtp_host_blocked' => 'Host SMTP tidak boleh mengarah ke server ini, alamat link-local, atau layanan metadata cloud.',
+        ],
         'preview' => [
             'subject' => 'Pratinjau email',
             'greeting' => 'Halo!',
