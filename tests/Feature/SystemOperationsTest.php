@@ -68,14 +68,14 @@ describe('System operations authorization', function (): void {
         Cache::put('system.backup_status', 'failed');
         actingAs($user)->get(route('system.index'))->assertInertia(fn (Assert $page) => $page
             ->component('system/Index')->missing('checks')->missing('backups')->missing('backupStatus')
-            ->loadDeferredProps(fn (Assert $reload) => $reload->has('checks', 7)->missing('backups')->missing('backupStatus')));
+            ->loadDeferredProps(fn (Assert $reload) => $reload->has('checks', 8)->missing('backups')->missing('backupStatus')));
     });
     it('resolves deferred health checks on a partial reload used by polling', function (): void {
         $user = User::factory()->create();
         assignRolePermissions($user, Permission::ViewSystem);
 
         actingAs($user)->get(route('system.index'))->assertInertia(fn (Assert $page) => $page
-            ->reloadOnly('checks', fn (Assert $reload) => $reload->has('checks', 7)));
+            ->reloadOnly('checks', fn (Assert $reload) => $reload->has('checks', 8)));
     });
     it('lists valid archives and requires confirmation before downloading', function (): void {
         $disk = Storage::fake('backups');
@@ -134,10 +134,40 @@ describe('System readiness checks', function (): void {
             ->and($checks['mail']['detail'])->toBe('configured')
             ->and($checks['storage']['status'])->toBe('ok');
     });
+    it('enqueues a heartbeat on each queue that enabled features expect', function (array $features, array $expected): void {
+        config(['queue.default' => 'database', ...$features]);
+        Queue::fake([SystemHeartbeat::class]);
+
+        artisan('system:heartbeat')->assertSuccessful();
+
+        expect(Queue::pushed(SystemHeartbeat::class)->map(fn (SystemHeartbeat $job): array => [$job->monitoredQueue, $job->connection, $job->queue])->all())
+            ->toEqualCanonicalizing($expected);
+    })->with([
+        'realtime, chat and backup enabled' => [
+            ['broadcasting.default' => 'reverb', 'features.chat' => true, 'features.backup' => true],
+            [['queue', 'database', 'default'], ['queue_notifications', 'realtime', 'notifications'], ['queue_chat', 'realtime', 'chat'], ['queue_backups', 'backups', 'backups']],
+        ],
+        'optional queues disabled' => [
+            ['broadcasting.default' => 'null', 'features.chat' => true, 'features.backup' => false],
+            [['queue', 'database', 'default']],
+        ],
+    ]);
+    it('reports a stopped worker per monitored queue and omits queues of disabled features', function (): void {
+        config(['queue.default' => 'database', 'broadcasting.default' => 'reverb', 'features.chat' => true, 'features.backup' => false]);
+        Cache::put(SystemHeartbeat::cacheKey('queue'), now()->timestamp);
+        Cache::put(SystemHeartbeat::cacheKey('queue_notifications'), now()->timestamp);
+
+        $checks = collect(resolve(GetSystemHealth::class)->handle())->keyBy('name');
+
+        expect($checks['queue']['detail'])->toBe('recent')
+            ->and($checks['queue_notifications']['detail'])->toBe('recent')
+            ->and($checks['queue_chat']['detail'])->toBe('stale_queue')
+            ->and($checks)->not->toHaveKey('queue_backups');
+    });
     it('distinguishes stale workers and settings mail from a delivery test', function (): void {
         config(['queue.default' => 'database', 'mail.default' => 'settings', 'features.backup' => true, 'backup.backup.password' => 'test-secret']);
         Storage::fake('backups');
-        Cache::put('system.queue_heartbeat', now()->subMinutes(6)->timestamp);
+        Cache::put(SystemHeartbeat::cacheKey('queue'), now()->subMinutes(6)->timestamp);
         $mail = resolve(MailSettings::class);
         $mail->mailer = 'smtp';
         $mail->smtp_host = 'smtp.example.com';
@@ -183,7 +213,8 @@ describe('System readiness checks', function (): void {
         }
 
         expect($checks['database'])->toBe(['name' => 'database', 'status' => 'failed', 'detail' => 'unavailable'])
-            ->and($checks['storage']['status'])->toBe('failed');
+            ->and($checks['storage']['status'])->toBe('failed')
+            ->and($checks['queue_backups'])->toBe(['name' => 'queue_backups', 'status' => 'failed', 'detail' => 'unavailable']);
     });
 });
 

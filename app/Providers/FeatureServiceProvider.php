@@ -10,8 +10,11 @@ use App\Actions\System\GetSystemHealth;
 use App\Enums\Module;
 use App\Settings\MailSettings;
 use App\Support\Contracts\HealthCheck;
+use App\Support\Contracts\MonitoredQueue;
 use App\Support\Contracts\SearchProvider;
 use App\Support\FeatureManager;
+use App\Support\Queues\DefaultQueue;
+use App\Support\Queues\NotificationQueue;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Queue\Events\JobProcessing;
 use Illuminate\Support\Facades\Event;
@@ -30,7 +33,8 @@ final class FeatureServiceProvider extends ServiceProvider
         }
         $this->app->tag(SearchUsers::class, SearchProvider::class);
         $this->app->bind(SearchGlobal::class, fn (Application $app): SearchGlobal => new SearchGlobal($app->tagged(SearchProvider::class)));
-        $this->app->bind(GetSystemHealth::class, fn (Application $app): GetSystemHealth => new GetSystemHealth($app->make(MailSettings::class), $app->tagged(HealthCheck::class)));
+        $this->app->bind(GetSystemHealth::class, fn (Application $app): GetSystemHealth => new GetSystemHealth($app->make(MailSettings::class), $app->tagged(HealthCheck::class), $app->tagged(MonitoredQueue::class)));
+        $this->app->tag([DefaultQueue::class, NotificationQueue::class], MonitoredQueue::class);
 
         $classes = config('settings.settings');
         $paths = config('settings.migrations_paths');
