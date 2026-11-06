@@ -112,7 +112,10 @@ runs:
       if: steps.scope.outputs.mode == 'ci' || steps.scope.outputs.mode == 'full'
       id: playwright
       shell: bash
-      run: node -p "'version=' + require('playwright/package.json').version" >> "$GITHUB_OUTPUT"
+      run: |
+        node -p "'version=' + require('playwright/package.json').version" >> "$GITHUB_OUTPUT"
+        # Runner image variables need exporting to the Actions env context for cache keys.
+        printf 'ImageOS=%s\nImageVersion=%s\n' "${ImageOS:?}" "${ImageVersion:?}" >> "$GITHUB_ENV"
 
     - name: Cache Playwright browsers
       if: steps.scope.outputs.mode == 'ci' || steps.scope.outputs.mode == 'full'
