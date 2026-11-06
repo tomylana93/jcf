@@ -7,8 +7,11 @@ use App\Enums\Role as SystemRole;
 use App\Enums\UserStatus;
 use App\Models\Role;
 use App\Models\User;
+use App\Notifications\Account\EmailAddressChanged;
+use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Password;
 use Inertia\Testing\AssertableInertia as Assert;
 
@@ -199,6 +202,7 @@ describe('User management', function (): void {
     })->with(['superadmin', 'missing', 'api-editor']);
 
     it('updates users and removes the old verification and reset token when email changes', function (): void {
+        Notification::fake();
         $actor = User::factory()->create();
         assignRolePermissions($actor, Permission::ManageUsers);
         $target = User::factory()->create();
@@ -216,6 +220,7 @@ describe('User management', function (): void {
             ->and($target->getRoleNames()->all())->toBe(['editor'])
             ->and(Hash::check('password', $target->password))->toBeTrue();
         assertDatabaseMissing('password_reset_tokens', ['email' => $oldEmail]);
+        Notification::assertSentOnDemand(EmailAddressChanged::class, fn (EmailAddressChanged $notification, array $channels, AnonymousNotifiable $notifiable): bool => $notifiable->routes['mail'] === $oldEmail);
 
         patch(route('master-data.users.update', $target), [
             'name' => 'Changed again', 'email' => $target->email, 'status' => 'active', 'role' => null,
@@ -292,6 +297,31 @@ describe('User management', function (): void {
         assertDatabaseHas('users', ['id' => $target->id, 'status' => 'active']);
     });
 
+    it('refuses managers acting on accounts that hold permissions the manager lacks', function (): void {
+        $actor = User::factory()->create();
+        assignRolePermissions($actor, Permission::ViewUsers, Permission::ManageUsers);
+        $privileged = Role::factory()->create();
+        $privileged->givePermissionTo(App\Models\Permission::findOrCreate(Permission::ManageBackups->value, 'web'));
+        $target = User::factory()->create(['email' => 'operator@example.test', 'invited_at' => now()]);
+        $target->syncRoles($privileged);
+        $ordinary = User::factory()->create();
+        actingAs($actor);
+
+        patch(route('master-data.users.update', $target), [
+            'name' => $target->name, 'email' => 'attacker@example.test', 'status' => 'active', 'role' => null,
+        ])->assertForbidden();
+        patch(route('master-data.users.status', $target), ['status' => 'disabled'])->assertForbidden();
+        post(route('master-data.users.invitation', $target))->assertForbidden();
+
+        $target->refresh();
+        expect($target->email)->toBe('operator@example.test')
+            ->and($target->getRoleNames()->all())->toBe([$privileged->name])
+            ->and($target->status)->toBe(UserStatus::Active);
+        get(route('master-data.users.index'))->assertInertia(fn (Assert $page): Assert => $page
+            ->where('users.data', fn ($rows): bool => collect($rows)->firstWhere('id', $target->id)['can_manage'] === false
+                && collect($rows)->firstWhere('id', $ordinary->id)['can_manage'] === true));
+    });
+
     it('denies ordinary and read only users permission to mutate accounts', function (bool $canView): void {
         $actor = User::factory()->create();
         if ($canView) {
@@ -343,6 +373,6 @@ describe('User management', function (): void {
         $fullCount = count(DB::getQueryLog());
         DB::disableQueryLog();
 
-        expect($fullCount - $emptyCount)->toBeLessThanOrEqual(3);
+        expect($fullCount - $emptyCount)->toBeLessThanOrEqual(4);
     });
 });

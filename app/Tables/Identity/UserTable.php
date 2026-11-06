@@ -17,7 +17,7 @@ final class UserTable extends Table
     protected function query(): Builder
     {
         return User::query()->select(['id', 'name', 'email', 'status', 'created_at', 'email_verified_at', 'invited_at', 'invitation_accepted_at'])
-            ->with(['roles:id,name', 'media'])
+            ->with(['roles:id,name', 'roles.permissions:id,name', 'permissions:id,name', 'media'])
             ->whereDoesntHave('roles', fn (Builder $query): Builder => $query->where('name', Role::SuperAdmin->value));
     }
 

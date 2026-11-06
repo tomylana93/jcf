@@ -4,13 +4,15 @@ export type HealthDetail =
     | 'writable'
     | 'recent'
     | 'configured'
+    | 'secure'
     | 'synchronous'
     | 'stale_queue'
     | 'stale_scheduler'
     | 'stale_backup'
     | 'not_configured'
     | 'disabled'
-    | 'unavailable';
+    | 'unavailable'
+    | 'insecure';
 
 export type HealthStatus = 'ok' | 'warning' | 'failed';
 
@@ -23,6 +25,7 @@ export type SystemHealthCheck = {
         | 'queue'
         | 'scheduler'
         | 'mail'
+        | 'security'
         | 'backup';
     status: HealthStatus;
     detail: HealthDetail;

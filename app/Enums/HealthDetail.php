@@ -13,6 +13,7 @@ enum HealthDetail: string
     case Writable = 'writable';
     case Recent = 'recent';
     case Configured = 'configured';
+    case Secure = 'secure';
     case Synchronous = 'synchronous';
     case StaleQueue = 'stale_queue';
     case StaleScheduler = 'stale_scheduler';
@@ -20,13 +21,14 @@ enum HealthDetail: string
     case NotConfigured = 'not_configured';
     case Disabled = 'disabled';
     case Unavailable = 'unavailable';
+    case Insecure = 'insecure';
 
     public function status(): string
     {
         return match ($this) {
-            self::Reachable, self::Writable, self::Recent, self::Configured => 'ok',
+            self::Reachable, self::Writable, self::Recent, self::Configured, self::Secure => 'ok',
             self::Unavailable => 'failed',
-            self::Synchronous, self::StaleQueue, self::StaleScheduler, self::StaleBackup, self::NotConfigured, self::Disabled => 'warning',
+            self::Synchronous, self::StaleQueue, self::StaleScheduler, self::StaleBackup, self::NotConfigured, self::Disabled, self::Insecure => 'warning',
         };
     }
 }

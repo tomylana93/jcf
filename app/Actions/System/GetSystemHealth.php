@@ -70,6 +70,10 @@ final readonly class GetSystemHealth
             }),
         ];
 
+        if (app()->isProduction()) {
+            $checks[] = $this->check('security', fn (): HealthDetail => $this->productionSafeguards());
+        }
+
         foreach ($this->contributedChecks as $check) {
             $checks[] = $this->check($check->name(), $check->handle(...));
         }
@@ -98,5 +102,17 @@ final readonly class GetSystemHealth
 
         return is_int($timestamp) && $timestamp >= now()->timestamp - config('jalara.operations.heartbeat_seconds')
             ? HealthDetail::Recent : $stale;
+    }
+
+    /**
+     * Production must not expose debug pages, must keep the session cookie on HTTPS, and must not tie passkeys to the rotatable application key.
+     */
+    private function productionSafeguards(): HealthDetail
+    {
+        $insecure = config('app.debug') === true
+            || (str_starts_with((string) config('app.url'), 'https://') && config('session.secure') !== true)
+            || config('fortify.passkeys.user_handle_secret') === config('app.key');
+
+        return $insecure ? HealthDetail::Insecure : HealthDetail::Secure;
     }
 }

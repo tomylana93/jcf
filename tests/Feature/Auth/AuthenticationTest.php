@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Laravel\Fortify\Features;
 
@@ -31,6 +32,15 @@ describe('Authentication', function (): void {
         assertAuthenticated();
 
         $response->assertRedirect(route('dashboard', absolute: false));
+    });
+
+    it('hashes the password for unknown emails so timing does not reveal accounts', function (): void {
+        Hash::shouldReceive('make')->once()->with('guessed-password')->andReturn('hashed');
+
+        post(route('login.store'), ['email' => 'unknown@example.test', 'password' => 'guessed-password'])
+            ->assertSessionHasErrors(['email' => __('auth.failed')]);
+
+        assertGuest();
     });
 
     it('redirects users with two-factor authentication to the challenge', function (): void {

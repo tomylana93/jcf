@@ -8,9 +8,11 @@ import { update } from '@/actions/App/Http/Controllers/Account/ProfileController
 import DisableAccount from '@/components/account/DisableAccount.vue';
 import ProfileAvatarForm from '@/components/account/ProfileAvatarForm.vue';
 import Heading from '@/components/shared/Heading.vue';
+import PasswordInput from '@/components/shared/PasswordInput.vue';
 import { Button } from '@/components/ui/button';
 import {
     Field,
+    FieldDescription,
     FieldError,
     FieldGroup,
     FieldLabel,
@@ -55,7 +57,10 @@ const form = useForm<UpdateProfileForm>({
     name: user.value.name,
     email: user.value.email,
     timezone: user.value.timezone ?? '',
+    current_password: '',
 });
+
+const changesEmail = computed(() => form.email !== user.value.email);
 
 const deviceTimezone = ref('');
 
@@ -64,7 +69,9 @@ onMounted(() => {
 });
 
 function submit(): void {
-    form.submit(update(), {});
+    form.submit(update(), {
+        onFinish: () => form.reset('current_password'),
+    });
 }
 </script>
 
@@ -144,6 +151,33 @@ function submit(): void {
                         <FieldError
                             id="email-error"
                             :errors="[form.errors.email]"
+                        />
+                    </Field>
+
+                    <Field
+                        v-if="changesEmail"
+                        :data-invalid="Boolean(form.errors.current_password)"
+                    >
+                        <PasswordInput
+                            id="current_password"
+                            name="current_password"
+                            v-model="form.current_password"
+                            :aria-label="t('user.label.current_password')"
+                            :aria-invalid="
+                                Boolean(form.errors.current_password)
+                            "
+                            aria-describedby="current_password-helper"
+                            autocomplete="current-password"
+                            :placeholder="
+                                t('user.placeholder.current_password')
+                            "
+                        />
+                        <FieldDescription id="current_password-helper">
+                            {{ t('account.profile.helper.email_change') }}
+                        </FieldDescription>
+                        <FieldError
+                            id="current_password-error"
+                            :errors="[form.errors.current_password]"
                         />
                     </Field>
                 </FieldGroup>

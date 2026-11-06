@@ -30,6 +30,7 @@ return [
             'timezone' => 'Ikuti zona waktu perangkat',
         ],
         'helper' => [
+            'email_change' => 'Mengubah alamat email memerlukan password saat ini. Alamat lama menerima pemberitahuan.',
             'unverified' => 'Alamat email belum diverifikasi.',
         ],
         'button' => [
@@ -39,6 +40,12 @@ return [
             'verification_sent' => 'Link verifikasi baru telah dikirim ke alamat email.',
             'updated' => 'Profil diperbarui.',
         ],
+    ],
+
+    'email_changed' => [
+        'subject' => 'Alamat email diubah',
+        'description' => 'Alamat email login akun ":name" telah diubah. Pesan untuk akun ini kini dikirim ke alamat baru.',
+        'warning' => 'Jika perubahan ini tidak diharapkan, segera hubungi admin.',
     ],
 
     'security' => [

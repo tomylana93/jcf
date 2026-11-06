@@ -11,11 +11,13 @@ use App\Mail\SettingsMailTransport;
 use App\Models\User;
 use App\Settings\BrandSettings;
 use App\Settings\MailSettings;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Mail\MailManager;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Inertia\Testing\AssertableInertia as Assert;
+use Symfony\Component\Mailer\Exception\TransportException;
 use Symfony\Component\Mailer\Transport\TransportInterface;
 use Symfony\Component\Mime\Email;
 
@@ -23,6 +25,7 @@ use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
 use function Pest\Laravel\patch;
 use function Pest\Laravel\post;
+use function Pest\Laravel\withoutMiddleware;
 
 function mailSettingsPayload(array $overrides = []): array
 {
@@ -280,6 +283,47 @@ describe('Mailpit and secret boundaries', function (): void {
 
         patch(route('settings.mail.update'), mailSettingsPayload(['from_address' => 'invalid', 'smtp_password' => 'private-value']))
             ->assertInvalid('from_address')->assertSessionMissing('_old_input.smtp_password');
+    });
+
+    it('rejects SMTP hosts that reach the server itself or metadata services in production', function (string $host, bool $allowed): void {
+        app()->instance('env', 'production');
+        withoutMiddleware(PreventRequestForgery::class);
+        $actor = User::factory()->create();
+        assignRolePermissions($actor, Permission::ViewSettings, Permission::ManageSettings);
+
+        $response = actingAs($actor)->patch(route('settings.mail.update'), mailSettingsPayload(['smtp_host' => $host]));
+
+        $allowed
+            ? $response->assertSessionHasNoErrors()
+            : $response->assertSessionHasErrors(['smtp_host' => __('settings.mail.error.smtp_host_blocked')]);
+    })->with([
+        'loopback' => ['127.0.0.1', false],
+        'localhost name' => ['localhost', false],
+        'localhost subdomain' => ['mail.localhost', false],
+        'IPv6 loopback' => ['[::1]', false],
+        'metadata' => ['169.254.169.254', false],
+        'private relay' => ['10.0.0.5', true],
+        'public address' => ['192.0.2.10', true],
+    ]);
+
+    it('allows local SMTP hosts outside production', function (): void {
+        $actor = User::factory()->create();
+        assignRolePermissions($actor, Permission::ViewSettings, Permission::ManageSettings);
+
+        actingAs($actor)->patch(route('settings.mail.update'), mailSettingsPayload(['smtp_host' => '127.0.0.1']))->assertSessionHasNoErrors();
+    });
+
+    it('refuses to connect to a blocked SMTP host saved before the check existed', function (): void {
+        $settings = resolve(MailSettings::class);
+        $settings->mailer = 'smtp';
+        $settings->smtp_host = '169.254.169.254';
+        $settings->save();
+        app()->instance('env', 'production');
+        $manager = Mockery::mock(MailManager::class);
+        $manager->shouldNotReceive('createSymfonyTransport');
+
+        expect(fn () => new SettingsMailTransport($manager)->send((new Email)->to('recipient@example.test')->subject('Test')->text('Body')))
+            ->toThrow(TransportException::class);
     });
 });
 

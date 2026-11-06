@@ -17,6 +17,7 @@ final readonly class FindUserByCredentials
 {
     /**
      * Return null for unknown credentials so the caller applies its own failure handling and throttling.
+     * Unknown emails still pay the hashing cost, so response timing does not reveal which accounts exist.
      *
      * @throws ValidationException when the account is disabled
      */
@@ -24,7 +25,13 @@ final readonly class FindUserByCredentials
     {
         $user = User::query()->where('email', config('fortify.lowercase_usernames') ? Str::lower($email) : $email)->first();
 
-        if ($user === null || ! Hash::check($password, $user->password)) {
+        if ($user === null) {
+            Hash::make($password);
+
+            return null;
+        }
+
+        if (! Hash::check($password, $user->password)) {
             return null;
         }
 

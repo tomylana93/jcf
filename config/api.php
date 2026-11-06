@@ -29,4 +29,16 @@ return [
 
     'rate_limit' => (int) env('API_RATE_LIMIT', 60),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Device Token Lifetime
+    |--------------------------------------------------------------------------
+    |
+    | Days a device token issued by the login endpoint stays valid. The
+    | device must log in again afterwards; expired tokens are pruned daily.
+    |
+    */
+
+    'device_token_days' => (int) env('API_DEVICE_TOKEN_DAYS', 30),
+
 ];

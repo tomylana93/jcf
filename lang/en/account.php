@@ -30,6 +30,7 @@ return [
             'timezone' => 'Follow device time zone',
         ],
         'helper' => [
+            'email_change' => 'Changing the email address requires the current password. The previous address receives a notice.',
             'unverified' => 'The email address is unverified.',
         ],
         'button' => [
@@ -39,6 +40,12 @@ return [
             'verification_sent' => 'A new verification link has been sent to the email address.',
             'updated' => 'Profile updated.',
         ],
+    ],
+
+    'email_changed' => [
+        'subject' => 'Email address changed',
+        'description' => 'The login email address of the account ":name" was changed. Messages for this account now go to the new address.',
+        'warning' => 'If this change was not expected, contact an administrator immediately.',
     ],
 
     'security' => [

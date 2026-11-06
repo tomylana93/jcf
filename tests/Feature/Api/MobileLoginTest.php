@@ -3,10 +3,14 @@
 declare(strict_types=1);
 
 use App\Actions\Api\CompleteTwoFactorChallenge;
+use App\Actions\Api\StartTwoFactorChallenge;
 use App\Enums\UserStatus;
 use App\Models\ApiClient;
 use App\Models\User;
+use App\Settings\ApiSettings;
 use App\Settings\AuthSettings;
+use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
 use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider;
 use Laravel\Fortify\Events\RecoveryCodeReplaced;
@@ -17,6 +21,7 @@ use function Pest\Laravel\getJson;
 use function Pest\Laravel\mock;
 use function Pest\Laravel\postJson;
 use function Pest\Laravel\travel;
+use function Pest\Laravel\withServerVariables;
 
 /** @return array{email: string, password: string, device_name: string} */
 function mobileLogin(User $user, string $device = 'Pixel 9'): array
@@ -42,11 +47,35 @@ describe('Mobile login', function (): void {
             ->assertCreated()
             ->assertJsonPath('data.token_type', 'Bearer')
             ->assertJsonPath('data.abilities', ['read', 'write'])
+            ->assertJsonPath('data.expires_at', now()->addDays(30)->toIso8601String())
             ->assertJsonPath('data.email_verified', true);
 
-        expect($user->tokens()->sole()->name)->toBe('Pixel 9');
+        expect($user->tokens()->sole()->name)->toBe('Pixel 9')
+            ->and($user->tokens()->sole()->expires_at->toIso8601String())->toBe(now()->addDays(30)->toIso8601String());
         getJson(route('api.v1.user'), ['Authorization' => 'Bearer '.$response->json('data.token')])
             ->assertOk()->assertJsonPath('data.id', $user->id);
+    });
+
+    it('rejects a device token once its configured lifetime has passed', function (): void {
+        config(['api.device_token_days' => 7]);
+        $user = User::factory()->create();
+        $token = postJson(route('api.v1.auth.token.store'), mobileLogin($user))->assertCreated()->json('data.token');
+
+        travel(7)->days();
+        travel(1)->minutes();
+
+        getJson(route('api.v1.user'), ['Authorization' => 'Bearer '.$token])->assertUnauthorized();
+    });
+
+    it('schedules pruning of expired tokens only while the API is enabled', function (): void {
+        $event = collect(resolve(Schedule::class)->events())->sole(fn ($event): bool => str_contains($event->command ?? '', 'sanctum:prune-expired'));
+
+        expect($event->command)->toContain('--hours=24')
+            ->and($event->filtersPass(app()))->toBeTrue();
+
+        resolve(ApiSettings::class)->fill(['enabled' => false])->save();
+
+        expect($event->filtersPass(app()))->toBeFalse();
     });
 
     it('matches the email case-insensitively like the web login', function (): void {
@@ -134,6 +163,17 @@ describe('Mobile two-factor login', function (): void {
             ->assertUnprocessable()->assertJsonValidationErrors(['challenge' => __('auth.two_factor_expired')]);
     });
 
+    it('issues no token when a parallel request already completed the challenge', function (): void {
+        $user = User::factory()->withTwoFactor()->create();
+        $challenge = startChallenge($user);
+        acceptTwoFactorCode(true);
+        Cache::add(StartTwoFactorChallenge::consumedKey($challenge), true, StartTwoFactorChallenge::TTL_SECONDS);
+
+        postJson(route('api.v1.auth.two-factor'), ['challenge' => $challenge, 'code' => '123456'])
+            ->assertUnprocessable()->assertJsonValidationErrors(['challenge' => __('auth.two_factor_expired')]);
+        expect($user->tokens()->count())->toBe(0);
+    });
+
     it('rejects an invalid code and invalidates the challenge after too many attempts', function (): void {
         $user = User::factory()->withTwoFactor()->create();
         $challenge = startChallenge($user);
@@ -147,6 +187,24 @@ describe('Mobile two-factor login', function (): void {
         travel(61)->seconds();
         acceptTwoFactorCode(true);
         postJson(route('api.v1.auth.two-factor'), ['challenge' => $challenge, 'code' => '123456'])
+            ->assertUnprocessable()->assertJsonValidationErrors(['challenge' => __('auth.two_factor_expired')]);
+        expect($user->tokens()->count())->toBe(0);
+    });
+
+    it('limits verification attempts per challenge across client addresses', function (): void {
+        $user = User::factory()->withTwoFactor()->create();
+        $challenge = startChallenge($user);
+        acceptTwoFactorCode(false);
+
+        foreach (range(1, CompleteTwoFactorChallenge::MAX_ATTEMPTS) as $address) {
+            withServerVariables(['REMOTE_ADDR' => '203.0.113.'.$address])
+                ->postJson(route('api.v1.auth.two-factor'), ['challenge' => $challenge, 'code' => '000000'])
+                ->assertUnprocessable()->assertJsonValidationErrors('code');
+        }
+
+        acceptTwoFactorCode(true);
+        withServerVariables(['REMOTE_ADDR' => '203.0.113.99'])
+            ->postJson(route('api.v1.auth.two-factor'), ['challenge' => $challenge, 'code' => '123456'])
             ->assertUnprocessable()->assertJsonValidationErrors(['challenge' => __('auth.two_factor_expired')]);
         expect($user->tokens()->count())->toBe(0);
     });
