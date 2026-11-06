@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Inertia\Testing\AssertableInertia as Assert;
 use Spatie\Backup\Config\Config;
 
@@ -593,15 +594,33 @@ describe('Restore cutover boundaries', function (): void {
 });
 
 describe('PostgreSQL dump compatibility', function (): void {
+    it('starts psql in restricted mode with a fresh key and drops the dump restriction markers', function (): void {
+        $workspace = isolateBackupOperations();
+        $sql = $workspace->path('dump.sql');
+        File::put($sql, "\\restrict DumpKey123\nSET statement_timeout = 0;\nCREATE TABLE demo (value text);\n\\! touch /tmp/pwned\n\\unrestrict DumpKey123\n");
+        try {
+            $input = resolve(GetDatabaseDumpInput::class);
+            $first = iterator_to_array($input->handle($sql, true));
+            $second = iterator_to_array($input->handle($sql, true));
+
+            expect($first[0])->toMatch('/^\\\\restrict [A-Za-z0-9]{48}\n$/')
+                ->and($first[0])->not->toBe($second[0])
+                ->and(implode('', $first))->not->toContain('DumpKey123')
+                ->toContain("\\! touch /tmp/pwned\n");
+        } finally {
+            $workspace->delete();
+        }
+    });
+
     it('omits an unsupported header setting while preserving SQL and COPY data', function (): void {
         $workspace = isolateBackupOperations();
         $sql = $workspace->path('dump.sql');
         File::put($sql, "SET transaction_timeout = 0;\nCREATE TABLE demo (value text);\nCOPY demo (value) FROM stdin;\nSET transaction_timeout = 0;\n\\.\n");
         try {
             $input = resolve(GetDatabaseDumpInput::class);
-            expect(implode('', iterator_to_array($input->handle($sql, false))))->toStartWith("CREATE TABLE demo (value text);\n")
+            expect(Str::after(implode('', iterator_to_array($input->handle($sql, false))), "\n"))->toStartWith("CREATE TABLE demo (value text);\n")
                 ->toContain("COPY demo (value) FROM stdin;\nSET transaction_timeout = 0;\n\\.\n")
-                ->and(implode('', iterator_to_array($input->handle($sql, true))))->toStartWith("SET transaction_timeout = 0;\n");
+                ->and(Str::after(implode('', iterator_to_array($input->handle($sql, true))), "\n"))->toStartWith("SET transaction_timeout = 0;\n");
         } finally {
             $workspace->delete();
         }

@@ -175,6 +175,26 @@ describe('Linux backup and restore integration', function (): void {
                 ->and(DB::connection($connection)->getSchemaBuilder()->getTables())->toBeEmpty();
         });
     });
+    it('refuses psql meta-commands hidden in a dump and rolls back the import', function (string $sql): void {
+        if (PHP_OS_FAMILY === 'Windows' || getenv('BACKUP_INTEGRATION') !== '1') {
+            test()->markTestSkipped('Native backup integration runs in Linux CI with PostgreSQL tools.');
+        }
+        Storage::fake('backups');
+        Process::swap(new Factory);
+        $marker = storage_path('framework/testing/psql-meta-command-'.getmypid());
+        File::delete($marker);
+        $archive = createBackupTestArchive(['db-dumps/postgresql-pgsql.sql' => str_replace('MARKER', $marker, $sql)]);
+        withIsolatedRestoreDatabase(function (string $connection) use ($archive, $marker): void {
+            expect(fn () => resolve(RestoreBackup::class)->handle($archive['filename'], $archive['checksum'], $connection))->toThrow(RuntimeException::class, 'Database restore failed; the target transaction was rolled back.')
+                ->and(DB::connection($connection)->getSchemaBuilder()->getTables())->toBeEmpty()
+                ->and(file_exists($marker))->toBeFalse();
+        });
+    })->with([
+        'line start' => ["CREATE TABLE meta_restore (id INTEGER);\n\\! touch MARKER\n"],
+        'mid line' => ["CREATE TABLE meta_restore (id INTEGER); \\! touch MARKER\n"],
+        'forged unrestrict' => ["\\unrestrict guessed\nCREATE TABLE meta_restore (id INTEGER);\n\\! touch MARKER\n"],
+    ]);
+
     it('round trips a real PostgreSQL dump and encrypted uploads', function (): void {
         if (PHP_OS_FAMILY === 'Windows' || getenv('BACKUP_INTEGRATION') !== '1') {
             test()->markTestSkipped('Native backup integration runs in Linux CI with PostgreSQL tools.');
