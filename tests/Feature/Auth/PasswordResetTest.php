@@ -31,6 +31,17 @@ describe('Password reset', function (): void {
         Notification::assertSentTo($user, ResetPassword::class);
     });
 
+    it('answers unknown and throttled emails exactly like a sent link', function (): void {
+        Notification::fake();
+        $user = User::factory()->create();
+
+        post(route('password.email'), ['email' => $user->email])->assertSessionHasNoErrors()->assertSessionHas('status', __('passwords.sent'));
+        post(route('password.email'), ['email' => $user->email])->assertSessionHasNoErrors()->assertSessionHas('status', __('passwords.sent'));
+        post(route('password.email'), ['email' => 'unknown@example.test'])->assertSessionHasNoErrors()->assertSessionHas('status', __('passwords.sent'));
+
+        Notification::assertSentToTimes($user, ResetPassword::class, 1);
+    });
+
     it('renders the password reset screen', function (): void {
         Notification::fake();
 

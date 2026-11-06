@@ -10,6 +10,9 @@ use App\Actions\Fortify\ResetUserPassword;
 use App\Models\User;
 use App\Settings\AuthSettings;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Contracts\Auth\PasswordBroker;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
@@ -20,9 +23,12 @@ use Laravel\Fortify\Actions\AttemptToAuthenticate;
 use Laravel\Fortify\Actions\CanonicalizeUsername;
 use Laravel\Fortify\Actions\EnsureLoginIsNotThrottled;
 use Laravel\Fortify\Actions\PrepareAuthenticatedSession;
+use Laravel\Fortify\Contracts\FailedPasswordResetLinkRequestResponse as FailedPasswordResetLinkRequestResponseContract;
 use Laravel\Fortify\Contracts\RedirectsIfTwoFactorAuthenticatable;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
+use Laravel\Fortify\Http\Responses\FailedPasswordResetLinkRequestResponse;
+use Laravel\Fortify\Http\Responses\SuccessfulPasswordResetLinkRequestResponse;
 
 final class FortifyServiceProvider extends ServiceProvider
 {
@@ -31,7 +37,9 @@ final class FortifyServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(FailedPasswordResetLinkRequestResponseContract::class, fn (Application $app, array $parameters): Responsable => in_array($parameters['status'], [PasswordBroker::INVALID_USER, PasswordBroker::RESET_THROTTLED], true)
+            ? new SuccessfulPasswordResetLinkRequestResponse(PasswordBroker::RESET_LINK_SENT)
+            : new FailedPasswordResetLinkRequestResponse($parameters['status']));
     }
 
     /**
