@@ -46,6 +46,7 @@ arch('keeps documentation persistence within its owning domain')
         'App\Actions\Documentation',
         'App\Http\Controllers\Documentation',
         'App\Http\Requests\Documentation',
+        'App\Http\Resources\Documentation',
         DocumentationPolicy::class,
         DocumentationFactory::class,
     ]);

@@ -1,4 +1,6 @@
+/** Mirrors App\Http\Resources\Chat\ChatUserResource. */
 export type ChatUser = { id: string; name: string; avatar: string | null };
+/** Mirrors App\Http\Resources\Chat\ChatMessageResource. */
 export type ChatMessage = {
     id: string;
     conversation_id: string;
@@ -8,6 +10,7 @@ export type ChatMessage = {
     body: string;
     created_at: string;
 };
+/** Mirrors App\Http\Resources\Chat\ChatConversationResource. */
 export type ChatConversation = {
     id: string;
     recipient: ChatUser;

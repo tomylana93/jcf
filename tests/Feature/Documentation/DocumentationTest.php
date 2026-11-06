@@ -22,9 +22,11 @@ describe('Documentation', function (): void {
         $document = Documentation::factory()->published()->create(['content_text' => 'Petunjuk konfigurasi email']);
         Documentation::factory()->create(['content_text' => 'Petunjuk konfigurasi email']);
         actingAs(tap(User::factory()->create(), fn (User $user) => assignRolePermissions($user, Permission::ViewDocumentation)))->get(route('documentation.index', ['search' => 'konfigurasi']))
-            ->assertInertia(fn (Assert $page): Assert => $page->component('documentation/Index')->has('documents.data', 1)->where('documents.data.0.id', $document->id)->where('manage', false));
+            ->assertInertia(fn (Assert $page): Assert => $page->component('documentation/Index')->has('documents.data', 1)->where('manage', false)
+                ->has('documents.data.0', fn (Assert $record): Assert => $record->where('id', $document->id)->where('title', $document->title)->where('slug', $document->slug)->where('summary', $document->summary)->where('status', 'published')));
 
-        get(route('documentation.show', $document->slug))->assertInertia(fn (Assert $page): Assert => $page->component('documentation/Show')->where('document.content_html', $document->content_html));
+        get(route('documentation.show', $document->slug))->assertInertia(fn (Assert $page): Assert => $page->component('documentation/Show')
+            ->has('document', fn (Assert $readable): Assert => $readable->where('id', $document->id)->where('slug', $document->slug)->where('content_html', $document->content_html)->etc()->missing('content_json')));
     });
 
     it('refuses every management endpoint and draft detail to readers', function (): void {
@@ -60,7 +62,8 @@ describe('Documentation', function (): void {
 
         expect($document->content_html)->toBe('<p>  &lt;script&gt;example&lt;/script&gt;  </p>')->and($document->content_text)->toBe('<script>example</script>')->and($document->author_id)->toBe($author->id)->and($document->published_at)->toBeNull()->and($document->schema_version)->toBe(1);
 
-        get(route('documentation.manage.edit', $document))->assertInertia(fn (Assert $page): Assert => $page->component('documentation/Edit')->where('document.content_json', $data['content_json']));
+        get(route('documentation.manage.edit', $document))->assertInertia(fn (Assert $page): Assert => $page->component('documentation/Edit')
+            ->has('document', fn (Assert $editable): Assert => $editable->where('id', $document->id)->has('title')->has('slug')->has('summary')->has('status')->where('content_json', $data['content_json'])));
         get(route('documentation.manage.index'))->assertInertia(fn (Assert $page): Assert => $page->where('manage', true)->has('documents.data', 1));
         get(route('documentation.show', $document->slug))->assertOk();
 

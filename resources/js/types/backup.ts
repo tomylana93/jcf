@@ -8,6 +8,7 @@ export type OperationStatus =
     | 'failed'
     | 'skipped';
 
+/** Mirrors App\Http\Resources\Operations\BackupArchiveResource. */
 export type BackupArchive = {
     filename: string;
     size: number;

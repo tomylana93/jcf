@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Storage;
 
 final readonly class GetBackups
 {
-    /** @return list<array{filename: string, size: int, created_at: string}> */
+    /** @return list<array{filename: string, size: int, created_at: CarbonImmutable}> */
     public function handle(): array
     {
         $disk = Storage::disk('backups');
@@ -19,7 +19,7 @@ final readonly class GetBackups
             ->map(fn (string $path): array => [
                 'filename' => basename($path),
                 'size' => $disk->size($path),
-                'created_at' => CarbonImmutable::createFromTimestamp($disk->lastModified($path))->toIso8601String(),
+                'created_at' => CarbonImmutable::createFromTimestamp($disk->lastModified($path)),
             ])->sortByDesc('filename')->values()->all());
     }
 }

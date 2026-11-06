@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Operations\Backup;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 
@@ -14,7 +15,7 @@ final readonly class GetBackupPage
     /**
      * Filter, sort and paginate the stored archives with the same paginator shape as database tables.
      *
-     * @return LengthAwarePaginator<int, array{filename: string, size: int, created_at: string}>
+     * @return LengthAwarePaginator<int, array{filename: string, size: int, created_at: CarbonImmutable}>
      */
     public function handle(string $search, string $sort, int $perPage, int $page): LengthAwarePaginator
     {

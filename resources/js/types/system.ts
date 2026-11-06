@@ -12,6 +12,7 @@ export type HealthDetail =
 
 export type HealthStatus = 'ok' | 'warning' | 'failed';
 
+/** Mirrors the check arrays returned by App\Actions\System\GetSystemHealth; health checks are results, not entities, so they have no Resource. */
 export type SystemHealthCheck = {
     name:
         | 'database'
