@@ -3,12 +3,14 @@
 declare(strict_types=1);
 
 use App\Actions\Api\CompleteTwoFactorChallenge;
+use App\Actions\Api\StartTwoFactorChallenge;
 use App\Enums\UserStatus;
 use App\Models\ApiClient;
 use App\Models\User;
 use App\Settings\ApiSettings;
 use App\Settings\AuthSettings;
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
 use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider;
 use Laravel\Fortify\Events\RecoveryCodeReplaced;
@@ -159,6 +161,17 @@ describe('Mobile two-factor login', function (): void {
         expect($user->tokens()->sole()->name)->toBe('Pixel 9');
         postJson(route('api.v1.auth.two-factor'), ['challenge' => $challenge, 'code' => '123456'])
             ->assertUnprocessable()->assertJsonValidationErrors(['challenge' => __('auth.two_factor_expired')]);
+    });
+
+    it('issues no token when a parallel request already completed the challenge', function (): void {
+        $user = User::factory()->withTwoFactor()->create();
+        $challenge = startChallenge($user);
+        acceptTwoFactorCode(true);
+        Cache::add(StartTwoFactorChallenge::consumedKey($challenge), true, StartTwoFactorChallenge::TTL_SECONDS);
+
+        postJson(route('api.v1.auth.two-factor'), ['challenge' => $challenge, 'code' => '123456'])
+            ->assertUnprocessable()->assertJsonValidationErrors(['challenge' => __('auth.two_factor_expired')]);
+        expect($user->tokens()->count())->toBe(0);
     });
 
     it('rejects an invalid code and invalidates the challenge after too many attempts', function (): void {
