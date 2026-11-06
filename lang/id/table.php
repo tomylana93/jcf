@@ -27,6 +27,7 @@ return [
     ],
 
     'button' => [
+        'view' => 'Lihat',
         'columns' => 'Kolom',
         'edit' => 'Edit',
         'delete' => 'Hapus',

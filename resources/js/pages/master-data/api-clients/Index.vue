@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, setLayoutProps, useForm } from '@inertiajs/vue3';
+import { Head, router, setLayoutProps, useForm } from '@inertiajs/vue3';
 import { Plus } from '@lucide/vue';
 import { computed, ref, watchEffect } from 'vue';
 
@@ -10,7 +10,7 @@ import { useDateTime } from '@/composables/useDateTime';
 import { usePermissions } from '@/composables/usePermissions';
 import { useTranslations } from '@/composables/useTranslations';
 import { index as masterDataIndex } from '@/routes/master-data';
-import { exportMethod, index } from '@/routes/master-data/api-clients';
+import { exportMethod, index, show } from '@/routes/master-data/api-clients';
 import type {
     ApiClientForm,
     ApiClientRow,
@@ -62,6 +62,7 @@ const columns = computed(() =>
         t,
         formatDateTime,
         canManage: canManage.value,
+        onView: view,
         onEdit: edit,
         onChangeStatus: changeStatus,
     }),
@@ -70,6 +71,10 @@ const columns = computed(() =>
 function create(): void {
     selectedClient.value = null;
     formOpen.value = true;
+}
+
+function view(client: ApiClientRow): void {
+    router.visit(show(client.id));
 }
 
 function edit(client: ApiClientRow): void {

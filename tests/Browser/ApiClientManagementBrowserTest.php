@@ -30,12 +30,17 @@ describe('API client management browser flows', function (): void {
             ->click(__('common.button.disable'))
             ->click('@confirm-row-action')
             ->assertSeeIn('tr:has-text("Renamed partner")', __('enums.api_client_status.Disabled'))
+            ->assertMissing('a:has-text("Renamed partner")')
+            ->click('tr:has-text("Renamed partner") [aria-label="'.__('table.label.actions').'"]')
+            ->click(__('table.button.view'))
+            ->assertPathIs(route('master-data.api-clients.show', $client, absolute: false))
+            ->assertSee(__('api_client.card.tokens_list'))
             ->assertNoJavaScriptErrors();
 
         expect($client->fresh())->name->toBe('Renamed partner')->status->toBe(ApiClientStatus::Disabled);
     });
 
-    it('hides row actions from viewers', function (): void {
+    it('offers viewers only the view action', function (): void {
         $actor = User::factory()->create();
         assignRolePermissions($actor, Permission::ViewApiClients);
         ApiClient::factory()->create(['name' => 'Read only partner']);
@@ -43,8 +48,10 @@ describe('API client management browser flows', function (): void {
 
         $page = visit(route('master-data.api-clients.index', absolute: false));
 
-        $page->assertSee('Read only partner')
-            ->assertMissing('[aria-label="'.__('table.label.actions').'"]')
+        $page->click('tr:has-text("Read only partner") [aria-label="'.__('table.label.actions').'"]')
+            ->assertSee(__('table.button.view'))
+            ->assertDontSee(__('table.button.edit'))
+            ->assertDontSee(__('common.button.disable'))
             ->assertNoJavaScriptErrors();
     });
 });

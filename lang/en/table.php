@@ -27,6 +27,7 @@ return [
     ],
 
     'button' => [
+        'view' => 'View',
         'columns' => 'Columns',
         'edit' => 'Edit',
         'delete' => 'Delete',
