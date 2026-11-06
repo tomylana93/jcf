@@ -20,6 +20,7 @@ return [
         'queue' => 'Queue worker',
         'scheduler' => 'Scheduler',
         'mail' => 'Konfigurasi email',
+        'security' => 'Keamanan produksi',
         'backup' => 'Aktualitas backup',
     ],
 
@@ -34,6 +35,7 @@ return [
         'writable' => 'File dapat dibaca dan ditulis.',
         'recent' => 'Aktivitas terbaru terdeteksi.',
         'configured' => 'Pengiriman email sudah dikonfigurasi.',
+        'secure' => 'Pengaman produksi aktif.',
         'unavailable' => 'Pemeriksaan gagal. Periksa konfigurasi layanan.',
         'synchronous' => 'Job dijalankan saat request. Queue worker tidak dipakai.',
         'stale_queue' => 'Tidak ada aktivitas terbaru dari queue worker. Pastikan worker berjalan.',
@@ -41,5 +43,6 @@ return [
         'stale_backup' => 'Tidak ada backup dalam 2 hari terakhir. Periksa jadwal backup.',
         'disabled' => 'Modul dinonaktifkan.',
         'not_configured' => 'Konfigurasi yang dibutuhkan belum lengkap.',
+        'insecure' => 'Debug mode aktif, cookie sesi tidak dibatasi ke HTTPS, atau secret passkey memakai application key.',
     ],
 ];

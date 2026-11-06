@@ -148,6 +148,30 @@ describe('System readiness checks', function (): void {
             ->and($checks['backup']['detail'])->toBe('stale_backup')
             ->and($checks['mail']['detail'])->toBe('configured');
     });
+    it('flags unsafe production settings only in production', function (array $overrides, ?string $detail): void {
+        app()->instance('env', $detail === null ? 'local' : 'production');
+        config([
+            'app.debug' => false,
+            'app.url' => 'https://app.example.test',
+            'session.secure' => true,
+            'fortify.passkeys.user_handle_secret' => 'separate-passkey-secret',
+            ...$overrides,
+        ]);
+
+        $checks = collect(resolve(GetSystemHealth::class)->handle())->keyBy('name');
+
+        $detail === null
+            ? expect($checks)->not->toHaveKey('security')
+            : expect($checks['security']['detail'])->toBe($detail)
+                ->and($checks['security']['status'])->toBe($detail === 'secure' ? 'ok' : 'warning');
+    })->with([
+        'safe production' => [[], 'secure'],
+        'debug mode' => [['app.debug' => true], 'insecure'],
+        'cookie without HTTPS flag' => [['session.secure' => null], 'insecure'],
+        'passkey secret reuses the app key' => [['fortify.passkeys.user_handle_secret' => 'base64:same-key', 'app.key' => 'base64:same-key'], 'insecure'],
+        'local environment' => [['app.debug' => true], null],
+    ]);
+
     it('reports failures without returning service exception details', function (): void {
         $action = resolve(GetSystemHealth::class);
         $original = config('database.default');
