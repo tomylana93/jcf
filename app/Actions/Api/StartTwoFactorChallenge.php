@@ -18,6 +18,22 @@ final readonly class StartTwoFactorChallenge
     }
 
     /**
+     * Counter of verification attempts, incremented atomically so parallel requests cannot exceed the limit.
+     */
+    public static function attemptsKey(string $challenge): string
+    {
+        return self::cacheKey($challenge).':attempts';
+    }
+
+    /**
+     * Marker claimed atomically by the first successful verification, keeping the challenge single-use.
+     */
+    public static function consumedKey(string $challenge): string
+    {
+        return self::cacheKey($challenge).':consumed';
+    }
+
+    /**
      * Store a short-lived, single-use challenge and return its opaque identifier.
      *
      * @return array{two_factor: true, challenge: string, expires_in: int}
@@ -26,7 +42,8 @@ final readonly class StartTwoFactorChallenge
     {
         $challenge = Str::random(64);
 
-        Cache::put(self::cacheKey($challenge), ['user_id' => $user->id, 'device_name' => $deviceName, 'attempts' => 0], self::TTL_SECONDS);
+        Cache::put(self::cacheKey($challenge), ['user_id' => $user->id, 'device_name' => $deviceName], self::TTL_SECONDS);
+        Cache::put(self::attemptsKey($challenge), 0, self::TTL_SECONDS);
 
         return ['two_factor' => true, 'challenge' => $challenge, 'expires_in' => self::TTL_SECONDS];
     }

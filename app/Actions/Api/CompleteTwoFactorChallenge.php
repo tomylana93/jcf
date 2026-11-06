@@ -29,15 +29,16 @@ final readonly class CompleteTwoFactorChallenge
      */
     public function handle(string $challenge, ?string $code, ?string $recoveryCode): array
     {
-        $key = StartTwoFactorChallenge::cacheKey($challenge);
-        /** @var array{user_id: string, device_name: string, attempts: int}|null $pending */
-        $pending = Cache::get($key);
+        /** @var array{user_id: string, device_name: string}|null $pending */
+        $pending = Cache::get(StartTwoFactorChallenge::cacheKey($challenge));
         $user = $pending === null ? null : User::query()->find($pending['user_id']);
+        $attempt = $pending === null ? false : Cache::increment(StartTwoFactorChallenge::attemptsKey($challenge));
 
-        if ($pending === null || $user === null || $user->status === UserStatus::Disabled || ! $user->hasEnabledTwoFactorAuthentication()) {
-            Cache::forget($key);
+        if ($pending === null || $user === null || $user->status === UserStatus::Disabled || ! $user->hasEnabledTwoFactorAuthentication()
+            || ! is_int($attempt) || $attempt > self::MAX_ATTEMPTS) {
+            $this->forget($challenge);
 
-            throw ValidationException::withMessages(['challenge' => __('auth.two_factor_expired')]);
+            throw $this->expired();
         }
 
         if ($recoveryCode !== null && $recoveryCode !== '') {
@@ -52,17 +53,31 @@ final readonly class CompleteTwoFactorChallenge
 
         if ($valid === false || $valid === null) {
             event(new TwoFactorAuthenticationFailed($user));
-            $pending['attempts']++;
-            $pending['attempts'] >= self::MAX_ATTEMPTS
-                ? Cache::forget($key)
-                : Cache::put($key, $pending, StartTwoFactorChallenge::TTL_SECONDS);
+            if ($attempt >= self::MAX_ATTEMPTS) {
+                $this->forget($challenge);
+            }
 
             throw ValidationException::withMessages([$recoveryCode ? 'recovery_code' : 'code' => __('auth.two_factor_failed')]);
         }
 
-        Cache::forget($key);
+        if (! Cache::add(StartTwoFactorChallenge::consumedKey($challenge), true, StartTwoFactorChallenge::TTL_SECONDS)) {
+            throw $this->expired();
+        }
+
+        $this->forget($challenge);
         event(new ValidTwoFactorAuthenticationCodeProvided($user));
 
         return ['user' => $user, 'device_name' => $pending['device_name']];
+    }
+
+    private function forget(string $challenge): void
+    {
+        Cache::forget(StartTwoFactorChallenge::cacheKey($challenge));
+        Cache::forget(StartTwoFactorChallenge::attemptsKey($challenge));
+    }
+
+    private function expired(): ValidationException
+    {
+        return ValidationException::withMessages(['challenge' => __('auth.two_factor_expired')]);
     }
 }
