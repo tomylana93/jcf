@@ -60,7 +60,7 @@ watchEffect(() => {
         :title="client.name"
         :description="client.description ?? undefined"
     >
-        <div class="flex max-w-2xl flex-col gap-10">
+        <div class="flex flex-col gap-10">
             <div class="flex flex-wrap items-center gap-3">
                 <StatusBadge
                     :tone="apiClientStatusTones[client.status]"
