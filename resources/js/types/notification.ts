@@ -1,6 +1,7 @@
 /** Mirrors App\Enums\NotificationFilter; tests/Feature/Enums/FrontendEnumMirrorTest.php keeps it in sync. */
 export type NotificationFilter = 'all' | 'unread' | 'read';
 
+/** Mirrors App\Http\Resources\Notification\NotificationResource. */
 export type NotificationRow = {
     id: string;
     kind: string;

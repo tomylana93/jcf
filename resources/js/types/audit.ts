@@ -1,3 +1,4 @@
+/** Mirrors App\Http\Resources\Audit\AuditLogResource. */
 export type AuditLogRow = {
     id: string;
     actor_name: string;

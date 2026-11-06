@@ -17,6 +17,7 @@ export type PermissionName =
     | 'api-clients.manage';
 
 export type PermissionOption = { value: string; label: string; group: string };
+/** Mirrors App\Http\Resources\Permission\UserPermissionResource. */
 export type PermissionUser = UserRow & {
     super_admin: boolean;
     direct_permissions: string[];

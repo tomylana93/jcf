@@ -9,6 +9,7 @@ use App\Jobs\Operations\CreateSystemBackup;
 use App\Jobs\SystemHeartbeat;
 use App\Models\User;
 use App\Settings\MailSettings;
+use Carbon\CarbonImmutable;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -84,7 +85,8 @@ describe('System operations authorization', function (): void {
         $user->syncRoles(Role::SuperAdmin);
         actingAs($user)->get(route('master-data.backups.index'))->assertInertia(fn (Assert $page) => $page
             ->component('master-data/backups/Index')->missing('backups')->has('backupStatus')->has('restoreStatus')
-            ->loadDeferredProps(fn (Assert $reload) => $reload->has('backups.data', 1)->where('backups.data.0.filename', '2026-10-06.zip')->where('backups.data.0.size', 7)));
+            ->loadDeferredProps(fn (Assert $reload) => $reload->has('backups.data', 1)->has('backups.data.0', fn (Assert $archive): Assert => $archive
+                ->where('filename', '2026-10-06.zip')->where('size', 7)->where('created_at', fn (string $createdAt): bool => CarbonImmutable::parse($createdAt)->toIso8601String() === $createdAt))));
 
         get(route('master-data.backups.download', '2026-10-06.zip'))->assertRedirect(route('password.confirm'));
 

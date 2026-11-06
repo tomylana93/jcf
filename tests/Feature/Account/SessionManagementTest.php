@@ -3,6 +3,7 @@
 declare(strict_types=1);
 use App\Actions\Account\GetUserSessions;
 use App\Actions\Account\RevokeOtherSessions;
+use App\Http\Resources\Account\UserSessionResource;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -40,7 +41,7 @@ describe('Session management', function (): void {
             ['id' => 'foreign', 'user_id' => $other->id, 'ip_address' => null, 'user_agent' => 'Other', 'payload' => '', 'last_activity' => now()->timestamp],
         ]);
 
-        $sessions = resolve(GetUserSessions::class)->handle($user, 'current-secret');
+        $sessions = UserSessionResource::collection(resolve(GetUserSessions::class)->handle($user, 'current-secret'))->resolve();
 
         expect($sessions)->toHaveCount(2)
             ->and($sessions[0])->toHaveKeys(['device', 'ip_address', 'last_active_at', 'current'])

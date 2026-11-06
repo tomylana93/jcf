@@ -23,6 +23,7 @@ export type AvatarSettings = {
     } | null;
 };
 
+/** Mirrors App\Http\Resources\Identity\UserResource. */
 export type UserRow = {
     invitation_pending: boolean;
     email_verified: boolean;
