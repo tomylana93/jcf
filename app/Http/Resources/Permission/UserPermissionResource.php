@@ -33,6 +33,10 @@ final class UserPermissionResource extends JsonResource
                 ->map(fn (mixed $name): string => (string) $name)
                 ->unique()
                 ->filter($available)
+                ->map(fn (string $name): array => [
+                    'value' => $name,
+                    'label' => Permission::tryFrom($name)?->label() ?? $name,
+                ])
                 ->values()
                 ->all(),
         ];
