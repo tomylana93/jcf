@@ -137,6 +137,18 @@ describe('User management', function (): void {
             ->where('roles', fn ($roles): bool => collect($roles)->doesntContain('value', $privileged->name)));
     });
 
+    it('lists assignable roles alphabetically with labels and without the system administrator', function (): void {
+        $actor = User::factory()->create();
+        $actor->syncRoles(SystemRole::SuperAdmin);
+        Role::factory()->create(['name' => 'zeta_operator']);
+        Role::factory()->create(['name' => 'alpha_reviewer']);
+
+        actingAs($actor)->get(route('master-data.users.index'))->assertInertia(fn (Assert $page): Assert => $page
+            ->where('roles', fn ($roles): bool => collect($roles)->pluck('value')->doesntContain(SystemRole::SuperAdmin->value)
+                && collect($roles)->pluck('label')->values()->all() === collect($roles)->pluck('value')->sort()->values()->all()
+                && collect($roles)->firstWhere('value', 'alpha_reviewer') === ['value' => 'alpha_reviewer', 'label' => 'alpha_reviewer', 'name' => 'alpha_reviewer', 'color' => 'neutral']));
+    });
+
     it('allows roles whose permissions the manager already holds', function (bool $superadmin): void {
         $actor = User::factory()->create();
         if ($superadmin) {

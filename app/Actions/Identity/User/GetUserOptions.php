@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Identity\User;
 
+use App\Enums\Role as SystemRole;
 use App\Enums\UserStatus;
 use App\Models\Role as RoleModel;
 use App\Models\User;
@@ -21,13 +22,28 @@ final readonly class GetUserOptions
                 ->whereIn('name', $this->getAssignableUserRoles->handle($actor))
                 ->orderBy('name')
                 ->get()
-                ->map(fn (RoleModel $role): array => [
-                    'value' => $role->name,
-                    'label' => $role->name,
-                    'name' => $role->name,
-                    'color' => 'neutral',
-                ])->all()),
+                ->sortBy(fn (RoleModel $role): int => $this->roleOrder($role))
+                ->map(function (RoleModel $role): array {
+                    $systemRole = SystemRole::tryFrom($role->name);
+
+                    return [
+                        'value' => $role->name,
+                        'label' => $systemRole?->label() ?? $role->name,
+                        'name' => $role->name,
+                        'color' => $systemRole?->badgeColor() ?? 'neutral',
+                    ];
+                })->all()),
             'statuses' => UserStatus::options(),
         ];
+    }
+
+    /**
+     * System roles follow their enum declaration order; custom roles come after them, alphabetically.
+     */
+    private function roleOrder(RoleModel $role): int
+    {
+        $systemRole = SystemRole::tryFrom($role->name);
+
+        return $systemRole === null ? count(SystemRole::cases()) : (int) array_search($systemRole, SystemRole::cases(), true);
     }
 }
