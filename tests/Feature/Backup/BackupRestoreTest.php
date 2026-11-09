@@ -153,12 +153,18 @@ describe('Isolated restore', function (): void {
     });
     it('returns a successful CLI result and the isolated staging path', function (): void {
         Storage::fake('backups');
-        $archive = createBackupTestArchive(['db-dumps/postgresql-pgsql.sql' => 'SELECT 1;']);
+        $workspace = isolateBackupOperations();
+        $archive = createBackupTestArchive(['db-dumps/postgresql-pgsql.sql' => 'SELECT 1;'], 'test-secret');
         Process::fake(['*psql*' => Process::result()]);
-        withIsolatedRestoreDatabase(function (string $connection) use ($archive): void {
-            artisan('system:restore', ['backup' => $archive['filename'], '--sha256' => $archive['checksum'], '--confirm' => true, '--connection' => $connection])->assertSuccessful();
-            Process::assertRan(fn (PendingProcess $process): bool => is_array($process->command) && $process->command[0] === 'psql');
-        });
+        try {
+            withIsolatedRestoreDatabase(function (string $connection) use ($archive): void {
+                artisan('system:restore', ['backup' => $archive['filename'], '--sha256' => $archive['checksum'], '--confirm' => true, '--connection' => $connection])->assertSuccessful();
+                Process::assertRan(fn (PendingProcess $process): bool => is_array($process->command) && $process->command[0] === 'psql');
+            });
+            expect(File::directories($workspace->path('staging')))->toHaveCount(1);
+        } finally {
+            $workspace->delete();
+        }
     });
 });
 
