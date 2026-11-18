@@ -168,7 +168,6 @@ export default defineConfig({
             'resources/js/components/ui/**',
             'resources/js/lang/**',
             'resources/views/mail/*',
-            '.serena/**',
             '.vscode/**',
             '.ai/**',
         ],
