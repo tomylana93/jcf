@@ -15,4 +15,4 @@ Use Context7 to fetch current documentation whenever the task involves a library
 
 ## Do not use for
 
-- Refactoring, writing scripts from scratch, debugging business logic, code review, or general programming concepts — use Serena and local tools instead.
+- Refactoring, writing scripts from scratch, debugging business logic, code review, or general programming concepts — use local tools (ripgrep, targeted reads) instead.

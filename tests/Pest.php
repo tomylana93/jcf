@@ -11,6 +11,7 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Contracts\Foundation\MaintenanceMode;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Foundation\FileBasedMaintenanceMode;
 use Illuminate\Foundation\Http\Events\RequestHandled;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -44,11 +45,12 @@ pest()->extend(TestCase::class)
         Str::createRandomStringsNormally();
         Str::createUuidsNormally();
         Http::preventStrayRequests();
+        $processDirectories = isolateProcessTestDirectories();
         config([
-            'jalara.operations.backup_lock_directory' => storage_path('framework/testing/backup-locks-'.getmypid()),
-            'backup.backup.temporary_directory' => storage_path('framework/testing/backup-temp-'.getmypid()),
-            'cache.stores.file.path' => storage_path('framework/testing/file-cache-'.getmypid()),
-            'cache.stores.file.lock_path' => storage_path('framework/testing/file-cache-'.getmypid()),
+            'jalara.operations.backup_lock_directory' => $processDirectories['backup_locks'],
+            'backup.backup.temporary_directory' => $processDirectories['backup_temp'],
+            'cache.stores.file.path' => $processDirectories['file_cache'],
+            'cache.stores.file.lock_path' => $processDirectories['file_cache'],
         ]);
         Process::preventStrayProcesses();
         Sleep::fake();
@@ -64,6 +66,39 @@ pest()->beforeEach(function (): void {
         $event->response->headers->set('Connection', 'close');
     });
 })->in('Browser');
+
+/**
+ * Per-process scratch directories keep parallel workers apart; they and empty leftover test directories are removed when the worker process exits.
+ *
+ * @return array{backup_locks: string, backup_temp: string, file_cache: string}
+ */
+function isolateProcessTestDirectories(): array
+{
+    static $directories = null;
+
+    if ($directories === null) {
+        $directories = [
+            'backup_locks' => storage_path('framework/testing/backup-locks-'.getmypid()),
+            'backup_temp' => storage_path('framework/testing/backup-temp-'.getmypid()),
+            'file_cache' => storage_path('framework/testing/file-cache-'.getmypid()),
+        ];
+        $paths = array_values($directories);
+        $testingDirectory = storage_path('framework/testing');
+        register_shutdown_function(static function () use ($paths, $testingDirectory): void {
+            $filesystem = new Filesystem;
+            foreach ($paths as $path) {
+                $filesystem->deleteDirectory($path);
+            }
+            foreach ($filesystem->directories($testingDirectory) as $directory) {
+                if ($filesystem->isEmptyDirectory($directory)) {
+                    @rmdir($directory);
+                }
+            }
+        });
+    }
+
+    return $directories;
+}
 
 function skipUnlessFortifyHas(string $feature, ?string $message = null): void
 {
