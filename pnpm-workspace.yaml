@@ -23,6 +23,8 @@ audit:
     # exceljs/archiver still resolve minimatch 3/5, which lack the vulnerable v10 preprocessing code.
     ignore:
         - GHSA-g3hv-75wg-m249
+        # picomatch <=4.0.7 has no patched release; it only runs in Vite/Vue build tooling on repo-authored globs, never user input.
+        - GHSA-fc5q-39xc-vjpf
 
 publicHoistPattern:
     - '@inertiajs/core'
