@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.4](https://github.com/tomylana93/jcf/compare/v1.1.3...v1.1.4) (2026-11-18)
+
+
+### Bug Fixes
+
+* **user:** show ordered role labels with test and tooling cleanup ([#84](https://github.com/tomylana93/jcf/issues/84)) ([2a2e980](https://github.com/tomylana93/jcf/commit/2a2e98091bf7298a051f65e3d8643036b68a8b8e))
+
 ## [1.1.3](https://github.com/tomylana93/jcf/compare/v1.1.2...v1.1.3) (2026-11-06)
 
 
